@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
             } else {
-                log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+                log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
 
