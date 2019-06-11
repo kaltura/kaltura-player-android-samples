@@ -1,1 +1,0 @@
-# kaltura-player-android-samples
