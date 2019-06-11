@@ -1,18 +1,16 @@
-////PlayKit Library
-
 include ':tvplayer'
-project(':tvplayer').projectDir = new File('../../PlayerV4/tvplayer')
+project(':tvplayer').projectDir = new File('../../kaltura-player-android/tvplayer')
 
 include ':playkit'
-project(':playkit').projectDir = new File('../../playkit-android/playkit')
+project(':playkit').projectDir = new File(settingsDir, '../../playkit-android/playkit')
 include ':providers'
 project(':providers').projectDir = new File('../../playkit-android-providers/mediaproviders')
+include ':kava'
+project(':kava').projectDir = new File('../../playkit-android-kava/kavaplugin')
 include ':ima'
 project(':ima').projectDir = new File('../../playkit-android-ima/imaplugin')
 include ':youbora'
 project(':youbora').projectDir = new File('../../playkit-android-youbora/youboraplugin')
-include ':kava'
-project(':kava').projectDir = new File('../../playkit-android-kava/kavaplugin')
 include ':googlecast'
 project(':googlecast').projectDir = new File(settingsDir,'../../playkit-android-googlecast/googlecast')
 include ':MD360'
@@ -20,10 +18,11 @@ project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
 include ':playkitvr'
 project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr')
 
-
 // Sample apps
 def samples = [
-        'BasicSetup'
+        'BasicSetup',
+        'IMASample',
+        'ChangeMedia'
 ]
 
 samples.each {
@@ -31,6 +30,3 @@ samples.each {
     include entry
     project(entry).projectDir = new File (it + '/app')
 }
-
-//include ":AndroidTV"
-//project(":AndroidTV").projectDir = new File ('../AndroidTV/tv')

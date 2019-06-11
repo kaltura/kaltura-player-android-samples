@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         Integer partnerId = 198;
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(partnerId, new UiConf(41188731, 2215841));
-        playerInitOptions.setServerUrl("https://api-preprod.ott.kaltura.com/v5_1_0/api_v3/");
+        playerInitOptions.setServerUrl("https://api-preprod.ott.kaltura.com/v4_7/api_v3/");
         playerInitOptions.setAutoPlay(true);
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
@@ -99,20 +99,22 @@ public class MainActivity extends AppCompatActivity {
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
             } else {
+                log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+
             }
         });
     }
 
     private OTTMediaOptions buildOttMediaOptions() {
         OTTMediaOptions ottMediaOptions = new OTTMediaOptions();
-        ottMediaOptions.assetId = "259153";
+        ottMediaOptions.assetId = "480989";
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https;
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = 0L;
-      //  ottMediaOptions.formats = new String []{"Tablet Main"};
+        //  ottMediaOptions.formats = new String []{"Tablet Main"};
 
         return ottMediaOptions;
     }
