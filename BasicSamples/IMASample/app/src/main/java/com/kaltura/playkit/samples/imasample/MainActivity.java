@@ -3,21 +3,14 @@ package com.kaltura.playkit.samples.imasample;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
-import com.google.gson.JsonObject;
-import com.kaltura.playkit.PKEvent;
-import com.kaltura.playkit.PKMediaConfig;
 import com.kaltura.playkit.PKMediaEntry;
 import com.kaltura.playkit.PKMediaFormat;
 import com.kaltura.playkit.PKMediaSource;
 import com.kaltura.playkit.PKPluginConfigs;
-import com.kaltura.playkit.PlayKitManager;
-import com.kaltura.playkit.Player;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.plugins.ads.AdEvent;
@@ -43,13 +36,11 @@ public class MainActivity extends AppCompatActivity {
 
     //Ad configuration constants.
     String preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
-    private static final String INCORRECT_AD_TAG_URL = "incorrect_ad_tag_url";
-    private static final int PREFERRED_AD_BITRATE = 600;
+
+    private static final int PLAYER_HEIGHT = 600;
 
     private KalturaPlayer player;
     private Button playPauseButton;
-
-    PlayerInitOptions playerInitOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -261,58 +252,49 @@ public class MainActivity extends AppCompatActivity {
         //Get reference to the play/pause button.
         playPauseButton = (Button) this.findViewById(R.id.play_pause_button);
         //Add clickListener.
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (player.isPlaying()) {
-                    //If player is playing, change text of the button and pause.
-                    playPauseButton.setText(R.string.play_text);
-                    player.pause();
-                } else {
-                    //If player is not playing, change text of the button and play.
-                    playPauseButton.setText(R.string.pause_text);
-                    player.play();
-                }
+        playPauseButton.setOnClickListener(v -> {
+            if (player.isPlaying()) {
+                //If player is playing, change text of the button and pause.
+                playPauseButton.setText(R.string.play_text);
+                player.pause();
+            } else {
+                //If player is not playing, change text of the button and play.
+                playPauseButton.setText(R.string.pause_text);
+                player.play();
             }
         });
     }
 
-    public void loadPlaykitPlayer(PKMediaEntry pkMediaEntry) {
-        playerInitOptions = new PlayerInitOptions();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (player != null) {
+            player.onApplicationResumed();
+            player.play();
+        }
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (player != null) {
+            player.onApplicationPaused();
+        }
+    }
+
+    public void loadPlaykitPlayer(PKMediaEntry pkMediaEntry) {
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions();
+
+        // IMA Configuration
         PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
         IMAConfig adsConfig = getAdsConfig(preMidPostSingleAdTagUrl);
         pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
-
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
-//        updatedInitOptions.setLicenseRequestAdapter(initOptions.licenseRequestAdapter);
-//        updatedInitOptions.setContentRequestAdapter(initOptions.contentRequestAdapter);
-//        updatedInitOptions.setVrPlayerEnabled(initOptions.vrPlayerEnabled);
-//        updatedInitOptions.setVRSettings(initOptions.vrSettings);
-//        updatedInitOptions.setAdAutoPlayOnResume(initOptions.adAutoPlayOnResume);
-//        updatedInitOptions.setSubtitleStyle(initOptions.setSubtitleStyle);
-//        updatedInitOptions.setLoadControlBuffers(initOptions.loadControlBuffers);
-//        updatedInitOptions.setAbrSettings(initOptions.abrSettings);
-//        updatedInitOptions.setAspectRatioResizeMode(initOptions.aspectRatioResizeMode);
-//        updatedInitOptions.setPreferredMediaFormat(initOptions.preferredMediaFormat != null ?initOptions.preferredMediaFormat.name() : null);
-//        updatedInitOptions.setAllowClearLead(initOptions.allowClearLead);
-//        updatedInitOptions.setAllowCrossProtocolEnabled(initOptions.allowCrossProtocolEnabled);
-//        updatedInitOptions.setSecureSurface(initOptions.secureSurface);
-//        updatedInitOptions.setKs(initOptions.ks);
-//        updatedInitOptions.setServerUrl("https://cdnapisec.kaltura.com/");
-//        updatedInitOptions.setAutoPlay(initOptions.autoplay);
-//        updatedInitOptions.setReferrer(initOptions.referrer);
-//        if (initOptions.audioLanguage != null && initOptions.audioLanguageMode != null) {
-//            updatedInitOptions.setAudioLanguage(initOptions.audioLanguage, initOptions.audioLanguageMode);
-//        }
-//        if (initOptions.textLanguage != null && initOptions.textLanguageMode != null) {
-//            updatedInitOptions.setTextLanguage(initOptions.textLanguage, initOptions.textLanguageMode);
-//        }
 
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
         player.setMedia(pkMediaEntry);
 
-        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, 600);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, PLAYER_HEIGHT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
     }

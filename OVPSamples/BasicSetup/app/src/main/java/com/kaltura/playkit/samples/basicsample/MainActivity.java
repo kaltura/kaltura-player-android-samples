@@ -3,31 +3,21 @@ package com.kaltura.playkit.samples.basicsample;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import com.kaltura.playkit.PKDrmParams;
+
 import com.kaltura.playkit.PKLog;
-import com.kaltura.playkit.PKMediaEntry;
-import com.kaltura.playkit.PKMediaFormat;
-import com.kaltura.playkit.PKMediaSource;
-import com.kaltura.playkit.providers.api.phoenix.APIDefines;
-import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
-import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
 import com.kaltura.tvplayer.config.player.UiConf;
 
-import java.util.Collections;
-import java.util.List;
-
-
 public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
+
+    private static final int PLAYER_HEIGHT = 600;
 
     private static final Long START_POSITION = 0L; // position tp start playback in msec.
     private KalturaPlayer player;
@@ -94,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, 600);
+        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, PLAYER_HEIGHT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
 

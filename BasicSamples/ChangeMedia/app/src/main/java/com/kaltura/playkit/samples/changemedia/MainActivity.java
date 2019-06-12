@@ -3,18 +3,18 @@ package com.kaltura.playkit.samples.changemedia;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 
-import com.kaltura.playkit.PKMediaConfig;
 import com.kaltura.playkit.PKMediaEntry;
 import com.kaltura.playkit.PKMediaFormat;
 import com.kaltura.playkit.PKMediaSource;
 import com.kaltura.playkit.PKPluginConfigs;
-import com.kaltura.playkit.PlayKitManager;
-import com.kaltura.playkit.Player;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
+import com.kaltura.tvplayer.KalturaPlayer;
+import com.kaltura.tvplayer.PlayerInitOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +23,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     //The url of the first source to play
-    private static final String FIRST_SOURCE_URL = "http://cdnapi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_uka1msg4/flavorIds/1_vqhfu6uy,1_80sohj7p/format/applehttp/protocol/http/a.m3u8";
+    private static final String FIRST_SOURCE_URL = "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_w9zx2eti/protocol/https/format/applehttp/falvorIds/1_1obpcggb,1_yyuvftfz,1_1xdbzoa6,1_k16ccgto,1_djdf6bk8/a.m3u8";
     //The url of the second source to play
-    private static final String SECOND_SOURCE_URL = "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_w9zx2eti/protocol/https/format/url/falvorIds/1_1obpcggb,1_yyuvftfz,1_1xdbzoa6,1_k16ccgto,1_djdf6bk8/a.mp4";
+    private static final String SECOND_SOURCE_URL = "http://cdnapi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_uka1msg4/flavorIds/1_vqhfu6uy,1_80sohj7p/format/applehttp/protocol/http/a.m3u8";
 
-    private static final String adTagUrl  = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpodbumper&cmsid=496&vid=short_onecue&correlator=";
-    private static final String adTagUrl2 = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
     //id of the first entry
     private static final String FIRST_ENTRY_ID = "entry_id_1";
     //id of the second entry
@@ -38,8 +36,9 @@ public class MainActivity extends AppCompatActivity {
     //id of the second media source.
     private static final String SECOND_MEDIA_SOURCE_ID = "source_id_2";
 
-    private Player player;
-    private PKMediaConfig mediaConfig;
+    private static final int PLAYER_HEIGHT = 600;
+
+    private KalturaPlayer player;
     private Button playPauseButton;
     private boolean shouldExecuteOnResume;
 
@@ -48,26 +47,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         shouldExecuteOnResume = false;
-        //First register your IMAPlugin.
-        PlayKitManager.registerPlugins(this, IMAPlugin.factory);
-        //Create plugin configurations.
-        PKPluginConfigs pluginConfigs = createIMAPlugin(adTagUrl);
-
-        //Create instance of the player with plugin configurations.
-        player = PlayKitManager.loadPlayer(this, pluginConfigs);
-
-        //First. Create PKMediaConfig object.
-        mediaConfig = new PKMediaConfig();
-
-
-        //Add player to the view hierarchy.
-        addPlayerToView();
 
         //Add simple play/pause button.
         addPlayPauseButton();
 
         //Init change media button which will switch between entries.
         initChangeMediaButton();
+
+        loadPlaykitPlayer();
 
         //Prepare the first entry.
         prepareFirstEntry();
@@ -80,12 +67,9 @@ public class MainActivity extends AppCompatActivity {
         //Get reference to the button.
         Button changeMediaButton = (Button) this.findViewById(R.id.change_media_button);
         //Set click listener.
-        changeMediaButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Change media.
-                changeMedia();
-            }
+        changeMediaButton.setOnClickListener(v -> {
+            //Change media.
+            changeMedia();
         });
     }
 
@@ -95,28 +79,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void changeMedia() {
 
-        //Before changing media we must call stop on the player.
-        player.stop();
-
         //Check if id of the media entry that is set in mediaConfig.
-        if (mediaConfig.getMediaEntry().getId().equals(FIRST_ENTRY_ID)) {
-            //Initialize imaConfigs object.
-            IMAConfig imaConfig = new IMAConfig();
-
-            //Configure ima.
-            imaConfig.setAdTagUrl(adTagUrl2).enableDebugMode(true);
-            player.updatePluginConfig(IMAPlugin.factory.getName(),imaConfig);
-
+        if (player.getMediaEntry().getId().equals(FIRST_ENTRY_ID)) {
             //If first one is active, prepare second one.
             prepareSecondEntry();
         } else {
             //If the second one is active, prepare the first one.
-            IMAConfig imaConfig = new IMAConfig();
-
-            //Configure ima.
-            imaConfig.setAdTagUrl(adTagUrl).enableDebugMode(true);
-            player.updatePluginConfig(IMAPlugin.factory.getName(), imaConfig);
-
             prepareFirstEntry();
         }
 
@@ -133,12 +101,8 @@ public class MainActivity extends AppCompatActivity {
         //First. Create PKMediaEntry object.
         PKMediaEntry mediaEntry = createFirstMediaEntry();
 
-        //Add it to the mediaConfig.
-        mediaConfig.setMediaEntry(mediaEntry);
-
         //Prepare player with media configuration.
-        player.prepare(mediaConfig);
-        player.play();
+        player.setMedia(mediaEntry, 0L);
     }
 
     /**
@@ -148,12 +112,8 @@ public class MainActivity extends AppCompatActivity {
         //Second. Create PKMediaEntry object.
         PKMediaEntry mediaEntry = createSecondMediaEntry();
 
-        //Add it to the mediaConfig.
-        mediaConfig.setMediaEntry(mediaEntry);
-
         //Prepare player with media configuration.
-        player.prepare(mediaConfig);
-        player.play();
+        player.setMedia(mediaEntry, 0L);
     }
 
     /**
@@ -258,26 +218,16 @@ public class MainActivity extends AppCompatActivity {
         //Set the id.
         mediaSource.setId(SECOND_MEDIA_SOURCE_ID);
 
-        //Set the content url. In our case it will be link to mp4 source(.mp4).
+        //Set the content url. In our case it will be link to m3u8 source(.m3u8).
         mediaSource.setUrl(SECOND_SOURCE_URL);
 
-        //Set the format of the source. In our case it will be mp4.
-        mediaSource.setMediaFormat(PKMediaFormat.mp4);
+        //Set the format of the source. In our case it will be hls.
+        mediaSource.setMediaFormat(PKMediaFormat.hls);
 
         //Add media source to the list.
         mediaSources.add(mediaSource);
 
         return mediaSources;
-    }
-
-    /**
-     * Will add player to the view.
-     */
-    private void addPlayerToView() {
-        //Get the layout, where the player view will be placed.
-        LinearLayout layout = (LinearLayout) findViewById(R.id.player_root);
-        //Add player view to the layout.
-        layout.addView(player.getView());
     }
 
     /**
@@ -345,5 +295,15 @@ public class MainActivity extends AppCompatActivity {
         if (player != null) {
             player.onApplicationPaused();
         }
+    }
+
+    public void loadPlaykitPlayer() {
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions();
+
+        player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, PLAYER_HEIGHT);
+
+        ViewGroup container = findViewById(R.id.player_root);
+        container.addView(player.getPlayerView());
     }
 }

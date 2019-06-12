@@ -5,12 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+
 import com.kaltura.playkit.PKDrmParams;
 import com.kaltura.playkit.PKMediaEntry;
 import com.kaltura.playkit.PKMediaFormat;
 import com.kaltura.playkit.PKMediaSource;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.PlayerInitOptions;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -22,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private static final PKMediaFormat MEDIA_FORMAT = PKMediaFormat.hls;
     private static final String SOURCE_URL = "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_w9zx2eti/protocol/https/format/applehttp/falvorIds/1_1obpcggb,1_yyuvftfz,1_1xdbzoa6,1_k16ccgto,1_djdf6bk8/a.m3u8";
     private static final String LICENSE_URL = null;
+    private static final int PLAYER_HEIGHT = 600;
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -137,33 +140,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadPlaykitPlayer(PKMediaEntry pkMediaEntry) {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions();
-//        updatedInitOptions.setLicenseRequestAdapter(initOptions.licenseRequestAdapter);
-//        updatedInitOptions.setContentRequestAdapter(initOptions.contentRequestAdapter);
-//        updatedInitOptions.setVrPlayerEnabled(initOptions.vrPlayerEnabled);
-//        updatedInitOptions.setVRSettings(initOptions.vrSettings);
-//        updatedInitOptions.setAdAutoPlayOnResume(initOptions.adAutoPlayOnResume);
-//        updatedInitOptions.setSubtitleStyle(initOptions.setSubtitleStyle);
-//        updatedInitOptions.setLoadControlBuffers(initOptions.loadControlBuffers);
-//        updatedInitOptions.setAbrSettings(initOptions.abrSettings);
-//        updatedInitOptions.setAspectRatioResizeMode(initOptions.aspectRatioResizeMode);
-//        updatedInitOptions.setPreferredMediaFormat(initOptions.preferredMediaFormat != null ?initOptions.preferredMediaFormat.name() : null);
-//        updatedInitOptions.setAllowClearLead(initOptions.allowClearLead);
-//        updatedInitOptions.setAllowCrossProtocolEnabled(initOptions.allowCrossProtocolEnabled);
-//        updatedInitOptions.setSecureSurface(initOptions.secureSurface);
-//        updatedInitOptions.setKs(initOptions.ks);
-//        updatedInitOptions.setServerUrl("https://cdnapisec.kaltura.com/");
-//        updatedInitOptions.setAutoPlay(initOptions.autoplay);
-//        updatedInitOptions.setReferrer(initOptions.referrer);
-//        if (initOptions.audioLanguage != null && initOptions.audioLanguageMode != null) {
-//            updatedInitOptions.setAudioLanguage(initOptions.audioLanguage, initOptions.audioLanguageMode);
-//        }
-//        if (initOptions.textLanguage != null && initOptions.textLanguageMode != null) {
-//            updatedInitOptions.setTextLanguage(initOptions.textLanguage, initOptions.textLanguageMode);
-//        }
 
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
         player.setMedia(pkMediaEntry, START_POSITION);
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, 600);
+        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, PLAYER_HEIGHT);
 
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
