@@ -22,7 +22,8 @@ project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr'
 def samples = [
         'BasicSetup',
         'IMASample',
-        'ChangeMedia'
+        'ChangeMedia',
+        'Youbora'
 ]
 
 samples.each {
