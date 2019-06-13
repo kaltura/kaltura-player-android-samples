@@ -20,7 +20,7 @@ project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr'
 
 // Sample apps
 def samples = [
-        'BasicSetup',
+        'IMASample',
         'TracksSelection',
         'Youbora'
 ]

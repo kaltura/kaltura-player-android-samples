@@ -18,12 +18,10 @@ project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
 include ':playkitvr'
 project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr')
 
+// Sample apps
 def samples = [
         'BasicSetup',
-        'IMASample',
-        'ChangeMedia',
-        'Youbora',
-        'TracksSelection'
+        'ChangeMedia'
 ]
 
 samples.each {

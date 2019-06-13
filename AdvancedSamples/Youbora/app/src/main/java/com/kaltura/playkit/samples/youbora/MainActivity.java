@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
         pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.getName(), youboraConfigJson);
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
-        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
 
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, PLAYER_HEIGHT);
         ViewGroup container = findViewById(R.id.player_root);
