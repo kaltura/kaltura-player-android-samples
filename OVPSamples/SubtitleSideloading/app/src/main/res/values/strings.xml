@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">SubtitleSideloading</string>
+    <string name="video_track">Video tracks</string>
+    <string name="audio_track">Audio tracks</string>
+    <string name="text_track">Text tracks</string>
+    <string name="cc_style">CC Styles</string>
+    <string name="play_text">Play</string>
+    <string name="pause_text">Pause</string>
+</resources>

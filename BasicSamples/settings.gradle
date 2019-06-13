@@ -21,7 +21,9 @@ project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr'
 // Sample apps
 def samples = [
         'BasicSetup',
-        'ChangeMedia'
+        'ChangeMedia',
+        'SubtitleSideloading',
+        'AudioOnlyBasicSetup'
 ]
 
 samples.each {

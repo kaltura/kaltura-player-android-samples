@@ -1,0 +1,5 @@
+include ':app'
+include ':playkit'
+project(':playkit').projectDir = new File('../../playkit-android/playkit')
+include ':ima'
+project(':ima').projectDir = new File('../../playkit-android-ima/imaplugin')

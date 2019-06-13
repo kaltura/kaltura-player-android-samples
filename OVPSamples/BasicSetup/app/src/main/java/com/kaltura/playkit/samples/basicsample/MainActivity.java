@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         ovpMediaOptions.entryId = ENTRY_ID;
         ovpMediaOptions.ks = null;
         ovpMediaOptions.startPosition = START_POSITION;
+
         return ovpMediaOptions;
     }
 }
