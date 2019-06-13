@@ -1,28 +1,32 @@
 include ':tvplayer'
-project(':tvplayer').projectDir = new File('/Users/gourav.saxena/AndroidStudioProjects/Kaltura/kaltura-player-android/tvplayer')
+project(':tvplayer').projectDir = new File('../../kaltura-player-android/tvplayer')
 
 include ':playkit'
-project(':playkit').projectDir = new File('/Users/gourav.saxena/AndroidStudioProjects/Kaltura/playkit-android/playkit')
+project(':playkit').projectDir = new File(settingsDir, '../../playkit-android/playkit')
 include ':providers'
-project(':providers').projectDir = new File('/Users/gourav.saxena/AndroidStudioProjects/Kaltura/playkit-android-providers/mediaproviders')
+project(':providers').projectDir = new File('../../playkit-android-providers/mediaproviders')
 include ':kava'
-project(':kava').projectDir = new File('/Users/gourav.saxena/AndroidStudioProjects/Kaltura/playkit-android-kava/playkit-android-kava/kavaplugin')
+project(':kava').projectDir = new File('../../playkit-android-kava/kavaplugin')
 include ':ima'
-project(':ima').projectDir = new File('/Users/gourav.saxena/AndroidStudioProjects/Kaltura/playkit-android-ima/playkit-android-ima/imaplugin')
+project(':ima').projectDir = new File('../../playkit-android-ima/imaplugin')
 include ':youbora'
-project(':youbora').projectDir = new File('/Users/gourav.saxena/AndroidStudioProjects/Kaltura/playkit-android-youbora/playkit-android-youbora/youboraplugin')
+project(':youbora').projectDir = new File('../../playkit-android-youbora/youboraplugin')
 include ':googlecast'
-project(':googlecast').projectDir = new File('/Users/gourav.saxena/AndroidStudioProjects/Kaltura/playkit-android-googlecast/playkit-android-googlecast/googlecast')
-include ':MD360Player4Android'
-project(':MD360Player4Android').projectDir = new File('/Users/gourav.saxena/AndroidStudioProjects/Kaltura/Kaltura-MD360Player4Android/MD360Player4Android/vrlib')
+project(':googlecast').projectDir = new File(settingsDir,'../../playkit-android-googlecast/googlecast')
+include ':MD360'
+project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
 include ':playkitvr'
-project(':playkitvr').projectDir = new File('/Users/gourav.saxena/AndroidStudioProjects/Kaltura/playkit-android-vr/playkit-android-vr/playkitvr')
+project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr')
 
 // Sample apps
 def samples = [
         'IMASample',
         'TracksSelection',
-        'Youbora'
+        'Youbora',
+        'IMADAISample',
+        'ChromecastCAFSample',
+        'ErHandling',
+        'EventsRegistration'
 ]
 
 samples.each {

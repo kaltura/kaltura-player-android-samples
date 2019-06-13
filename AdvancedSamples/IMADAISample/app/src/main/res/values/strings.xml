@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">IMADAISample</string>
+    <string name="play_text">Play</string>
+    <string name="pause_text">Pause</string>
+</resources>

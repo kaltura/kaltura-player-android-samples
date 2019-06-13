@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">ChromecastCAFSample</string>
+    <string name="cast_ovp_text">Cast OVP</string>
+    <string name="cast_ott_text">Cast OTT</string>
+
+    <!--<string name="receiver_application_id">E4D66C10 6C001865 B202D11C</string>-->
+    <string name="receiver_application_id">7A7E9AA2</string>
+    <!--<string name="receiver_application_id">2A6E530B</string>-->
+    <string name="action_chromecsat">Chromecast</string>
+    <string name="media_route_menu_title">Chromecast</string>
+
+
+</resources>
