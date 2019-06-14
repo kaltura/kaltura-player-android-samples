@@ -1,0 +1,83 @@
+<resources>
+    <string name="app_name">FullDemo</string>
+    <string name="other_videos">Videos List</string>
+    <string name="companionPlaceholder">Companion Ad Slot</string>
+    <string name="ad_ui_lang">en</string>
+    <string name="companion_height">90</string>
+    <string name="companion_width">728</string>
+    <string name="custom_ad_tag_value">custom</string>
+    <string name="custom_xml_ad_tag_value">xml custom</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="pref_start_from_default" translatable="false">0</string>
+    <string name="pref_start_from_key" translatable="false">start_from</string>
+    <string name="pref_start_from_label">StartFrom</string>
+
+    <string name="pref_min_ad_duration_for_skip_button_default" translatable="false">8</string>
+    <string name="pref_min_ad_duration_for_skip_button_key" translatable="false">min_ad_duration_for_skip_button</string>
+    <string name="pref_min_ad_duration_for_skip_button_label">Minimum Ad Duration For Skip Button (sec)</string>
+
+    <string name="pref_ad_load_timeout_default" translatable="false">10</string>
+    <string name="pref_ad_load_timeout_key" translatable="false">ad_load_timeout</string>
+    <string name="pref_ad_load_timeout_label">Ad Load Timeout (sec)</string>
+
+    <string name="pref_auto_play_label">AutoPlay</string>
+    <string name="pref_auto_play_key" translatable="false">auto_play</string>
+
+    <string name="pref_mime_type_value" translatable="false">mp4</string>
+    <string name="pref_mime_type_key" translatable="false">mime_type</string>
+    <string name="pref_mime_type_label">Mime Type</string>
+    <string name="pref_mime_type_mp4_label">MP4</string>
+    <string name="pref_mime_type_hls_label">HLS</string>
+    <string name="pref_mime_type_dash_label">DASH</string>
+    <string name="pref_mime_type_webm_label">WEBM</string>
+    <string name="pref_mime_type_3gp_label">3GP</string>
+
+    <string name="pref_mime_type_mp4_value" translatable="false">mp4</string>
+    <string name="pref_mime_type_hls_value" translatable="false">hls</string>
+    <string name="pref_mime_type_dash_value" translatable="false">dash</string>
+    <string name="pref_mime_type_webm_value" translatable="false">webm</string>
+    <string name="pref_mime_type_3gp_value" translatable="false">3gp</string>
+
+    <string name="pref_bitrate_value" translatable="false">400</string>
+    <string name="pref_bitrate_key" translatable="false">bitrate</string>
+    <string name="pref_bitrate_label">Bitrate</string>
+    <string name="pref_bitrate_auto_label">AUTO</string>
+    <string name="pref_bitrate_200_label">200 Mbit</string>
+    <string name="pref_bitrate_400_label">400 Mbit</string>
+    <string name="pref_bitrate_600_label">600 Mbit</string>
+    <string name="pref_bitrate_800_label">800 Mbit</string>
+    <string name="pref_bitrate_1000_label">1000 Mbit</string>
+    <string name="pref_bitrate_1500_label">1500 Mbit</string>
+
+    <string name="pref_bitrate_auto_value" translatable="false">-1</string>
+    <string name="pref_bitrate_200_value" translatable="false">200</string>
+    <string name="pref_bitrate_400_value" translatable="false">400</string>
+    <string name="pref_bitrate_600_value" translatable="false">600</string>
+    <string name="pref_bitrate_800_value" translatable="false">800</string>
+    <string name="pref_bitrate_1000_value" translatable="false">1000</string>
+    <string name="pref_bitrate_1500_value" translatable="false">1500</string>
+
+    <string name="pref_companion_value" translatable="false">728x90</string>
+    <string name="pref_companion_key" translatable="false">companion</string>
+    <string name="pref_companion_label">Companion Ad Dimensions</string>
+    <string name="pref_companion_off_label">OFF</string>
+    <string name="pref_companion_320_50_label">320x50</string>
+    <string name="pref_companion_320_100_label">320x100</string>
+    <string name="pref_companion_320_250_label">300x250</string>
+    <string name="pref_companion_468_60_label">468x60</string>
+    <string name="pref_companion_728_90_label">728x90</string>
+
+
+    <string name="pref_companion_off_value" translatable="false">off</string>
+    <string name="pref_companion_320_50_value" translatable="false">320x50</string>
+    <string name="pref_companion_320_100_value" translatable="false">320x100</string>
+    <string name="pref_companion_320_250_value" translatable="false">300x250</string>
+    <string name="pref_companion_468_60_value" translatable="false">468x60</string>
+    <string name="pref_companion_728_90_value" translatable="false">728x90</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="pref_show_true">Auto Play ON</string>
+    <string name="pref_show_false">Auto Play OFF</string>
+
+</resources>

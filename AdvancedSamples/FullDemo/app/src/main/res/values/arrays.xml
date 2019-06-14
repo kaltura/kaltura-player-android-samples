@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--&lt;!&ndash; Label ordering must match values &ndash;&gt;-->
+    <!--<array name="pref_color_option_labels">-->
+    <!--<item>@string/pref_color_label_red</item>-->
+    <!--<item>@string/pref_color_label_blue</item>-->
+    <!--<item>@string/pref_color_label_green</item>-->
+<!--</array>-->
+
+    <!--<array name="pref_color_option_values">-->
+        <!--<item>@string/pref_color_red_value</item>-->
+        <!--<item>@string/pref_color_blue_value</item>-->
+        <!--<item>@string/pref_color_green_value</item>-->
+    <!--</array>-->
+
+    <array name="pref_mime_type_labels">
+        <item>@string/pref_mime_type_mp4_label</item>
+        <item>@string/pref_mime_type_hls_label</item>
+        <item>@string/pref_mime_type_dash_label</item>
+        <item>@string/pref_mime_type_webm_label</item>
+        <item>@string/pref_mime_type_3gp_label</item>
+    </array>
+
+    <array name="pref_mime_type_values">
+        <item>@string/pref_mime_type_mp4_value</item>
+        <item>@string/pref_mime_type_hls_value</item>
+        <item>@string/pref_mime_type_dash_value</item>
+        <item>@string/pref_mime_type_webm_value</item>
+        <item>@string/pref_mime_type_3gp_value</item>
+    </array>
+
+    <array name="pref_bitrate_labels">
+        <item>@string/pref_bitrate_auto_label</item>
+        <item>@string/pref_bitrate_200_label</item>
+        <item>@string/pref_bitrate_400_label</item>
+        <item>@string/pref_bitrate_600_label</item>
+        <item>@string/pref_bitrate_800_label</item>
+        <item>@string/pref_bitrate_1000_label</item>
+        <item>@string/pref_bitrate_1500_label</item>
+    </array>
+
+    <array name="pref_bitrate_values">
+        <item>@string/pref_bitrate_auto_value</item>
+        <item>@string/pref_bitrate_200_value</item>
+        <item>@string/pref_bitrate_400_value</item>
+        <item>@string/pref_bitrate_600_value</item>
+        <item>@string/pref_bitrate_800_value</item>
+        <item>@string/pref_bitrate_1000_value</item>
+        <item>@string/pref_bitrate_1500_value</item>
+    </array>
+
+    <array name="pref_companion_labels">
+        <item>@string/pref_companion_off_label</item>
+        <item>@string/pref_companion_320_50_label</item>
+        <item>@string/pref_companion_320_100_label</item>
+        <item>@string/pref_companion_320_250_label</item>
+        <item>@string/pref_companion_468_60_label</item>
+        <item>@string/pref_companion_728_90_label</item>
+    </array>
+
+    <array name="pref_companion_values">
+        <item>@string/pref_companion_off_value</item>
+        <item>@string/pref_companion_320_50_value</item>
+        <item>@string/pref_companion_320_100_value</item>
+        <item>@string/pref_companion_320_250_value</item>
+        <item>@string/pref_companion_468_60_value</item>
+        <item>@string/pref_companion_728_90_value</item>
+    </array>
+</resources>

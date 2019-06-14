@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/FullDemo.iml" filepath="$PROJECT_DIR$/FullDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FullDemo.iml" filepath="$PROJECT_DIR$/FullDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../Kaltura-MD360Player4Android/MD360Player4Android/vrlib/MD360Player4Android.iml" filepath="$PROJECT_DIR$/../../../Kaltura-MD360Player4Android/MD360Player4Android/vrlib/MD360Player4Android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../playkit-android-googlecast/playkit-android-googlecast/googlecast/googlecast.iml" filepath="$PROJECT_DIR$/../../../playkit-android-googlecast/playkit-android-googlecast/googlecast/googlecast.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../playkit-android-ima/playkit-android-ima/imaplugin/ima.iml" filepath="$PROJECT_DIR$/../../../playkit-android-ima/playkit-android-ima/imaplugin/ima.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../playkit-android-kava/playkit-android-kava/kavaplugin/kava.iml" filepath="$PROJECT_DIR$/../../../playkit-android-kava/playkit-android-kava/kavaplugin/kava.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../playkit-android/playkit/playkit.iml" filepath="$PROJECT_DIR$/../../../playkit-android/playkit/playkit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/playkitdemo/playkitdemo.iml" filepath="$PROJECT_DIR$/playkitdemo/playkitdemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../playkit-android-vr/playkit-android-vr/playkitvr/playkitvr.iml" filepath="$PROJECT_DIR$/../../../playkit-android-vr/playkit-android-vr/playkitvr/playkitvr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../playkit-android-providers/mediaproviders/providers.iml" filepath="$PROJECT_DIR$/../../../playkit-android-providers/mediaproviders/providers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../kaltura-player-android/tvplayer/tvplayer.iml" filepath="$PROJECT_DIR$/../../../kaltura-player-android/tvplayer/tvplayer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../playkit-android-youbora/playkit-android-youbora/youboraplugin/youbora.iml" filepath="$PROJECT_DIR$/../../../playkit-android-youbora/playkit-android-youbora/youboraplugin/youbora.iml" />
+    </modules>
+  </component>
+</project>

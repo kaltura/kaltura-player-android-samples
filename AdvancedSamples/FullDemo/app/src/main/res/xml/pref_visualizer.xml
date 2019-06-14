@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:defaultValue="@bool/pref_auto_play_default"
+        android:key="@string/pref_auto_play_key"
+        android:summaryOff="@string/pref_show_false"
+        android:summaryOn="@string/pref_show_true"
+        android:title="@string/pref_auto_play_label" />
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_start_from_default"
+        android:inputType="number"
+        android:key="@string/pref_start_from_key"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_start_from_label" />
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_min_ad_duration_for_skip_button_default"
+        android:inputType="number"
+        android:key="@string/pref_min_ad_duration_for_skip_button_key"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_min_ad_duration_for_skip_button_label" />
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_ad_load_timeout_default"
+        android:inputType="number"
+        android:key="@string/pref_ad_load_timeout_key"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_ad_load_timeout_label" />
+
+    <ListPreference
+        android:defaultValue="@string/pref_mime_type_value"
+        android:entries="@array/pref_mime_type_labels"
+        android:entryValues="@array/pref_mime_type_values"
+        android:key="@string/pref_mime_type_key"
+        android:title="@string/pref_mime_type_label" />
+
+    <ListPreference
+        android:defaultValue="@string/pref_bitrate_value"
+        android:entries="@array/pref_bitrate_labels"
+        android:entryValues="@array/pref_bitrate_values"
+        android:key="@string/pref_bitrate_key"
+        android:title="@string/pref_bitrate_label" />
+
+    <ListPreference
+        android:defaultValue="@string/pref_companion_value"
+        android:entries="@array/pref_companion_labels"
+        android:entryValues="@array/pref_companion_values"
+        android:key="@string/pref_companion_key"
+        android:title="@string/pref_companion_label" />
+
+</PreferenceScreen>

@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
         player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, PLAYER_HEIGHT);
+        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
 
