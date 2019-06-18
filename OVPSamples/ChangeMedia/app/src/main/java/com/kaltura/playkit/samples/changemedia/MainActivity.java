@@ -29,8 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int UICONF_PARTNER_ID = 2427592;
 
     private static final String FIRST_ENTRY_ID = "1_w9zx2eti";
-    private static final String SECOND_ENTRY_ID = ""; // TODO: Need to add another entry id
-
+    private static final String SECOND_ENTRY_ID = "1_ebs5e9cy";
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean shouldExecuteOnResume;
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             prepareSecondEntry();
         } else {
             //If the second one is active, prepare the first one.
-            prepareSecondEntry();
+            prepareFirstEntry();
         }
 
         //Just reset the playPauseButton text to "Play".
