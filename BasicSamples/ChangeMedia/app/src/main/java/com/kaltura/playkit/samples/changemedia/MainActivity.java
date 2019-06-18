@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Just reset the playPauseButton text to "Play".
-        resetPlayPauseButtonToPlayText();
+        resetPlayPauseButtonToPauseText();
     }
 
 
@@ -255,7 +255,6 @@ public class MainActivity extends AppCompatActivity {
 
     private PKPluginConfigs createIMAPlugin(String adtag) {
 
-
         //Initialize plugin configuration object.
         PKPluginConfigs pluginConfigs = new PKPluginConfigs();
 
@@ -275,6 +274,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private void resetPlayPauseButtonToPlayText() {
         playPauseButton.setText(R.string.play_text);
+    }
+
+    private void resetPlayPauseButtonToPauseText() {
+        playPauseButton.setText(R.string.pause_text);
     }
 
     @Override
@@ -299,9 +302,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadPlaykitPlayer() {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions();
-
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
+        playerInitOptions.setAutoPlay(true);
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
-        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, PLAYER_HEIGHT);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
