@@ -80,8 +80,7 @@ public class MainActivity extends AppCompatActivity {
             prepareFirstEntry();
         }
 
-        //Just reset the playPauseButton text to "Play".
-        resetPlayPauseButtonToPlayText();
+        resetPlayPauseButtonToPauseText();
     }
 
     /**
@@ -150,6 +149,10 @@ public class MainActivity extends AppCompatActivity {
         playPauseButton.setText(R.string.play_text);
     }
 
+    private void resetPlayPauseButtonToPauseText() {
+        playPauseButton.setText(R.string.pause_text);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -174,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
 
         player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 

@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int UICONF_PARTNER_ID = 2215841;
 
     private static final String FIRST_ASSET_ID = "480989";
-    private static final String SECOND_ASSET_ID = ""; // TODO: Need to add another asset id
+    private static final String SECOND_ASSET_ID = "259153";
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -80,11 +80,10 @@ public class MainActivity extends AppCompatActivity {
             prepareSecondEntry();
         } else {
             //If the second one is active, prepare the first one.
-            prepareSecondEntry();
+            prepareFirstEntry();
         }
 
-        //Just reset the playPauseButton text to "Play".
-        resetPlayPauseButtonToPlayText();
+        resetPlayPauseButtonToPauseText();
     }
 
     /**
@@ -119,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
+        ottMediaOptions.formats = new String[]{ "Mobile_Devices_Main_SD" };
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = START_POSITION;
         //  ottMediaOptions.formats = new String []{"Tablet Main"};
@@ -140,18 +140,15 @@ public class MainActivity extends AppCompatActivity {
         //Get reference to the play/pause button.
         playPauseButton = (Button) this.findViewById(R.id.play_pause_button);
         //Add clickListener.
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (player.isPlaying()) {
-                    //If player is playing, change text of the button and pause.
-                    playPauseButton.setText(R.string.play_text);
-                    player.pause();
-                } else {
-                    //If player is not playing, change text of the button and play.
-                    playPauseButton.setText(R.string.pause_text);
-                    player.play();
-                }
+        playPauseButton.setOnClickListener(v -> {
+            if (player.isPlaying()) {
+                //If player is playing, change text of the button and pause.
+                playPauseButton.setText(R.string.play_text);
+                player.pause();
+            } else {
+                //If player is not playing, change text of the button and play.
+                playPauseButton.setText(R.string.pause_text);
+                player.play();
             }
         });
     }
@@ -163,6 +160,9 @@ public class MainActivity extends AppCompatActivity {
         playPauseButton.setText(R.string.play_text);
     }
 
+    private void resetPlayPauseButtonToPauseText() {
+        playPauseButton.setText(R.string.pause_text);
+    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -187,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, PLAYER_HEIGHT);
