@@ -24,30 +24,22 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.kaltura.playkit.PKDrmParams;
-import com.kaltura.playkit.PKEvent;
-import com.kaltura.playkit.PKMediaConfig;
 import com.kaltura.playkit.PKMediaEntry;
 import com.kaltura.playkit.PKMediaFormat;
 import com.kaltura.playkit.PKMediaSource;
 import com.kaltura.playkit.PKPluginConfigs;
-import com.kaltura.playkit.PKTrackConfig;
-import com.kaltura.playkit.PlayKitManager;
-import com.kaltura.playkit.Player;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.ads.AdEnabledPlayerController;
-import com.kaltura.playkit.player.PlayerSettings;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
-import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig;
-import com.kaltura.playkit.plugins.kava.KavaAnalyticsPlugin;
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsConfig;
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin;
-import com.kaltura.playkit.plugins.ovp.KalturaStatsConfig;
-import com.kaltura.playkit.plugins.ovp.KalturaStatsPlugin;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
+import com.kaltura.tvplayer.KalturaPlayer;
+import com.kaltura.tvplayer.PlayerInitOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,15 +48,12 @@ import static com.kaltura.playkit.samples.fulldemo.Consts.AD_LOAD_TIMEOUT;
 import static com.kaltura.playkit.samples.fulldemo.Consts.AUTO_PLAY;
 import static com.kaltura.playkit.samples.fulldemo.Consts.COMPANION_AD_HEIGHT;
 import static com.kaltura.playkit.samples.fulldemo.Consts.COMPANION_AD_WIDTH;
-import static com.kaltura.playkit.samples.fulldemo.Consts.DISTANCE_FROM_LIVE_THRESHOLD;
 import static com.kaltura.playkit.samples.fulldemo.Consts.HLS_URL;
 import static com.kaltura.playkit.samples.fulldemo.Consts.HLS_URL2;
-import static com.kaltura.playkit.samples.fulldemo.Consts.KAVA_BASE_URL;
 import static com.kaltura.playkit.samples.fulldemo.Consts.MIME_TYPE;
 import static com.kaltura.playkit.samples.fulldemo.Consts.MIN_AD_DURATION_FOR_SKIP_BUTTON;
 import static com.kaltura.playkit.samples.fulldemo.Consts.PREFERRED_BITRATE;
 import static com.kaltura.playkit.samples.fulldemo.Consts.START_FROM;
-import static com.kaltura.playkit.samples.fulldemo.Consts.STATS_KALTURA_URL;
 
 //import com.kaltura.plugins.adsmanager.AdsConfig;
 //import com.kaltura.plugins.adsmanager.AdsPlugin;
@@ -106,20 +95,17 @@ public class VideoFragment extends android.support.v4.app.Fragment {
     public static final String DEVICE = "your_device";
     public static final String QUALITY = "your_quality";
 
-
-
-
     private VideoItem mVideoItem;
     private TextView mVideoTitle;
     private FrameLayout playerLayout;
     private RelativeLayout adSkin;
-    private Player player;
+    private KalturaPlayer player;
     private PlaybackControlsView controlsView;
     private boolean nowPlaying;
     private ProgressBar progressBar;
     private boolean isFullScreen;
     private AppCompatImageView fullScreenBtn;
-    private PKMediaConfig mediaConfig;
+   // private PKMediaConfig mediaConfig;
     private Logger mLog;
     private OnVideoFragmentViewCreatedListener mViewCreatedCallback;
 
@@ -132,6 +118,8 @@ public class VideoFragment extends android.support.v4.app.Fragment {
     private int companionAdHeight;
     private int minAdDurationForSkipButton;
     private boolean firstLaunch = true;
+
+    private View rootView;
 
     /**
      * Listener called when the fragment's onCreateView is fired.
@@ -171,7 +159,7 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         companionAdHeight = getArguments().getInt(COMPANION_AD_HEIGHT);
         minAdDurationForSkipButton = getArguments().getInt(MIN_AD_DURATION_FOR_SKIP_BUTTON);
 
-        View rootView = inflater.inflate(R.layout.fragment_video, container, false);
+        rootView = inflater.inflate(R.layout.fragment_video, container, false);
         initUi(rootView);
         if (mViewCreatedCallback != null) {
             mViewCreatedCallback.onVideoFragmentViewCreated();
@@ -184,10 +172,7 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         if (player == null) {
             return;
         }
-        //Before changing media we must call stop on the player.
-        //player.stop();
-        player.getSettings().setPreferredMediaFormat(PKMediaFormat.mp3);
-        ((PlayerSettings)player.getSettings()).getPreferredMediaFormat();
+
         clearLog();
 
         //Check if id of the media entry that is set in mediaConfig.
@@ -195,10 +180,10 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         List<String> videoMimeTypes = new ArrayList<>();
         videoMimeTypes.add("video/mp4");
         videoMimeTypes.add("application/x-mpegURL");
-        if (mediaConfig.getMediaEntry().getId().equals(FIRST_ENTRY_ID)) {
+        if (player.getMediaEntry().getId().equals(FIRST_ENTRY_ID)) {
             String AD_HOND = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";//"http://externaltests.dev.kaltura.com/player/Vast_xml/alexs.qacore-vast3-rol_02.xml";
 
-            IMAConfig adsConfig = new IMAConfig().setAdTagURL(AD_HOND).enableDebugMode(true).setVideoMimeTypes(videoMimeTypes);
+            IMAConfig adsConfig = new IMAConfig().setAdTagUrl(AD_HOND).enableDebugMode(true).setVideoMimeTypes(videoMimeTypes);
             //"http://pubads.g.doubleclick.net/gampad/ads?sz=400x300&iu=%2F6062%2Fhanna_MA_group%2Fvideo_comp_app&ciu_szs=&impl=s&gdfp_req=1&env=vp&output=xml_vast3&unviewed_position_start=1&m_ast=vast&url=";
 //            AdsConfig adsConfig = new AdsConfig().
 //                    setAdTagURL(AD_HOND).
@@ -212,17 +197,14 @@ public class VideoFragment extends android.support.v4.app.Fragment {
 //                    setCompanionAdHeight(companionAdHeight);
 
             String referrer = "app://NonDefaultReferrer1/"  + getActivity().getPackageCodePath();
-            KavaAnalyticsConfig kavaAnalyticsConfig = getKavaAnalyticsConfig(39487581, referrer, DISTANCE_FROM_LIVE_THRESHOLD + 30000);
-            player.updatePluginConfig(KavaAnalyticsPlugin.factory.getName(), kavaAnalyticsConfig);
-
             //player.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
             player.updatePluginConfig(PhoenixAnalyticsPlugin.factory.getName(), getPhoenixAnalyticsConfig());
             player.updatePluginConfig(IMAPlugin.factory.getName(), adsConfig);
             player.updatePluginConfig(YouboraPlugin.factory.getName(), getConverterYoubora(MEDIA_TITLE + "_changeMedia1", false).toJson());
             //If first one is active, prepare second one.
-            prepareSecondEntry();
+            prepareFirstEntry();
         } else {
-            IMAConfig adsConfig = new IMAConfig().setAdTagURL(AD_HONDA2).enableDebugMode(true).setVideoMimeTypes(videoMimeTypes);
+            IMAConfig adsConfig = new IMAConfig().setAdTagUrl(AD_HONDA2).enableDebugMode(true).setVideoMimeTypes(videoMimeTypes);
 
 //            AdsConfig adsConfig = new AdsConfig().setAdTagURL(AD_HONDA2).
 //                    setPlayerViewContainer(playerLayout).
@@ -235,15 +217,13 @@ public class VideoFragment extends android.support.v4.app.Fragment {
 //                    setCompanionAdHeight(companionAdHeight);
 
             String referrer = "app://NonDefaultReferrer2/"  + getActivity().getPackageName();
-            KavaAnalyticsConfig kavaAnalyticsConfig = getKavaAnalyticsConfig(40125321, referrer, DISTANCE_FROM_LIVE_THRESHOLD + 60000);
-            player.updatePluginConfig(KavaAnalyticsPlugin.factory.getName(), kavaAnalyticsConfig);
             player.updatePluginConfig(PhoenixAnalyticsPlugin.factory.getName(), getPhoenixAnalyticsConfig());
             //player.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
             player.updatePluginConfig(IMAPlugin.factory.getName(), adsConfig);
             player.updatePluginConfig(YouboraPlugin.factory.getName(), getConverterYoubora(MEDIA_TITLE + "_changeMedia2", false).toJson());
 
             //If the second one is active, prepare the first one.
-            prepareFirstEntry();
+            prepareSecondEntry();
         }
     }
 
@@ -251,15 +231,11 @@ public class VideoFragment extends android.support.v4.app.Fragment {
      * Prepare the first entry.
      */
     private void prepareFirstEntry() {
-        //Second. Create PKMediaEntry object.
+        //First. Create PKMediaEntry object.
         PKMediaEntry mediaEntry = createFirstMediaEntry();
 
-        //Add it to the mediaConfig.
-        mediaConfig.setMediaEntry(mediaEntry);
-        mediaConfig.setStartPosition(startPosition);
         //Prepare player with media configuration.
-        player.prepare(mediaConfig);
-        player.play();
+        player.setMedia(mediaEntry, 0L);
     }
 
     /**
@@ -269,13 +245,8 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         //Second. Create PKMediaEntry object.
         PKMediaEntry mediaEntry = createSecondMediaEntry();
 
-        //Add it to the mediaConfig.
-        mediaConfig.setMediaEntry(mediaEntry);
-        mediaConfig.setStartPosition(startPosition);
-
         //Prepare player with media configuration.
-        player.prepare(mediaConfig);
-        player.play();
+        player.setMedia(mediaEntry, 0L);
     }
 
     private PKMediaEntry createFirstMediaEntry() {
@@ -380,55 +351,32 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         return mediaSources;
     }
 
+   public void loadVideo(VideoItem videoItem) {
+       mVideoItem = videoItem;
+   }
 
-    public void loadVideo(VideoItem videoItem) {
-        if (mViewCreatedCallback == null) {
-            mVideoItem = videoItem;
-            return;
-        }
+    // KalturaPlayer
 
-        mVideoItem = videoItem;
+    public void loadPlaykitPlayer() {
         clearLog();
-        //Initialize media config object.
-        createMediaConfig();
-        PlayKitManager.registerPlugins(this.getActivity(), IMAPlugin.factory);
-        PlayKitManager.registerPlugins(this.getActivity(), PhoenixAnalyticsPlugin.factory);
-        //PlayKitManager.registerPlugins(this.getActivity(), IMADAIPlugin.factory);
-        PlayKitManager.registerPlugins(this.getActivity(), KalturaStatsPlugin.factory);
-        PlayKitManager.registerPlugins(getActivity(), YouboraPlugin.factory);
-        PlayKitManager.registerPlugins(getActivity(), KavaAnalyticsPlugin.factory);
 
-        PKPluginConfigs pluginConfig = new PKPluginConfigs();
-        //addAdPluginConfig(pluginConfig, playerLayout, adSkin);
-        addPhoenixAnalyticsPluginConfig(pluginConfig);
-        addIMAPluginConfig(pluginConfig, mVideoItem.getAdTagUrl());
-        addKalturaStatsPlugin(pluginConfig);
-        addKavaPlugin(pluginConfig);
-        addYouboraPlugin(pluginConfig);
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions();
 
-        //Create instance of the player.
-        player = PlayKitManager.loadPlayer(this.getActivity(), pluginConfig);
-        player.getSettings().setPreferredTextTrack(new PKTrackConfig().setPreferredMode(PKTrackConfig.Mode.SELECTION).setTrackLanguage("zho"));
-        //player.getSettings().setPreferredMediaFormat(PKMediaFormat.mp4);
+        // IMA Configuration
+        PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
+        IMAConfig adsConfig = getAdsConfig(mVideoItem.getAdTagUrl());
+        pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
 
-        //player.getSettings().setPreferredAudioTrack(new PKTrackConfig().setPreferredMode(PKTrackConfig.Mode.SELECTION).setTrackLanguage("eng"));
+        playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
-        addPlayerListeners(progressBar);
-        //Add player to the view hierarchy.
-        addPlayerToView();
 
-        //mVideoPlayerController.setContentVideo(mVideoItem.getVideoUrl());
-        //mVideoPlayerController.setAdTagUrl(videoItem.getAdTagUrl());
+        player = KalturaPlayer.createBasicPlayer(getActivity(), playerInitOptions);
+        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
-        controlsView.setPlayer(player);
-        mVideoTitle.setText(videoItem.getTitle());
-        player.prepare(mediaConfig);
-
-        //Start playback.
-        if (isAutoPlay) {
-            player.play();
-        }
+        ViewGroup container = rootView.findViewById(R.id.player_root);
+        container.addView(player.getPlayerView());
     }
+
 
 //    private void addAdPluginConfig(PKPluginConfigs config, FrameLayout layout, RelativeLayout adSkin) {
 //
@@ -469,7 +417,7 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         return new PhoenixAnalyticsConfig(198, "https://rest-as.ott.kaltura.com/v4_4/api_v3/", ks, 30);
     }
 
-    private void addIMAPluginConfig(PKPluginConfigs config, String adTagUrl) {
+    private IMAConfig getAdsConfig(String adTagUrl) {
 
         //List<String> videoMimeTypes = new ArrayList<>();
         //videoMimeTypes.add(MimeTypes.APPLICATION_MP4);
@@ -479,37 +427,8 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         List<String> videoMimeTypes = new ArrayList<>();
         videoMimeTypes.add("video/mp4");
         videoMimeTypes.add(MimeTypes.APPLICATION_M3U8);
-        IMAConfig adsConfig = new IMAConfig().setAdTagURL(adTagUrl).enableDebugMode(true).setVideoMimeTypes(videoMimeTypes);
-        config.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
+        return new IMAConfig().setAdTagUrl(adTagUrl).enableDebugMode(true).setVideoMimeTypes(videoMimeTypes);
     }
-
-    private void addKalturaStatsPlugin(PKPluginConfigs config) {
-        KalturaStatsConfig kalturaStatsPluginConfig = new KalturaStatsConfig(true)
-                .setBaseUrl(STATS_KALTURA_URL)
-                .setUiconfId(38713161)
-                .setPartnerId(2222401)
-                .setEntryId("1_f93tepsn")
-                .setTimerInterval(150000)
-                .setUserId("TestUser");
-        config.setPluginConfig(KalturaStatsPlugin.factory.getName(), kalturaStatsPluginConfig);
-    }
-
-    private void addKavaPlugin(PKPluginConfigs config) {
-        String referrer = "app://NonDefaultReferrer/"  + getActivity().getPackageName();
-        KavaAnalyticsConfig kavaAnalyticsConfig = getKavaAnalyticsConfig(38713161, referrer, DISTANCE_FROM_LIVE_THRESHOLD);
-        config.setPluginConfig(KavaAnalyticsPlugin.factory.getName(), kavaAnalyticsConfig);
-    }
-
-    private KavaAnalyticsConfig getKavaAnalyticsConfig(int uiconfId, String referrer, int distanceFromLiveThesholdMili) {
-
-        return new KavaAnalyticsConfig()
-                .setBaseUrl(KAVA_BASE_URL)
-                .setPartnerId(1281471)
-                .setUiConfId(24997472)
-                .setReferrer(referrer)
-                .setDvrThreshold(150000);
-    }
-
 
     private void addYouboraPlugin(PKPluginConfigs pluginConfigs) {
         ConverterYoubora converterYoubora = getConverterYoubora(MEDIA_TITLE, false);
@@ -566,19 +485,10 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         }
         return false;
     }
-    /**
-     * Will create {@link } object.
-     */
-    private void createMediaConfig() {
-        //First. Create PKMediaConfig object.
-        mediaConfig = new PKMediaConfig();
-        //Second. Create PKMediaEntry object.
-        PKMediaEntry mediaEntry = createMediaEntry();
 
-        //Add it to the mediaConfig.
-        mediaConfig.setMediaEntry(mediaEntry);
-        mediaConfig.setStartPosition(startPosition);
-
+    private void prepareMediaEntry() {
+        PKMediaEntry pkMediaEntry = createMediaEntry();
+        player.setMedia(pkMediaEntry);
     }
 
     /**
@@ -596,9 +506,6 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         //Set media entry type. It could be Live,Vod or Unknown.
         //For now we will use Unknown.
         mediaEntry.setMediaType(PKMediaEntry.MediaEntryType.Vod);
-
-
-
 
         //Create list that contains at least 1 media source.
         //Each media entry can contain a couple of different media sources.
@@ -650,16 +557,6 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         mediaSources.add(mediaSource);
 
         return mediaSources;
-    }
-
-    /**
-     * Will add player to the view.
-     */
-    private void addPlayerToView() {
-        //Get the layout, where the player view will be placed.
-
-        //Add player view to the layout.
-        playerLayout.addView(player.getView());
     }
 
     private void initUi(View rootView) {
@@ -727,7 +624,10 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         // If we've already selected a video, load it now.
         mLog = logger;
         if (mVideoItem != null) {
-            loadVideo(mVideoItem);
+            loadPlaykitPlayer();
+            controlsView.setPlayer(player);
+            addPlayerListeners(progressBar);
+            prepareMediaEntry();
         }
     }
 
