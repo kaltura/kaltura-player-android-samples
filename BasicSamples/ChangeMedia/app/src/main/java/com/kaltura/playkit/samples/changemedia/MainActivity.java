@@ -36,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     //id of the second media source.
     private static final String SECOND_MEDIA_SOURCE_ID = "source_id_2";
 
-    private static final int PLAYER_HEIGHT = 600;
-
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean shouldExecuteOnResume;
