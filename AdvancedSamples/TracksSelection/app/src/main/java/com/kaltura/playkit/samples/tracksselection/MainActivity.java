@@ -1,6 +1,7 @@
 package com.kaltura.playkit.samples.tracksselection;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -8,12 +9,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.kaltura.playkit.PKDrmParams;
 import com.kaltura.playkit.PKMediaConfig;
@@ -53,8 +56,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private static final Long START_POSITION = 0L; // position tp start playback in msec.
 
-    private static final int PLAYER_HEIGHT = 600;
-
     private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
     private static final String ASSET_ID = "480989";
     private static final int PARTNER_ID = 198;
@@ -67,8 +68,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //Android Spinner view, that will actually hold and manipulate tracks selection.
     private Spinner videoSpinner, audioSpinner, textSpinner, ccStyleSpinner;
-    private LinearLayout ccStyleLayout;
+    private TextView tvSpinnerTitle;
     private boolean userIsInteracting;
+    private boolean isFullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +87,43 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //Subscribe to the event which will notify us when track data is available.
         subscribeToTracksAvailableEvent();
+        showSystemUI();
+
+        (findViewById(R.id.activity_main)).setOnClickListener(v -> {
+            if (isFullScreen) {
+                showSystemUI();
+            } else {
+                hideSystemUI();
+            }
+        });
+    }
+
+    private void hideSystemUI() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        }
+        isFullScreen = true;
+    }
+
+    private void showSystemUI() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+        isFullScreen = false;
     }
 
     /**
@@ -116,8 +155,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         audioSpinner = (Spinner) this.findViewById(R.id.audioSpinner);
         textSpinner = (Spinner) this.findViewById(R.id.textSpinner);
         ccStyleSpinner = (Spinner) this.findViewById(R.id.ccStyleSpinner);
-        ccStyleLayout = (LinearLayout) this.findViewById(R.id.ccStyleLayout);
-        ccStyleLayout.setVisibility(View.INVISIBLE);
+        tvSpinnerTitle = (TextView) this.findViewById(R.id.tvSpinnerTitle);
+        tvSpinnerTitle.setVisibility(View.INVISIBLE);
+        ccStyleSpinner.setVisibility(View.INVISIBLE);
 
         textSpinner.setOnItemSelectedListener(this);
         audioSpinner.setOnItemSelectedListener(this);
@@ -200,8 +240,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             if (tracks.getTextTracks().size() > 0) {
                 Log.d(TAG, "Default Text langae = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel());
-                if(ccStyleLayout != null) {
-                    ccStyleLayout.setVisibility(View.VISIBLE);
+                if(tvSpinnerTitle != null && ccStyleSpinner != null) {
+                    tvSpinnerTitle.setVisibility(View.VISIBLE);
+                    ccStyleSpinner.setVisibility(View.VISIBLE);
                 }
             }
             if (tracks.getVideoTracks().size() > 0) {
@@ -463,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playerInitOptions.setAutoPlay(true);
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, PLAYER_HEIGHT);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
 

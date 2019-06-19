@@ -227,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Audio Only setup
         playerInitOptions.setIsVideoViewHidden(true);
+        playerInitOptions.setAutoPlay(true);
 
         // IMA Configuration
         PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();

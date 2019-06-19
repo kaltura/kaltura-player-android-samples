@@ -1,24 +1,17 @@
 package com.kaltura.playkit.samples.erhandling;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
-import com.google.gson.JsonObject;
-import com.kaltura.playkit.PKEvent;
-import com.kaltura.playkit.PKMediaConfig;
-import com.kaltura.playkit.PKMediaEntry;
-import com.kaltura.playkit.PKMediaFormat;
-import com.kaltura.playkit.PKMediaSource;
 import com.kaltura.playkit.PKPluginConfigs;
-import com.kaltura.playkit.PlayKitManager;
-import com.kaltura.playkit.Player;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
@@ -52,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private KalturaPlayer player;
     private Button playPauseButton;
+    private boolean isFullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +59,43 @@ public class MainActivity extends AppCompatActivity {
 
         //Add simple play/pause button.
         addPlayPauseButton();
+        showSystemUI();
+
+        (findViewById(R.id.activity_main)).setOnClickListener(v -> {
+            if (isFullScreen) {
+                showSystemUI();
+            } else {
+                hideSystemUI();
+            }
+        });
+    }
+
+    private void hideSystemUI() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        }
+        isFullScreen = true;
+    }
+
+    private void showSystemUI() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+        isFullScreen = false;
     }
 
     /**
@@ -142,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
 
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
 

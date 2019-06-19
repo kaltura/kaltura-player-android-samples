@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         isFullScreen = false;
     }
 
-
     /**
      * Side load the external subtitles
      * @param mediaEntry PKMediaEntry object
@@ -575,6 +574,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void loadPlaykitPlayer(PKMediaEntry pkMediaEntry) {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions();
+        playerInitOptions.setAutoPlay(true);
 
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
         player.setMedia(pkMediaEntry, START_POSITION);
