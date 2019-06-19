@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.kaltura.playkit.samples.subtitlesideloading.MainActivity">
+    tools:context="com.kaltura.playkit.samples.tracksselection.MainActivity">
 
     <include
         android:id="@+id/tracks_selection_menu"

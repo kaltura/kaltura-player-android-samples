@@ -6,7 +6,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kaltura.playkit.samples.audioonlybasicsetup.MainActivity">
+    tools:context="com.kaltura.playkit.samples.youbora.MainActivity">
 
     <ImageView
         android:id="@+id/artwork_view"
