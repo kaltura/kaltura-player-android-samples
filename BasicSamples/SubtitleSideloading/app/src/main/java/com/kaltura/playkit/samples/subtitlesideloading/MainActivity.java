@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final PKMediaFormat MEDIA_FORMAT = PKMediaFormat.hls;
     private static final String SOURCE_URL = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8";
     private static final String LICENSE_URL = null;
-    private static final int PLAYER_HEIGHT = 600;
 
     // Source to see subtitles any source can be used
     //   private static final String SOURCE_URL = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
@@ -579,7 +578,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
         player.setMedia(pkMediaEntry, START_POSITION);
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, PLAYER_HEIGHT);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
