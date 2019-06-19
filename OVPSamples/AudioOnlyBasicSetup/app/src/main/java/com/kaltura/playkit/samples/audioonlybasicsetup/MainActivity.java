@@ -1,10 +1,12 @@
 package com.kaltura.playkit.samples.audioonlybasicsetup;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -42,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int UICONF_ID = 43795681;
     private static final int UICONF_PARTNER_ID = 2427592;
 
+    private boolean isFullScreen;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +59,44 @@ public class MainActivity extends AppCompatActivity {
 
         showArtworkForAudioContent();
 
+        showSystemUI();
+
+        (findViewById(R.id.activity_main)).setOnClickListener(v -> {
+            if (isFullScreen) {
+                showSystemUI();
+            } else {
+                hideSystemUI();
+            }
+        });
+
+    }
+
+    private void hideSystemUI() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        }
+        isFullScreen = true;
+    }
+
+    private void showSystemUI() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+        isFullScreen = false;
     }
 
     private List<PKExternalSubtitle> getExternalSubtitles() {

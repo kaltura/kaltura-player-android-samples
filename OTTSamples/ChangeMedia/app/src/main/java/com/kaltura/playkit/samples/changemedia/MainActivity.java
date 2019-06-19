@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Prepare the first entry.
         prepareFirstEntry();
+
         showSystemUI();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
