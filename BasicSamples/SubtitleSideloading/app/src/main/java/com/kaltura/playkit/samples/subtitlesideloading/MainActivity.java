@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.kaltura.playkit.PKDrmParams;
 import com.kaltura.playkit.PKMediaEntry;
@@ -32,6 +33,8 @@ import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItem;
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.PlayerInitOptions;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //Android Spinner view, that will actually hold and manipulate tracks selection.
     private Spinner videoSpinner, audioSpinner, textSpinner, ccStyleSpinner;
-    private LinearLayout ccStyleLayout;
+    private TextView tvSpinnerTitle;
     private boolean userIsInteracting;
     private boolean isFullScreen;
 
@@ -180,8 +183,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         audioSpinner = (Spinner) this.findViewById(R.id.audioSpinner);
         textSpinner = (Spinner) this.findViewById(R.id.textSpinner);
         ccStyleSpinner = (Spinner) this.findViewById(R.id.ccStyleSpinner);
-        ccStyleLayout = (LinearLayout) this.findViewById(R.id.ccStyleLayout);
-        ccStyleLayout.setVisibility(View.INVISIBLE);
+        tvSpinnerTitle = (TextView) this.findViewById(R.id.tvSpinnerTitle);
+        tvSpinnerTitle.setVisibility(View.INVISIBLE);
+        ccStyleSpinner.setVisibility(View.INVISIBLE);
 
         textSpinner.setOnItemSelectedListener(this);
         audioSpinner.setOnItemSelectedListener(this);
@@ -264,8 +268,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             if (tracks.getTextTracks().size() > 0) {
                 Log.d(TAG, "Default Text langae = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel());
-                if(ccStyleLayout != null) {
-                    ccStyleLayout.setVisibility(View.VISIBLE);
+                if(tvSpinnerTitle != null && ccStyleSpinner != null) {
+                    tvSpinnerTitle.setVisibility(View.VISIBLE);
+                    ccStyleSpinner.setVisibility(View.VISIBLE);
                 }
             }
             if (tracks.getVideoTracks().size() > 0) {
