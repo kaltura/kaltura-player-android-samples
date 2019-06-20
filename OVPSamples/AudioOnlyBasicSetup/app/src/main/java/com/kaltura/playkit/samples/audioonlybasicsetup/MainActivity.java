@@ -18,7 +18,6 @@ import com.kaltura.playkit.player.PKExternalSubtitle;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.tvplayer.KalturaPlayer;
-import com.kaltura.tvplayer.MediaOptions;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
 import com.kaltura.tvplayer.config.player.UiConf;

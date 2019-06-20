@@ -3,6 +3,7 @@ package com.kaltura.playkit.samples.subtitlesideloading;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -14,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView tvSpinnerTitle;
     private boolean userIsInteracting;
     private boolean isFullScreen;
+    private ConstraintLayout constraintLayout;
+    private int translationMargin = 250;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +96,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void hideSystemUI() {
+        constraintLayout.animate().translationY(0);
+        tvSpinnerTitle.animate().translationY(0);
+        ccStyleSpinner.animate().translationY(0);
+        playPauseButton.animate().translationY(0);
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -110,6 +117,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void showSystemUI() {
+        constraintLayout.animate().translationY(translationMargin);
+        tvSpinnerTitle.animate().translationY(-translationMargin);
+        ccStyleSpinner.animate().translationY(-translationMargin);
+        playPauseButton.animate().translationY(-translationMargin);
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -175,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      * and set OnItemSelectedListener.
      */
     private void initializeTrackSpinners() {
+        constraintLayout = (ConstraintLayout) this.findViewById(R.id.activity_main);
         videoSpinner = (Spinner) this.findViewById(R.id.videoSpinner);
         audioSpinner = (Spinner) this.findViewById(R.id.audioSpinner);
         textSpinner = (Spinner) this.findViewById(R.id.textSpinner);
@@ -186,6 +199,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         textSpinner.setOnItemSelectedListener(this);
         audioSpinner.setOnItemSelectedListener(this);
         videoSpinner.setOnItemSelectedListener(this);
+
+        constraintLayout.animate().translationY(translationMargin);
+        tvSpinnerTitle.animate().translationY(-translationMargin);
+        ccStyleSpinner.animate().translationY(-translationMargin);
+        playPauseButton.animate().translationY(-translationMargin);
 
         ArrayList<String> stylesStrings = new ArrayList<>();
         stylesStrings.add(getDefaultPositionDefault().getStyleName());

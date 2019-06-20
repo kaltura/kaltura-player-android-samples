@@ -17,7 +17,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import static com.kaltura.playkit.samples.fulldemo.Consts.*;
+import static com.kaltura.playkit.samples.fulldemo.Consts.AD_LOAD_TIMEOUT;
+import static com.kaltura.playkit.samples.fulldemo.Consts.AUTO_PLAY;
+import static com.kaltura.playkit.samples.fulldemo.Consts.COMPANION_AD_HEIGHT;
+import static com.kaltura.playkit.samples.fulldemo.Consts.COMPANION_AD_WIDTH;
+import static com.kaltura.playkit.samples.fulldemo.Consts.MIME_TYPE;
+import static com.kaltura.playkit.samples.fulldemo.Consts.MIN_AD_DURATION_FOR_SKIP_BUTTON;
+import static com.kaltura.playkit.samples.fulldemo.Consts.PREFERRED_BITRATE;
+import static com.kaltura.playkit.samples.fulldemo.Consts.START_FROM;
+import static com.kaltura.playkit.samples.fulldemo.Consts.VIDEO_EXAMPLE_FRAGMENT_TAG;
+import static com.kaltura.playkit.samples.fulldemo.Consts.VIDEO_PLAYLIST_FRAGMENT_TAG;
 
 public class MainActivity extends AppCompatActivity implements VideoListFragment.OnVideoSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener,
         VideoListFragment.OnVideoListFragmentResumedListener,
