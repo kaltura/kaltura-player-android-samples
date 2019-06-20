@@ -3,6 +3,7 @@ package com.kaltura.playkit.samples.subtitlesideloading;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -64,11 +65,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView tvSpinnerTitle;
     private boolean userIsInteracting;
     private boolean isFullScreen;
+    private ConstraintLayout constraintLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        constraintLayout = findViewById(R.id.activity_main);
+        constraintLayout.animate().translationY(250);
 
         PKMediaEntry mediaEntry = createMediaEntry();
 
@@ -95,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void hideSystemUI() {
+        constraintLayout.animate().translationY(0);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -111,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void showSystemUI() {
+        constraintLayout.animate().translationY(250);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);

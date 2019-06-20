@@ -15,12 +15,13 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/video_track" />
+            android:text="@string/video_track"
+            android:gravity="center"/>
 
         <Spinner
             android:id="@+id/videoSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
@@ -34,11 +35,12 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/audio_track" />
+            android:text="@string/audio_track"
+            android:gravity="center"/>
 
         <Spinner
             android:id="@+id/audioSpinner"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
     </LinearLayout>
@@ -53,11 +55,12 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/text_track" />
+            android:text="@string/text_track"
+            android:gravity="center"/>
 
         <Spinner
             android:id="@+id/textSpinner"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
     </LinearLayout>
