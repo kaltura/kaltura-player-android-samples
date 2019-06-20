@@ -574,6 +574,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void loadPlaykitPlayer(PKMediaEntry pkMediaEntry) {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions();
+        playerInitOptions.setSubtitleStyle(getDefaultPositionDefault());
         playerInitOptions.setAutoPlay(true);
 
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);

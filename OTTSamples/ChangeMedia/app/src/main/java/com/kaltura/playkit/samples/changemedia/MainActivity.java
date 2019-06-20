@@ -23,8 +23,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
 
-    private static final int PLAYER_HEIGHT = 600;
-
     private static final Long START_POSITION = 0L; // position tp start playback in msec.
 
     private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
@@ -232,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, PLAYER_HEIGHT);
+        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
     }

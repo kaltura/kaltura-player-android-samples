@@ -511,6 +511,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
         playerInitOptions.setServerUrl(SERVER_URL);
+        playerInitOptions.setSubtitleStyle(getDefaultPositionDefault());
         playerInitOptions.setAutoPlay(true);
 
         player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);

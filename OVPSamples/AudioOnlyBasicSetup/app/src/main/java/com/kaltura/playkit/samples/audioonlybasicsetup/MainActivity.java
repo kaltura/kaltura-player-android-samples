@@ -30,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
 
-    private static final int PLAYER_HEIGHT = 600;
-
     private static final Long START_POSITION = 0L; // position tp start playback in msec.
     private KalturaPlayer player;
     private Button playPauseButton;
