@@ -388,7 +388,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //Iterate through all available audio tracks.
         for (int i = 0; i < audioTracks.size(); i++) {
             AudioTrack audioTrackInfo = audioTracks.get(i);
-            String label = audioTrackInfo.getLabel() != null ? audioTrackInfo.getLabel() : audioTrackInfo.getLanguage();
+            String label = "";
+            if (audioTrackInfo != null) {
+                label = (audioTrackInfo.getLabel() != null) ? audioTrackInfo.getLabel() : (audioTrackInfo.getLanguage() != null) ? audioTrackInfo.getLanguage() : "";
+            }
             String bitrate = (audioTrackInfo.getBitrate() > 0) ? "" + audioTrackInfo.getBitrate() : "";
             if (TextUtils.isEmpty(bitrate) && addChannel) {
                 bitrate = buildAudioChannelString(audioTrackInfo.getChannelCount());
@@ -396,11 +399,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (audioTrackInfo.isAdaptive()) {
                 bitrate += " Adaptive";
             }
-            trackItems[i] = new TrackItem(audioTrackInfo.getLabel() + " " + bitrate, audioTrackInfo.getUniqueId());
+            trackItems[i] = new TrackItem(label + " " + bitrate, audioTrackInfo.getUniqueId());
         }
         return trackItems;
-
     }
+
 
     private String buildAudioChannelString(int channelCount) {
         switch (channelCount) {
