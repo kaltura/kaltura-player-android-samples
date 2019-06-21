@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      * Get the external subtitles list
      */
 
-    private List<PKExternalSubtitle>  getExternalSubtitles() {
+    private List<PKExternalSubtitle> getExternalSubtitles() {
 
         List<PKExternalSubtitle> mList = new ArrayList<>();
 
@@ -512,6 +512,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "onPause");
         super.onPause();
         if (player != null) {
+            if (playPauseButton != null) {
+                playPauseButton.setText(R.string.pause_text);
+            }
             player.onApplicationPaused();
         }
     }

@@ -586,6 +586,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onResume();
 
         if (player != null) {
+            if (playPauseButton != null) {
+                playPauseButton.setText(R.string.pause_text);
+            }
             player.onApplicationResumed();
             player.play();
         }

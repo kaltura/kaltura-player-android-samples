@@ -40,15 +40,12 @@ public class MainActivity extends AppCompatActivity {
 
     private KalturaPlayer player;
     private Button playPauseButton;
-    private boolean shouldExecuteOnResume;
     private boolean isFullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        shouldExecuteOnResume = false;
 
         //Add simple play/pause button.
         addPlayPauseButton();
@@ -259,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
         mediaSource.setId(SECOND_MEDIA_SOURCE_ID);
 
         //Set the content url. In our case it will be link to m3u8 source(.m3u8).
-        mediaSource.setUrl(FIRST_SOURCE_URL);
+        mediaSource.setUrl(SECOND_SOURCE_URL);
 
         //Set the format of the source. In our case it will be hls.
         mediaSource.setMediaFormat(PKMediaFormat.hls);
@@ -282,11 +279,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (player.isPlaying()) {
                     //If player is playing, change text of the button and pause.
-                    playPauseButton.setText(R.string.play_text);
+                    resetPlayPauseButtonToPlayText();
                     player.pause();
                 } else {
                     //If player is not playing, change text of the button and play.
-                    playPauseButton.setText(R.string.pause_text);
+                    resetPlayPauseButtonToPauseText();
                     player.play();
                 }
             }
@@ -323,12 +320,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (shouldExecuteOnResume) {
-            if (player != null) {
-                player.onApplicationResumed();
+        if (player != null) {
+            if (playPauseButton != null) {
+                resetPlayPauseButtonToPauseText();
             }
-        } else {
-            shouldExecuteOnResume = true;
+            player.onApplicationResumed();
+            player.play();
         }
     }
 
@@ -344,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions();
         playerInitOptions.setAllowCrossProtocolEnabled(true);
         playerInitOptions.setAutoPlay(true);
+
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 

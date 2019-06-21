@@ -17,6 +17,7 @@ import com.kaltura.playkit.PKMediaSource;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.player.PKExternalSubtitle;
+import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.tvplayer.KalturaPlayer;
@@ -55,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
         addPlayPauseButton();
 
-        showArtworkForAudioContent();
-
         showSystemUI();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
@@ -67,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        addAdEvents();
     }
 
     private void hideSystemUI() {
@@ -95,6 +95,20 @@ public class MainActivity extends AppCompatActivity {
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
         isFullScreen = false;
+    }
+
+    private void addAdEvents() {
+        player.addListener(this, AdEvent.contentPauseRequested, event -> {
+            showArtworkForAudioContent(View.GONE);
+        });
+
+        player.addListener(this, AdEvent.contentResumeRequested, event -> {
+            showArtworkForAudioContent(View.VISIBLE);
+        });
+
+        player.addListener(this, AdEvent.error, event -> {
+            showArtworkForAudioContent(View.VISIBLE);
+        });
     }
 
     private void setExternalSubtitles(PKMediaEntry mediaEntry) {
@@ -201,14 +215,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showArtworkForAudioContent() {
-        artworkView.setVisibility(View.VISIBLE);
+    private void showArtworkForAudioContent(int visibility) {
+        artworkView.setVisibility(visibility);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (player != null) {
+            if (playPauseButton != null) {
+                playPauseButton.setText(R.string.pause_text);
+            }
             player.onApplicationResumed();
             player.play();
         }

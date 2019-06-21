@@ -15,6 +15,7 @@ import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.player.PKExternalSubtitle;
+import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.tvplayer.KalturaPlayer;
@@ -54,8 +55,6 @@ public class MainActivity extends AppCompatActivity {
 
         addPlayPauseButton();
 
-        showArtworkForAudioContent();
-
         showSystemUI();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
@@ -65,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
                 hideSystemUI();
             }
         });
+
+        addAdEvents();
 
     }
 
@@ -94,6 +95,20 @@ public class MainActivity extends AppCompatActivity {
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
         isFullScreen = false;
+    }
+
+    private void addAdEvents() {
+        player.addListener(this, AdEvent.contentPauseRequested, event -> {
+            showArtworkForAudioContent(View.GONE);
+        });
+
+        player.addListener(this, AdEvent.contentResumeRequested, event -> {
+            showArtworkForAudioContent(View.VISIBLE);
+        });
+
+        player.addListener(this, AdEvent.error, event -> {
+            showArtworkForAudioContent(View.VISIBLE);
+        });
     }
 
     private List<PKExternalSubtitle> getExternalSubtitles() {
@@ -143,6 +158,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (player != null) {
+            if (playPauseButton != null) {
+                playPauseButton.setText(R.string.pause_text);
+            }
             player.onApplicationResumed();
             player.play();
         }
@@ -156,8 +174,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showArtworkForAudioContent() {
-        artworkView.setVisibility(View.VISIBLE);
+    private void showArtworkForAudioContent(int visibility) {
+        artworkView.setVisibility(visibility);
     }
 
     public void loadPlaykitPlayer() {
@@ -179,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
         player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
 

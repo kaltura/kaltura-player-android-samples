@@ -20,7 +20,7 @@ import com.kaltura.tvplayer.config.player.UiConf;
 public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
-    
+
     private static final Long START_POSITION = 0L; // position tp start playback in msec.
 
     private static final String SERVER_URL = "https://cdnapisec.kaltura.com";
@@ -32,14 +32,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String SECOND_ENTRY_ID = "1_ebs5e9cy";
     private KalturaPlayer player;
     private Button playPauseButton;
-    private boolean shouldExecuteOnResume;
     private boolean isFullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        shouldExecuteOnResume = false;
 
         //Add simple play/pause button.
         addPlayPauseButton();
@@ -61,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
                 hideSystemUI();
             }
         });
-
     }
 
     private void hideSystemUI() {
@@ -171,11 +168,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (player.isPlaying()) {
                     //If player is playing, change text of the button and pause.
-                    playPauseButton.setText(R.string.play_text);
+                    resetPlayPauseButtonToPlayText();
                     player.pause();
                 } else {
                     //If player is not playing, change text of the button and play.
-                    playPauseButton.setText(R.string.pause_text);
+                    resetPlayPauseButtonToPauseText();
                     player.play();
                 }
             }
@@ -196,12 +193,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (shouldExecuteOnResume) {
-            if (player != null) {
-                player.onApplicationResumed();
+        if (player != null) {
+            if (playPauseButton != null) {
+                resetPlayPauseButtonToPauseText();
             }
-        } else {
-            shouldExecuteOnResume = true;
+            player.onApplicationResumed();
+            player.play();
         }
     }
 
