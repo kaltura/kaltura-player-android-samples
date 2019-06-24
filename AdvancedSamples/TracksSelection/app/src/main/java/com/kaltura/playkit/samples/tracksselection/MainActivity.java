@@ -17,8 +17,10 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.player.AudioTrack;
+import com.kaltura.playkit.player.PKExternalSubtitle;
 import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.player.SubtitleStyleSettings;
 import com.kaltura.playkit.player.TextTrack;
@@ -482,7 +484,31 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = START_POSITION;
         ottMediaOptions.formats = new String []{"Mobile_Main"};
+        ottMediaOptions.externalSubtitles = getExternalSubtitles();
 
         return ottMediaOptions;
     }
+
+    private List<PKExternalSubtitle> getExternalSubtitles() {
+
+        List<PKExternalSubtitle> mList = new ArrayList<>();
+
+        PKExternalSubtitle pkExternalSubtitle = new PKExternalSubtitle()
+                .setUrl("http://brenopolanski.com/html5-video-webvtt-example/MIB2-subtitles-pt-BR.vtt")
+                .setMimeType(PKSubtitleFormat.vtt)
+                .setLabel("External_Deutsch")
+                .setLanguage("deu");
+        mList.add(pkExternalSubtitle);
+
+        PKExternalSubtitle pkExternalSubtitleDe = new PKExternalSubtitle()
+                .setUrl("https://mkvtoolnix.download/samples/vsshort-en.srt")
+                .setMimeType(PKSubtitleFormat.srt)
+                .setLabel("External_English")
+                .setLanguage("eng")
+                .setDefault();
+        mList.add(pkExternalSubtitleDe);
+
+        return mList;
+    }
+
 }
