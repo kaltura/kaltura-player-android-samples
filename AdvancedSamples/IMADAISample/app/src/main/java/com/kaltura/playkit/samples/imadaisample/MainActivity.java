@@ -61,8 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         loadPlaykitPlayer();
 
-        //Subscribe to the ad events.
-        subscribeToAdEvents();
+
 
         //Add simple play/pause button.
         addPlayPauseButton();
@@ -414,7 +413,8 @@ public class MainActivity extends AppCompatActivity {
         playerInitOptions.setPluginConfigs(createIMADAIPlugin());
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-
+        //Subscribe to the ad events.
+        subscribeToAdEvents();
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
