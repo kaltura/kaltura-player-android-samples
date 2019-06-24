@@ -33,7 +33,6 @@ import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.config.player.UiConf;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,16 +44,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "MainActivity";
-    private static final Long START_POSITION = 0L; // position tp start playback in msec.
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     private static final String ASSET_ID = "548576";
     private static final int PARTNER_ID = 3009;
-    private static final int UICONF_ID = 44267972;
-    private static final int UICONF_PARTNER_ID = 2254732;
-
-    // Source to see subtitles any source can be used
-    //   private static final String SOURCE_URL = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -535,9 +529,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void loadPlaykitPlayer() {
 
-        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setSubtitleStyle(getDefaultPositionDefault());
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
         playerInitOptions.setAutoPlay(true);
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
@@ -561,11 +556,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
+        ottMediaOptions.formats = new String []{"Mobile_Main"};
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = START_POSITION;
         ottMediaOptions.externalSubtitles = getExternalSubtitles();
-        //  ottMediaOptions.formats = new String []{"Tablet Main"};
 
         return ottMediaOptions;
     }

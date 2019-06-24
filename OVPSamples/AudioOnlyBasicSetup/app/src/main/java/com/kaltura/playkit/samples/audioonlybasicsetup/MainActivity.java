@@ -21,7 +21,6 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.config.player.UiConf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
 
-    private static final Long START_POSITION = 0L; // position tp start playback in msec.
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
     private KalturaPlayer player;
     private Button playPauseButton;
     private ImageView artworkView;
@@ -39,8 +38,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
     private static final String ENTRY_ID = "1_w9zx2eti";
     private static final int PARTNER_ID = 2215841;
-    private static final int UICONF_ID = 43795681;
-    private static final int UICONF_PARTNER_ID = 2427592;
 
     private boolean isFullScreen;
 
@@ -180,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadPlaykitPlayer() {
 
-        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
 

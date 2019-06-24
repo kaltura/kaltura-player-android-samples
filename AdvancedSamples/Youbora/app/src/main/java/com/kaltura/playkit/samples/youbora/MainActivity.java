@@ -10,46 +10,29 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import com.google.gson.JsonObject;
-import com.kaltura.playkit.PKDrmParams;
-import com.kaltura.playkit.PKEvent;
-import com.kaltura.playkit.PKMediaConfig;
-import com.kaltura.playkit.PKMediaEntry;
-import com.kaltura.playkit.PKMediaFormat;
-import com.kaltura.playkit.PKMediaSource;
 import com.kaltura.playkit.PKPluginConfigs;
-import com.kaltura.playkit.PlayKitManager;
-import com.kaltura.playkit.Player;
+
 import com.kaltura.playkit.plugins.youbora.YouboraEvent;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
-import com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig;
+
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
-import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.config.player.UiConf;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 
 public class MainActivity extends AppCompatActivity {
 
     //Tag for logging.
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final Long START_POSITION = 0L; // position tp start playback in msec.
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
     private static final String ASSET_ID = "480989";
     private static final int PARTNER_ID = 198;
-    private static final int UICONF_ID = 41188731;
-    private static final int UICONF_PARTNER_ID = 2215841;
 
     //Youbora analytics Constants
     public static final String ACCOUNT_CODE = "your_account_code";
@@ -189,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadPlaykitPlayer() {
 
-        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
 

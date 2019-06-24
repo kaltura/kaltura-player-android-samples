@@ -16,21 +16,16 @@ import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.config.player.UiConf;
-
-
 
 public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
 
-    private static final Long START_POSITION = 0L; // position tp start playback in msec.
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     private static final String ASSET_ID = "548576";
     private static final int PARTNER_ID = 3009;
-    private static final int UICONF_ID = 44267972;
-    private static final int UICONF_PARTNER_ID = 2254732;
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -128,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadPlaykitPlayer() {
 
-        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
@@ -154,10 +149,10 @@ public class MainActivity extends AppCompatActivity {
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = START_POSITION;
-        //  ottMediaOptions.formats = new String []{"Tablet Main"};
+        ottMediaOptions.formats = new String []{"Mobile_Main"};
 
         return ottMediaOptions;
     }

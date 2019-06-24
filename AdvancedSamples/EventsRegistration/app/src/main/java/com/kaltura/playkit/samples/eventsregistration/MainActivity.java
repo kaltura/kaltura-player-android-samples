@@ -22,7 +22,6 @@ import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.config.player.UiConf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +31,12 @@ public class MainActivity extends AppCompatActivity {
     //Tag for logging.
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final Long START_POSITION = 0L; // position tp start playback in msec.
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     //The url of the source to play
     private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
     private static final String ASSET_ID = "480989";
     private static final int PARTNER_ID = 198;
-    private static final int UICONF_ID = 41188731;
-    private static final int UICONF_PARTNER_ID = 2215841;
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -64,44 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Add simple play/pause button.
         addPlayPauseButton();
-
-        showSystemUI();
-
-        (findViewById(R.id.activity_main)).setOnClickListener(v -> {
-            if (isFullScreen) {
-                showSystemUI();
-            } else {
-                hideSystemUI();
-            }
-        });
-    }
-
-    private void hideSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
-        }
-        isFullScreen = true;
-    }
-
-    private void showSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-        isFullScreen = false;
     }
 
     public void addItemsOnSpeedSpinner() {
@@ -269,8 +228,7 @@ public class MainActivity extends AppCompatActivity {
                         "OnItemSelectedListener : " + parent.getItemAtPosition(pos).toString() + "X",
                         Toast.LENGTH_SHORT).show();
                 if (player != null) {
-                    //TODO: Needs to be added in API Kaltura Player
-                   // player.setPlaybackRate((float) parent.getItemAtPosition(pos));
+                    player.setPlaybackRate((float) parent.getItemAtPosition(pos));
                 }
             }
         }
@@ -283,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadPlaykitPlayer() {
 
-        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
 

@@ -31,7 +31,6 @@ import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.config.player.UiConf;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,16 +42,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "MainActivity";
-    private static final Long START_POSITION = 0L; // position tp start playback in msec.
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     private static final String SERVER_URL = "https://cdnapisec.kaltura.com";
     private static final String ENTRY_ID = "1_w9zx2eti";
     private static final int PARTNER_ID = 2215841;
-    private static final int UICONF_ID = 43795681;
-    private static final int UICONF_PARTNER_ID = 2427592;
-
-    // Source to see subtitles any source can be used
-    //   private static final String SOURCE_URL = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -533,7 +527,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void loadPlaykitPlayer() {
 
-        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setSubtitleStyle(getDefaultPositionDefault());
         playerInitOptions.setAutoPlay(true);

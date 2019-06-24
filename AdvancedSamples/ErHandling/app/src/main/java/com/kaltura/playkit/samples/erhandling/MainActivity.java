@@ -21,7 +21,6 @@ import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.config.player.UiConf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +30,12 @@ public class MainActivity extends AppCompatActivity {
     //Tag for logging.
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final Long START_POSITION = 0L; // position tp start playback in msec.
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     //The url of the source to play
     private static final String SERVER_URL = "incorrect_source_url";
     private static final String ASSET_ID = "480989";
     private static final int PARTNER_ID = 198;
-    private static final int UICONF_ID = 41188731;
-    private static final int UICONF_PARTNER_ID = 2215841;
 
     //Ad configuration constants.
     private static final String INCORRECT_AD_TAG_URL = "incorrect_ad_tag_url";
@@ -160,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadPlaykitPlayer() {
 
-        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
 
