@@ -34,9 +34,9 @@ public class MainActivity extends AppCompatActivity {
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     //The url of the source to play
-    private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
-    private static final String ASSET_ID = "480989";
-    private static final int PARTNER_ID = 198;
+    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    private static final String ASSET_ID = "548576";
+    private static final int PARTNER_ID = 3009;
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -52,12 +52,6 @@ public class MainActivity extends AppCompatActivity {
         addItemsOnSpeedSpinner();
 
         loadPlaykitPlayer();
-
-        //Subscribe to events, which will notify about changes in player states.
-        subscribeToPlayerStateChanges();
-
-        //Subscribe to the player events.
-        subscribeToPlayerEvents();
 
         //Add simple play/pause button.
         addPlayPauseButton();
@@ -244,9 +238,15 @@ public class MainActivity extends AppCompatActivity {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
+
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        //Subscribe to events, which will notify about changes in player states.
+        subscribeToPlayerStateChanges();
 
+        //Subscribe to the player events.
+        subscribeToPlayerEvents();
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
@@ -267,10 +267,10 @@ public class MainActivity extends AppCompatActivity {
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = START_POSITION;
-        //  ottMediaOptions.formats = new String []{"Tablet Main"};
+        ottMediaOptions.formats = new String []{"Mobile_Main"};
 
         return ottMediaOptions;
     }

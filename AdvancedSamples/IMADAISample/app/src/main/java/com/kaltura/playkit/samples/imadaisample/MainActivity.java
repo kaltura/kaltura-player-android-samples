@@ -35,9 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     //Media entry configuration constants.
-    private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
-    private static final String ASSET_ID = "480989";
-    private static final int PARTNER_ID = 198;
+    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    private static final String ASSET_ID = "548576";
+    private static final int PARTNER_ID = 3009;
 
     //Ad configuration constants.
     private static final String AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpod&cmsid=496&vid=short_onecue&correlator=";
@@ -408,6 +408,8 @@ public class MainActivity extends AppCompatActivity {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
+
 
         // IMA DAI Configuration
         playerInitOptions.setPluginConfigs(createIMADAIPlugin());
@@ -435,10 +437,10 @@ public class MainActivity extends AppCompatActivity {
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = START_POSITION;
-        //  ottMediaOptions.formats = new String []{"Tablet Main"};
+        ottMediaOptions.formats = new String []{"Mobile_Main"};
 
         return ottMediaOptions;
     }

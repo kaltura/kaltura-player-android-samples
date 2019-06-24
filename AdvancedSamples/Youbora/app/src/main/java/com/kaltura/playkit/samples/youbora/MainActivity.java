@@ -30,9 +30,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
-    private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
-    private static final String ASSET_ID = "480989";
-    private static final int PARTNER_ID = 198;
+    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    private static final String ASSET_ID = "548576";
+    private static final int PARTNER_ID = 3009;
 
     //Youbora analytics Constants
     public static final String ACCOUNT_CODE = "your_account_code";
@@ -175,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
 
         // Youbora Configuration
         PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
@@ -203,10 +204,10 @@ public class MainActivity extends AppCompatActivity {
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = START_POSITION;
-        //  ottMediaOptions.formats = new String []{"Tablet Main"};
+        ottMediaOptions.formats = new String []{"Mobile_Main"};
 
         return ottMediaOptions;
     }

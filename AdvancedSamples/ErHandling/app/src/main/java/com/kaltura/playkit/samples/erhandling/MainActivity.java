@@ -33,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     //The url of the source to play
-    private static final String SERVER_URL = "incorrect_source_url";
-    private static final String ASSET_ID = "480989";
-    private static final int PARTNER_ID = 198;
+    private static final String SERVER_URL = "incorrect_source_url"; // "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    private static final String ASSET_ID = "548576";
+    private static final int PARTNER_ID = 3009;
 
     //Ad configuration constants.
     private static final String INCORRECT_AD_TAG_URL = "incorrect_ad_tag_url";
@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
 
         // IMA Configuration
         PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
@@ -190,10 +191,10 @@ public class MainActivity extends AppCompatActivity {
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = START_POSITION;
-        //  ottMediaOptions.formats = new String []{"Tablet Main"};
+        ottMediaOptions.formats = new String []{"Mobile_Main"};
 
         return ottMediaOptions;
     }
