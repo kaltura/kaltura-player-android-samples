@@ -25,24 +25,22 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Long START_POSITION = 0L; // position tp start playback in msec.
 
-    private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
-    private static final int PARTNER_ID = 198;
-    private static final int UICONF_ID = 41188731;
-    private static final int UICONF_PARTNER_ID = 2215841;
+    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    private static final int PARTNER_ID = 3009;
+    private static final int UICONF_ID = 44267972;
+    private static final int UICONF_PARTNER_ID = 2254732;
 
-    private static final String FIRST_ASSET_ID = "480989";
-    private static final String SECOND_ASSET_ID = "259153";
+    private static final String FIRST_ASSET_ID = "548576";
+    private static final String SECOND_ASSET_ID = "548577";
 
     private KalturaPlayer player;
     private Button playPauseButton;
-    private boolean shouldExecuteOnResume;
     private boolean isFullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        shouldExecuteOnResume = false;
 
         //Add simple play/pause button.
         addPlayPauseButton();
@@ -180,15 +178,18 @@ public class MainActivity extends AppCompatActivity {
         //Get reference to the play/pause button.
         playPauseButton = (Button) this.findViewById(R.id.play_pause_button);
         //Add clickListener.
-        playPauseButton.setOnClickListener(v -> {
-            if (player.isPlaying()) {
-                //If player is playing, change text of the button and pause.
-                playPauseButton.setText(R.string.play_text);
-                player.pause();
-            } else {
-                //If player is not playing, change text of the button and play.
-                playPauseButton.setText(R.string.pause_text);
-                player.play();
+        playPauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (player.isPlaying()) {
+                    //If player is playing, change text of the button and pause.
+                    resetPlayPauseButtonToPlayText();
+                    player.pause();
+                } else {
+                    //If player is not playing, change text of the button and play.
+                    resetPlayPauseButtonToPauseText();
+                    player.play();
+                }
             }
         });
     }
@@ -203,15 +204,16 @@ public class MainActivity extends AppCompatActivity {
     private void resetPlayPauseButtonToPauseText() {
         playPauseButton.setText(R.string.pause_text);
     }
+
     @Override
     protected void onResume() {
         super.onResume();
-        if (shouldExecuteOnResume) {
-            if (player != null) {
-                player.onApplicationResumed();
+        if (player != null) {
+            if (playPauseButton != null) {
+                resetPlayPauseButtonToPauseText();
             }
-        } else {
-            shouldExecuteOnResume = true;
+            player.onApplicationResumed();
+            player.play();
         }
     }
 

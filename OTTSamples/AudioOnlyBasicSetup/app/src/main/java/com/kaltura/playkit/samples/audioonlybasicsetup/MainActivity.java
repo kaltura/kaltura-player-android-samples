@@ -15,6 +15,7 @@ import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.player.PKExternalSubtitle;
+import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
@@ -34,12 +35,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Long START_POSITION = 0L; // position tp start playback in msec.
 
-    private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
+    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     private static final String AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
-    private static final String ASSET_ID = "480989";
-    private static final int PARTNER_ID = 198;
-    private static final int UICONF_ID = 41188731;
-    private static final int UICONF_PARTNER_ID = 2215841;
+    private static final String ASSET_ID = "427690";
+    private static final int PARTNER_ID = 3009;
+    private static final int UICONF_ID = 44267972;
+    private static final int UICONF_PARTNER_ID = 2254732;
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -57,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
 
         addPlayPauseButton();
 
-        showArtworkForAudioContent();
-
         showSystemUI();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
@@ -68,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
                 hideSystemUI();
             }
         });
+
+        addAdEvents();
 
     }
 
@@ -97,6 +98,20 @@ public class MainActivity extends AppCompatActivity {
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
         isFullScreen = false;
+    }
+
+    private void addAdEvents() {
+        player.addListener(this, AdEvent.contentPauseRequested, event -> {
+            showArtworkForAudioContent(View.GONE);
+        });
+
+        player.addListener(this, AdEvent.contentResumeRequested, event -> {
+            showArtworkForAudioContent(View.VISIBLE);
+        });
+
+        player.addListener(this, AdEvent.error, event -> {
+            showArtworkForAudioContent(View.VISIBLE);
+        });
     }
 
     private List<PKExternalSubtitle> getExternalSubtitles() {
@@ -141,14 +156,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showArtworkForAudioContent() {
-        artworkView.setVisibility(View.VISIBLE);
+    private void showArtworkForAudioContent(int visibility) {
+        artworkView.setVisibility(visibility);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (player != null) {
+            if (playPauseButton != null) {
+                playPauseButton.setText(R.string.pause_text);
+            }
             player.onApplicationResumed();
             player.play();
         }
@@ -167,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID, new UiConf(UICONF_ID, UICONF_PARTNER_ID));
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
 
         // Audio Only setup
         playerInitOptions.setIsVideoViewHidden(true);

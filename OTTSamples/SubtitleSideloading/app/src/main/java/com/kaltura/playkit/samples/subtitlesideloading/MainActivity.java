@@ -47,11 +47,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final String TAG = "MainActivity";
     private static final Long START_POSITION = 0L; // position tp start playback in msec.
 
-    private static final String SERVER_URL = "https://api-preprod.ott.kaltura.com/v4_7/api_v3/";
-    private static final String ASSET_ID = "480989";
-    private static final int PARTNER_ID = 198;
-    private static final int UICONF_ID = 41188731;
-    private static final int UICONF_PARTNER_ID = 2215841;
+    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    private static final String ASSET_ID = "548576";
+    private static final int PARTNER_ID = 3009;
+    private static final int UICONF_ID = 44267972;
+    private static final int UICONF_PARTNER_ID = 2254732;
 
     // Source to see subtitles any source can be used
     //   private static final String SOURCE_URL = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      * Get the external subtitles list
      */
 
-    private List<PKExternalSubtitle>  getExternalSubtitles() {
+    private List<PKExternalSubtitle> getExternalSubtitles() {
 
         List<PKExternalSubtitle> mList = new ArrayList<>();
 
@@ -514,6 +514,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "onPause");
         super.onPause();
         if (player != null) {
+            if (playPauseButton != null) {
+                playPauseButton.setText(R.string.pause_text);
+            }
             player.onApplicationPaused();
         }
     }
