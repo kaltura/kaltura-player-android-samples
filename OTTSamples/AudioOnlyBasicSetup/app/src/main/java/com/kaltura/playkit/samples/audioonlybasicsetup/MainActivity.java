@@ -1,12 +1,10 @@
 package com.kaltura.playkit.samples.audioonlybasicsetup;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -14,7 +12,9 @@ import android.widget.ImageView;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
+import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.player.PKExternalSubtitle;
+import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
@@ -35,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
-    private static final String AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
+    private static final String AD_TAG_URL_ALL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
+    private static final String AD_TAG_URL_PRE = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
     private static final String ASSET_ID = "548579";
     private static final int PARTNER_ID = 3009;
 
@@ -54,47 +55,6 @@ public class MainActivity extends AppCompatActivity {
         loadPlaykitPlayer();
 
         addPlayPauseButton();
-
-        showSystemUI();
-
-        (findViewById(R.id.activity_main)).setOnClickListener(v -> {
-            if (isFullScreen) {
-                showSystemUI();
-            } else {
-                hideSystemUI();
-            }
-        });
-
-        addAdEvents();
-
-    }
-
-    private void hideSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
-        }
-        isFullScreen = true;
-    }
-
-    private void showSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-        isFullScreen = false;
     }
 
     private void addAdEvents() {
@@ -189,18 +149,22 @@ public class MainActivity extends AppCompatActivity {
 
         // IMA Configuration
         PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
-        IMAConfig adsConfig = getAdsConfig(AD_TAG_URL);
+        IMAConfig adsConfig = getAdsConfig(AD_TAG_URL_PRE);
         pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        addAdEvents();
+        subscribeToTracksAvailableEvent();
+        artworkView.setVisibility(View.VISIBLE);
+        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
 
         OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
+
         player.loadMedia(ottMediaOptions, (entry, error) -> {
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
@@ -217,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
         ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
-        ottMediaOptions.formats = new String []{"Mobile_Main"};
+        ottMediaOptions.formats = new String[]{"Mobile_Main"};
         ottMediaOptions.ks = null;
         ottMediaOptions.startPosition = START_POSITION;
         ottMediaOptions.externalSubtitles = getExternalSubtitles();
@@ -231,5 +195,29 @@ public class MainActivity extends AppCompatActivity {
         videoMimeTypes.add("application/x-mpegURL");
         videoMimeTypes.add("application/dash+xml");
         return new IMAConfig().setAdTagUrl(adTagUrl).setVideoMimeTypes(videoMimeTypes).enableDebugMode(true).setAlwaysStartWithPreroll(true).setAdLoadTimeOut(8);
+    }
+
+    private void subscribeToTracksAvailableEvent() {
+        player.addListener(this, PlayerEvent.tracksAvailable, event -> {
+            //When the track data available, this event occurs. It brings the info object with it.
+            log.d("Event TRACKS_AVAILABLE");
+
+            //Cast event to the TracksAvailable object that is actually holding the necessary data.
+            PlayerEvent.TracksAvailable tracksAvailable = (PlayerEvent.TracksAvailable) event;
+
+            //Obtain the actual tracks info from it. Default track index values are coming from manifest
+            PKTracks tracks = tracksAvailable.tracksInfo;
+            int defaultAudioTrackIndex = tracks.getDefaultAudioTrackIndex();
+            int defaultTextTrackIndex = tracks.getDefaultTextTrackIndex();
+            if (tracks.getAudioTracks().size() > 0) {
+                log.d("Default Audio langae = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel());
+            }
+            if (tracks.getTextTracks().size() > 0) {
+                log.d("Default Text langae = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel());
+            }
+            if (tracks.getVideoTracks().size() > 0) {
+                log.d("Default video isAdaptive = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).isAdaptive() + " bitrate = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).getBitrate());
+            }
+        });
     }
 }

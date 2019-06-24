@@ -1,12 +1,10 @@
 package com.kaltura.playkit.samples.audioonlybasicsetup;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -14,7 +12,9 @@ import android.widget.ImageView;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
+import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.player.PKExternalSubtitle;
+import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
@@ -52,46 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
         addPlayPauseButton();
 
-        showSystemUI();
 
-        (findViewById(R.id.activity_main)).setOnClickListener(v -> {
-            if (isFullScreen) {
-                showSystemUI();
-            } else {
-                hideSystemUI();
-            }
-        });
 
-        addAdEvents();
-
-    }
-
-    private void hideSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
-        }
-        isFullScreen = true;
-    }
-
-    private void showSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-        isFullScreen = false;
     }
 
     private void addAdEvents() {
@@ -193,7 +155,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
-
+        addAdEvents();
+        subscribeToTracksAvailableEvent();
+        artworkView.setVisibility(View.VISIBLE);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
@@ -225,5 +189,29 @@ public class MainActivity extends AppCompatActivity {
         videoMimeTypes.add("application/x-mpegURL");
         videoMimeTypes.add("application/dash+xml");
         return new IMAConfig().setAdTagUrl(adTagUrl).setVideoMimeTypes(videoMimeTypes).enableDebugMode(true).setAlwaysStartWithPreroll(true).setAdLoadTimeOut(8);
+    }
+
+    private void subscribeToTracksAvailableEvent() {
+        player.addListener(this, PlayerEvent.tracksAvailable, event -> {
+            //When the track data available, this event occurs. It brings the info object with it.
+            log.d("Event TRACKS_AVAILABLE");
+
+            //Cast event to the TracksAvailable object that is actually holding the necessary data.
+            PlayerEvent.TracksAvailable tracksAvailable = (PlayerEvent.TracksAvailable) event;
+
+            //Obtain the actual tracks info from it. Default track index values are coming from manifest
+            PKTracks tracks = tracksAvailable.tracksInfo;
+            int defaultAudioTrackIndex = tracks.getDefaultAudioTrackIndex();
+            int defaultTextTrackIndex = tracks.getDefaultTextTrackIndex();
+            if (tracks.getAudioTracks().size() > 0) {
+                log.d("Default Audio langae = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel());
+            }
+            if (tracks.getTextTracks().size() > 0) {
+                log.d("Default Text langae = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel());
+            }
+            if (tracks.getVideoTracks().size() > 0) {
+                log.d("Default video isAdaptive = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).isAdaptive() + " bitrate = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).getBitrate());
+            }
+        });
     }
 }
