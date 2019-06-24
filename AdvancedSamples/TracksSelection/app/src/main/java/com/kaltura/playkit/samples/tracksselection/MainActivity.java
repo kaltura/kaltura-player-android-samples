@@ -458,7 +458,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
-
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
