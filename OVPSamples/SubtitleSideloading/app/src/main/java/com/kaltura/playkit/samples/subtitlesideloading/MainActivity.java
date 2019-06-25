@@ -56,8 +56,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView tvSpinnerTitle;
     private boolean userIsInteracting;
     private boolean isFullScreen;
-    private ConstraintLayout constraintLayout;
-    private int translationMargin = 250;
+    private View tracksSelectionMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,54 +74,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //Subscribe to the event which will notify us when track data is available.
         subscribeToTracksAvailableEvent();
 
-        showSystemUI();
-
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
             if (isFullScreen) {
-                showSystemUI();
+                tracksSelectionMenu.animate().translationY(0);
+                isFullScreen = false;
             } else {
-                hideSystemUI();
+                tracksSelectionMenu.animate().translationY(-200);
+                isFullScreen = true;
             }
         });
 
-    }
-
-    private void hideSystemUI() {
-        constraintLayout.animate().translationY(0);
-        tvSpinnerTitle.animate().translationY(0);
-        ccStyleSpinner.animate().translationY(0);
-        playPauseButton.animate().translationY(0);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
-        }
-        isFullScreen = true;
-    }
-
-    private void showSystemUI() {
-        constraintLayout.animate().translationY(translationMargin);
-        tvSpinnerTitle.animate().translationY(-translationMargin);
-        ccStyleSpinner.animate().translationY(-translationMargin);
-        playPauseButton.animate().translationY(-translationMargin);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-        isFullScreen = false;
     }
 
     /**
@@ -179,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      * and set OnItemSelectedListener.
      */
     private void initializeTrackSpinners() {
-        constraintLayout = (ConstraintLayout) this.findViewById(R.id.activity_main);
+        tracksSelectionMenu = (View) this.findViewById(R.id.tracks_selection_menu);
         videoSpinner = (Spinner) this.findViewById(R.id.videoSpinner);
         audioSpinner = (Spinner) this.findViewById(R.id.audioSpinner);
         textSpinner = (Spinner) this.findViewById(R.id.textSpinner);
@@ -191,11 +152,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         textSpinner.setOnItemSelectedListener(this);
         audioSpinner.setOnItemSelectedListener(this);
         videoSpinner.setOnItemSelectedListener(this);
-
-        constraintLayout.animate().translationY(translationMargin);
-        tvSpinnerTitle.animate().translationY(-translationMargin);
-        ccStyleSpinner.animate().translationY(-translationMargin);
-        playPauseButton.animate().translationY(-translationMargin);
 
         ArrayList<String> stylesStrings = new ArrayList<>();
         stylesStrings.add(getDefaultPositionDefault().getStyleName());

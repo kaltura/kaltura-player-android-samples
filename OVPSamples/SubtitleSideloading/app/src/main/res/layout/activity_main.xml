@@ -8,13 +8,6 @@
     android:orientation="vertical"
     tools:context="com.kaltura.playkit.samples.subtitlesideloading.MainActivity">
 
-    <include
-        android:id="@+id/tracks_selection_menu"
-        layout="@layout/tracks_selection_menu_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
-
     <LinearLayout
         android:id="@+id/player_root"
         android:layout_width="match_parent"
@@ -22,7 +15,15 @@
         android:orientation="horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tracks_selection_menu"/>
+        app:layout_constraintBottom_toTopOf="@+id/play_pause_button"
+        app:layout_constraintTop_toTopOf="@+id/tracks_selection_menu"/>
+
+    <include
+        android:id="@+id/tracks_selection_menu"
+        layout="@layout/tracks_selection_menu_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/play_pause_button"

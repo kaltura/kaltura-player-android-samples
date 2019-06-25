@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 tracksSelectionMenu.animate().translationY(0);
                 isFullScreen = false;
             } else {
-                tracksSelectionMenu.animate().translationY(-150);
+                tracksSelectionMenu.animate().translationY(-200);
                 isFullScreen = true;
             }
         });

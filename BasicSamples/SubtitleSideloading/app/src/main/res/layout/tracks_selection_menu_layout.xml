@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:weightSum="3">
+    android:weightSum="3"
+    android:background="@android:color/white">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -16,12 +17,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/video_track"
-            android:gravity="center"/>
+            android:gravity="center_horizontal"/>
 
         <Spinner
             android:id="@+id/videoSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"/>
 
     </LinearLayout>
 
@@ -36,12 +38,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/audio_track"
-            android:gravity="center"/>
+            android:gravity="center_horizontal"/>
 
         <Spinner
             android:id="@+id/audioSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"/>
 
     </LinearLayout>
 
@@ -56,12 +59,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/text_track"
-            android:gravity="center"/>
+            android:gravity="center_horizontal"/>
 
         <Spinner
             android:id="@+id/textSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"/>
 
     </LinearLayout>
 
