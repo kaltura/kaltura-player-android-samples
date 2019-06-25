@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private Button playPauseButton;
     private ImageView artworkView;
     PlayerInitOptions playerInitOptions;
-    private boolean isFullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +59,6 @@ public class MainActivity extends AppCompatActivity {
         loadPlaykitPlayer(mediaEntry);
 
         addPlayPauseButton();
-
-
     }
 
     private void addAdEvents() {

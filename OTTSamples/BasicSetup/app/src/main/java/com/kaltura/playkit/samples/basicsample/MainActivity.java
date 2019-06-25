@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
 
