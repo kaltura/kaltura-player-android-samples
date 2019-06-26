@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private ImageView artworkView;
-    private boolean isFullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,11 +153,12 @@ public class MainActivity extends AppCompatActivity {
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
-
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
         addAdEvents();
         subscribeToTracksAvailableEvent();
-        artworkView.setVisibility(View.VISIBLE);
+
+        showArtworkForAudioContent(View.VISIBLE);
+
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());

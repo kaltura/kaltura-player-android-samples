@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private ImageView artworkView;
-    PlayerInitOptions playerInitOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,11 +203,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadPlaykitPlayer(PKMediaEntry pkMediaEntry) {
-        playerInitOptions = new PlayerInitOptions();
+        PlayerInitOptions playerInitOptions = new PlayerInitOptions();
+        playerInitOptions.setAutoPlay(true);
 
         // Audio Only setup
         playerInitOptions.setIsVideoViewHidden(true);
-        playerInitOptions.setAutoPlay(true);
 
         // IMA Configuration
         PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
@@ -220,7 +219,9 @@ public class MainActivity extends AppCompatActivity {
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
         addAdEvents();
         subscribeToTracksAvailableEvent();
-        artworkView.setVisibility(View.VISIBLE);
+
+        showArtworkForAudioContent(View.VISIBLE);
+
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());

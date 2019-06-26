@@ -153,11 +153,12 @@ public class MainActivity extends AppCompatActivity {
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
-
         player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
         addAdEvents();
         subscribeToTracksAvailableEvent();
-        artworkView.setVisibility(View.VISIBLE);
+
+        showArtworkForAudioContent(View.VISIBLE);
+
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
