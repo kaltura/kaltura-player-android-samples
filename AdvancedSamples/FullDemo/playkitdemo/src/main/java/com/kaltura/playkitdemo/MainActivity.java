@@ -68,7 +68,6 @@ import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.config.player.UiConf;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -113,9 +112,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private boolean isAdsEnabled = true;
     private boolean isDAIMode = false;
 
-
-
-
     PlayerInitOptions playerInitOptions;
 
     // OVP startSimpleOvpMediaLoadingHls
@@ -156,12 +152,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final int OVP_PARTNER_ID_LIVE_1 = 1740481;
 
     // OTT startOttMediaLoading
-
-    private static final String OTT_SERVER_URL = MockParams.PhoenixBaseUrl;
-    private static final String OTT_ASSET_ID =MockParams.SingMediaId4; //bunny no horses id "485380"
-    private static final int OTT_PARTNER_ID = MockParams.OttPartnerId;
-    // private static final int OTT_UICONF_ID = 41188731;
-    // private static final int OTT_UICONF_PARTNER_ID = 2215841;
+    private static final String OTT_SERVER_URL = MockParams.OTT_BASE_URL;
+    private static final String OTT_ASSET_ID =MockParams.OTT_ASSET_ID; //bunny no horses id "485380"
+    private static final int OTT_PARTNER_ID = MockParams.OTT_PARTNER_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         progressBar.setVisibility(View.INVISIBLE);
 
         PKPluginConfigs pkPluginConfigs = configurePlugins();
-        loadPlaykitPlayer(OVP_PARTNER_ID_HLS, null, null, OVP_SERVER_URL_HLS, PLAYER_TYPE.OVP, pkPluginConfigs);
+        loadPlaykitPlayer(OTT_PARTNER_ID, OTT_SERVER_URL, PLAYER_TYPE.OTT, pkPluginConfigs);
 
         //startSimpleOvpMediaLoadingVR(playLoadedEntry);
         startSimpleOvpMediaLoadingHls();
@@ -222,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //      startSimpleOvpMediaLoadingLive1(playLoadedEntry);
 //      startMockMediaLoading(playLoadedEntry);
 //      startOvpMediaLoading(playLoadedEntry);
-//      startOttMediaLoading(playLoadedEntry);
+        startOttMediaLoading();
 //      startSimpleOvpMediaLoadingDRM(playLoadedEntry);
 //      LocalAssets.start(this, playLoadedEntry);
         playerContainer = (RelativeLayout)findViewById(R.id.player_container);
@@ -241,6 +234,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setRequestedOrientation(orient);
             }
         });
+    }
+
+    private void startOttMediaLoading() {
+        buildOttMediaOptions(OTT_ASSET_ID, null);
     }
 
     private void startSimpleOvpMediaLoadingHls() {
@@ -1222,9 +1219,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    public void loadPlaykitPlayer(Integer partnerId, Integer uiConfId, Integer UiConfPartnerId, String serverUrl, PLAYER_TYPE player_type, PKPluginConfigs pkPluginConfigs) {
+    public void loadPlaykitPlayer(Integer partnerId, String serverUrl, PLAYER_TYPE player_type, PKPluginConfigs pkPluginConfigs) {
 
-        playerInitOptions = new PlayerInitOptions(partnerId, new UiConf(uiConfId, UiConfPartnerId));
+        playerInitOptions = new PlayerInitOptions(partnerId);
         playerInitOptions.setServerUrl(serverUrl);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setSecureSurface(false);
@@ -1252,12 +1249,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
         }
 
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_view);
         container.addView(player.getPlayerView());
     }
 
-    private void buildOttMediaOptions(String assetId) {
+    private void buildOttMediaOptions(String assetId, String ks) {
 
         if(!isPlayerLoaded()) {
             return;
@@ -1268,10 +1265,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https;
-        ottMediaOptions.ks = null;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
+        ottMediaOptions.ks = ks;
         ottMediaOptions.startPosition = START_POSITION;
-        //  ottMediaOptions.formats = new String []{"Tablet Main"};
+        ottMediaOptions.formats = new String []{"Mobile_Main"};
 
         player.loadMedia(ottMediaOptions, (entry, error) -> {
             if (error != null) {

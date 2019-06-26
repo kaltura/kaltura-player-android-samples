@@ -31,6 +31,14 @@ public class MockParams {
     public static String FrozenAssetInfo = "mock/phoenix.asset.get.258656.json";
 //---------------------------------------
 
+    //----- New OTT Mock Param
+    public static final int OTT_PARTNER_ID = 3009;
+    public static final String OTT_BASE_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    public static final String OTT_ASSET_ID = "548576";
+    // Sample asset ids: 1232717, 548579, 548577, 548576, 548575, 548574, 548573, 548572, 548571, 548570, 548569
+    public static final String OTT_LIVE_ASSET_ID = "427690";
+    //-------------------------
+
 /*Ovp Mock params: */
     public static final int OvpPartnerId = 2222401;
     public static final String OvpBaseUrl = "https://cdnapisec.kaltura.com/";
