@@ -4,6 +4,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
+    //Media entry configuration constants.
     private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     private static final String ASSET_ID = "548576";
     private static final int PARTNER_ID = 3009;
@@ -111,19 +113,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onPause() {
+        log.d("onPause");
+        super.onPause();
         if (player != null) {
-            player.onApplicationResumed();
-            player.play();
+            if (playPauseButton != null) {
+                playPauseButton.setText(R.string.pause_text);
+            }
+            player.onApplicationPaused();
         }
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onResume() {
+        log.d("onResume");
+        super.onResume();
+
         if (player != null) {
-            player.onApplicationPaused();
+            player.onApplicationResumed();
+            player.play();
         }
     }
 

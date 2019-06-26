@@ -458,7 +458,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         userIsInteracting = true;
     }
 
-
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause");
@@ -481,7 +480,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             player.play();
         }
     }
-
 
     public void loadPlaykitPlayer() {
 

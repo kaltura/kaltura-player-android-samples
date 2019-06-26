@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Add simple play/pause button.
         addPlayPauseButton();
+
         showSystemUI();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {

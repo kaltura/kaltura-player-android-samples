@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView tvSpinnerTitle;
     private boolean userIsInteracting;
     private boolean isFullScreen;
+    private View tracksSelectionMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //Subscribe to the event which will notify us when track data is available.
         subscribeToTracksAvailableEvent();
+
+        (findViewById(R.id.activity_main)).setOnClickListener(v -> {
+            if (isFullScreen) {
+                tracksSelectionMenu.animate().translationY(0);
+                isFullScreen = false;
+            } else {
+                tracksSelectionMenu.animate().translationY(-200);
+                isFullScreen = true;
+            }
+        });
+
     }
 
     /**
@@ -102,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      * and set OnItemSelectedListener.
      */
     private void initializeTrackSpinners() {
+        tracksSelectionMenu = (View) this.findViewById(R.id.tracks_selection_menu);
         videoSpinner = (Spinner) this.findViewById(R.id.videoSpinner);
         audioSpinner = (Spinner) this.findViewById(R.id.audioSpinner);
         textSpinner = (Spinner) this.findViewById(R.id.textSpinner);
@@ -435,6 +448,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "onPause");
         super.onPause();
         if (player != null) {
+            if (playPauseButton != null) {
+                playPauseButton.setText(R.string.pause_text);
+            }
             player.onApplicationPaused();
         }
     }

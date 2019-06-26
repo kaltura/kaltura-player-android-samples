@@ -61,8 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
         loadPlaykitPlayer();
 
-
-
         //Add simple play/pause button.
         addPlayPauseButton();
 
@@ -403,13 +401,35 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause");
+        super.onPause();
+        if (player != null) {
+            if (playPauseButton != null) {
+                playPauseButton.setText(R.string.pause_text);
+            }
+            player.onApplicationPaused();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume");
+        super.onResume();
+
+        if (player != null) {
+            player.onApplicationResumed();
+            player.play();
+        }
+    }
+
     public void loadPlaykitPlayer() {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
-
 
         // IMA DAI Configuration
         playerInitOptions.setPluginConfigs(createIMADAIPlugin());
