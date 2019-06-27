@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
@@ -22,7 +23,10 @@ import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
+import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
+import com.kaltura.tvplayer.TVPlayerType;
+import com.kaltura.tvplayer.config.PhoenixConfigurationsResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private ImageView artworkView;
+    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,34 +148,40 @@ public class MainActivity extends AppCompatActivity {
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
-        // Audio Only setup
-        playerInitOptions.setIsVideoViewHidden(true);
-
-        // IMA Configuration
-        PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
-        IMAConfig adsConfig = getAdsConfig(AD_TAG_URL_PRE);
-        pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
-
-        playerInitOptions.setPluginConfigs(pkPluginConfigs);
-
-        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-        addAdEvents();
-        subscribeToTracksAvailableEvent();
-
-        showArtworkForAudioContent(View.VISIBLE);
-
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        ViewGroup container = findViewById(R.id.player_root);
-        container.addView(player.getPlayerView());
-
-        OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
-
-        player.loadMedia(ottMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-            } else {
-                log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+        PlayerConfigManager.retrieve(this, TVPlayerType.ott, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
+            PhoenixConfigurationsResponse phoenixConfigurationsResponse = gson.fromJson(config, PhoenixConfigurationsResponse.class);
+            if (phoenixConfigurationsResponse != null) {
+                playerInitOptions.setTVPlayerParams(phoenixConfigurationsResponse.params);
             }
+            // Audio Only setup
+            playerInitOptions.setIsVideoViewHidden(true);
+
+            // IMA Configuration
+            PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
+            IMAConfig adsConfig = getAdsConfig(AD_TAG_URL_PRE);
+            pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
+
+            playerInitOptions.setPluginConfigs(pkPluginConfigs);
+
+            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+            addAdEvents();
+            subscribeToTracksAvailableEvent();
+
+            showArtworkForAudioContent(View.VISIBLE);
+
+            player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
+            ViewGroup container = findViewById(R.id.player_root);
+            container.addView(player.getPlayerView());
+
+            OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
+
+            player.loadMedia(ottMediaOptions, (entry, loadError) -> {
+                if (loadError != null) {
+                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+                } else {
+                    log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+                }
+            });
         });
     }
 

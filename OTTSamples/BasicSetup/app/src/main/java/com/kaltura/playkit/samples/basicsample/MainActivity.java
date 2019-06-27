@@ -10,12 +10,16 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
+import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
+import com.kaltura.tvplayer.TVPlayerType;
+import com.kaltura.tvplayer.config.PhoenixConfigurationsResponse;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean isFullScreen;
+    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,24 +127,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadPlaykitPlayer() {
-
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
-        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        ViewGroup container = findViewById(R.id.player_root);
-        container.addView(player.getPlayerView());
-
-        OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
-        player.loadMedia(ottMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-            } else {
-                log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+        PlayerConfigManager.retrieve(this, TVPlayerType.ott, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
+            PhoenixConfigurationsResponse phoenixConfigurationsResponse = gson.fromJson(config, PhoenixConfigurationsResponse.class);
+            if (phoenixConfigurationsResponse != null) {
+                playerInitOptions.setTVPlayerParams(phoenixConfigurationsResponse.params);
             }
+
+            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+            player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+            ViewGroup container = findViewById(R.id.player_root);
+            container.addView(player.getPlayerView());
+
+            OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
+            player.loadMedia(ottMediaOptions, (entry, loadError) -> {
+                if (loadError != null) {
+                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+                } else {
+                    log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+                }
+            });
         });
     }
 

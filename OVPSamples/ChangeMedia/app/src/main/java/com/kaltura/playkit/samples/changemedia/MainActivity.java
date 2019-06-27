@@ -10,10 +10,14 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
+import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
+import com.kaltura.tvplayer.TVPlayerType;
+import com.kaltura.tvplayer.config.TVPlayerParams;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,12 +28,13 @@ public class MainActivity extends AppCompatActivity {
     private static final String SERVER_URL = "https://cdnapisec.kaltura.com";
     private static final int PARTNER_ID = 2215841;
 
-
     private static final String FIRST_ENTRY_ID = "1_w9zx2eti";
     private static final String SECOND_ENTRY_ID = "1_ebs5e9cy";
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean isFullScreen;
+    private Gson gson = new Gson();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +48,6 @@ public class MainActivity extends AppCompatActivity {
         initChangeMediaButton();
 
         loadPlaykitPlayer();
-
-        //Prepare the first entry.
-        prepareFirstEntry();
 
         showSystemUI();
 
@@ -212,12 +214,21 @@ public class MainActivity extends AppCompatActivity {
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
+        PlayerConfigManager.retrieve(this, TVPlayerType.ovp, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
 
-        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+            TVPlayerParams tvPlayerParams = gson.fromJson(config, TVPlayerParams.class);
+            if (tvPlayerParams != null) {
+                playerInitOptions.setTVPlayerParams(tvPlayerParams);
+            }
+            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        ViewGroup container = findViewById(R.id.player_root);
-        container.addView(player.getPlayerView());
+            player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            ViewGroup container = findViewById(R.id.player_root);
+            container.addView(player.getPlayerView());
+
+            //Prepare the first entry.
+            prepareFirstEntry();
+        });
     }
 
 }

@@ -1,16 +1,13 @@
 package com.kaltura.playkit.samples.subtitlesideloading;
 
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -18,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.player.AudioTrack;
@@ -30,7 +28,10 @@ import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItem;
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
+import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
+import com.kaltura.tvplayer.TVPlayerType;
+import com.kaltura.tvplayer.config.TVPlayerParams;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private boolean userIsInteracting;
     private boolean isFullScreen;
     private View tracksSelectionMenu;
+    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,15 +66,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
 
         loadPlaykitPlayer();
-
-        //Add simple play/pause button.
-        addPlayPauseButton();
-
-        //Initialize Android spinners view.
-        initializeTrackSpinners();
-
-        //Subscribe to the event which will notify us when track data is available.
-        subscribeToTracksAvailableEvent();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
             if (isFullScreen) {
@@ -487,22 +480,36 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setSubtitleStyle(getDefaultPositionDefault());
         playerInitOptions.setAutoPlay(true);
+        PlayerConfigManager.retrieve(this, TVPlayerType.ovp, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
 
-        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
-
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        ViewGroup container = findViewById(R.id.player_root);
-        container.addView(player.getPlayerView());
-
-        OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
-        player.loadMedia(ovpMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-            } else {
-                Log.d(TAG, "OVPMedia onEntryLoadComplete  entry = " + entry.getId());
+            TVPlayerParams tvPlayerParams = gson.fromJson(config, TVPlayerParams.class);
+            if (tvPlayerParams != null) {
+                playerInitOptions.setTVPlayerParams(tvPlayerParams);
             }
-        });
+            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 
+            player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            ViewGroup container = findViewById(R.id.player_root);
+            container.addView(player.getPlayerView());
+
+            OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
+            player.loadMedia(ovpMediaOptions, (entry, loadError) -> {
+                if (loadError != null) {
+                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+                } else {
+                    Log.d(TAG, "OVPMedia onEntryLoadComplete  entry = " + entry.getId());
+                }
+            });
+
+            //Add simple play/pause button.
+            addPlayPauseButton();
+
+            //Initialize Android spinners view.
+            initializeTrackSpinners();
+
+            //Subscribe to the event which will notify us when track data is available.
+            subscribeToTracksAvailableEvent();
+        });
     }
 
     private OVPMediaOptions buildOvpMediaOptions() {

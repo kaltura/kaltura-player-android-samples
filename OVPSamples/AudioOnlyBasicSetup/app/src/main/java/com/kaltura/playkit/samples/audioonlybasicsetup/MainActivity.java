@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
@@ -20,7 +21,10 @@ import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
+import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
+import com.kaltura.tvplayer.TVPlayerType;
+import com.kaltura.tvplayer.config.TVPlayerParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
     private static final String ENTRY_ID = "1_w9zx2eti";
     private static final int PARTNER_ID = 2215841;
-
     private boolean isFullScreen;
+    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,35 +147,41 @@ public class MainActivity extends AppCompatActivity {
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
 
-        // Audio Only setup
-        playerInitOptions.setIsVideoViewHidden(true);
+        PlayerConfigManager.retrieve(this, TVPlayerType.ovp, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
 
-        // IMA Configuration
-        PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
-        IMAConfig adsConfig = getAdsConfig(AD_TAG_URL);
-        pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
-
-        playerInitOptions.setPluginConfigs(pkPluginConfigs);
-
-        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
-        addAdEvents();
-        subscribeToTracksAvailableEvent();
-
-        showArtworkForAudioContent(View.VISIBLE);
-
-        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        ViewGroup container = findViewById(R.id.player_root);
-        container.addView(player.getPlayerView());
-
-        OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
-        player.loadMedia(ovpMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-            } else {
-                log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
+            TVPlayerParams tvPlayerParams = gson.fromJson(config, TVPlayerParams.class);
+            if (tvPlayerParams != null) {
+                playerInitOptions.setTVPlayerParams(tvPlayerParams);
             }
-        });
+            // Audio Only setup
+            playerInitOptions.setIsVideoViewHidden(true);
 
+            // IMA Configuration
+            PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
+            IMAConfig adsConfig = getAdsConfig(AD_TAG_URL);
+            pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
+
+            playerInitOptions.setPluginConfigs(pkPluginConfigs);
+
+            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+            addAdEvents();
+            subscribeToTracksAvailableEvent();
+
+            showArtworkForAudioContent(View.VISIBLE);
+
+            player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+            ViewGroup container = findViewById(R.id.player_root);
+            container.addView(player.getPlayerView());
+
+            OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
+            player.loadMedia(ovpMediaOptions, (entry, loadError) -> {
+                if (loadError != null) {
+                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+                } else {
+                    log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
+                }
+            });
+        });
     }
 
     private OVPMediaOptions buildOvpMediaOptions() {

@@ -10,10 +10,14 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
+import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
+import com.kaltura.tvplayer.TVPlayerType;
+import com.kaltura.tvplayer.config.TVPlayerParams;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String ENTRY_ID = "1_w9zx2eti";
     private static final int PARTNER_ID = 2215841;
     private boolean isFullScreen;
+    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,21 +129,35 @@ public class MainActivity extends AppCompatActivity {
         playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
 
-        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+        PlayerConfigManager.retrieve(this, TVPlayerType.ovp, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
 
-        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        ViewGroup container = findViewById(R.id.player_root);
-        container.addView(player.getPlayerView());
+            TVPlayerParams tvPlayerParams = gson.fromJson(config, TVPlayerParams.class);
+            if (tvPlayerParams != null) {
 
-        OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
-        player.loadMedia(ovpMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-            } else {
-                log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
+                /*
+                  //TVPlayerParams
+                  "analyticsUrl":"https://analytics.kaltura.com"
+                  "uiConfId": 44267972  //OPTIONAL
+                 */
+                
+                playerInitOptions.setTVPlayerParams(tvPlayerParams);
             }
-        });
 
+            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+
+            player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            ViewGroup container = findViewById(R.id.player_root);
+            container.addView(player.getPlayerView());
+
+            OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
+            player.loadMedia(ovpMediaOptions, (entry, loadError) -> {
+                if (loadError != null) {
+                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+                } else {
+                    log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
+                }
+            });
+        });
     }
 
     private OVPMediaOptions buildOvpMediaOptions() {
