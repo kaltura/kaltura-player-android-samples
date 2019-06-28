@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
 
         loadPlaykitPlayer();
 
-
         showSystemUI();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {

@@ -1,7 +1,6 @@
 package com.kaltura.playkit.samples.tracksselection;
 
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +8,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -17,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.player.AudioTrack;
@@ -31,7 +30,10 @@ import com.kaltura.playkit.samples.tracksselection.tracks.TrackItem;
 import com.kaltura.playkit.samples.tracksselection.tracks.TrackItemAdapter;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
+import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
+import com.kaltura.tvplayer.TVPlayerType;
+import com.kaltura.tvplayer.config.PhoenixConfigurationsResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private boolean userIsInteracting;
     private boolean isFullScreen;
     private View tracksSelectionMenu;
+    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,15 +70,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
 
         loadPlaykitPlayer();
-
-        //Add simple play/pause button.
-        addPlayPauseButton();
-
-        //Initialize Android spinners view.
-        initializeTrackSpinners();
-
-        //Subscribe to the event which will notify us when track data is available.
-        subscribeToTracksAvailableEvent();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
             if (isFullScreen) {
@@ -474,18 +468,43 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
-        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        ViewGroup container = findViewById(R.id.player_root);
-        container.addView(player.getPlayerView());
+        PlayerConfigManager.retrieve(this, TVPlayerType.ott, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
+            PhoenixConfigurationsResponse phoenixConfigurationsResponse = gson.fromJson(config, PhoenixConfigurationsResponse.class);
+            if (phoenixConfigurationsResponse != null) {
 
-        OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
-        player.loadMedia(ottMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-            } else {
-                Log.d(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+                /*
+                  //PhoenixTVPlayerParams
+                  "analyticsUrl": "https://analytics.kaltura.com/api_v3/index.php"
+                  "ovpServiceUrl": "https://cdnapisec.kaltura.com"
+                  "ovpPartnerId": 2254732
+                  "uiConfId": 44267972
+                 */
+
+                playerInitOptions.setTVPlayerParams(phoenixConfigurationsResponse.params);
             }
+
+            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+            player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+            ViewGroup container = findViewById(R.id.player_root);
+            container.addView(player.getPlayerView());
+
+            OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
+            player.loadMedia(ottMediaOptions, (entry, loadError) -> {
+                if (loadError != null) {
+                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+                } else {
+                    Log.d(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+                }
+            });
+
+            //Add simple play/pause button.
+            addPlayPauseButton();
+
+            //Initialize Android spinners view.
+            initializeTrackSpinners();
+
+            //Subscribe to the event which will notify us when track data is available.
+            subscribeToTracksAvailableEvent();
         });
     }
 
