@@ -15,9 +15,9 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.player.AudioTrack;
 import com.kaltura.playkit.player.PKExternalSubtitle;
 import com.kaltura.playkit.player.PKTracks;
@@ -30,10 +30,7 @@ import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItem;
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
-import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.TVPlayerType;
-import com.kaltura.tvplayer.config.PhoenixConfigurationsResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,11 +42,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "MainActivity";
-    private static final Long START_POSITION = 0L; // position for start playback in msec.
 
-    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    public static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    public static final int PARTNER_ID = 3009;
+
     private static final String ASSET_ID = "548576";
-    private static final int PARTNER_ID = 3009;
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -60,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private boolean userIsInteracting;
     private boolean isFullScreen;
     private View tracksSelectionMenu;
-    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,19 +109,28 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      */
     private void addPlayPauseButton() {
         //Get reference to the play/pause button.
-        playPauseButton = (Button) this.findViewById(R.id.play_pause_button);
+        playPauseButton = this.findViewById(R.id.play_pause_button);
         //Add clickListener.
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (player.isPlaying()) {
+        playPauseButton.setOnClickListener(v -> {
+            if (player != null) {
+                AdController adController = player.getController(AdController.class);
+                if (player.isPlaying() || (adController != null && adController.isAdDisplayed() && adController.isAdPlaying())) {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.pause();
+                    } else {
+                        player.pause();
+                    }
                     //If player is playing, change text of the button and pause.
                     playPauseButton.setText(R.string.play_text);
-                    player.pause();
                 } else {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.play();
+                    } else {
+                        player.play();
+                    }
                     //If player is not playing, change text of the button and play.
                     playPauseButton.setText(R.string.pause_text);
-                    player.play();
+
                 }
             }
         });
@@ -135,12 +141,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      * and set OnItemSelectedListener.
      */
     private void initializeTrackSpinners() {
-        tracksSelectionMenu = (View) this.findViewById(R.id.tracks_selection_menu);
-        videoSpinner = (Spinner) this.findViewById(R.id.videoSpinner);
-        audioSpinner = (Spinner) this.findViewById(R.id.audioSpinner);
-        textSpinner = (Spinner) this.findViewById(R.id.textSpinner);
-        ccStyleSpinner = (Spinner) this.findViewById(R.id.ccStyleSpinner);
-        tvSpinnerTitle = (TextView) this.findViewById(R.id.tvSpinnerTitle);
+        tracksSelectionMenu = this.findViewById(R.id.tracks_selection_menu);
+        videoSpinner = this.findViewById(R.id.videoSpinner);
+        audioSpinner = this.findViewById(R.id.audioSpinner);
+        textSpinner = this.findViewById(R.id.textSpinner);
+        ccStyleSpinner = this.findViewById(R.id.ccStyleSpinner);
+        tvSpinnerTitle = this.findViewById(R.id.tvSpinnerTitle);
         tvSpinnerTitle.setVisibility(View.INVISIBLE);
         ccStyleSpinner.setVisibility(View.INVISIBLE);
 
@@ -152,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         stylesStrings.add(getDefaultPositionDefault().getStyleName());
         stylesStrings.add(getStyleForPositionOne().getStyleName());
         stylesStrings.add(getStyleForPositionTwo().getStyleName());
-        ArrayAdapter<String> ccStyleAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, stylesStrings);
+        ArrayAdapter<String> ccStyleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, stylesStrings);
         ccStyleSpinner.setAdapter(ccStyleAdapter);
         ccStyleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -213,18 +219,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //When the track data available, this event occurs. It brings the info object with it.
             Log.d(TAG, "Event TRACKS_AVAILABLE");
 
-            //Cast event to the TracksAvailable object that is actually holding the necessary data.
-            PlayerEvent.TracksAvailable tracksAvailable = (PlayerEvent.TracksAvailable) event;
-
             //Obtain the actual tracks info from it. Default track index values are coming from manifest
-            PKTracks tracks = tracksAvailable.tracksInfo;
+            PKTracks tracks = event.tracksInfo;
             int defaultAudioTrackIndex = tracks.getDefaultAudioTrackIndex();
             int defaultTextTrackIndex = tracks.getDefaultTextTrackIndex();
             if (tracks.getAudioTracks().size() > 0) {
-                Log.d(TAG, "Default Audio langae = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel());
+                Log.d(TAG, "Default Audio language = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel());
             }
             if (tracks.getTextTracks().size() > 0) {
-                Log.d(TAG, "Default Text langae = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel());
+                Log.d(TAG, "Default Text language = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel());
                 if(tvSpinnerTitle != null && ccStyleSpinner != null) {
                     tvSpinnerTitle.setVisibility(View.VISIBLE);
                     ccStyleSpinner.setVisibility(View.VISIBLE);
@@ -239,19 +242,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
 
         player.addListener(this, PlayerEvent.videoTrackChanged, event -> {
-            Log.d(TAG, "Event VideoTrackChanged " + ((PlayerEvent.VideoTrackChanged) event).newTrack.getBitrate());
+            Log.d(TAG, "Event VideoTrackChanged " + event.newTrack.getBitrate());
         });
 
         player.addListener(this, PlayerEvent.audioTrackChanged, event -> {
-            Log.d(TAG, "Event AudioTrackChanged " + ((PlayerEvent.AudioTrackChanged) event).newTrack.getLanguage());
+            Log.d(TAG, "Event AudioTrackChanged " + event.newTrack.getLanguage());
         });
 
         player.addListener(this, PlayerEvent.textTrackChanged, event -> {
-            Log.d(TAG, "Event TextTrackChanged " + ((PlayerEvent.TextTrackChanged) event).newTrack.getLanguage());
+            Log.d(TAG, "Event TextTrackChanged " + event.newTrack.getLanguage());
         });
 
         player.addListener(this, PlayerEvent.subtitlesStyleChanged, event -> {
-            Log.d(TAG, "Event SubtitlesStyleChanged " + ((PlayerEvent.SubtitlesStyleChanged) event).styleName);
+            Log.d(TAG, "Event SubtitlesStyleChanged " + event.styleName);
         });
     }
 
@@ -477,14 +480,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void loadPlaykitPlayer() {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setSubtitleStyle(getDefaultPositionDefault());
         playerInitOptions.setAllowCrossProtocolEnabled(true);
         playerInitOptions.setAutoPlay(true);
 
-        PlayerConfigManager.retrieve(this, TVPlayerType.ott, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
-            PhoenixConfigurationsResponse phoenixConfigurationsResponse = gson.fromJson(config, PhoenixConfigurationsResponse.class);
-            if (phoenixConfigurationsResponse != null) {
 
                 /*
                   //PhoenixTVPlayerParams
@@ -494,8 +493,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                   "uiConfId": 44267972
                  */
 
-                playerInitOptions.setTVPlayerParams(phoenixConfigurationsResponse.params);
-            }
 
             player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
             player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
@@ -519,7 +516,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             //Subscribe to the event which will notify us when track data is available.
             subscribeToTracksAvailableEvent();
-        });
     }
 
     private OTTMediaOptions buildOttMediaOptions() {

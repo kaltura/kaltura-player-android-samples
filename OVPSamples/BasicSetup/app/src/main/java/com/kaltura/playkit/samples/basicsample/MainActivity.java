@@ -10,28 +10,22 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
-import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.TVPlayerType;
-import com.kaltura.tvplayer.config.TVPlayerParams;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
-
+    public static final int PARTNER_ID = 2215841;
+    public  static final String SERVER_URL = "https://cdnapisec.kaltura.com";
     private static final Long START_POSITION = 0L; // position for start playback in msec.
     private KalturaPlayer player;
     private Button playPauseButton;
 
-    private static final String SERVER_URL = "https://cdnapisec.kaltura.com";
-    private static final String ENTRY_ID = "1_w9zx2eti";
-    private static final int PARTNER_ID = 2215841;
+    private final String ENTRY_ID = "1_w9zx2eti";
     private boolean isFullScreen;
-    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,14 +85,16 @@ public class MainActivity extends AppCompatActivity {
         playPauseButton = this.findViewById(R.id.play_pause_button);
         //Add clickListener.
         playPauseButton.setOnClickListener(v -> {
-            if (player.isPlaying()) {
-                //If player is playing, change text of the button and pause.
-                playPauseButton.setText(R.string.play_text);
-                player.pause();
-            } else {
-                //If player is not playing, change text of the button and play.
-                playPauseButton.setText(R.string.pause_text);
-                player.play();
+            if (player != null) {
+                if (player.isPlaying()) {
+                    //If player is playing, change text of the button and pause.
+                    playPauseButton.setText(R.string.play_text);
+                    player.pause();
+                } else {
+                    //If player is not playing, change text of the button and play.
+                    playPauseButton.setText(R.string.pause_text);
+                    player.play();
+                }
             }
         });
     }
@@ -126,37 +122,21 @@ public class MainActivity extends AppCompatActivity {
     public void loadPlaykitPlayer() {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
+        
+        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 
-        PlayerConfigManager.retrieve(this, TVPlayerType.ovp, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
+        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        ViewGroup container = findViewById(R.id.player_root);
+        container.addView(player.getPlayerView());
 
-            TVPlayerParams tvPlayerParams = gson.fromJson(config, TVPlayerParams.class);
-            if (tvPlayerParams != null) {
-
-                /*
-                  //TVPlayerParams
-                  "analyticsUrl":"https://analytics.kaltura.com"
-                  "uiConfId": 44267972  //OPTIONAL
-                 */
-                
-                playerInitOptions.setTVPlayerParams(tvPlayerParams);
+        OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
+        player.loadMedia(ovpMediaOptions, (entry, loadError) -> {
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+            } else {
+                log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
             }
-
-            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
-
-            player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            ViewGroup container = findViewById(R.id.player_root);
-            container.addView(player.getPlayerView());
-
-            OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
-            player.loadMedia(ovpMediaOptions, (entry, loadError) -> {
-                if (loadError != null) {
-                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
-                } else {
-                    log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
-                }
-            });
         });
     }
 

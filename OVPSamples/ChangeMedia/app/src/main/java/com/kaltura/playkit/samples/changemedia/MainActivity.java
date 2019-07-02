@@ -10,31 +10,27 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
-import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.TVPlayerType;
-import com.kaltura.tvplayer.config.TVPlayerParams;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
 
-    private static final Long START_POSITION = 0L; // position for start playback in msec.
 
-    private static final String SERVER_URL = "https://cdnapisec.kaltura.com";
-    private static final int PARTNER_ID = 2215841;
+
+    public static final String SERVER_URL = "https://cdnapisec.kaltura.com";
+    public static final int PARTNER_ID = 2215841;
 
     private static final String FIRST_ENTRY_ID = "1_w9zx2eti";
     private static final String SECOND_ENTRY_ID = "1_ebs5e9cy";
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
+
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean isFullScreen;
-    private Gson gson = new Gson();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initChangeMediaButton() {
         //Get reference to the button.
-        Button changeMediaButton = (Button) this.findViewById(R.id.change_media_button);
+        Button changeMediaButton = this.findViewById(R.id.change_media_button);
         //Set click listener.
         changeMediaButton.setOnClickListener(v -> {
             //Change media.
@@ -160,11 +156,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private void addPlayPauseButton() {
         //Get reference to the play/pause button.
-        playPauseButton = (Button) this.findViewById(R.id.play_pause_button);
+        playPauseButton = this.findViewById(R.id.play_pause_button);
         //Add clickListener.
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        playPauseButton.setOnClickListener(v -> {
+            if (player != null)
                 if (player.isPlaying()) {
                     //If player is playing, change text of the button and pause.
                     resetPlayPauseButtonToPlayText();
@@ -174,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                     resetPlayPauseButtonToPauseText();
                     player.play();
                 }
-            }
         });
     }
 
@@ -211,24 +205,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadPlaykitPlayer() {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
-        PlayerConfigManager.retrieve(this, TVPlayerType.ovp, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
+        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 
-            TVPlayerParams tvPlayerParams = gson.fromJson(config, TVPlayerParams.class);
-            if (tvPlayerParams != null) {
-                playerInitOptions.setTVPlayerParams(tvPlayerParams);
-            }
-            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        ViewGroup container = findViewById(R.id.player_root);
+        container.addView(player.getPlayerView());
 
-            player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            ViewGroup container = findViewById(R.id.player_root);
-            container.addView(player.getPlayerView());
-
-            //Prepare the first entry.
-            prepareFirstEntry();
-        });
+        //Prepare the first entry.
+        prepareFirstEntry();
     }
-
 }

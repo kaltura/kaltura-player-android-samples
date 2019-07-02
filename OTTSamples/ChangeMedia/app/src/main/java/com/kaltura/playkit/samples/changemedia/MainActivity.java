@@ -16,22 +16,20 @@ import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
-import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.TVPlayerType;
-import com.kaltura.tvplayer.config.PhoenixConfigurationsResponse;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
 
-    private static final Long START_POSITION = 0L; // position for start playback in msec.
-
-    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
-    private static final int PARTNER_ID = 3009;
+    public static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    public static final int PARTNER_ID = 3009;
 
     private static final String FIRST_ASSET_ID = "548576";
     private static final String SECOND_ASSET_ID = "548577";
+    private static final Long START_POSITION = 0L; // position for start playback in msec.
+
 
     private KalturaPlayer player;
     private Button playPauseButton;
@@ -175,9 +173,8 @@ public class MainActivity extends AppCompatActivity {
         //Get reference to the play/pause button.
         playPauseButton = (Button) this.findViewById(R.id.play_pause_button);
         //Add clickListener.
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        playPauseButton.setOnClickListener(v -> {
+            if (player != null) {
                 if (player.isPlaying()) {
                     //If player is playing, change text of the button and pause.
                     resetPlayPauseButtonToPlayText();
@@ -224,24 +221,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadPlaykitPlayer() {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
-        PlayerConfigManager.retrieve(this, TVPlayerType.ott, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
-            PhoenixConfigurationsResponse phoenixConfigurationsResponse = gson.fromJson(config, PhoenixConfigurationsResponse.class);
-            if (phoenixConfigurationsResponse != null) {
-                playerInitOptions.setTVPlayerParams(phoenixConfigurationsResponse.params);
-            }
-            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-            player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            ViewGroup container = findViewById(R.id.player_root);
-            container.addView(player.getPlayerView());
+        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        ViewGroup container = findViewById(R.id.player_root);
+        container.addView(player.getPlayerView());
 
-            //Prepare the first entry.
-            prepareFirstEntry();
+        //Prepare the first entry.
+        prepareFirstEntry();
 
-        });
     }
 
 }
