@@ -14,6 +14,12 @@ public class DemoApplication extends Application {
         super.onCreate();
         KalturaPlayer.initializeOTT(this, MainActivity.OTT_PARTNER_ID, MainActivity.OTT_SERVER_URL);
         KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID, MainActivity.OVP_SERVER_URL);
+        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_HLS, MainActivity.OVP_SERVER_URL_HLS);
+        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_DRM, MainActivity.OVP_SERVER_URL_DRM);
+        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_VR, MainActivity.OVP_SERVER_URL_VR);
+        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_CLEAR, MainActivity.OVP_SERVER_URL_CLEAR);
+        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_LIVE, MainActivity.OVP_SERVER_URL_LIVE);
+        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_LIVE_1, MainActivity.OVP_SERVER_URL_LIVE_1);
         doConnectionsWarmup();
     }
     private void doConnectionsWarmup() {

@@ -13,6 +13,8 @@ import android.widget.FrameLayout;
 
 import com.google.gson.JsonObject;
 import com.kaltura.playkit.PKPluginConfigs;
+import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.plugins.youbora.YouboraEvent;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean isFullScreen;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +147,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void addPlayerStateListener() {
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            Log.d(TAG, "State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
+        });
+    }
+
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause");
@@ -161,12 +171,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onResume");
         super.onResume();
 
-        if (player != null) {
+        if (player != null && playerState != null) {
             player.onApplicationResumed();
             player.play();
         }
     }
-
 
     public void loadPlaykitPlayer() {
 
@@ -202,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
 
         showSystemUI();
 
+        addPlayerStateListener();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {

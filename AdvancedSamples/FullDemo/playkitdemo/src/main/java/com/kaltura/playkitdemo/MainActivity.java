@@ -33,7 +33,6 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.gson.JsonObject;
 import com.kaltura.playkit.PKDrmParams;
-import com.kaltura.playkit.PKEvent;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKMediaEntry;
 import com.kaltura.playkit.PKMediaSource;
@@ -111,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private PKTracks tracksInfo;
     private boolean isAdsEnabled = true;
     private boolean isDAIMode = false;
+    private PlayerState playerState;
 
     PlayerInitOptions playerInitOptions;
 
@@ -225,10 +225,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //loadBasicPlaykitPlayer(pkPluginConfigs);
 
         // OTT Playkit Player
-        loadOvpOttPlaykitPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
+        //loadOvpOttPlaykitPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
 
         // OVP Playkit Player
-       // loadOvpOttPlaykitPlayer(OVP_PARTNER_ID, KalturaPlayer.Type.ovp, pkPluginConfigs);
+         loadOvpOttPlaykitPlayer(OVP_PARTNER_ID, KalturaPlayer.Type.ovp, pkPluginConfigs);
     }
 
     private void startOttMediaLoading(String assetId, String ks) {
@@ -915,20 +915,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //log.d("BYTES_LOADED " + event.bytesLoaded);
         });
 
-        player.addListener(this, PlayerEvent.stateChanged, new PKEvent.Listener<PlayerEvent.StateChanged>() {
-            @Override
-            public void onEvent(PlayerEvent.StateChanged event) {
-                log.d("State changed from " + event.oldState + " to " + event.newState);
-                if (event.newState == PlayerState.BUFFERING) {
-                    appProgressBar.setVisibility(View.VISIBLE);
-                }
-                if ((event.oldState == PlayerState.LOADING || event.oldState == PlayerState.BUFFERING) && event.newState == PlayerState.READY) {
-                    appProgressBar.setVisibility(View.INVISIBLE);
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            log.d("State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
 
-                }
-                if(controlsView != null){
-                    controlsView.setPlayerState(event.newState);
-                }
+            if (event.newState == PlayerState.BUFFERING) {
+                appProgressBar.setVisibility(View.VISIBLE);
+            }
+            if ((event.oldState == PlayerState.LOADING || event.oldState == PlayerState.BUFFERING) && event.newState == PlayerState.READY) {
+                appProgressBar.setVisibility(View.INVISIBLE);
+
+            }
+            if(controlsView != null){
+                controlsView.setPlayerState(event.newState);
             }
         });
 
@@ -959,7 +958,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onResume() {
         log.d("Application onResume");
         super.onResume();
-        if (player != null) {
+        if (player != null && playerState != null) {
             player.onApplicationResumed();
         }
         if (controlsView != null) {
@@ -1319,10 +1318,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //            startSimpleOvpMediaLoadingLive();
 //            startSimpleOvpMediaLoadingLive1();
 
-//        startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
+        startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
 
         // OTT mock
-            startOttMediaLoading(OTT_ASSET_ID, null);
+//        startOttMediaLoading(OTT_ASSET_ID, null);
 
 
         //------------ OVP/OTT Mock Methods -----------//

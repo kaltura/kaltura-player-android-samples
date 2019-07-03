@@ -15,6 +15,7 @@ import com.google.ads.interactivemedia.v3.api.StreamRequest;
 import com.kaltura.playkit.PKMediaConfig;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ads.AdInfo;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private PKMediaConfig mediaConfig;
     private Button playPauseButton;
     private boolean isFullScreen;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -366,9 +368,16 @@ public class MainActivity extends AppCompatActivity {
             AdEvent.Error adError = event;
             Log.e(TAG, "AD_ERROR : " + adError.error.errorType.name());
         });
+    }
 
+    private void addPlayerStateListener() {
         player.addListener(this, PlayerEvent.error, event -> {
             Log.e(TAG, "PLAYER ERROR " + event.error.message);
+        });
+
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            Log.d(TAG,"State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
         });
     }
 
@@ -420,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onResume");
         super.onResume();
 
-        if (player != null) {
+        if (player != null && playerState != null) {
             player.onApplicationResumed();
             player.play();
         }
@@ -456,6 +465,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Add simple play/pause button.
         addPlayPauseButton();
+
+        addPlayerStateListener();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {

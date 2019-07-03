@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.kaltura.playkit.PKLog;
+import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean isFullScreen;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,10 +106,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void addPlayerStateListener() {
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            log.d("State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
+        });
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        if (player != null) {
+        if (player != null && playerState != null) {
             if (playPauseButton != null) {
                 playPauseButton.setText(R.string.pause_text);
             }
@@ -141,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
+
+        addPlayerStateListener();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {

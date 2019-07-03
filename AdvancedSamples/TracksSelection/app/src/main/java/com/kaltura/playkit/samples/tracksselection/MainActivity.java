@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.player.AudioTrack;
 import com.kaltura.playkit.player.PKExternalSubtitle;
 import com.kaltura.playkit.player.PKTracks;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private boolean userIsInteracting;
     private boolean isFullScreen;
     private View tracksSelectionMenu;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,6 +235,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.d(TAG, "PlayerEvent.Error event  position = " + playerError.error.errorType + " errorMessage = " + playerError.error.message);
             }
 
+        });
+
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            Log.d(TAG,"State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
         });
     }
 
@@ -449,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "onResume");
         super.onResume();
 
-        if (player != null) {
+        if (player != null && playerState != null) {
             player.onApplicationResumed();
             player.play();
         }

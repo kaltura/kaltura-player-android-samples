@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private Spinner speedSpinner;
     private boolean userIsInteracting;
     private boolean isFullScreen;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
     private void subscribeToPlayerStateChanges() {
 
         player.addListener(this, PlayerEvent.stateChanged, event -> {
+            playerState = event.newState;
             PlayerEvent.StateChanged stateChanged = event;
             //Switch on the new state that is received.
             switch (stateChanged.newState) {
@@ -241,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onResume");
         super.onResume();
 
-        if (player != null) {
+        if (player != null && playerState != null) {
             player.onApplicationResumed();
             player.play();
         }

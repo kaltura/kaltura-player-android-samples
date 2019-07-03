@@ -19,6 +19,7 @@ public class DemoApplication extends Application {
         PKHttpClientManager.setHttpProvider("okhttp");
 
         PKHttpClientManager.warmUp(
+                "https://https://rest-us.ott.kaltura.com/crossdomain.xml",
                 "http://cdnapi.kaltura.com/alive.html",
                 "https://cdnapisec.kaltura.com/alive.html",
                 "https://cfvod.kaltura.com/alive.html"

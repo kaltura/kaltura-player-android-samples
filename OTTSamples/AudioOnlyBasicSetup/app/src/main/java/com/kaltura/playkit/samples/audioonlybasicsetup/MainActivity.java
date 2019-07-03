@@ -13,6 +13,7 @@ import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.player.PKExternalSubtitle;
 import com.kaltura.playkit.player.PKTracks;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private ImageView artworkView;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +127,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void addPlayerStateListener() {
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            log.d("State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
+        });
+    }
+
     private void showArtworkForAudioContent(int visibility) {
         artworkView.setVisibility(visibility);
     }
@@ -132,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (player != null) {
+        if (player != null && playerState != null) {
             if (playPauseButton != null) {
                 playPauseButton.setText(R.string.pause_text);
             }
@@ -185,6 +194,8 @@ public class MainActivity extends AppCompatActivity {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
+
+        addPlayerStateListener();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {
