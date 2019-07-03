@@ -9,11 +9,11 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.player.PKExternalSubtitle;
 import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.plugins.ads.AdEvent;
@@ -21,10 +21,7 @@ import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
-import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.TVPlayerType;
-import com.kaltura.tvplayer.config.TVPlayerParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,17 +30,15 @@ public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
 
+    public static final int PARTNER_ID = 2215841;
+    public static final String SERVER_URL = "https://cdnapisec.kaltura.com";
     private static final Long START_POSITION = 0L; // position for start playback in msec.
+
     private KalturaPlayer player;
     private Button playPauseButton;
     private ImageView artworkView;
-
-    private static final String SERVER_URL = "https://cdnapisec.kaltura.com";
     private static final String AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
     private static final String ENTRY_ID = "1_w9zx2eti";
-    private static final int PARTNER_ID = 2215841;
-    private boolean isFullScreen;
-    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,14 +100,26 @@ public class MainActivity extends AppCompatActivity {
         playPauseButton = this.findViewById(R.id.play_pause_button);
         //Add clickListener.
         playPauseButton.setOnClickListener(v -> {
-            if (player.isPlaying()) {
-                //If player is playing, change text of the button and pause.
-                playPauseButton.setText(R.string.play_text);
-                player.pause();
-            } else {
-                //If player is not playing, change text of the button and play.
-                playPauseButton.setText(R.string.pause_text);
-                player.play();
+            if (player != null) {
+                AdController adController = player.getController(AdController.class);
+                if (player.isPlaying() || (adController != null && adController.isAdDisplayed() && adController.isAdPlaying())) {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.pause();
+                    } else {
+                        player.pause();
+                    }
+                    //If player is playing, change text of the button and pause.
+                    playPauseButton.setText(R.string.play_text);
+                } else {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.play();
+                    } else {
+                        player.play();
+                    }
+                    //If player is not playing, change text of the button and play.
+                    playPauseButton.setText(R.string.pause_text);
+
+                }
             }
         });
     }
@@ -144,43 +151,36 @@ public class MainActivity extends AppCompatActivity {
     public void loadPlaykitPlayer() {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
+        //playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
 
-        PlayerConfigManager.retrieve(this, TVPlayerType.ovp, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
 
-            TVPlayerParams tvPlayerParams = gson.fromJson(config, TVPlayerParams.class);
-            if (tvPlayerParams != null) {
-                playerInitOptions.setTVPlayerParams(tvPlayerParams);
+        // Audio Only setup
+        playerInitOptions.setIsVideoViewHidden(true);
+
+        // IMA Configuration
+        PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
+        IMAConfig adsConfig = getAdsConfig(AD_TAG_URL);
+        pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
+
+        playerInitOptions.setPluginConfigs(pkPluginConfigs);
+        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+        addAdEvents();
+        subscribeToTracksAvailableEvent();
+
+        showArtworkForAudioContent(View.VISIBLE);
+
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        ViewGroup container = findViewById(R.id.player_root);
+        container.addView(player.getPlayerView());
+
+        OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
+        player.loadMedia(ovpMediaOptions, (entry, loadError) -> {
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+            } else {
+                log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
             }
-            // Audio Only setup
-            playerInitOptions.setIsVideoViewHidden(true);
-
-            // IMA Configuration
-            PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
-            IMAConfig adsConfig = getAdsConfig(AD_TAG_URL);
-            pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
-
-            playerInitOptions.setPluginConfigs(pkPluginConfigs);
-
-            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
-            addAdEvents();
-            subscribeToTracksAvailableEvent();
-
-            showArtworkForAudioContent(View.VISIBLE);
-
-            player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-            ViewGroup container = findViewById(R.id.player_root);
-            container.addView(player.getPlayerView());
-
-            OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions();
-            player.loadMedia(ovpMediaOptions, (entry, loadError) -> {
-                if (loadError != null) {
-                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
-                } else {
-                    log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
-                }
-            });
         });
     }
 
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         List<String> videoMimeTypes = new ArrayList<>();
         videoMimeTypes.add("video/mp4");
         videoMimeTypes.add("application/x-mpegURL");
-        videoMimeTypes.add("application/dash+xml");
+        //videoMimeTypes.add("application/dash+xml");
         return new IMAConfig().setAdTagUrl(adTagUrl).setVideoMimeTypes(videoMimeTypes).enableDebugMode(true).setAlwaysStartWithPreroll(true).setAdLoadTimeOut(8);
     }
 
@@ -208,17 +208,16 @@ public class MainActivity extends AppCompatActivity {
             log.d("Event TRACKS_AVAILABLE");
 
             //Cast event to the TracksAvailable object that is actually holding the necessary data.
-            PlayerEvent.TracksAvailable tracksAvailable = (PlayerEvent.TracksAvailable) event;
 
             //Obtain the actual tracks info from it. Default track index values are coming from manifest
-            PKTracks tracks = tracksAvailable.tracksInfo;
+            PKTracks tracks = event.tracksInfo;
             int defaultAudioTrackIndex = tracks.getDefaultAudioTrackIndex();
             int defaultTextTrackIndex = tracks.getDefaultTextTrackIndex();
             if (tracks.getAudioTracks().size() > 0) {
-                log.d("Default Audio langae = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel());
+                log.d("Default Audio language = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel());
             }
             if (tracks.getTextTracks().size() > 0) {
-                log.d("Default Text langae = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel());
+                log.d("Default Text language = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel());
             }
             if (tracks.getVideoTracks().size() > 0) {
                 log.d("Default video isAdaptive = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).isAdaptive() + " bitrate = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).getBitrate());
