@@ -11,7 +11,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.plugins.youbora.YouboraEvent;
@@ -20,10 +19,7 @@ import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
-import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.TVPlayerType;
-import com.kaltura.tvplayer.config.PhoenixConfigurationsResponse;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
-    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    public static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     private static final String ASSET_ID = "548576";
-    private static final int PARTNER_ID = 3009;
+    public static final int PARTNER_ID = 3009;
 
     //Youbora analytics Constants
     public static final String ACCOUNT_CODE = "your_account_code";
@@ -64,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean isFullScreen;
-    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,55 +171,37 @@ public class MainActivity extends AppCompatActivity {
     public void loadPlaykitPlayer() {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
-        PlayerConfigManager.retrieve(this, TVPlayerType.ott, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
-            PhoenixConfigurationsResponse phoenixConfigurationsResponse = gson.fromJson(config, PhoenixConfigurationsResponse.class);
-            if (phoenixConfigurationsResponse != null) {
+        // Youbora Configuration
+        PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
+        JsonObject youboraConfigJson = getYouboraConfig();
+        pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.getName(), youboraConfigJson);
+        playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
-                /*
-                  //PhoenixTVPlayerParams
-                  "analyticsUrl": "https://analytics.kaltura.com/api_v3/index.php"
-                  "ovpServiceUrl": "https://cdnapisec.kaltura.com"
-                  "ovpPartnerId": 2254732
-                  "uiConfId": 44267972
-                 */
+        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
 
-                playerInitOptions.setTVPlayerParams(phoenixConfigurationsResponse.params);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        ViewGroup container = findViewById(R.id.player_root);
+        container.addView(player.getPlayerView());
+        OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
+        player.loadMedia(ottMediaOptions, (entry, loadError) -> {
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+            } else {
+                Log.i(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
             }
-
-
-            // Youbora Configuration
-            PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
-            JsonObject youboraConfigJson = getYouboraConfig();
-            pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.getName(), youboraConfigJson);
-            playerInitOptions.setPluginConfigs(pkPluginConfigs);
-
-            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-
-            player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-            ViewGroup container = findViewById(R.id.player_root);
-            container.addView(player.getPlayerView());
-            OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
-            player.loadMedia(ottMediaOptions, (entry, loadError) -> {
-                if (loadError != null) {
-                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
-                } else {
-                    Log.i(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
-                }
-            });
-
-            //Subscribe to analytics report event.
-            subscribeToYouboraReportEvent();
-
-            //Add simple play/pause button.
-            addPlayPauseButton();
-
-            showSystemUI();
-
         });
+
+        //Subscribe to analytics report event.
+        subscribeToYouboraReportEvent();
+
+        //Add simple play/pause button.
+        addPlayPauseButton();
+
+        showSystemUI();
+
     }
 
     private OTTMediaOptions buildOttMediaOptions() {

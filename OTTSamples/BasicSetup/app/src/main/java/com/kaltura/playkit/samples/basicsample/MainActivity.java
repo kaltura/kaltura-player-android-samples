@@ -10,7 +10,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
@@ -31,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean isFullScreen;
-    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

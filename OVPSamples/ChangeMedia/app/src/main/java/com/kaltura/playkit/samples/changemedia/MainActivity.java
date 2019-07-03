@@ -19,8 +19,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("MainActivity");
 
-
-
     public static final String SERVER_URL = "https://cdnapisec.kaltura.com";
     public static final int PARTNER_ID = 2215841;
 

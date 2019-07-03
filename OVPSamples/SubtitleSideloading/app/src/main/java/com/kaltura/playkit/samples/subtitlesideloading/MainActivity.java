@@ -15,7 +15,6 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.player.AudioTrack;
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private boolean userIsInteracting;
     private boolean isFullScreen;
     private View tracksSelectionMenu;
-    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

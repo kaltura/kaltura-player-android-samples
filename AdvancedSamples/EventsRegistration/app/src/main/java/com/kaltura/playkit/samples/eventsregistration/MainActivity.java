@@ -15,17 +15,14 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
-import com.kaltura.tvplayer.PlayerConfigManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
-import com.kaltura.tvplayer.TVPlayerType;
-import com.kaltura.tvplayer.config.PhoenixConfigurationsResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,16 +35,15 @@ public class MainActivity extends AppCompatActivity {
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     //The url of the source to play
-    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    public static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     private static final String ASSET_ID = "548576";
-    private static final int PARTNER_ID = 3009;
+    public static final int PARTNER_ID = 3009;
 
     private KalturaPlayer player;
     private Button playPauseButton;
     private Spinner speedSpinner;
     private boolean userIsInteracting;
     private boolean isFullScreen;
-    private Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,19 +192,27 @@ public class MainActivity extends AppCompatActivity {
      */
     private void addPlayPauseButton() {
         //Get reference to the play/pause button.
-        playPauseButton = (Button) this.findViewById(R.id.play_pause_button);
+        playPauseButton = this.findViewById(R.id.play_pause_button);
         //Add clickListener.
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (player.isPlaying()) {
+        playPauseButton.setOnClickListener(v -> {
+            if (player != null) {
+                AdController adController = player.getController(AdController.class);
+                if (player.isPlaying() || (adController != null && adController.isAdDisplayed() && adController.isAdPlaying())) {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.pause();
+                    } else {
+                        player.pause();
+                    }
                     //If player is playing, change text of the button and pause.
                     playPauseButton.setText(R.string.play_text);
-                    player.pause();
                 } else {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.play();
+                    } else {
+                        player.play();
+                    }
                     //If player is not playing, change text of the button and play.
                     playPauseButton.setText(R.string.pause_text);
-                    player.play();
                 }
             }
         });
@@ -276,51 +280,35 @@ public class MainActivity extends AppCompatActivity {
     public void loadPlaykitPlayer() {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
-        PlayerConfigManager.retrieve(this, TVPlayerType.ott, playerInitOptions.partnerId, playerInitOptions.serverUrl, (partnerId, config, error, freshness) -> {
-            PhoenixConfigurationsResponse phoenixConfigurationsResponse = gson.fromJson(config, PhoenixConfigurationsResponse.class);
-            if (phoenixConfigurationsResponse != null) {
 
-                /*
-                  //PhoenixTVPlayerParams
-                  "analyticsUrl": "https://analytics.kaltura.com/api_v3/index.php"
-                  "ovpServiceUrl": "https://cdnapisec.kaltura.com"
-                  "ovpPartnerId": 2254732
-                  "uiConfId": 44267972
-                 */
+        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        //Subscribe to events, which will notify about changes in player states.
+        subscribeToPlayerStateChanges();
 
-                playerInitOptions.setTVPlayerParams(phoenixConfigurationsResponse.params);
+        //Subscribe to the player events.
+        subscribeToPlayerEvents();
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        ViewGroup container = findViewById(R.id.player_root);
+        container.addView(player.getPlayerView());
+
+        OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
+        player.loadMedia(ottMediaOptions, (entry, loadError) -> {
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+            } else {
+                Log.d(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
             }
-
-            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-            //Subscribe to events, which will notify about changes in player states.
-            subscribeToPlayerStateChanges();
-
-            //Subscribe to the player events.
-            subscribeToPlayerEvents();
-            player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-            ViewGroup container = findViewById(R.id.player_root);
-            container.addView(player.getPlayerView());
-
-            OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
-            player.loadMedia(ottMediaOptions, (entry, loadError) -> {
-                if (loadError != null) {
-                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
-                } else {
-                    Log.d(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
-                }
-            });
-
-            addItemsOnSpeedSpinner();
-
-            showSystemUI();
-
-            //Add simple play/pause button.
-            addPlayPauseButton();
         });
+
+        addItemsOnSpeedSpinner();
+
+        showSystemUI();
+
+        //Add simple play/pause button.
+        addPlayPauseButton();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {
