@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private OrientationManager mOrientationManager;
     private boolean userIsInteracting;
     private PKTracks tracksInfo;
-    private boolean isAdsEnabled = true;
+    private boolean isAdsEnabled = false;
     private boolean isDAIMode = false;
     private PlayerState playerState;
 
@@ -222,22 +222,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         PKPluginConfigs pkPluginConfigs = configurePlugins();
 
         // Basic Playkit Player
-        //loadBasicPlaykitPlayer(pkPluginConfigs);
+//        loadBasicKalturaPlayer(pkPluginConfigs);
 
         // OTT Playkit Player
-        //loadOvpOttPlaykitPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
+//        loadKalturaPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
 
         // OVP Playkit Player
-         loadOvpOttPlaykitPlayer(OVP_PARTNER_ID, KalturaPlayer.Type.ovp, pkPluginConfigs);
+        loadKalturaPlayer(OVP_PARTNER_ID, KalturaPlayer.Type.ovp, pkPluginConfigs);
     }
 
     private void startOttMediaLoading(String assetId, String ks) {
         buildOttMediaOptions(assetId, ks);
     }
 
-    private void loadBasicPlaykitPlayer(PKPluginConfigs pkPluginConfigs) {
+    private void loadBasicKalturaPlayer(PKPluginConfigs pkPluginConfigs) {
         PKMediaEntry pkMediaEntry = createMediaEntry();
-        loadBasicPlaykitPlayer(pkMediaEntry, pkPluginConfigs);
+        loadBasicKalturaPlayer(pkMediaEntry, pkPluginConfigs);
     }
 
     private void startOvpChangeMediaLoading(String assetId, String ks) {
@@ -1281,7 +1281,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    public void loadOvpOttPlaykitPlayer(Integer mediaPartnerId, KalturaPlayer.Type playerType, PKPluginConfigs pkPluginConfigs) {
+    /**
+     * Load KalturaPlayer only for OVP and OTT provider ( User loadBasicKalturaPlayer() method to use the Basic
+     * KalturaPlayer preparation )
+     *
+     * @param mediaPartnerId Partner ID for OVP or OTT provider
+     * @param playerType OVP or OTT < KalturaPlayer.Type >
+     * @param pkPluginConfigs Plugin configs (Configurations like IMA Ads, Youbora etc)
+     *                       for Kaltura Player, it is being passed in playerInitOptions
+     */
+
+    public void loadKalturaPlayer(Integer mediaPartnerId, KalturaPlayer.Type playerType, PKPluginConfigs pkPluginConfigs) {
 
         playerInitOptions = new PlayerInitOptions(mediaPartnerId);
         playerInitOptions.setAutoPlay(true);
@@ -1327,8 +1337,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //------------ OVP/OTT Mock Methods -----------//
     }
 
-
-    public void loadBasicPlaykitPlayer(PKMediaEntry pkMediaEntry, PKPluginConfigs pkPluginConfigs) {
+    /**
+     * Load Basic KalturaPlayer by the legendary way using PKMediaEntry and PKPluginConfigs
+     * @param pkMediaEntry MediaEntry
+     * @param pkPluginConfigs  Configurations like IMA Ads, Youbora etc
+     */
+    public void loadBasicKalturaPlayer(PKMediaEntry pkMediaEntry, PKPluginConfigs pkPluginConfigs) {
         playerInitOptions = new PlayerInitOptions();
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
