@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,7 +89,7 @@ public class TestCaseConfigurationAdapter extends FirestoreAdapter<TestCaseConfi
             final Configuration configuration = snapshot.toObject(Configuration.class);
             configuration.setId(snapshot.getId());
             //Resources resources = itemView.getResources();
-            Log.e("GILAD XXX","" + configuration.getTitle());
+            log.d("Test Title = " + configuration.getTitle());
             jsonTitle.setText(configuration.getTitle());
             if (configuration.getType() == Configuration.FOLDER) {
                 folderIcon.setVisibility(View.VISIBLE);
