@@ -344,7 +344,6 @@ public class MainActivity extends AppCompatActivity {
 
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
     }

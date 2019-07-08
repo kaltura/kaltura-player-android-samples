@@ -556,10 +556,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playerInitOptions.setAutoPlay(true);
 
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
-        player.setMedia(pkMediaEntry, START_POSITION);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
+        player.setMedia(pkMediaEntry, START_POSITION);
+
     }
 }
