@@ -3,9 +3,9 @@ Kaltura Player Android Samples
 This project hosts samples for the PlayKit - Kaltura Android SDK v4
 Requirements
 
-    IDE: Android Studio 2.0 or later ([Android Studio SDK](https://developer.android.com/sdk)
+    IDE: Android Studio 2.0 or later <https://developer.android.com/sdk>
     Android 4.2+
-    Java JDK 8 or later ([Oracle JDK](www.oracle.com/downloads)
+    Java JDK 8 or later <www.oracle.com/downloads>
     Android SDK and Android SDK Tools
 
 Installation Instructions
