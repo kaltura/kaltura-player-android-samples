@@ -162,7 +162,6 @@ public class MainActivity extends BaseActivity implements TestCaseConfigurationA
         PKHttpClientManager.warmUp(
                 "https://rest-as.ott.kaltura.com/crossdomain.xml",
                 "https://api-preprod.ott.kaltura.com/crossdomain.xml",
-                "https://vootvideo.akamaized.net/favicon.ico",
                 "https://cdnapisec.kaltura.com/favicon.ico",
                 "https://cfvod.kaltura.com/favicon.ico"
         );
