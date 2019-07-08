@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.kaltura.playkit.PKLog;
+import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final String ENTRY_ID = "1_w9zx2eti";
     private boolean isFullScreen;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +78,12 @@ public class MainActivity extends AppCompatActivity {
         isFullScreen = false;
     }
 
-
+    private void addPlayerStateListener() {
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            log.d("State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
+        });
+    }
 
     /**
      * Just add a simple button which will start/pause playback.
@@ -102,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (player != null) {
+        if (player != null && playerState != null) {
             if (playPauseButton != null) {
                 playPauseButton.setText(R.string.pause_text);
             }
@@ -123,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setAutoPlay(true);
-        
+
         player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -138,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
                 log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
+
+        addPlayerStateListener();
     }
 
     private OVPMediaOptions buildOvpMediaOptions() {

@@ -9,11 +9,11 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.player.PKExternalSubtitle;
 import com.kaltura.playkit.player.PKTracks;
@@ -41,12 +41,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String AD_TAG_URL_ALL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
     private static final String AD_TAG_URL_PRE = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
-    private static final String ASSET_ID = "548579";
+    private static final String ASSET_ID = "548576";
 
     private KalturaPlayer player;
     private Button playPauseButton;
     private ImageView artworkView;
-    private Gson gson = new Gson();
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +127,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void addPlayerStateListener() {
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            log.d("State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
+        });
+    }
+
     private void showArtworkForAudioContent(int visibility) {
         artworkView.setVisibility(visibility);
     }
@@ -134,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (player != null) {
+        if (player != null && playerState != null) {
             if (playPauseButton != null) {
                 playPauseButton.setText(R.string.pause_text);
             }
@@ -187,6 +194,8 @@ public class MainActivity extends AppCompatActivity {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
+
+        addPlayerStateListener();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {

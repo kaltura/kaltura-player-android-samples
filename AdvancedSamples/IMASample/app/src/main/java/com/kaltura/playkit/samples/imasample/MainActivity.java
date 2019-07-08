@@ -4,7 +4,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -13,6 +12,9 @@ import android.widget.FrameLayout;
 
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
+import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
+import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
@@ -35,13 +37,14 @@ public class MainActivity extends AppCompatActivity {
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     //Media entry configuration constants.
-    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    public static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     private static final String ASSET_ID = "548576";
-    private static final int PARTNER_ID = 3009;
+    public static final int PARTNER_ID = 3009;
 
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean isFullScreen;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +52,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         loadPlaykitPlayer();
-
-        addPlayPauseButton();
-
-        showSystemUI();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
             if (isFullScreen) {
@@ -100,15 +99,33 @@ public class MainActivity extends AppCompatActivity {
         playPauseButton = this.findViewById(R.id.play_pause_button);
         //Add clickListener.
         playPauseButton.setOnClickListener(v -> {
-            if (player.isPlaying()) {
-                //If player is playing, change text of the button and pause.
-                playPauseButton.setText(R.string.play_text);
-                player.pause();
-            } else {
-                //If player is not playing, change text of the button and play.
-                playPauseButton.setText(R.string.pause_text);
-                player.play();
+            if (player != null) {
+                AdController adController = player.getController(AdController.class);
+                if (player.isPlaying() || (adController != null && adController.isAdDisplayed() && adController.isAdPlaying())) {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.pause();
+                    } else {
+                        player.pause();
+                    }
+                    //If player is playing, change text of the button and pause.
+                    playPauseButton.setText(R.string.play_text);
+                } else {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.play();
+                    } else {
+                        player.play();
+                    }
+                    //If player is not playing, change text of the button and play.
+                    playPauseButton.setText(R.string.pause_text);
+                }
             }
+        });
+    }
+
+    private void addPlayerStateListener() {
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            log.d("State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
         });
     }
 
@@ -129,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         log.d("onResume");
         super.onResume();
 
-        if (player != null) {
+        if (player != null && playerState != null) {
             player.onApplicationResumed();
             player.play();
         }
@@ -138,7 +155,6 @@ public class MainActivity extends AppCompatActivity {
     public void loadPlaykitPlayer() {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
@@ -157,13 +173,19 @@ public class MainActivity extends AppCompatActivity {
         container.addView(player.getPlayerView());
 
         OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
-        player.loadMedia(ottMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
+        player.loadMedia(ottMediaOptions, (entry, loadError) -> {
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
+
+        addPlayPauseButton();
+
+        showSystemUI();
+
+        addPlayerStateListener();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {

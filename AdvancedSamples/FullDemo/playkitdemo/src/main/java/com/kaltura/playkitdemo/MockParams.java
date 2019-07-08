@@ -1,5 +1,7 @@
 package com.kaltura.playkitdemo;
 
+import com.kaltura.playkit.PKMediaFormat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +11,13 @@ import java.util.List;
 
 public class MockParams {
 
-/*Ott Mock params: */
+    /* Basic Mock Params: */
+
+    public static final PKMediaFormat BASIC_MEDIA_FORMAT = PKMediaFormat.hls;
+    public static final String BASIC_SOURCE_URL = "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_w9zx2eti/protocol/https/format/applehttp/falvorIds/1_1obpcggb,1_yyuvftfz,1_1xdbzoa6,1_k16ccgto,1_djdf6bk8/a.m3u8";
+    public static final String BASIC_LICENSE_URL = null;
+
+    /*Ott Mock params: */
     public static String PhoenixBaseUrl = "http://api-preprod.ott.kaltura.com/v4_4/api_v3/";
     public static int OttPartnerId = 198;
 
@@ -39,7 +47,7 @@ public class MockParams {
     public static final String OTT_LIVE_ASSET_ID = "427690";
     //-------------------------
 
-/*Ovp Mock params: */
+    /*Ovp Mock params: */
     public static final int OvpPartnerId = 2222401;
     public static final String OvpBaseUrl = "https://cdnapisec.kaltura.com/";
     public static final String NonDRMEntryId = "1_xay0wjby"; //works for user/anonymous

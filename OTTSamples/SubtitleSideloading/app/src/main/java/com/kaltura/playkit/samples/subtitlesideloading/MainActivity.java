@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.player.AudioTrack;
 import com.kaltura.playkit.player.PKExternalSubtitle;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private boolean userIsInteracting;
     private boolean isFullScreen;
     private View tracksSelectionMenu;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -255,6 +257,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         player.addListener(this, PlayerEvent.subtitlesStyleChanged, event -> {
             Log.d(TAG, "Event SubtitlesStyleChanged " + event.styleName);
+        });
+
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            Log.d(TAG,"State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
         });
     }
 
@@ -471,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "onResume");
         super.onResume();
 
-        if (player != null) {
+        if (player != null && playerState != null) {
             player.onApplicationResumed();
             player.play();
         }
@@ -494,28 +501,28 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
 
 
-            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-            player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-            ViewGroup container = findViewById(R.id.player_root);
-            container.addView(player.getPlayerView());
+        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        ViewGroup container = findViewById(R.id.player_root);
+        container.addView(player.getPlayerView());
 
-            OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
-            player.loadMedia(ottMediaOptions, (entry, loadError) -> {
-                if (loadError != null) {
-                    Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
-                } else {
-                    Log.d(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
-                }
-            });
+        OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
+        player.loadMedia(ottMediaOptions, (entry, loadError) -> {
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
+            } else {
+                Log.d(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+            }
+        });
 
-            //Add simple play/pause button.
-            addPlayPauseButton();
+        //Add simple play/pause button.
+        addPlayPauseButton();
 
-            //Initialize Android spinners view.
-            initializeTrackSpinners();
+        //Initialize Android spinners view.
+        initializeTrackSpinners();
 
-            //Subscribe to the event which will notify us when track data is available.
-            subscribeToTracksAvailableEvent();
+        //Subscribe to the event which will notify us when track data is available.
+        subscribeToTracksAvailableEvent();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {

@@ -15,6 +15,7 @@ import com.google.ads.interactivemedia.v3.api.StreamRequest;
 import com.kaltura.playkit.PKMediaConfig;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ads.AdInfo;
@@ -35,14 +36,14 @@ public class MainActivity extends AppCompatActivity {
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
     //Media entry configuration constants.
-    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    public static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     private static final String ASSET_ID = "548576";
-    private static final int PARTNER_ID = 3009;
+    public static final int PARTNER_ID = 3009;
 
     //Ad configuration constants.
     private static final String AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpod&cmsid=496&vid=short_onecue&correlator=";
     //"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
-            //"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
+    //"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
     private static final String INCORRECT_AD_TAG_URL = "incorrect_ad_tag_url";
     private static final int PREFERRED_AD_BITRATE = 600;
 
@@ -50,19 +51,14 @@ public class MainActivity extends AppCompatActivity {
     private PKMediaConfig mediaConfig;
     private Button playPauseButton;
     private boolean isFullScreen;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Create plugin configurations.
-        PKPluginConfigs pluginConfigs = createIMADAIPlugin();
-
         loadPlaykitPlayer();
-
-        //Add simple play/pause button.
-        addPlayPauseButton();
 
         showSystemUI();
 
@@ -372,9 +368,16 @@ public class MainActivity extends AppCompatActivity {
             AdEvent.Error adError = event;
             Log.e(TAG, "AD_ERROR : " + adError.error.errorType.name());
         });
+    }
 
+    private void addPlayerStateListener() {
         player.addListener(this, PlayerEvent.error, event -> {
             Log.e(TAG, "PLAYER ERROR " + event.error.message);
+        });
+
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            Log.d(TAG,"State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
         });
     }
 
@@ -383,19 +386,27 @@ public class MainActivity extends AppCompatActivity {
      */
     private void addPlayPauseButton() {
         //Get reference to the play/pause button.
-        playPauseButton = (Button) this.findViewById(R.id.play_pause_button);
+        playPauseButton = this.findViewById(R.id.play_pause_button);
         //Add clickListener.
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (player.isPlaying()) {
+        playPauseButton.setOnClickListener(v -> {
+            if (player != null) {
+                AdController adController = player.getController(AdController.class);
+                if (player.isPlaying() || (adController != null && adController.isAdDisplayed() && adController.isAdPlaying())) {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.pause();
+                    } else {
+                        player.pause();
+                    }
                     //If player is playing, change text of the button and pause.
                     playPauseButton.setText(R.string.play_text);
-                    player.pause();
                 } else {
+                    if (adController != null && adController.isAdDisplayed()) {
+                        adController.play();
+                    } else {
+                        player.play();
+                    }
                     //If player is not playing, change text of the button and play.
                     playPauseButton.setText(R.string.pause_text);
-                    player.play();
                 }
             }
         });
@@ -418,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onResume");
         super.onResume();
 
-        if (player != null) {
+        if (player != null && playerState != null) {
             player.onApplicationResumed();
             player.play();
         }
@@ -427,7 +438,6 @@ public class MainActivity extends AppCompatActivity {
     public void loadPlaykitPlayer() {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
@@ -442,13 +452,21 @@ public class MainActivity extends AppCompatActivity {
         container.addView(player.getPlayerView());
 
         OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
-        player.loadMedia(ottMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
+        player.loadMedia(ottMediaOptions, (entry, loadError) -> {
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
             } else {
                 Log.d(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
+
+        //Create plugin configurations.
+        createIMADAIPlugin();
+
+        //Add simple play/pause button.
+        addPlayPauseButton();
+
+        addPlayerStateListener();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {

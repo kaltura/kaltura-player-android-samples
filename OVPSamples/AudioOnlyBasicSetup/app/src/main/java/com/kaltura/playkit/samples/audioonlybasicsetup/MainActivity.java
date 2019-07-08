@@ -13,6 +13,7 @@ import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.player.PKExternalSubtitle;
 import com.kaltura.playkit.player.PKTracks;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView artworkView;
     private static final String AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
     private static final String ENTRY_ID = "1_w9zx2eti";
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +52,6 @@ public class MainActivity extends AppCompatActivity {
         loadPlaykitPlayer();
 
         addPlayPauseButton();
-
-
-
     }
 
     private void addAdEvents() {
@@ -91,6 +90,12 @@ public class MainActivity extends AppCompatActivity {
         return mList;
     }
 
+    private void addPlayerStateListener() {
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            log.d("State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
+        });
+    }
 
     /**
      * Just add a simple button which will start/pause playback.
@@ -127,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (player != null) {
+        if (player != null && playerState != null) {
             if (playPauseButton != null) {
                 playPauseButton.setText(R.string.pause_text);
             }
@@ -182,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
                 log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
+
+        addPlayerStateListener();
     }
 
     private OVPMediaOptions buildOvpMediaOptions() {

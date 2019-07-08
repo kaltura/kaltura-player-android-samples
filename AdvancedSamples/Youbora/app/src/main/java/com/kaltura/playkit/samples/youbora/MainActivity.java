@@ -13,10 +13,10 @@ import android.widget.FrameLayout;
 
 import com.google.gson.JsonObject;
 import com.kaltura.playkit.PKPluginConfigs;
-
+import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.plugins.youbora.YouboraEvent;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
-
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
@@ -30,15 +30,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static final Long START_POSITION = 0L; // position for start playback in msec.
 
-    private static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
+    public static final String SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     private static final String ASSET_ID = "548576";
-    private static final int PARTNER_ID = 3009;
+    public static final int PARTNER_ID = 3009;
 
     //Youbora analytics Constants
     public static final String ACCOUNT_CODE = "your_account_code";
     public static final String UNIQUE_USER_NAME = "your_app_logged_in_user_email_or_userId";
     public static final String MEDIA_TITLE = "your_media_title";
-    public static final boolean IS_LIVE = false;
     public static final boolean ENABLE_SMART_ADS = true;
     private static final String CAMPAIGN = "your_campaign_name";
     public static final String EXTRA_PARAM_1 = "playKitPlayer";
@@ -62,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private KalturaPlayer player;
     private Button playPauseButton;
     private boolean isFullScreen;
+    private PlayerState playerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +69,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         loadPlaykitPlayer();
-
-        //Subscribe to analytics report event.
-        subscribeToYouboraReportEvent();
-
-        //Add simple play/pause button.
-        addPlayPauseButton();
-
-        showSystemUI();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
             if (isFullScreen) {
@@ -154,6 +146,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void addPlayerStateListener() {
+        player.addListener(this, PlayerEvent.stateChanged, event -> {
+            Log.d(TAG, "State changed from " + event.oldState + " to " + event.newState);
+            playerState = event.newState;
+        });
+    }
+
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause");
@@ -171,17 +170,15 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onResume");
         super.onResume();
 
-        if (player != null) {
+        if (player != null && playerState != null) {
             player.onApplicationResumed();
             player.play();
         }
     }
 
-
     public void loadPlaykitPlayer() {
 
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
-        playerInitOptions.setServerUrl(SERVER_URL);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
@@ -197,13 +194,23 @@ public class MainActivity extends AppCompatActivity {
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
         OTTMediaOptions ottMediaOptions = buildOttMediaOptions();
-        player.loadMedia(ottMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
+        player.loadMedia(ottMediaOptions, (entry, loadError) -> {
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.getMessage(), Snackbar.LENGTH_LONG).show();
             } else {
                 Log.i(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
+
+        //Subscribe to analytics report event.
+        subscribeToYouboraReportEvent();
+
+        //Add simple play/pause button.
+        addPlayPauseButton();
+
+        showSystemUI();
+
+        addPlayerStateListener();
     }
 
     private OTTMediaOptions buildOttMediaOptions() {
@@ -233,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Media entry json.
         JsonObject mediaEntryJson = new JsonObject();
-        mediaEntryJson.addProperty("isLive", IS_LIVE);
         mediaEntryJson.addProperty("title", MEDIA_TITLE);
 
         //Optional - Device json o/w youbora will decide by its own.
