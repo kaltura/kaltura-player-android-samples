@@ -412,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     player.updatePluginConfig(IMAPlugin.factory.getName(), getAdsConfig(preMidPostAdTagUrl));
                 }
             }
-            player.updatePluginConfig(YouboraPlugin.factory.getName(), getYouboraJsonObject(false, "preMidPostAdTagUrl media2"));
+            player.updatePluginConfig(YouboraPlugin.factory.getName(), getYouboraJsonObject("preMidPostAdTagUrl media2"));
         } else if (changeMediaIndex % 4 == 1) {
             if (isAdsEnabled) {
                 if (isDAIMode) {
@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     player.updatePluginConfig(IMAPlugin.factory.getName(), getAdsConfig(inLinePreAdTagUrl));
                 }
             }
-            player.updatePluginConfig(YouboraPlugin.factory.getName(), getYouboraJsonObject(true, "inLinePreAdTagUrl media3"));
+            player.updatePluginConfig(YouboraPlugin.factory.getName(), getYouboraJsonObject("inLinePreAdTagUrl media3"));
         } if (changeMediaIndex % 4 == 2) {
             if (isAdsEnabled) {
                 if (isDAIMode) {
@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     player.updatePluginConfig(IMAPlugin.factory.getName(), getAdsConfig(""));
                 }
             }
-            player.updatePluginConfig(YouboraPlugin.factory.getName(), getYouboraJsonObject(false, "NO AD media4"));
+            player.updatePluginConfig(YouboraPlugin.factory.getName(), getYouboraJsonObject( "NO AD media4"));
         } if (changeMediaIndex % 4 == 3) {
             if (isAdsEnabled) {
                 if (isDAIMode) {
@@ -453,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //                        setMinPlayerBufferMs(2500).
 //                        setMaxPlayerBufferMs(50000).setAllowedVideoJoiningTimeMs(4000));
 
-            player.updatePluginConfig(YouboraPlugin.factory.getName(), getYouboraJsonObject(false, "preSkipAdTagUrl media1"));
+            player.updatePluginConfig(YouboraPlugin.factory.getName(), getYouboraJsonObject("preSkipAdTagUrl media1"));
         }
     }
 
@@ -478,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         }
         //addKaluraStatsPluginConfig(pluginConfigs, 1734751, "1_3o1seqnv");
-        addYouboraPluginConfig(pluginConfig, false, "preMidPostSingleAdTagUrl Title1");
+        addYouboraPluginConfig(pluginConfig, "preMidPostSingleAdTagUrl Title1");
         //addKavaPluginConfig(pluginConfigs, 1734751, "1_3o1seqnv");
         //addPhoenixAnalyticsPluginConfig(pluginConfigs);
         //addTVPAPIAnalyticsPluginConfig(pluginConfigs);
@@ -486,15 +486,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return pluginConfig;
     }
 
-    private void addYouboraPluginConfig(PKPluginConfigs pluginConfigs, boolean isLive, String title) {
-        JsonObject pluginEntry = getYouboraJsonObject(isLive, title);
+    private void addYouboraPluginConfig(PKPluginConfigs pluginConfigs, String title) {
+        JsonObject pluginEntry = getYouboraJsonObject(title);
 
         //Set plugin entry to the plugin configs.
         pluginConfigs.setPluginConfig(YouboraPlugin.factory.getName(), pluginEntry);
     }
 
     @NonNull
-    private JsonObject getYouboraJsonObject(boolean isLive, String title) {
+    private JsonObject getYouboraJsonObject(String title) {
         JsonObject pluginEntry = new JsonObject();
 
         pluginEntry.addProperty("accountCode", "kalturatest");
@@ -516,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //Media entry json.
         JsonObject mediaEntryJson = new JsonObject();
-        mediaEntryJson.addProperty("isLive", isLive);
+        //mediaEntryJson.addProperty("isLive", isLive);
         mediaEntryJson.addProperty("title", title);
 
         //Youbora ads configuration json.

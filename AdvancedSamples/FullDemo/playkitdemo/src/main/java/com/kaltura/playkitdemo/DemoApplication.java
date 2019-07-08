@@ -20,8 +20,9 @@ public class DemoApplication extends Application {
         KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_CLEAR, MainActivity.OVP_SERVER_URL_CLEAR);
         KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_LIVE, MainActivity.OVP_SERVER_URL_LIVE);
         KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_LIVE_1, MainActivity.OVP_SERVER_URL_LIVE_1);
-        doConnectionsWarmup();
+        //doConnectionsWarmup();
     }
+
     private void doConnectionsWarmup() {
         PKHttpClientManager.setHttpProvider("okhttp");
         PKHttpClientManager.warmUp(
