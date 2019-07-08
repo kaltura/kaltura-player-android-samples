@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String ACCOUNT_CODE = "your_account_code";
     public static final String UNIQUE_USER_NAME = "your_app_logged_in_user_email_or_userId";
     public static final String MEDIA_TITLE = "your_media_title";
-    public static final boolean IS_LIVE = false;
     public static final boolean ENABLE_SMART_ADS = true;
     private static final String CAMPAIGN = "your_campaign_name";
     public static final String EXTRA_PARAM_1 = "playKitPlayer";
@@ -241,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Media entry json.
         JsonObject mediaEntryJson = new JsonObject();
-        mediaEntryJson.addProperty("isLive", IS_LIVE);
         mediaEntryJson.addProperty("title", MEDIA_TITLE);
 
         //Optional - Device json o/w youbora will decide by its own.
