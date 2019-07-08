@@ -58,8 +58,8 @@ public class MainActivity extends BaseActivity implements TestCaseConfigurationA
     private static final String TAG = "MainActivity";
     private static final int RC_BARCODE_CAPTURE = 9001;
     private static final String ADD_DEFAULT_ITEMS = "ADD_DEFAULT_ITEMS";
-    //private static String DEFAULT_TESTS_DESCRIPTOR = "http://externaltests.dev.kaltura.com/player/library_SDK_Kaltura_Player/KalturaPlayerApp/default_bulk_import.json";
-    private static String DEFAULT_TESTS_DESCRIPTOR = "http://externaltests.dev.kaltura.com/player/SdkKalturaPlayer/playkitApp/kalturaPlayerApp.json"; //"http://externaltests.dev.kaltura.com/player/sandBox/Kaltura/media_items.json";//"http://externaltests.dev.kaltura.com/player/library_SDK_Kaltura_Player/KalturaPlayerApp/default_bulk_import.json";
+    private static String DEFAULT_TESTS_DESCRIPTOR = "http://externaltests.dev.kaltura.com/player/library_SDK_Kaltura_Player/KalturaPlayerApp/default_bulk_import.json";
+    //private static String DEFAULT_TESTS_DESCRIPTOR = "http://externaltests.dev.kaltura.com/player/SdkKalturaPlayer/playkitApp/kalturaPlayerApp.json"; //"http://externaltests.dev.kaltura.com/player/sandBox/Kaltura/media_items.json";//"http://externaltests.dev.kaltura.com/player/library_SDK_Kaltura_Player/KalturaPlayerApp/default_bulk_import.json";
     public static final String KEY_NEW_CONFIGURATION_PATH = "key_new_configuration_path";
 
     public static final int LIMIT = 100;
