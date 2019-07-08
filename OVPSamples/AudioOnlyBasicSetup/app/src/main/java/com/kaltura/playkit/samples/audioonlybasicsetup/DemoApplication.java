@@ -19,10 +19,10 @@ public class DemoApplication extends Application {
         PKHttpClientManager.setHttpProvider("okhttp");
 
         PKHttpClientManager.warmUp(
-                "https://https://rest-us.ott.kaltura.com/crossdomain.xml",
+                "https://rest-us.ott.kaltura.com/crossdomain.xml",
                 "http://cdnapi.kaltura.com/alive.html",
-                "https://cdnapisec.kaltura.com/alive.html",
-                "https://cfvod.kaltura.com/alive.html"
+                "https://cdnapisec.kaltura.com/favicon.ico",
+                "https://cfvod.kaltura.com/favicon.ico"
         );
     }
     // Called by the system when the device configuration changes while your component is running.

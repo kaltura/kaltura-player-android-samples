@@ -46,11 +46,11 @@ public class SplashScreen extends Activity {
     private void doConnectionsWarmup() {
         PKHttpClientManager.setHttpProvider("okhttp");
         PKHttpClientManager.warmUp(
-                "https://https://rest-us.ott.kaltura.com/crossdomain.xml",
+                "https://rest-us.ott.kaltura.com/crossdomain.xml",
                 "https://rest-as.ott.kaltura.com/crossdomain.xml",
                 "https://api-preprod.ott.kaltura.com/crossdomain.xml",
-                "https://cdnapisec.kaltura.com/alive.html",
-                "https://cfvod.kaltura.com/alive.html"
+                "https://cdnapisec.kaltura.com/favicon.ico",
+                "https://cfvod.kaltura.com/favicon.ico"
         );
     }
 
