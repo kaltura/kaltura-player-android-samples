@@ -1,15 +1,18 @@
 ## Kaltura Player Android Samples
 
-This project hosts samples for the PlayKit - Kaltura Android SDK v4
-Requirements
+This project hosts samples for the PlayKit - [Kaltura Android SDK v4](https://github.com/kaltura/kaltura-player-android)
 
-IDE: Android Studio 2.0 or later (see https://developer.android.com/sdk)
+Migration guide can be found [here](https://kaltura.github.io/playkit/guide/android/)
 
-Android version: Android 4.2+
+#### Requirements
 
-Java JDK 8 or later (see www.oracle.com/downloads)
+* IDE: Android Studio 2.0 or later (see https://developer.android.com/sdk)
 
-Android SDK and Android SDK Tools
+* Android version: Android 4.2+
+
+* Java JDK 8 or later (see www.oracle.com/downloads)
+
+* Android SDK and Android SDK Tools
 
 #### Installation Instructions
 
@@ -17,9 +20,9 @@ To run the samples and add the SDK use the instructions provided here.
 
 ##### Media Providers
 
-1. OTT   [OTT Sample Link](https://github.com/kaltura/kaltura-player-android-samples/tree/develop/OTTSamples)
-2. OVP   [OVP Sample Link](https://github.com/kaltura/kaltura-player-android-samples/tree/develop/OVPSamples)
-3. Basic [Basic Sample Link](https://github.com/kaltura/kaltura-player-android-samples/tree/develop/BasicSamples)
+* OTT   [OTT Sample Link](https://github.com/kaltura/kaltura-player-android-samples/tree/develop/OTTSamples)
+* OVP   [OVP Sample Link](https://github.com/kaltura/kaltura-player-android-samples/tree/develop/OVPSamples)
+* Basic [Basic Sample Link](https://github.com/kaltura/kaltura-player-android-samples/tree/develop/BasicSamples)
 
 Above samples have the basic player creation samples Ex. `Basic Setup, Audio Only, Subtitle Sideloading` and `Change Media`
 
