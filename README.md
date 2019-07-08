@@ -6,7 +6,7 @@ Migration guide can be found [here](https://kaltura.github.io/playkit/guide/andr
 
 #### Requirements
 
-* IDE: Android Studio 2.0 or later (see https://developer.android.com/sdk)
+* IDE: Android Studio 3.x.x (see https://developer.android.com/sdk)
 
 * Android version: Android 4.2+
 
