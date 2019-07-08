@@ -1,4 +1,4 @@
-Kaltura Player Android Samples
+## Kaltura Player Android Samples
 
 This project hosts samples for the PlayKit - Kaltura Android SDK v4
 Requirements
