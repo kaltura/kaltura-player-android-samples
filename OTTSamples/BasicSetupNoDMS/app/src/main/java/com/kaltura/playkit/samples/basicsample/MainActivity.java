@@ -145,7 +145,11 @@ public class MainActivity extends AppCompatActivity {
              In case of OTT Partner where DMS is not configured
              playerInitOptions.tvPlayerParams
              should be set manually Q/W playback will be blocked.
-             please verify what is your OVP PartnerId!!!
+
+             if you are OTT client with mediaprep please
+                 please verify what is your OVP PartnerId!!! and set ovpPartnerId
+             if you are OTT client without media prep please
+                 please do not set ovpPartnerId
          */
 
         PhoenixTVPlayerParams phoenixTVPlayerParams = new PhoenixTVPlayerParams();
