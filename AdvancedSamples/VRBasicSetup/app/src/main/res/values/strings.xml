@@ -2,4 +2,6 @@
     <string name="app_name">VRBasicSetup</string>
     <string name="play_text">Play</string>
     <string name="pause_text">Pause</string>
+    <string name="vr_mode_on">Cardboard Mode</string>
+    <string name="vr_mode_off">360 degree Mode</string>
 </resources>

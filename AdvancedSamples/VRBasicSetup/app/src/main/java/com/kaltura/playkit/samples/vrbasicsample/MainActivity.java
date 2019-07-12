@@ -2,7 +2,6 @@ package com.kaltura.playkit.samples.vrbasicsample;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.MainThread;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -16,6 +15,7 @@ import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.player.vr.VRInteractionMode;
 import com.kaltura.playkit.player.vr.VRSettings;
+import com.kaltura.playkitvr.VRController;
 import com.kaltura.playkitvr.VRUtil;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static final Long START_POSITION = 0L; // position for start playback in msec.
     private KalturaPlayer player;
     private Button playPauseButton;
+    private Button vrButton;
 
     private final String ENTRY_ID = "1_afvj3z0u";
     private boolean isFullScreen;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         loadPlaykitPlayer();
 
         addPlayPauseButton();
+        addVRButton();
         showSystemUI();
 
         (findViewById(R.id.activity_main)).setOnClickListener(v -> {
@@ -111,6 +113,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Just add a simple button which will take care or VR swtiched.
+     */
+    private void addVRButton() {
+        //Get reference to the play/pause button.
+        vrButton = this.findViewById(R.id.vr_button);
+        //Add clickListener.
+        vrButton.setOnClickListener(v -> {
+            if (player != null) {
+                if (player.isPlaying()) {
+                    switchVRMode();
+                }
+            }
+        });
+    }
+
     private VRSettings configureVRSettings() {
         VRSettings vrSettings = new VRSettings();
         vrSettings.setFlingEnabled(true);
@@ -124,6 +142,17 @@ public class MainActivity extends AppCompatActivity {
             vrSettings.setInteractionMode(VRInteractionMode.Touch);
         }
         return vrSettings;
+    }
+
+    private void switchVRMode() {
+        if (player != null) {
+            VRController vrController = player.getController(VRController.class);
+            if (vrController != null) {
+                boolean currentState = vrController.isVRModeEnabled();
+                vrButton.setText(currentState ?  getString(R.string.vr_mode_on) : getString(R.string.vr_mode_off));
+                vrController.enableVRMode(!currentState);
+            }
+        }
     }
 
     @Override
