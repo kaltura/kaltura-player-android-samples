@@ -241,19 +241,22 @@ public class PlaybackControlsManager implements PlaybackControls {
     public void addChangeMediaButtonsListener(final int mediaListSize) {
         prevBtn.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.play);
                 playerActivity.setCurrentPlayedMediaIndex(playerActivity.getCurrentPlayedMediaIndex() - 1);
                 if (mediaListSize <= 1)  {
                     return;
                 }
                 updatePrevNextBtnFunctionality(playerActivity.getCurrentPlayedMediaIndex(), mediaListSize);
                 playerActivity.clearLogView();
-                player.stop();
-
+                if(player != null) {
+                    player.stop();
+                }
                 playerActivity.changeMedia();
             }
         });
         nextBtn.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
+                playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.play);
                 playerActivity.setCurrentPlayedMediaIndex(playerActivity.getCurrentPlayedMediaIndex() + 1);
 
                 if (mediaListSize <= 1)  {
@@ -261,7 +264,9 @@ public class PlaybackControlsManager implements PlaybackControls {
                 }
                 updatePrevNextBtnFunctionality(playerActivity.getCurrentPlayedMediaIndex(), mediaListSize);
                 playerActivity.clearLogView();
-                player.stop();
+                if(player != null) {
+                    player.stop();
+                }
                 playerActivity.changeMedia();
             }
         });
