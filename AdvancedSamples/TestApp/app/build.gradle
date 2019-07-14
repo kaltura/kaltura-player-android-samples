@@ -41,7 +41,6 @@ configurations.all {
 
 dependencies {
     api project(':tvplayer')
-
     api project(":googlecast");
     api project(":youbora");
     api project(":ima");
