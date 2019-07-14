@@ -26,6 +26,12 @@ android {
 
 dependencies {
 
+
+//    implementation 'com.kaltura:kaltura-player-android:11c09ec'
+//    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'
+//    implementation 'com.kaltura:playkit-android-youbora:develop-SNAPSHOT'
+//    implementation 'com.kaltura:playkit-android-googlecast:develop-SNAPSHOT'
+
     implementation project(":tvplayer")
     implementation project(":youbora")
     implementation project(":ima")
