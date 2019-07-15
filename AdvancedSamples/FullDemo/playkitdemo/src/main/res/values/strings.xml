@@ -18,4 +18,5 @@
     <string name="video">Video</string>
     <string name="audio">Audio</string>
     <string name="cc">CC</string>
+    <string name="change">Change</string>
 </resources>

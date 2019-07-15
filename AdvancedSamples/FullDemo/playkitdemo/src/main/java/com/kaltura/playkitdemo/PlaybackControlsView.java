@@ -14,7 +14,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ui.DefaultTimeBar;
 import com.google.android.exoplayer2.ui.TimeBar;
 import com.kaltura.playkit.PKLog;
-import com.kaltura.playkit.Player;
 import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.tvplayer.KalturaPlayer;

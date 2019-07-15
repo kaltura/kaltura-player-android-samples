@@ -146,10 +146,10 @@ public class MainActivity extends AppCompatActivity {
              playerInitOptions.tvPlayerParams
              should be set manually Q/W playback will be blocked.
 
-             if you are OTT client with mediaprep please
-                 please verify what is your OVP PartnerId!!! and set ovpPartnerId
-             if you are OTT client without media prep please
-                 please do not set ovpPartnerId
+             if you are OTT client with media-prep
+                 please verify what is your OVP PartnerId! and set the ovpPartnerId
+             if you are OTT client without media-prep
+                 please do not set ovpPartnerd
          */
 
         PhoenixTVPlayerParams phoenixTVPlayerParams = new PhoenixTVPlayerParams();

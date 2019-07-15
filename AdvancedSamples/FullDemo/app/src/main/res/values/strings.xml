@@ -79,5 +79,7 @@
     <string name="action_settings">Settings</string>
     <string name="pref_show_true">Auto Play ON</string>
     <string name="pref_show_false">Auto Play OFF</string>
+    <string name="skip_ad">Skip Ad</string>
+    <string name="learn_more">Learn More</string>
 
 </resources>
