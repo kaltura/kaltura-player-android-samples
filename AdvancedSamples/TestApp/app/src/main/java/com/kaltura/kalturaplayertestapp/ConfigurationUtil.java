@@ -1,7 +1,7 @@
 package com.kaltura.kalturaplayertestapp;
 
 import android.content.Context;
-import android.support.annotation.WorkerThread;
+import androidx.annotation.WorkerThread;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;

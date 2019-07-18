@@ -6,12 +6,12 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.annotation.NonNull;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -32,6 +32,9 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.gson.JsonObject;
+import com.kaltura.netkit.connect.response.PrimitiveResult;
+import com.kaltura.netkit.utils.OnCompletion;
+import com.kaltura.netkit.utils.SessionProvider;
 import com.kaltura.playkit.PKDrmParams;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKMediaEntry;
@@ -61,6 +64,7 @@ import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
 import com.kaltura.playkit.providers.MediaEntryProvider;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
+import com.kaltura.playkit.providers.base.OnMediaLoadCompletion;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.playkit.utils.Consts;
 import com.kaltura.tvplayer.KalturaPlayer;
@@ -159,8 +163,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     // OTT startOttMediaLoading
     public static final String OTT_SERVER_URL = MockParams.OTT_BASE_URL;
-    private static final String OTT_ASSET_ID =MockParams.OTT_ASSET_ID; //bunny no horses id "485380"
+    private static final String OTT_ASSET_ID = MockParams.OTT_ASSET_ID; //bunny no horses id "485380"
     public static final int OTT_PARTNER_ID = MockParams.OTT_PARTNER_ID;
+    public static final String OTT_FORMAT = "Mobile_Main";
+
+    public static final String VOOT_OTT_SERVER_URL = "https://rest-as.ott.kaltura.com/v5_0_3/";
+    public static final String VOOT_OTT_ASSET_ID = "618600";
+    public static final int VOOT_OTT_PARTNER_ID = 225;
+    public static final String VOOT_OTT_FORMAT = "dash Main";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,17 +232,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         PKPluginConfigs pkPluginConfigs = configurePlugins();
 
         // Basic Playkit Player
-//        loadBasicKalturaPlayer(pkPluginConfigs);
+        //loadBasicKalturaPlayer(pkPluginConfigs);
 
         // OTT Playkit Player
-//        loadKalturaPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
+        //loadKalturaPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
+         //loadKalturaPlayer(VOOT_OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
 
         // OVP Playkit Player
-        loadKalturaPlayer(OVP_PARTNER_ID, KalturaPlayer.Type.ovp, pkPluginConfigs);
+        //loadKalturaPlayer(OVP_PARTNER_ID, KalturaPlayer.Type.ovp, pkPluginConfigs);
+        loadKalturaPlayer(OVP_PARTNER_ID_DRM, KalturaPlayer.Type.ovp, pkPluginConfigs);
+
     }
 
-    private void startOttMediaLoading(String assetId, String ks) {
-        buildOttMediaOptions(assetId, ks);
+    private void startOttMediaLoading(String assetId, String format, String ks) {
+        buildOttMediaOptions(assetId, OTT_FORMAT, ks);
     }
 
     private void loadBasicKalturaPlayer(PKPluginConfigs pkPluginConfigs) {
@@ -242,6 +255,92 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void startOvpChangeMediaLoading(String assetId, String ks) {
         buildOvpMediaOptions(assetId, ks);
+    }
+
+    private void startVootOttMediaLoadingVideo(final OnMediaLoadCompletion completion) {
+        SessionProvider ksSessionProvider = new SessionProvider() {
+            @Override
+            public String baseUrl() {
+                String PhoenixBaseUrl = "https://rest-as.ott.kaltura.com/v5_0_3/api_v3/";//"https://rest-as.ott.kaltura.com/v4_4/api_v3/";// 4_4 "https://rest-sgs1.ott.kaltura.com/restful_V4_4/api_v3/";//"https://rest-as.ott.kaltura.com/v4_4/api_v3/";
+                return PhoenixBaseUrl;
+            }
+
+            @Override
+            public void getSessionToken(OnCompletion<PrimitiveResult> completion) {
+                String PnxKS = "djJ8MjI1fOp535earB1FrLYRkal8KB7Y9j19Hr0bhrnO-OyOgyfBJNg4EhwdIpDfHb8gosKb385gA76QmGTaNAVzgCvsfTkAMIwCVTEAOfR8h70aCWxAQHfIQa8UJzFkLq9iXjTGzetw-DDadMXbhWdNqIRvtDc_CRNxMTDHzx_8kZBUyP1e";
+                if (completion != null) {
+                    completion.onComplete(new PrimitiveResult(""));
+                }
+            }
+
+            @Override
+            public int partnerId() {
+                int OttPartnerId = 225;
+                return OttPartnerId;
+            }
+        };
+
+        String mediaId = "631534";//"682627";//"714164";//"796206";
+        String formatHls = "Tablet Main";
+        String formatDash = "dash Main";
+        String formatDash_tv = "dash Main";//"DASH_TV";
+
+
+        //:LIVE 639070 + DASH_LINEAR_APP
+        mediaProvider = new PhoenixMediaProvider()
+                .setSessionProvider(ksSessionProvider)
+                .setAssetId(mediaId)
+//.setReferrer()
+                .setProtocol(PhoenixMediaProvider.HttpProtocol.Https)
+                .setContextType(APIDefines.PlaybackContextType.Playback)
+                .setAssetType(APIDefines.KalturaAssetType.Media)
+                .setFormats(formatDash_tv);//, "Dash_TV");
+        mediaProvider.load(completion);
+    }
+
+    private void startVootOttMediaLoadingVideoLive(final OnMediaLoadCompletion completion) {
+        SessionProvider ksSessionProvider = new SessionProvider() {
+            @Override
+            public String baseUrl() {
+                String PhoenixBaseUrl = "https://rest-as.ott.kaltura.com/v5_0_3/api_v3/";//"https://rest-as.ott.kaltura.com/v4_4/api_v3/";// 4_4 "https://rest-sgs1.ott.kaltura.com/restful_V4_4/api_v3/";//"https://rest-as.ott.kaltura.com/v4_4/api_v3/";
+                return PhoenixBaseUrl;
+            }
+
+            @Override
+            public void getSessionToken(OnCompletion<PrimitiveResult> completion) {
+                String PnxKS = "djJ8MjI1fOp535earB1FrLYRkal8KB7Y9j19Hr0bhrnO-OyOgyfBJNg4EhwdIpDfHb8gosKb385gA76QmGTaNAVzgCvsfTkAMIwCVTEAOfR8h70aCWxAQHfIQa8UJzFkLq9iXjTGzetw-DDadMXbhWdNqIRvtDc_CRNxMTDHzx_8kZBUyP1e";
+                if (completion != null) {
+                    completion.onComplete(new PrimitiveResult(""));
+                }
+            }
+
+            @Override
+            public int partnerId() {
+                int OttPartnerId = 225;
+                return OttPartnerId;
+            }
+        };
+
+        String mediaId = "618600";//"682627";//"714164";//"796206";
+        String formatHls = "Tablet Main";
+        String formatDash = "dash Main";
+        String formatDash_tv = "dash Main";//"DASH_TV";
+
+
+        //:LIVE 639070 + DASH_LINEAR_APP
+        mediaProvider = new PhoenixMediaProvider()
+                .setSessionProvider(ksSessionProvider)
+                .setAssetId(mediaId)
+//.setReferrer()
+                .setProtocol(PhoenixMediaProvider.HttpProtocol.Https)
+                .setContextType(APIDefines.PlaybackContextType.Playback)
+                .setAssetType(APIDefines.KalturaAssetType.Media)
+                .setFormats("HLS_Linear_P");//, "Dash_TV");
+        mediaProvider.load(completion);
+    }
+
+    private void startVootOttMediaLoadingVideo() {
+        buildOttMediaOptions(VOOT_OTT_ASSET_ID, VOOT_OTT_FORMAT, null);
     }
 
     private void startSimpleOvpMediaLoadingHls() {
@@ -284,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     // Callback with the request from calling requestPermissions(...)
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
+                                           @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         // Make sure it's our original READ_CONTACTS request
         if (requestCode == READ_EXTERNAL_STORAGE_PERMISSIONS_REQUEST) {
@@ -1239,7 +1338,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return new Comparator<VideoTrack>() {
             @Override
             public int compare(VideoTrack track1, VideoTrack track2) {
-                return Long.valueOf(track1.getBitrate()).compareTo(track2.getBitrate());
+                return Long.compare(track1.getBitrate(), track2.getBitrate());
             }
         };
     }
@@ -1319,20 +1418,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         addPlayerListeners(progressBar);
 
         //------------ OVP/OTT Mock Methods -----------//
-
-        // OVP Mocks
+        if (playerType == KalturaPlayer.Type.ovp) {
+            // OVP Mocks
 //            startSimpleOvpMediaLoadingHls();
-//            startSimpleOvpMediaLoadingDRM();
+            startSimpleOvpMediaLoadingDRM();
 //            startSimpleOvpMediaLoadingVR();
 //            startSimpleOvpMediaLoadingClear();
 //            startSimpleOvpMediaLoadingLive();
 //            startSimpleOvpMediaLoadingLive1();
 
-        startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
+            //startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
+        } else if (playerType == KalturaPlayer.Type.ott) {
+            // OTT
+            startOttMediaLoading(OTT_ASSET_ID, OTT_FORMAT, null);
+            //startVootOttMediaLoadingVideo();
 
-        // OTT mock
-//        startOttMediaLoading(OTT_ASSET_ID, null);
-
+        }
 
         //------------ OVP/OTT Mock Methods -----------//
     }
@@ -1348,19 +1449,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
         player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
-        player.setMedia(pkMediaEntry, START_POSITION);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
         ViewGroup container = findViewById(R.id.player_view);
         container.addView(player.getPlayerView());
-
         controlsView.setPlayer(player);
-
         addPlayerListeners(progressBar);
+        player.setMedia(pkMediaEntry, START_POSITION);
     }
 
-
-    private void buildOttMediaOptions(String assetId, String ks) {
+    private void buildOttMediaOptions(String assetId, String format , String ks) {
         OTTMediaOptions ottMediaOptions = new OTTMediaOptions();
         ottMediaOptions.assetId = assetId;
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
@@ -1369,7 +1467,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
         ottMediaOptions.ks = ks;
         ottMediaOptions.startPosition = START_POSITION;
-        ottMediaOptions.formats = new String []{"Mobile_Main"};
+        ottMediaOptions.formats = new String []{ format };
 
         player.loadMedia(ottMediaOptions, (entry, error) -> {
             if (error != null) {

@@ -12,6 +12,7 @@ public class DemoApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        //KalturaPlayer.initializeOTT(this, MainActivity.VOOT_OTT_PARTNER_ID, MainActivity.VOOT_OTT_SERVER_URL);
         KalturaPlayer.initializeOTT(this, MainActivity.OTT_PARTNER_ID, MainActivity.OTT_SERVER_URL);
         KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID, MainActivity.OVP_SERVER_URL);
         KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_HLS, MainActivity.OVP_SERVER_URL_HLS);

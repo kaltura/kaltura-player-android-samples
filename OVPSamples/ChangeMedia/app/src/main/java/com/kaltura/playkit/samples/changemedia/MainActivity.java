@@ -2,6 +2,7 @@ package com.kaltura.playkit.samples.changemedia;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,12 +11,20 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import com.google.gson.JsonObject;
 import com.kaltura.playkit.PKLog;
+import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.PlayerState;
+import com.kaltura.playkit.plugins.ima.IMAConfig;
+import com.kaltura.playkit.plugins.ima.IMAPlugin;
+import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -114,8 +123,10 @@ public class MainActivity extends AppCompatActivity {
         //Check if id of the media entry that is set in mediaConfig.
         if (player.getMediaEntry().getId().equals(FIRST_ENTRY_ID)) {
             //If first one is active, prepare second one.
+            updatePluginsConfig("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=", "TITLE2");
             prepareSecondEntry();
         } else {
+            updatePluginsConfig("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=", "TITLE3");
             //If the second one is active, prepare the first one.
             prepareFirstEntry();
         }
@@ -157,6 +168,76 @@ public class MainActivity extends AppCompatActivity {
                 log.d("Second OVPMedia onEntryLoadComplete  entry = " + entry.getId());
             }
         });
+    }
+
+    private IMAConfig getAdsConfig(String adTagUrl) {
+        List<String> videoMimeTypes = new ArrayList<>();
+        videoMimeTypes.add("video/mp4");
+        videoMimeTypes.add("application/x-mpegURL");
+        videoMimeTypes.add("application/dash+xml");
+        return new IMAConfig().setAdTagUrl(adTagUrl).setVideoMimeTypes(videoMimeTypes).enableDebugMode(true).setAlwaysStartWithPreroll(true).setAdLoadTimeOut(8);
+    }
+
+    @NonNull
+    private JsonObject getYouboraJsonObject(String title) {
+        JsonObject pluginEntry = new JsonObject();
+
+        pluginEntry.addProperty("accountCode", "kalturatest");
+        pluginEntry.addProperty("username", "a@a.com");
+        pluginEntry.addProperty("haltOnError", true);
+        pluginEntry.addProperty("enableAnalytics", true);
+        pluginEntry.addProperty("enableSmartAds", true);
+
+
+        //Optional - Device json o/w youbora will decide by its own.
+        JsonObject deviceJson = new JsonObject();
+        deviceJson.addProperty("deviceCode", "AndroidTV");
+        deviceJson.addProperty("brand", "Xiaomi");
+        deviceJson.addProperty("model", "Mii3");
+        deviceJson.addProperty("type", "TvBox");
+        deviceJson.addProperty("osName", "Android/Oreo");
+        deviceJson.addProperty("osVersion", "8.1");
+
+
+        //Media entry json.
+        JsonObject mediaEntryJson = new JsonObject();
+        //mediaEntryJson.addProperty("isLive", isLive);
+        mediaEntryJson.addProperty("title", title);
+
+        //Youbora ads configuration json.
+        JsonObject adsJson = new JsonObject();
+        adsJson.addProperty("adsExpected", true);
+        adsJson.addProperty("campaign", "zzz");
+
+        //Configure custom properties here:
+        JsonObject propertiesJson = new JsonObject();
+        propertiesJson.addProperty("genre", "");
+        propertiesJson.addProperty("type", "");
+        propertiesJson.addProperty("transaction_type", "");
+        propertiesJson.addProperty("year", "");
+        propertiesJson.addProperty("cast", "");
+        propertiesJson.addProperty("director", "");
+        propertiesJson.addProperty("owner", "");
+        propertiesJson.addProperty("parental", "");
+        propertiesJson.addProperty("price", "");
+        propertiesJson.addProperty("rating", "");
+        propertiesJson.addProperty("audioType", "");
+        propertiesJson.addProperty("audioChannels", "");
+        propertiesJson.addProperty("device", "");
+        propertiesJson.addProperty("quality", "");
+
+        //You can add some extra params here:
+        JsonObject extraParamJson = new JsonObject();
+        extraParamJson.addProperty("param1", "param1");
+        extraParamJson.addProperty("param2", "param2");
+
+        //Add all the json objects created before to the pluginEntry json.
+        pluginEntry.add("device", deviceJson);
+        pluginEntry.add("media", mediaEntryJson);
+        pluginEntry.add("ads", adsJson);
+        pluginEntry.add("properties", propertiesJson);
+        pluginEntry.add("extraParams", extraParamJson);
+        return pluginEntry;
     }
 
     /**
@@ -212,9 +293,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadPlaykitPlayer() {
+
+        PKPluginConfigs pluginConfig = new PKPluginConfigs();
+        addPluginsConfig(pluginConfig, "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=", "title1");
+
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
+        playerInitOptions.setPluginConfigs(pluginConfig);
         player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
 
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -225,5 +311,31 @@ public class MainActivity extends AppCompatActivity {
         prepareFirstEntry();
 
         addPlayerStateListener();
+    }
+
+    private void addPluginsConfig(PKPluginConfigs config, String adTag, String title) {
+        //"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
+        //"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/3274935/preroll&impl=s&gdfp_req=1&env=vp&output=xml_vast2&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]";
+        //"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpod&cmsid=496&vid=short_onecue&correlator=";
+        IMAConfig adsConfig = getAdsConfig(adTag);
+        config.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
+        JsonObject pluginEntry = getYouboraJsonObject(title);
+
+        //Set plugin entry to the plugin configs.
+        config.setPluginConfig(YouboraPlugin.factory.getName(), pluginEntry);
+
+    }
+
+    private void updatePluginsConfig(String adTag, String title) {
+        //"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
+        //"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/3274935/preroll&impl=s&gdfp_req=1&env=vp&output=xml_vast2&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]";
+        //"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpod&cmsid=496&vid=short_onecue&correlator=";
+        if (player != null) {
+            IMAConfig adsConfig = getAdsConfig(adTag);
+            player.updatePluginConfig(IMAPlugin.factory.getName(), adsConfig);
+            JsonObject pluginEntry = getYouboraJsonObject(title);
+            //Set plugin entry to the plugin configs.
+            player.updatePluginConfig(YouboraPlugin.factory.getName(), pluginEntry);
+        }
     }
 }

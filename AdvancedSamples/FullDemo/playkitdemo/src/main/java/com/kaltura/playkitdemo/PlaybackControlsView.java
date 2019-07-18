@@ -1,7 +1,7 @@
 package com.kaltura.playkitdemo;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,10 +9,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.ui.DefaultTimeBar;
-import com.google.android.exoplayer2.ui.TimeBar;
+import com.kaltura.android.exoplayer2.C;
+import com.kaltura.android.exoplayer2.Timeline;
+import com.kaltura.android.exoplayer2.ui.DefaultTimeBar;
+import com.kaltura.android.exoplayer2.ui.TimeBar;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
@@ -144,7 +144,7 @@ public class PlaybackControlsView extends LinearLayout implements View.OnClickLi
      * Component Listener for Default time bar from ExoPlayer UI
      */
     private final class ComponentListener
-            implements com.google.android.exoplayer2.Player.EventListener, TimeBar.OnScrubListener, OnClickListener {
+            implements com.kaltura.android.exoplayer2.Player.EventListener, TimeBar.OnScrubListener, OnClickListener {
 
         @Override
         public void onScrubStart(TimeBar timeBar, long position) {
@@ -173,12 +173,12 @@ public class PlaybackControlsView extends LinearLayout implements View.OnClickLi
         }
 
         @Override
-        public void onPositionDiscontinuity(@com.google.android.exoplayer2.Player.DiscontinuityReason int reason) {
+        public void onPositionDiscontinuity(@com.kaltura.android.exoplayer2.Player.DiscontinuityReason int reason) {
             updateProgress();
         }
 
         @Override
-        public void onTimelineChanged(Timeline timeline, @Nullable Object manifest, @com.google.android.exoplayer2.Player.TimelineChangeReason int reason) {
+        public void onTimelineChanged(Timeline timeline, @Nullable Object manifest, @com.kaltura.android.exoplayer2.Player.TimelineChangeReason int reason) {
             updateProgress();
         }
 
