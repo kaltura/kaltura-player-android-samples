@@ -101,20 +101,12 @@ public class MainActivity extends AppCompatActivity {
         playPauseButton.setOnClickListener(v -> {
             if (player != null) {
                 AdController adController = player.getController(AdController.class);
-                if (player.isPlaying() || (adController != null && adController.isAdDisplayed() && adController.isAdPlaying())) {
-                    if (adController != null && adController.isAdDisplayed()) {
-                        adController.pause();
-                    } else {
-                        player.pause();
-                    }
+                if (player.isPlaying() || (adController != null && adController.isAdPlaying())) {
+                    player.pause();
                     //If player is playing, change text of the button and pause.
                     playPauseButton.setText(R.string.play_text);
                 } else {
-                    if (adController != null && adController.isAdDisplayed()) {
-                        adController.play();
-                    } else {
-                        player.play();
-                    }
+                    player.play();
                     //If player is not playing, change text of the button and play.
                     playPauseButton.setText(R.string.pause_text);
                 }
