@@ -27,7 +27,8 @@ android {
 
 dependencies {
 
-    implementation project(':tvplayer')
+    implementation 'com.kaltura.player:tvplayer:4.0.0'
+    //implementation project(':tvplayer')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {

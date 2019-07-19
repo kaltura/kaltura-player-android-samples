@@ -29,17 +29,18 @@ android {
 
 dependencies {
 
-//    implementation 'com.kaltura:kaltura-player-android:11c09ec'
-//    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-youbora:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-googlecast:develop-SNAPSHOT'
+    implementation 'com.kaltura.player:tvplayer:4.0.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.0.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.0.0'
+    implementation 'com.kaltura.playkit:vrplugin:4.0.0'
+    implementation 'com.kaltura.playkit:googlecast:4.0.0'
 
-    implementation project(":tvplayer")
-    implementation project(":ima")
-    implementation project(":youbora")
-    implementation project(":googlecast")
-    implementation project(":playkitvr")
-    implementation project(":MD360")
+//    implementation project(":tvplayer")
+//    implementation project(":ima")
+//    implementation project(":youbora")
+//    implementation project(":googlecast")
+//    implementation project(":playkitvr")
+//    implementation project(":MD360")
 
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'

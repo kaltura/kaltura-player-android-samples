@@ -35,16 +35,24 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-v4'
     }
 
-    api project(path: ':tvplayer')
-    
-    //compile 'com.kaltura.playkit:imaplugin:0.1.2'
-    //compile 'com.kaltura.playkit:youboraplugin:0.1.2'
-    implementation project(":ima");
-    implementation project(":youbora"); ;
-    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation 'com.kaltura.player:tvplayer:4.0.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.0.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.0.0'
 
+//    implementation project(":tvplayer")
+//    implementation project(":ima");
+//    implementation project(":youbora");
+
+    implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
     //androidTestImplementation 'com.android.support.test:runner:1.0.1'
     //androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+
+repositories {
+    google()
+    jcenter()
+    maven { url 'https://jitpack.io' }
+    //maven { url  "https://dl.bintray.com/kaltura/android" }
 }
