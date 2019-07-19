@@ -27,6 +27,9 @@ android {
 
 dependencies {
 
+    //implementation 'com.kaltura.player:tvplayer:4.0.0'
+    //implementation 'com.kaltura.playkit:youboraplugin:4.0.0'
+
     implementation project(":tvplayer")
     implementation project(":youbora")
 

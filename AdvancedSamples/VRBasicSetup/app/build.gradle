@@ -30,6 +30,10 @@ configurations.all {
 }
 
 dependencies {
+
+    //implementation 'com.kaltura.player:tvplayer:4.0.0'
+    //implementation 'com.kaltura.playkit:vrplugin:4.0.0'
+
     implementation project(":tvplayer")
     implementation project(":playkitvr")
     implementation project(":MD360")

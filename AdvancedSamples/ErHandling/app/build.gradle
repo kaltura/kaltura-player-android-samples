@@ -28,6 +28,9 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
+    //implementation 'com.kaltura.player:tvplayer:4.0.0'
+    //implementation 'com.kaltura.playkit:imaplugin:4.0.0'
+
     implementation project(':tvplayer')
     implementation project(':ima')
 
