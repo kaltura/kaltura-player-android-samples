@@ -3,15 +3,6 @@ package com.kaltura.playerdemo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +14,16 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -89,7 +90,7 @@ public abstract class BaseDemoActivity extends AppCompatActivity
     private ListView itemListView;
 
     protected abstract DemoItem[] items();
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -303,7 +304,7 @@ public abstract class BaseDemoActivity extends AppCompatActivity
             Log.d("onEntryLoadComplete", " error: " + error);
         }
     }
-    
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -352,7 +353,7 @@ public abstract class BaseDemoActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    
+
     private ListView getItemListView() {
         if (itemListView != null) {
             return itemListView;
@@ -365,7 +366,7 @@ public abstract class BaseDemoActivity extends AppCompatActivity
         itemListView = new ListView(this);
 
         itemListView.setAdapter(itemArrayAdapter);
-        
+
         itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {

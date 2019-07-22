@@ -4,10 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +12,11 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
 
 import com.kaltura.playkit.samples.fulldemo.utilities.NetworkUtils;
 
@@ -28,8 +29,17 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.kaltura.playkit.samples.fulldemo.Consts.*;
-
+import static com.kaltura.playkit.samples.fulldemo.Consts.ADS_JSON_FILE_URL;
+import static com.kaltura.playkit.samples.fulldemo.Consts.AD_LOAD_TIMEOUT;
+import static com.kaltura.playkit.samples.fulldemo.Consts.AUTO_PLAY;
+import static com.kaltura.playkit.samples.fulldemo.Consts.COMPANION_AD_HEIGHT;
+import static com.kaltura.playkit.samples.fulldemo.Consts.COMPANION_AD_WIDTH;
+import static com.kaltura.playkit.samples.fulldemo.Consts.LIC_URL1;
+import static com.kaltura.playkit.samples.fulldemo.Consts.MIME_TYPE;
+import static com.kaltura.playkit.samples.fulldemo.Consts.MIN_AD_DURATION_FOR_SKIP_BUTTON;
+import static com.kaltura.playkit.samples.fulldemo.Consts.PREFERRED_BITRATE;
+import static com.kaltura.playkit.samples.fulldemo.Consts.SOURCE_URL1;
+import static com.kaltura.playkit.samples.fulldemo.Consts.START_FROM;
 import static com.kaltura.playkit.samples.fulldemo.R.id.customTag;
 import static com.kaltura.playkit.samples.fulldemo.R.id.mediaLic;
 import static com.kaltura.playkit.samples.fulldemo.R.id.mediaUrl;

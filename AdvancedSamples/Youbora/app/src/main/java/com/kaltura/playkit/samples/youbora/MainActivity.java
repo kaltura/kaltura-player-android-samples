@@ -17,11 +17,57 @@ import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.plugins.youbora.YouboraEvent;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
+import com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
+
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_ADS_EXPECTED;
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_CONTENT_CAST;
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_CONTENT_DIRECTOR;
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_CONTENT_OWNER;
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_CONTENT_PARENTAL;
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_CONTENT_QUALITY;
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_CONTENT_RATING;
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_CONTENT_YEAR;
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_HALT_ON_ERROR;
+import static com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.KEY_SMART_ADS;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_ACCOUNT_CODE;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_AD_CAMPAIGN;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CONTENT_CHANNEL;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CONTENT_DRM;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CONTENT_ENCODING_AUDIO_CODEC;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CONTENT_GENRE;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CONTENT_PRICE;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CONTENT_TITLE;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CONTENT_TRANSACTION_CODE;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CONTENT_TYPE;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_1;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_10;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_11;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_12;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_13;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_14;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_15;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_16;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_2;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_3;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_4;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_5;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_6;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_7;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_8;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_CUSTOM_DIMENSION_9;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_DEVICE_BRAND;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_DEVICE_CODE;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_DEVICE_MODEL;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_DEVICE_OS_NAME;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_DEVICE_OS_VERSION;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_DEVICE_TYPE;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_ENABLED;
+import static com.npaw.youbora.lib6.plugin.Options.KEY_USERNAME;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -184,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Youbora Configuration
         PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
-        JsonObject youboraConfigJson = getYouboraConfig();
+        Bundle youboraConfigJson = getYouboraBundle();
         pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.getName(), youboraConfigJson);
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
@@ -227,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
         return ottMediaOptions;
     }
 
+/*
     private JsonObject getYouboraConfig() {
 
         //Youbora config json. Main config goes here.
@@ -286,6 +333,63 @@ public class MainActivity extends AppCompatActivity {
         youboraConfigJson.add("extraParams", extraParamJson);
 
         return youboraConfigJson;
+    }
+*/
+
+    private Bundle getYouboraBundle() {
+
+        Bundle optBundle = new Bundle();
+
+        //Youbora config bundle. Main config goes here.
+        optBundle.putString(KEY_ACCOUNT_CODE, ACCOUNT_CODE);
+        optBundle.putString(KEY_USERNAME, UNIQUE_USER_NAME);
+        optBundle.putBoolean(KEY_HALT_ON_ERROR, true);
+        optBundle.putBoolean(KEY_ENABLED, true);
+        optBundle.putBoolean(KEY_SMART_ADS, ENABLE_SMART_ADS);
+
+        //Media entry bundle.
+        optBundle.putString(KEY_CONTENT_TITLE, MEDIA_TITLE);
+
+        //Optional - Device bundle o/w youbora will decide by its own.
+        optBundle.putString(KEY_DEVICE_CODE, "AndroidTV");
+        optBundle.putString(KEY_DEVICE_BRAND, "Xiaomi");
+        optBundle.putString(KEY_DEVICE_MODEL, "Mii3");
+        optBundle.putString(KEY_DEVICE_TYPE, "TvBox");
+        optBundle.putString(KEY_DEVICE_OS_NAME, "Android/Oreo");
+        optBundle.putString(KEY_DEVICE_OS_VERSION, "8.1");
+
+        //Youbora ads configuration bundle.
+        optBundle.putBoolean(KEY_ADS_EXPECTED, true);
+        optBundle.putString(KEY_AD_CAMPAIGN, CAMPAIGN);
+
+        //Configure custom properties here:
+        optBundle.putString(KEY_CONTENT_GENRE, GENRE);
+        optBundle.putString(KEY_CONTENT_TYPE, TYPE);
+        optBundle.putString(KEY_CONTENT_TRANSACTION_CODE, TRANSACTION_TYPE); // NEED TO CHECK
+        optBundle.putString(KEY_CONTENT_YEAR, YEAR);
+        optBundle.putString(KEY_CONTENT_CAST, CAST);
+        optBundle.putString(KEY_CONTENT_DIRECTOR, DIRECTOR);
+        optBundle.putString(KEY_CONTENT_OWNER, OWNER);
+        optBundle.putString(KEY_CONTENT_PARENTAL, PARENTAL);
+        optBundle.putString(KEY_CONTENT_PRICE, PRICE);
+        optBundle.putString(KEY_CONTENT_RATING, RATING);
+        optBundle.putString(KEY_CONTENT_ENCODING_AUDIO_CODEC, AUDIO_TYPE); // NEED TO CHECK
+        optBundle.putString(KEY_CONTENT_CHANNEL, AUDIO_CHANNELS);  // NEED TO CHECK
+        optBundle.putString(, DEVICE); // Need to check
+        optBundle.putString(KEY_CONTENT_QUALITY, QUALITY);
+
+        //You can add some extra params here:
+        optBundle.putString(KEY_CUSTOM_DIMENSION_1, EXTRA_PARAM_1);
+        optBundle.putString(KEY_CUSTOM_DIMENSION_2, EXTRA_PARAM_2);
+
+        //Add all the json objects created before to the pluginEntry json.
+//        youboraConfigJson.add("media", mediaEntryJson);
+//        youboraConfigJson.add("device", deviceJson);
+//        youboraConfigJson.add("ads", adsJson);
+//        youboraConfigJson.add("properties", propertiesJson);
+//        youboraConfigJson.add("extraParams", extraParamJson);
+
+        return optBundle;
     }
 
 

@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.kaltura.playkit.samples.fulldemo.MainActivity">
-    tools:ignore="MergeRootFrame">
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -2,8 +2,9 @@ package com.kaltura.playerdemo;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
 
 import com.google.gson.JsonObject;
 import com.kaltura.netkit.utils.GsonParser;
