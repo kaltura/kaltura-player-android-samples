@@ -2,9 +2,12 @@ package com.kaltura.kalturaplayertestapp.tracks;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -81,7 +84,7 @@ public class TracksSelectionController {
         RecyclerView recyclerView = buildTracksSelectionView();
         final TracksAdapter adapter = new TracksAdapter(trackItems, lastTrackSelection);
         recyclerView.setAdapter(adapter);
-        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
         builder.setTitle(getDialogTitle(trackType));
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -93,7 +96,7 @@ public class TracksSelectionController {
         });
         builder.setView(recyclerView);
 
-        android.support.v7.app.AlertDialog alertDialog = builder.create();
+        AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
