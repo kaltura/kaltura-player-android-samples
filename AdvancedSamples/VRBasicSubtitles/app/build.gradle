@@ -7,7 +7,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.kaltura.playkit.samples.vrbasicsample"
+        applicationId "com.kaltura.playkit.samples.vrbasicsubtitles"
         minSdkVersion 17
         targetSdkVersion 28
         versionCode 1
