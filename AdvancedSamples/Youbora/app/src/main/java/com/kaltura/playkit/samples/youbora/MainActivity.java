@@ -374,13 +374,6 @@ public class MainActivity extends AppCompatActivity {
         optBundle.putString(KEY_CUSTOM_DIMENSION_1, EXTRA_PARAM_1);
         optBundle.putString(KEY_CUSTOM_DIMENSION_2, EXTRA_PARAM_2);
 
-        //Add all the json objects created before to the pluginEntry json.
-//        youboraConfigJson.add("media", mediaEntryJson);
-//        youboraConfigJson.add("device", deviceJson);
-//        youboraConfigJson.add("ads", adsJson);
-//        youboraConfigJson.add("properties", propertiesJson);
-//        youboraConfigJson.add("extraParams", extraParamJson);
-
         return optBundle;
     }
 
