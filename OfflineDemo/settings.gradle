@@ -1,0 +1,9 @@
+include ':app'
+include ':tvplayer'
+project(':tvplayer').projectDir = new File(settingsDir, '../../kaltura-player-android/tvplayer')
+include ':playkit'
+project(':playkit').projectDir = new File(settingsDir, '../../playkit-android/playkit')
+include ':providers'
+project(':providers').projectDir = new File(settingsDir,'../../playkit-android-providers/mediaproviders')
+include ':kava'
+project(':kava').projectDir = new File(settingsDir,'../../playkit-android-kava/kavaplugin')
