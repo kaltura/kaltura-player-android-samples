@@ -2,8 +2,6 @@ package com.kaltura.playkit.samples.subtitlesideloading;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +13,9 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.kaltura.playkit.PKSubtitleFormat;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.PlayerState;

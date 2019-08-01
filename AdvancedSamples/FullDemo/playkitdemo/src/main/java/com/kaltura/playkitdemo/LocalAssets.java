@@ -5,8 +5,9 @@ import android.content.DialogInterface;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.kaltura.netkit.connect.response.ResultElement;
 import com.kaltura.netkit.utils.ErrorElement;
@@ -28,7 +29,7 @@ import java.util.Collections;
 
 public class LocalAssets {
     private static final PKLog log = PKLog.get("LocalAssets");
-    
+
     private PKDrmParams drmParams = new PKDrmParams("https://udrm.kaltura.com/widevine/license?custom_data=eyJjYV9zeXN0ZW0iOiJPVlAiLCJ1c2VyX3Rva2VuIjoiZGpKOE1UZzFNVFUzTVh4NThBVkFQOXo1R0lvU3BXWE95emEtdWlQNnk5cXpBdkpkMzZfUFZOcUNfT0NZWWhLRVh5LThqcGFMRktGcU15d3VTN2ZLZmxibTd1VVJGQkVtSGxsNkc4NEU2LUxrcnFXbVV1ZWEtZnFqdXc9PSIsImFjY291bnRfaWQiOiIxODUxNTcxIiwiY29udGVudF9pZCI6IjBfcGw1bGJmbzAiLCJmaWxlcyI6IjBfendxM2w0NHIsMF91YTYycms2cywwX290bWFxcG5mLDBfeXdrbXFua2csMV9lMHF0YWoxaiwxX2IycXp5dmE3In0%3D&signature=LFiNPZL8%2BNevsZ8cNhrmSDM4SDQ%3D", PKDrmParams.Scheme.WidevineClassic);
     private PKMediaSource widevineClassicSource = new PKMediaSource()
             .setId("wvc")
@@ -120,7 +121,7 @@ public class LocalAssets {
     public void registerAsset(LocalAssetsManager.AssetRegistrationListener listener) {
         localAssetsManager.registerAsset(widevineClassicSource, localAssetPath, widevineClassicSource.getId(), listener);
     }
-    
+
     public void getLocalMediaEntry(OnMediaLoadCompletion completion) {
         final PKMediaSource localMediaSource = localAssetsManager.getLocalMediaSource(widevineClassicSource.getId(), localAssetPath);
         completion.onComplete(new ResultElement<PKMediaEntry>() {

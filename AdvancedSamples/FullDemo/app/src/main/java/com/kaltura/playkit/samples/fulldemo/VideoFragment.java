@@ -3,9 +3,6 @@ package com.kaltura.playkit.samples.fulldemo;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,9 +17,14 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.google.android.exoplayer2.util.MimeTypes;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.fragment.app.Fragment;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.kaltura.android.exoplayer2.util.MimeTypes;
 import com.kaltura.playkit.PKDrmParams;
 import com.kaltura.playkit.PKMediaEntry;
 import com.kaltura.playkit.PKMediaFormat;
@@ -58,7 +60,7 @@ import static com.kaltura.playkit.samples.fulldemo.Consts.START_FROM;
 //import com.kaltura.plugins.adsmanager.AdsConfig;
 //import com.kaltura.plugins.adsmanager.AdsPlugin;
 
-public class VideoFragment extends android.support.v4.app.Fragment {
+public class VideoFragment extends Fragment {
     private static final String TAG = VideoFragment.class.getSimpleName();
 
     //id of the first entry
@@ -105,7 +107,7 @@ public class VideoFragment extends android.support.v4.app.Fragment {
     private ProgressBar progressBar;
     private boolean isFullScreen;
     private AppCompatImageView fullScreenBtn;
-   // private PKMediaConfig mediaConfig;
+    // private PKMediaConfig mediaConfig;
     private Logger mLog;
     private OnVideoFragmentViewCreatedListener mViewCreatedCallback;
 
@@ -351,9 +353,9 @@ public class VideoFragment extends android.support.v4.app.Fragment {
         return mediaSources;
     }
 
-   public void loadVideo(VideoItem videoItem) {
-       mVideoItem = videoItem;
-   }
+    public void loadVideo(VideoItem videoItem) {
+        mVideoItem = videoItem;
+    }
 
     // KalturaPlayer
 
@@ -796,8 +798,8 @@ public class VideoFragment extends android.support.v4.app.Fragment {
 
         player.addListener(this, AdEvent.adClickedEvent, event -> {
             log("AD_CLICKED");
-                AdEvent.AdClickedEvent advtClickEvent = event;
-                Log.d(TAG, "AD_CLICKED url = " + advtClickEvent.clickThruUrl);
+            AdEvent.AdClickedEvent advtClickEvent = event;
+            Log.d(TAG, "AD_CLICKED url = " + advtClickEvent.clickThruUrl);
 //                nowPlaying = false;
         });
 

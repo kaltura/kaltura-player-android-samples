@@ -2,9 +2,7 @@ package com.kaltura.kalturaplayertestapp;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.kaltura.kalturaplayertestapp.converters.UiConf;
 import com.kaltura.playkit.PKPluginConfigs;
-import com.kaltura.tvplayer.PlayerInitOptions;
 
 import java.io.IOException;
 import java.io.InputStream;

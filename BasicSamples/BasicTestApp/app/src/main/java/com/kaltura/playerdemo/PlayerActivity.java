@@ -1,8 +1,9 @@
 package com.kaltura.playerdemo;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.kaltura.playkit.PKLog;
 import com.kaltura.tvplayer.KalturaPlayer;
@@ -12,9 +13,9 @@ import org.greenrobot.eventbus.EventBus;
 public class PlayerActivity extends AppCompatActivity {
 
     private static final PKLog log = PKLog.get("PlayerActivity");
-    
+
     private KalturaPlayer player;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
