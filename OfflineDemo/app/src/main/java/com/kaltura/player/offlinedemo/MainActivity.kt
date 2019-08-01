@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.OfflineManager
@@ -30,8 +29,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-//        findViewById<>()
-        contentLayout
         val manager = OfflineManager.getInstance(this)
 
 
@@ -46,12 +43,13 @@ class MainActivity : AppCompatActivity() {
                     assetInfo: OfflineManager.AssetInfo?,
                     selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
                 ) {
+                    snackbar("Prepared", Snackbar.LENGTH_SHORT)
                     myAssetInfo = assetInfo
                     manager.addAsset(assetInfo)
                 }
 
                 override fun onPrepareError(error: Exception?) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    snackbar("Prepare error: $error", Snackbar.LENGTH_LONG)
                 }
             })
         }
@@ -60,20 +58,20 @@ class MainActivity : AppCompatActivity() {
             manager.registerDrmAsset(myAssetInfo, object : OfflineManager.DrmRegisterListener {
                 override fun onRegistered(assetId: String?, drmInfo: OfflineManager.DrmInfo?) {
                     contentLayout.post {
-                        Snackbar.make(contentLayout, "Registered!", Snackbar.LENGTH_SHORT).show()
+                        snackbar("Registered", Snackbar.LENGTH_SHORT)
                     }
                 }
 
                 override fun onRegisterError(assetId: String?, error: Exception?) {
                     contentLayout.post {
-                        Snackbar.make(contentLayout, "Register error: $error", Snackbar.LENGTH_INDEFINITE).show()
+                        snackbar("Register error: $error", Snackbar.LENGTH_LONG)
                     }
                 }
             })
         }
 
         playButton.setOnClickListener {
-            startActivity(Intent(this, PlayerActivity::class.java).apply {
+            startActivity(Intent(this, PlayActivity::class.java).apply {
                 data = Uri.parse(entryId)
             })
         }
@@ -83,6 +81,11 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun snackbar(msg: String, duration: Int) =
+        Snackbar.make(contentLayout, msg, duration).apply {
+            show()
+        }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

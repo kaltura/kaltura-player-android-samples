@@ -12,25 +12,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity
-            android:name=".PlayActivity"
-            android:label="@string/title_activity_play"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.kaltura.player.offlinedemo.MainActivity" />
-        </activity>
-        <activity
-            android:name=".PlayerActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_player"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/FullscreenTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.kaltura.player.offlinedemo.MainActivity" />
-        </activity>
+
+        <service
+            android:name="com.kaltura.tvplayer.offline.ExoDownloadService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.exoplayer.downloadService.action.RESTART" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -42,15 +34,16 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="com.kaltura.tvplayer.offline.ExoDownloadService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.exoplayer.downloadService.action.RESTART" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </service>
+        <activity
+            android:name=".PlayActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_play"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.kaltura.player.offlinedemo.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
