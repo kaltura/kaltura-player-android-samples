@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.kaltura.playkit.ads.AdTagType;
 
 public class UiConfFormatIMADAIConfig {
     public static final int DEFAULT_AD_LOAD_TIMEOUT = 5;
