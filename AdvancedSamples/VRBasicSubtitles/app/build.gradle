@@ -37,7 +37,7 @@ dependencies {
 
     implementation project(":tvplayer")
     implementation project(":playkitvr")
-   // implementation project(":MD360")
+    implementation project(":MD360")
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'
