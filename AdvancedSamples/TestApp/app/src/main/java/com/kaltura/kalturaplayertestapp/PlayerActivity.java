@@ -368,6 +368,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                     phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/";
                     initOptions.tvPlayerParams = phoenixTVPlayerParams;
                 }
+
                 player = KalturaPlayer.createOTTPlayer(PlayerActivity.this, initOptions);
                 setPlayer(player);
                 OTTMediaOptions ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
@@ -603,7 +604,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.replay);
             }
             progressBar.setVisibility(View.GONE);
-            if (!isPostrollAvailableInAdCuePoint()) {
+            if (!isPostrollAvailableInAdCuePoint() || IMADAIPlugin.factory.getName().equals(adCuePoints.getAdPluginName())) {
                 playbackControlsManager.showControls(View.VISIBLE);
             }
         });
