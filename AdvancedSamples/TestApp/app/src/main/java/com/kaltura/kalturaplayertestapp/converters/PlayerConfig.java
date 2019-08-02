@@ -28,6 +28,7 @@ public class PlayerConfig {
     public Boolean allowCrossProtocolEnabled;
     public String  preferredFormat;
     public Boolean allowClearLead;
+    public Boolean enableDecoderFallback;
     public Boolean secureSurface;
     public Boolean adAutoPlayOnResume;
     public Boolean vrPlayerEnabled;

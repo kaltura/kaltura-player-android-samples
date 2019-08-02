@@ -322,6 +322,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 .setLoadControlBuffers(appPlayerInitConfig.loadControlBuffers)
                 .setSubtitleStyle(appPlayerInitConfig.setSubtitleStyle)
                 .setAllowClearLead(appPlayerInitConfig.allowClearLead)
+                .setEnableDecoderFallback(appPlayerInitConfig.enableDecoderFallback)
                 .setAdAutoPlayOnResume(appPlayerInitConfig.adAutoPlayOnResume)
                 .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
                 .setVRSettings(appPlayerInitConfig.vrSettings)
