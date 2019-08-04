@@ -7,6 +7,7 @@
     <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
 
     <application
+        android:networkSecurityConfig="@xml/network_security_config"
         android:name=".DemoApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
