@@ -27,7 +27,8 @@ def samples = [
         'ChromecastCAFSample',
         'ErHandling',
         'EventsRegistration',
-        'VRBasicSetup'
+        'VRBasicSetup',
+        'VRBasicSubtitles'
 ]
 
 samples.each {

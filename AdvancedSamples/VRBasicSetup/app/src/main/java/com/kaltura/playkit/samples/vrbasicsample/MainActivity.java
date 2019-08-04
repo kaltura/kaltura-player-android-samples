@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         VRSettings vrSettings = new VRSettings();
         vrSettings.setFlingEnabled(true);
         vrSettings.setVrModeEnabled(false);
-        vrSettings.setInteractionMode(VRInteractionMode.Motion);
+        vrSettings.setInteractionMode(VRInteractionMode.MotionWithTouch);
         vrSettings.setZoomWithPinchEnabled(true);
 
         VRInteractionMode interactionMode = vrSettings.getInteractionMode();
