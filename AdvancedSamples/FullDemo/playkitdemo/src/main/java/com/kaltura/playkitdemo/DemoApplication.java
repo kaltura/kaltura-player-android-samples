@@ -37,7 +37,7 @@ public class DemoApplication extends Application {
         KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID_CLEAR, OVP_SERVER_URL_CLEAR);
         KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID_LIVE, OVP_SERVER_URL_LIVE);
         KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID_LIVE_1, OVP_SERVER_URL_LIVE_1);
-        //doConnectionsWarmup();
+        doConnectionsWarmup();
     }
 
     private void doConnectionsWarmup() {

@@ -60,6 +60,7 @@ import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsConfig;
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsEvent;
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
+import com.kaltura.playkit.profiler.PlayKitProfiler;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.playkit.utils.Consts;
@@ -67,6 +68,7 @@ import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
+import com.kaltura.tvplayer.config.PhoenixTVPlayerParams;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,8 +77,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.kaltura.playkitdemo.PartnersConfig.OTT_ASSET_ID;
-import static com.kaltura.playkitdemo.PartnersConfig.OTT_PARTNER_ID;
 import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_CLEAR;
 import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_DRM;
 import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_HLS;
@@ -84,9 +84,8 @@ import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_LIVE;
 import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_LIVE_1;
 import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_VR;
 import static com.kaltura.playkitdemo.PartnersConfig.OVP_FIRST_ENTRY_ID;
-import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID;
-import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID_HLS;
 import static com.kaltura.playkitdemo.PartnersConfig.OVP_SECOND_ENTRY_ID;
+import static com.kaltura.playkitdemo.PartnersConfig.SING_198_MEDIA_ID;
 import static com.kaltura.playkitdemo.PartnersConfig.inLinePreAdTagUrl;
 import static com.kaltura.playkitdemo.PartnersConfig.preMidPostAdTagUrl;
 import static com.kaltura.playkitdemo.PartnersConfig.preMidPostSingleAdTagUrl;
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private OrientationManager mOrientationManager;
     private boolean userIsInteracting;
     private PKTracks tracksInfo;
-    private boolean isAdsEnabled = true;
+    private boolean isAdsEnabled = false;
     private boolean isDAIMode = false;
     private PlayerState playerState;
 
@@ -131,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         //getPermissionToReadExternalStorage();
         initDrm();
-
+        //PlayKitProfiler.init(this);
         try {
             ProviderInstaller.installIfNeeded(this);
         } catch (GooglePlayServicesRepairableException e) {
@@ -160,9 +159,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // OTT Playkit Player
         //loadKalturaPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
+        //loadKalturaPlayer(225, KalturaPlayer.Type.ott, pkPluginConfigs);
+        loadKalturaPlayer(198, KalturaPlayer.Type.ott, pkPluginConfigs);
+
 
         // OVP Playkit Player
-        loadKalturaPlayer(OVP_PARTNER_ID_HLS, KalturaPlayer.Type.ovp, pkPluginConfigs);
+        //loadKalturaPlayer(OVP_PARTNER_ID_HLS, KalturaPlayer.Type.ovp, pkPluginConfigs);
     }
 
     /**
@@ -179,14 +181,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         playerInitOptions = new PlayerInitOptions(mediaPartnerId);
         playerInitOptions.setAutoPlay(true);
+        playerInitOptions.setPreload(true);
         playerInitOptions.setSecureSurface(false);
         playerInitOptions.setAdAutoPlayOnResume(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
+        playerInitOptions.setReferrer("app://MyApplicationDomain");
         // playerInitOptions.setLoadControlBuffers(new LoadControlBuffers());
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
         if (playerType == KalturaPlayer.Type.ott) {
+            if (mediaPartnerId == 225 || mediaPartnerId == 198) {
+                PhoenixTVPlayerParams phoenixTVPlayerParams = new PhoenixTVPlayerParams();
+                phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
+                phoenixTVPlayerParams.ovpPartnerId = 1774581;
+                phoenixTVPlayerParams.partnerId = mediaPartnerId;
+                if (mediaPartnerId == 225) {
+                    phoenixTVPlayerParams.serviceUrl = "https://rest-as.ott.kaltura.com/v5_0_3/";
+                } else {
+                    phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_1_0/";
+                }
+                phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/";
+                playerInitOptions.tvPlayerParams = phoenixTVPlayerParams;
+            }
             player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
         } else if (playerType == KalturaPlayer.Type.ovp) {
             player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
@@ -213,7 +230,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //startSimpleOvpMediaLoadingLive1();
             //startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
         } else if (playerType == KalturaPlayer.Type.ott) {
-            startOttMediaLoading(OTT_ASSET_ID, null);
+            //startOttMediaLoading(OTT_ASSET_ID, null, PhoenixMediaProvider.HttpProtocol.Http, "Mobile_Main"); //3009
+            startOttMediaLoading(SING_198_MEDIA_ID, null, PhoenixMediaProvider.HttpProtocol.Https, "Mobile_Devices_Main_HD_Dash"); // 198
+
         } else if (playerType == KalturaPlayer.Type.basic) {
             // no media loading for basic
         }
@@ -245,16 +264,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
-    private void buildOttMediaOptions(String assetId, String ks) {
+    private void buildOttMediaOptions(String assetId, String ks, String protocol, String format) {
         OTTMediaOptions ottMediaOptions = new OTTMediaOptions();
         ottMediaOptions.assetId = assetId;
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
+        ottMediaOptions.protocol = protocol; //PhoenixMediaProvider.HttpProtocol.Http/s
         ottMediaOptions.ks = ks;
         ottMediaOptions.startPosition = START_POSITION;
-        ottMediaOptions.formats = new String []{"Mobile_Main"};
+        if (format != null) {
+            ottMediaOptions.formats = new String[]{format};
+        }
 
         player.loadMedia(ottMediaOptions, (entry, error) -> {
             if (error != null) {
@@ -318,8 +339,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
-    private void startOttMediaLoading(String assetId, String ks) {
-        buildOttMediaOptions(assetId, ks);
+    private void startOttMediaLoading(String assetId, String ks, String protocol, String format) {
+        buildOttMediaOptions(assetId, ks, protocol, format);
     }
 
     private void loadBasicKalturaPlayer(PKPluginConfigs pkPluginConfigs) {
