@@ -4,6 +4,7 @@ public class PartnersConfig {
     // OVP startSimpleOvpMediaLoadingHls
 
     public static final String OVP_SERVER_URL_HLS = "https://cdnapisec.kaltura.com";
+
     public static String OVP_ENTRY_ID_HLS = "1_3o1seqnv";
     public static final int OVP_PARTNER_ID_HLS = 1734751;
 
@@ -44,7 +45,7 @@ public class PartnersConfig {
     public static String OVP_FIRST_ENTRY_ID = "1_w9zx2eti";
     public static String OVP_SECOND_ENTRY_ID = "1_ebs5e9cy";
 
-
+    public static final String SING_198_MEDIA_ID = "480989";
     public static final int OTT_PARTNER_ID = 3009;
     public static final String OTT_BASE_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
     public static final String OTT_ASSET_ID = "548576";
