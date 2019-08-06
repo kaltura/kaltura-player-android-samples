@@ -6,20 +6,37 @@ import android.content.res.Configuration;
 import com.kaltura.playkit.player.PKHttpClientManager;
 import com.kaltura.tvplayer.KalturaPlayer;
 
+import static com.kaltura.playkitdemo.PartnersConfig.OTT_PARTNER_ID;
+import static com.kaltura.playkitdemo.PartnersConfig.OTT_SERVER_URL;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID_CLEAR;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID_DRM;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID_HLS;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID_LIVE;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID_LIVE_1;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID_VR;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_CLEAR;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_DRM;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_HLS;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_LIVE;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_LIVE_1;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_VR;
+
 
 public class DemoApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
-        KalturaPlayer.initializeOTT(this, MainActivity.OTT_PARTNER_ID, MainActivity.OTT_SERVER_URL);
-        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID, MainActivity.OVP_SERVER_URL);
-        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_HLS, MainActivity.OVP_SERVER_URL_HLS);
-        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_DRM, MainActivity.OVP_SERVER_URL_DRM);
-        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_VR, MainActivity.OVP_SERVER_URL_VR);
-        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_CLEAR, MainActivity.OVP_SERVER_URL_CLEAR);
-        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_LIVE, MainActivity.OVP_SERVER_URL_LIVE);
-        KalturaPlayer.initializeOVP(this, MainActivity.OVP_PARTNER_ID_LIVE_1, MainActivity.OVP_SERVER_URL_LIVE_1);
+        KalturaPlayer.initializeOTT(this, OTT_PARTNER_ID, OTT_SERVER_URL);
+        KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID, OVP_SERVER_URL);
+        KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID_HLS, OVP_SERVER_URL_HLS);
+        KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID_DRM, OVP_SERVER_URL_DRM);
+        KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID_VR, OVP_SERVER_URL_VR);
+        KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID_CLEAR, OVP_SERVER_URL_CLEAR);
+        KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID_LIVE, OVP_SERVER_URL_LIVE);
+        KalturaPlayer.initializeOVP(this, OVP_PARTNER_ID_LIVE_1, OVP_SERVER_URL_LIVE_1);
         //doConnectionsWarmup();
     }
 

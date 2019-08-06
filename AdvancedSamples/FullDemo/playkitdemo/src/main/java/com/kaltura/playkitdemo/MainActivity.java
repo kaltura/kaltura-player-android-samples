@@ -60,7 +60,6 @@ import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsConfig;
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsEvent;
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
-import com.kaltura.playkit.providers.MediaEntryProvider;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.playkit.utils.Consts;
@@ -76,6 +75,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.kaltura.playkitdemo.PartnersConfig.OTT_ASSET_ID;
+import static com.kaltura.playkitdemo.PartnersConfig.OTT_PARTNER_ID;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_CLEAR;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_DRM;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_HLS;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_LIVE;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_LIVE_1;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_VR;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_FIRST_ENTRY_ID;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID_HLS;
+import static com.kaltura.playkitdemo.PartnersConfig.OVP_SECOND_ENTRY_ID;
+import static com.kaltura.playkitdemo.PartnersConfig.inLinePreAdTagUrl;
+import static com.kaltura.playkitdemo.PartnersConfig.preMidPostAdTagUrl;
+import static com.kaltura.playkitdemo.PartnersConfig.preMidPostSingleAdTagUrl;
+import static com.kaltura.playkitdemo.PartnersConfig.preSkipAdTagUrl;
+
 //import com.kaltura.playkitvr.VRUtil;
 
 
@@ -89,13 +105,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public static int changeMediaIndex = -1;
     public static Long START_POSITION = 0L;//65L;
 
-    String preMidPostAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpodbumper&cmsid=496&vid=short_onecue&correlator=";
-    String preSkipAdTagUrl    = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
-    String inLinePreAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=";
-    String preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=";
-
     private KalturaPlayer player;
-    private MediaEntryProvider mediaProvider;
     private PlaybackControlsView controlsView;
     private boolean nowPlaying;
     private boolean isFullScreen;
@@ -109,59 +119,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private OrientationManager mOrientationManager;
     private boolean userIsInteracting;
     private PKTracks tracksInfo;
-    private boolean isAdsEnabled = false;
+    private boolean isAdsEnabled = true;
     private boolean isDAIMode = false;
     private PlayerState playerState;
 
     PlayerInitOptions playerInitOptions;
 
-    // OVP startSimpleOvpMediaLoadingHls
-
-    public static final String OVP_SERVER_URL_HLS = "https://cdnapisec.kaltura.com";
-    private static final String OVP_ENTRY_ID_HLS = "1_3o1seqnv";
-    public static final int OVP_PARTNER_ID_HLS = 1734751;
-
-
-    // OVP startSimpleOvpMediaLoadingDRM
-
-    public static final String OVP_SERVER_URL_DRM = "https://cdnapisec.kaltura.com";
-    private static final String OVP_ENTRY_ID_DRM = "1_f93tepsn"; //("1_asoyc5ef") //("1_uzea2uje")
-    public static final int OVP_PARTNER_ID_DRM = 2222401;
-
-    // OVP startSimpleOvpMediaLoadingVR
-
-    public static final String OVP_SERVER_URL_VR = "https://cdnapisec.kaltura.com";
-    private static final String OVP_ENTRY_ID_VR = "1_afvj3z0u";
-    public static final int OVP_PARTNER_ID_VR = 2196781;
-
-    // OVP startSimpleOvpMediaLoadingClear
-
-    public static final String OVP_SERVER_URL_CLEAR = "http://qa-apache-php7.dev.kaltura.com/";
-    private static final String OVP_ENTRY_ID_CLEAR = "0_wu32qrt3";
-    public static final int OVP_PARTNER_ID_CLEAR = 1091;
-
-    // OVP startSimpleOvpMediaLoadingLive
-
-    public static final String OVP_SERVER_URL_LIVE = "http://qa-apache-php7.dev.kaltura.com/";
-    private static final String OVP_ENTRY_ID_LIVE = "0_nwkp7jtx";
-    public static final int OVP_PARTNER_ID_LIVE = 1091;
-
-    // OVP startSimpleOvpMediaLoadingLive_1
-
-    public static final String OVP_SERVER_URL_LIVE_1 = "https://cdnapisec.kaltura.com/";
-    private static final String OVP_ENTRY_ID_LIVE_1 = "1_fdv46dba";
-    public static final int OVP_PARTNER_ID_LIVE_1 = 1740481;
-
-    // OVP change Media Mock
-    public static final String OVP_SERVER_URL = "https://cdnapisec.kaltura.com";
-    public static final int OVP_PARTNER_ID = 2215841;
-    private static final String OVP_FIRST_ENTRY_ID = "1_w9zx2eti";
-    private static final String OVP_SECOND_ENTRY_ID = "1_ebs5e9cy";
-
-    // OTT startOttMediaLoading
-    public static final String OTT_SERVER_URL = MockParams.OTT_BASE_URL;
-    private static final String OTT_ASSET_ID =MockParams.OTT_ASSET_ID; //bunny no horses id "485380"
-    public static final int OTT_PARTNER_ID = MockParams.OTT_PARTNER_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,6 +146,45 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         log.i("PlayKitManager: " + PlayKitManager.CLIENT_TAG);
 
+        registerChangeMedia();
+        initProgressBar();
+        controlsView = findViewById(R.id.playerControls);
+        playerContainer = findViewById(R.id.player_container);
+        initSpinners();
+        registerFullScreenButton();
+
+        PKPluginConfigs pkPluginConfigs = configurePlugins();
+
+        // Basic Playkit Player
+        //loadBasicKalturaPlayer(pkPluginConfigs);
+
+        // OTT Playkit Player
+        //loadKalturaPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
+
+        // OVP Playkit Player
+        loadKalturaPlayer(OVP_PARTNER_ID_HLS, KalturaPlayer.Type.ovp, pkPluginConfigs);
+    }
+
+    private void initProgressBar() {
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    private void registerFullScreenButton() {
+        fullScreenBtn = findViewById(R.id.full_screen_switcher);
+        fullScreenBtn.setOnClickListener(v -> {
+            int orient;
+            if (isFullScreen) {
+                orient = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            }
+            else {
+                orient = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            }
+            setRequestedOrientation(orient);
+        });
+    }
+
+    private void registerChangeMedia() {
         Button button = findViewById(R.id.changeMedia);
         button.setOnClickListener(v -> {
             if (player != null) {
@@ -199,37 +201,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
         });
-
-        progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.INVISIBLE);
-        controlsView = findViewById(R.id.playerControls);
-        playerContainer = findViewById(R.id.player_container);
-        spinerContainer = findViewById(R.id.spiner_container);
-
-        initSpinners();
-
-        fullScreenBtn = findViewById(R.id.full_screen_switcher);
-        fullScreenBtn.setOnClickListener(v -> {
-            int orient;
-            if (isFullScreen) {
-                orient = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-            }
-            else {
-                orient = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-            }
-            setRequestedOrientation(orient);
-        });
-
-        PKPluginConfigs pkPluginConfigs = configurePlugins();
-
-        // Basic Playkit Player
-//        loadBasicKalturaPlayer(pkPluginConfigs);
-
-        // OTT Playkit Player
-//        loadKalturaPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
-
-        // OVP Playkit Player
-        loadKalturaPlayer(OVP_PARTNER_ID, KalturaPlayer.Type.ovp, pkPluginConfigs);
     }
 
     private void startOttMediaLoading(String assetId, String ks) {
@@ -459,6 +430,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void initSpinners() {
+        spinerContainer = findViewById(R.id.spiner_container);
         videoSpinner = this.findViewById(R.id.videoSpinner);
         audioSpinner = this.findViewById(R.id.audioSpinner);
         textSpinner = this.findViewById(R.id.subtitleSpinner);
@@ -1321,18 +1293,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //------------ OVP/OTT Mock Methods -----------//
 
-        // OVP Mocks
-//            startSimpleOvpMediaLoadingHls();
-//            startSimpleOvpMediaLoadingDRM();
-//            startSimpleOvpMediaLoadingVR();
-//            startSimpleOvpMediaLoadingClear();
-//            startSimpleOvpMediaLoadingLive();
-//            startSimpleOvpMediaLoadingLive1();
+        if (playerType == KalturaPlayer.Type.ovp) {
+            startSimpleOvpMediaLoadingHls();
+            //startSimpleOvpMediaLoadingDRM();
+            //startSimpleOvpMediaLoadingVR();
+            //startSimpleOvpMediaLoadingClear();
+            //startSimpleOvpMediaLoadingLive();
+            //startSimpleOvpMediaLoadingLive1();
+            //startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
+        } else if (playerType == KalturaPlayer.Type.ott) {
+            startOttMediaLoading(OTT_ASSET_ID, null);
+        } else if (playerType == KalturaPlayer.Type.basic) {
 
-        startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
-
-        // OTT mock
-//        startOttMediaLoading(OTT_ASSET_ID, null);
+        }
 
 
         //------------ OVP/OTT Mock Methods -----------//
