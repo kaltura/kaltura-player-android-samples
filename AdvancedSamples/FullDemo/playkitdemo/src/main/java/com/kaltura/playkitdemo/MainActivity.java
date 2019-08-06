@@ -1304,7 +1304,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } else if (playerType == KalturaPlayer.Type.ott) {
             startOttMediaLoading(OTT_ASSET_ID, null);
         } else if (playerType == KalturaPlayer.Type.basic) {
-
+            // no media loading for basic
         }
 
 
