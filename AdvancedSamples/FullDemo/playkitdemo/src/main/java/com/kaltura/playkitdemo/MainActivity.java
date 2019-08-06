@@ -165,6 +165,121 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         loadKalturaPlayer(OVP_PARTNER_ID_HLS, KalturaPlayer.Type.ovp, pkPluginConfigs);
     }
 
+    /**
+     * Load KalturaPlayer only for OVP and OTT provider ( User loadBasicKalturaPlayer() method to use the Basic
+     * KalturaPlayer preparation )
+     *
+     * @param mediaPartnerId Partner ID for OVP or OTT provider
+     * @param playerType OVP or OTT < KalturaPlayer.Type >
+     * @param pkPluginConfigs Plugin configs (Configurations like IMA Ads, Youbora etc)
+     *                       for Kaltura Player, it is being passed in playerInitOptions
+     */
+
+    public void loadKalturaPlayer(Integer mediaPartnerId, KalturaPlayer.Type playerType, PKPluginConfigs pkPluginConfigs) {
+
+        playerInitOptions = new PlayerInitOptions(mediaPartnerId);
+        playerInitOptions.setAutoPlay(true);
+        playerInitOptions.setSecureSurface(false);
+        playerInitOptions.setAdAutoPlayOnResume(true);
+        playerInitOptions.setAllowCrossProtocolEnabled(true);
+        // playerInitOptions.setLoadControlBuffers(new LoadControlBuffers());
+
+        playerInitOptions.setPluginConfigs(pkPluginConfigs);
+
+        if (playerType == KalturaPlayer.Type.ott) {
+            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        } else if (playerType == KalturaPlayer.Type.ovp) {
+            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+        } else {
+            log.e("Wrong player type is passed. Please check the loadOvpOttPlaykitPlayer method");
+        }
+
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        ViewGroup container = findViewById(R.id.player_view);
+        container.addView(player.getPlayerView());
+
+        controlsView.setPlayer(player);
+
+        addPlayerListeners(progressBar);
+
+        //------------ OVP/OTT Mock Methods -----------//
+
+        if (playerType == KalturaPlayer.Type.ovp) {
+            startSimpleOvpMediaLoadingHls();
+            //startSimpleOvpMediaLoadingDRM();
+            //startSimpleOvpMediaLoadingVR();
+            //startSimpleOvpMediaLoadingClear();
+            //startSimpleOvpMediaLoadingLive();
+            //startSimpleOvpMediaLoadingLive1();
+            //startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
+        } else if (playerType == KalturaPlayer.Type.ott) {
+            startOttMediaLoading(OTT_ASSET_ID, null);
+        } else if (playerType == KalturaPlayer.Type.basic) {
+            // no media loading for basic
+        }
+
+
+        //------------ OVP/OTT Mock Methods -----------//
+    }
+
+    /**
+     * Load Basic KalturaPlayer by the legendary way using PKMediaEntry and PKPluginConfigs
+     * @param pkMediaEntry MediaEntry
+     * @param pkPluginConfigs  Configurations like IMA Ads, Youbora etc
+     */
+    public void loadBasicKalturaPlayer(PKMediaEntry pkMediaEntry, PKPluginConfigs pkPluginConfigs) {
+        playerInitOptions = new PlayerInitOptions();
+
+        playerInitOptions.setPluginConfigs(pkPluginConfigs);
+
+        player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
+        player.setMedia(pkMediaEntry, START_POSITION);
+        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+
+        ViewGroup container = findViewById(R.id.player_view);
+        container.addView(player.getPlayerView());
+
+        controlsView.setPlayer(player);
+
+        addPlayerListeners(progressBar);
+    }
+
+
+    private void buildOttMediaOptions(String assetId, String ks) {
+        OTTMediaOptions ottMediaOptions = new OTTMediaOptions();
+        ottMediaOptions.assetId = assetId;
+        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
+        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
+        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
+        ottMediaOptions.ks = ks;
+        ottMediaOptions.startPosition = START_POSITION;
+        ottMediaOptions.formats = new String []{"Mobile_Main"};
+
+        player.loadMedia(ottMediaOptions, (entry, error) -> {
+            if (error != null) {
+                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
+            } else {
+                log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+            }
+        });
+    }
+
+    private void buildOvpMediaOptions(String entryId, String ks) {
+        OVPMediaOptions ovpMediaOptions = new OVPMediaOptions();
+        ovpMediaOptions.entryId = entryId;
+        ovpMediaOptions.ks = ks;
+        ovpMediaOptions.startPosition = START_POSITION;
+
+        player.loadMedia(ovpMediaOptions, (entry, error) -> {
+            if (error != null) {
+                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
+            } else {
+                log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
+            }
+        });
+    }
+
     private void initProgressBar() {
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
@@ -1252,122 +1367,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         public String getApplicationName() {
             return null;
         }
-    }
-
-    /**
-     * Load KalturaPlayer only for OVP and OTT provider ( User loadBasicKalturaPlayer() method to use the Basic
-     * KalturaPlayer preparation )
-     *
-     * @param mediaPartnerId Partner ID for OVP or OTT provider
-     * @param playerType OVP or OTT < KalturaPlayer.Type >
-     * @param pkPluginConfigs Plugin configs (Configurations like IMA Ads, Youbora etc)
-     *                       for Kaltura Player, it is being passed in playerInitOptions
-     */
-
-    public void loadKalturaPlayer(Integer mediaPartnerId, KalturaPlayer.Type playerType, PKPluginConfigs pkPluginConfigs) {
-
-        playerInitOptions = new PlayerInitOptions(mediaPartnerId);
-        playerInitOptions.setAutoPlay(true);
-        playerInitOptions.setSecureSurface(false);
-        playerInitOptions.setAdAutoPlayOnResume(true);
-        playerInitOptions.setAllowCrossProtocolEnabled(true);
-        // playerInitOptions.setLoadControlBuffers(new LoadControlBuffers());
-
-        playerInitOptions.setPluginConfigs(pkPluginConfigs);
-
-        if (playerType == KalturaPlayer.Type.ott) {
-            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
-        } else if (playerType == KalturaPlayer.Type.ovp) {
-            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
-        } else {
-            log.e("Wrong player type is passed. Please check the loadOvpOttPlaykitPlayer method");
-        }
-
-        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        ViewGroup container = findViewById(R.id.player_view);
-        container.addView(player.getPlayerView());
-
-        controlsView.setPlayer(player);
-
-        addPlayerListeners(progressBar);
-
-        //------------ OVP/OTT Mock Methods -----------//
-
-        if (playerType == KalturaPlayer.Type.ovp) {
-            startSimpleOvpMediaLoadingHls();
-            //startSimpleOvpMediaLoadingDRM();
-            //startSimpleOvpMediaLoadingVR();
-            //startSimpleOvpMediaLoadingClear();
-            //startSimpleOvpMediaLoadingLive();
-            //startSimpleOvpMediaLoadingLive1();
-            //startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
-        } else if (playerType == KalturaPlayer.Type.ott) {
-            startOttMediaLoading(OTT_ASSET_ID, null);
-        } else if (playerType == KalturaPlayer.Type.basic) {
-            // no media loading for basic
-        }
-
-
-        //------------ OVP/OTT Mock Methods -----------//
-    }
-
-    /**
-     * Load Basic KalturaPlayer by the legendary way using PKMediaEntry and PKPluginConfigs
-     * @param pkMediaEntry MediaEntry
-     * @param pkPluginConfigs  Configurations like IMA Ads, Youbora etc
-     */
-    public void loadBasicKalturaPlayer(PKMediaEntry pkMediaEntry, PKPluginConfigs pkPluginConfigs) {
-        playerInitOptions = new PlayerInitOptions();
-
-        playerInitOptions.setPluginConfigs(pkPluginConfigs);
-
-        player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
-        player.setMedia(pkMediaEntry, START_POSITION);
-        player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-
-        ViewGroup container = findViewById(R.id.player_view);
-        container.addView(player.getPlayerView());
-
-        controlsView.setPlayer(player);
-
-        addPlayerListeners(progressBar);
-    }
-
-
-    private void buildOttMediaOptions(String assetId, String ks) {
-        OTTMediaOptions ottMediaOptions = new OTTMediaOptions();
-        ottMediaOptions.assetId = assetId;
-        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media;
-        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback;
-        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media;
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http;
-        ottMediaOptions.ks = ks;
-        ottMediaOptions.startPosition = START_POSITION;
-        ottMediaOptions.formats = new String []{"Mobile_Main"};
-
-        player.loadMedia(ottMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-            } else {
-                log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
-            }
-        });
-    }
-
-    private void buildOvpMediaOptions(String entryId, String ks) {
-        OVPMediaOptions ovpMediaOptions = new OVPMediaOptions();
-        ovpMediaOptions.entryId = entryId;
-        ovpMediaOptions.ks = ks;
-        ovpMediaOptions.startPosition = START_POSITION;
-
-        player.loadMedia(ovpMediaOptions, (entry, error) -> {
-            if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-            } else {
-                log.d("OVPMedia onEntryLoadComplete  entry = " + entry.getId());
-            }
-        });
-
     }
 
     private void changeBasicMediaOptions(PKMediaEntry pkMediaEntry){
