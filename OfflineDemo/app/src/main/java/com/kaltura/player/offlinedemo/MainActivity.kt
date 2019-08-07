@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
 import com.google.android.material.snackbar.Snackbar
+import com.kaltura.playkit.PKMediaFormat
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.OfflineManager
 
@@ -14,15 +15,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.lang.Exception
 
-//const val partnerId = 2215841
-//const val entryId = "1_9bwuo813"
-const val partnerId = 1851571
-const val entryId = "0_pl5lbfo0"
+const val partnerId = 2215841
+const val entryId = "1_9bwuo813"
+//const val partnerId = 1851571
+//const val entryId = "0_pl5lbfo0"
 
 
 
 class MainActivity : AppCompatActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,13 +31,50 @@ class MainActivity : AppCompatActivity() {
 
         val manager = OfflineManager.getInstance(this)
 
+        manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
+            override fun onAssetDownloadFailed(assetId: String?, error: OfflineManager.AssetDownloadException?) {
+                snackbarLong("Download of $error failed: $error")
+            }
+
+            override fun onAssetDownloadComplete(assetId: String?) {
+                snackbar("Complete")
+            }
+
+            override fun onAssetDownloadPending(assetId: String?) {
+
+            }
+
+            override fun onAssetDownloadPaused(assetId: String?) {
+                snackbar("Paused")
+            }
+
+            override fun onRegistered(assetId: String?, drmInfo: OfflineManager.DrmInfo?) {
+
+                snackbar("onRegistered")
+            }
+
+            override fun onRegisterError(assetId: String?, error: Exception?) {
+                snackbarLong("onRegisterError: $assetId $error")
+            }
+
+            override fun onStateChanged(assetId: String?, assetInfo: OfflineManager.AssetInfo?) {
+                snackbar("onStateChanged")
+            }
+
+            override fun onAssetRemoved(assetId: String?) {
+                snackbar("onAssetRemoved")
+            }
+
+        })
 
         val options = OVPMediaOptions(entryId)
 
         manager.setKalturaPartnerId(partnerId)
+        manager.setPreferredMediaFormat(PKMediaFormat.hls)
+
         var myAssetInfo: OfflineManager.AssetInfo? = null
 
-        startButton.setOnClickListener {
+        prepareButton.setOnClickListener {
             manager.prepareAsset(options, null, object: OfflineManager.PrepareCallback {
                 override fun onPrepared(
                     assetInfo: OfflineManager.AssetInfo?,
@@ -45,7 +82,6 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     snackbar("Prepared", Snackbar.LENGTH_SHORT)
                     myAssetInfo = assetInfo
-                    manager.addAsset(assetInfo)
                 }
 
                 override fun onPrepareError(error: Exception?) {
@@ -54,20 +90,8 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-        registerButton.setOnClickListener {
-            manager.registerDrmAsset(myAssetInfo, object : OfflineManager.DrmRegisterListener {
-                override fun onRegistered(assetId: String?, drmInfo: OfflineManager.DrmInfo?) {
-                    contentLayout.post {
-                        snackbar("Registered", Snackbar.LENGTH_SHORT)
-                    }
-                }
-
-                override fun onRegisterError(assetId: String?, error: Exception?) {
-                    contentLayout.post {
-                        snackbar("Register error: $error", Snackbar.LENGTH_LONG)
-                    }
-                }
-            })
+        startButton.setOnClickListener {
+            manager.startAssetDownload(myAssetInfo)
         }
 
         playButton.setOnClickListener {
@@ -86,6 +110,10 @@ class MainActivity : AppCompatActivity() {
         Snackbar.make(contentLayout, msg, duration).apply {
             show()
         }
+
+    private fun snackbar(msg: String) = snackbar(msg, Snackbar.LENGTH_SHORT)
+
+    private fun snackbarLong(msg: String) = snackbar(msg, Snackbar.LENGTH_LONG)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

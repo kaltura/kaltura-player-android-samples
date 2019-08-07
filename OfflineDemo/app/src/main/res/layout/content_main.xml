@@ -10,6 +10,17 @@
     tools:showIn="@layout/activity_main">
 
     <Button
+        android:id="@+id/prepareButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+
+        android:layout_marginTop="8dp"
+        android:text="@string/title_prepare_asset"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
         android:id="@+id/startButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,18 +28,7 @@
 
         android:layout_marginTop="8dp"
         android:text="@string/title_start_download"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/registerButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-
-        android:layout_marginTop="8dp"
-        android:text="@string/title_register_asset"
-        app:layout_constraintStart_toEndOf="@id/startButton"
+        app:layout_constraintStart_toEndOf="@id/prepareButton"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
@@ -39,7 +39,7 @@
 
         android:layout_marginTop="8dp"
         android:text="@string/title_play_local"
-        app:layout_constraintStart_toEndOf="@id/registerButton"
+        app:layout_constraintStart_toEndOf="@id/startButton"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
