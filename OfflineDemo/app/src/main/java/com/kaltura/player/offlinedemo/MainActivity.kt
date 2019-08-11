@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKMediaFormat
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -49,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                 snackbar("Paused")
             }
 
-            override fun onRegistered(assetId: String?, drmInfo: OfflineManager.DrmInfo?) {
+            override fun onRegistered(assetId: String?, drmStatus: OfflineManager.DrmStatus?) {
 
                 snackbar("onRegistered")
             }
@@ -107,7 +106,18 @@ class MainActivity : AppCompatActivity() {
 
         statusButton.setOnClickListener {
             val drmStatus = manager.getDrmStatus(entryId)
-            snackbarLong(drmStatus.toString())
+
+            Snackbar.make(contentLayout, drmStatus.toString(), Snackbar.LENGTH_LONG).setAction("Renew") {
+                manager.renewDrmAsset(entryId, options, object: OfflineManager.DrmListener {
+                    override fun onRegistered(assetId: String?, drmStatus: OfflineManager.DrmStatus?) {
+                        snackbar("onRegistered")
+                    }
+
+                    override fun onRegisterError(assetId: String?, error: Exception?) {
+                        snackbarLong("onRegisterError: $assetId $error")
+                    }
+                })
+            }.show()
         }
 
     }
