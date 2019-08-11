@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKMediaFormat
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -15,10 +16,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.lang.Exception
 
-const val partnerId = 2215841
-const val entryId = "1_9bwuo813"
-//const val partnerId = 1851571
-//const val entryId = "0_pl5lbfo0"
+//const val partnerId = 2215841
+//const val entryId = "1_9bwuo813"
+const val partnerId = 1851571
+const val entryId = "0_pl5lbfo0"
 
 
 
@@ -102,6 +103,11 @@ class MainActivity : AppCompatActivity() {
 
         removeButton.setOnClickListener {
             manager.removeAsset(entryId)
+        }
+
+        statusButton.setOnClickListener {
+            val drmStatus = manager.getDrmStatus(entryId)
+            snackbarLong(drmStatus.toString())
         }
 
     }

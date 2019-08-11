@@ -13,7 +13,8 @@
         android:id="@+id/prepareButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
+        android:minHeight="0dp" android:minWidth="0dp"
 
         android:layout_marginTop="8dp"
         android:text="@string/title_prepare_asset"
@@ -24,7 +25,8 @@
         android:id="@+id/startButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
+        android:minHeight="0dp" android:minWidth="0dp"
 
         android:layout_marginTop="8dp"
         android:text="@string/title_start_download"
@@ -35,7 +37,8 @@
         android:id="@+id/playButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
+        android:minHeight="0dp" android:minWidth="0dp"
 
         android:layout_marginTop="8dp"
         android:text="@string/title_play_local"
@@ -46,11 +49,24 @@
         android:id="@+id/removeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
+        android:minHeight="0dp" android:minWidth="0dp"
 
         android:layout_marginTop="8dp"
         android:text="@string/title_remove_asset"
         app:layout_constraintStart_toEndOf="@id/playButton"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/statusButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+
+        android:minHeight="0dp" android:minWidth="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/title_asset_status"
+        app:layout_constraintStart_toEndOf="@id/removeButton"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
