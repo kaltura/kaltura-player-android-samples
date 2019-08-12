@@ -108,24 +108,17 @@ class MainActivity : AppCompatActivity() {
             val drmStatus = manager.getDrmStatus(entryId)
 
             Snackbar.make(contentLayout, drmStatus.toString(), Snackbar.LENGTH_LONG).setAction("Renew") {
-                manager.renewDrmAsset(entryId, options, object: OfflineManager.DrmListener {
-                    override fun onRegistered(assetId: String?, drmStatus: OfflineManager.DrmStatus?) {
-                        snackbar("onRegistered")
-                    }
-
-                    override fun onRegisterError(assetId: String?, error: Exception?) {
-                        snackbarLong("onRegisterError: $assetId $error")
-                    }
-                })
+                manager.renewDrmAsset(entryId, options)
             }.show()
         }
 
     }
 
-    private fun snackbar(msg: String, duration: Int) =
-        Snackbar.make(contentLayout, msg, duration).apply {
-            show()
+    private fun snackbar(msg: String, duration: Int) {
+        runOnUiThread {
+            Snackbar.make(contentLayout, msg, duration).show()
         }
+    }
 
     private fun snackbar(msg: String) = snackbar(msg, Snackbar.LENGTH_SHORT)
 
