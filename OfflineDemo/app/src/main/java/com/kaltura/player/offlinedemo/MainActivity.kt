@@ -3,6 +3,7 @@ package com.kaltura.player.offlinedemo
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
@@ -35,36 +36,35 @@ class MainActivity : AppCompatActivity() {
         val manager = OfflineManager.getInstance(this)
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
-            override fun onAssetDownloadFailed(assetId: String?, error: OfflineManager.AssetDownloadException?) {
+            override fun onAssetDownloadFailed(assetId: String, error: OfflineManager.AssetDownloadException?) {
                 snackbarLong("Download of $error failed: $error")
             }
 
-            override fun onAssetDownloadComplete(assetId: String?) {
+            override fun onAssetDownloadComplete(assetId: String) {
                 snackbar("Complete")
             }
 
-            override fun onAssetDownloadPending(assetId: String?) {
+            override fun onAssetDownloadPending(assetId: String) {
 
             }
 
-            override fun onAssetDownloadPaused(assetId: String?) {
+            override fun onAssetDownloadPaused(assetId: String) {
                 snackbar("Paused")
             }
 
-            override fun onRegistered(assetId: String?, drmStatus: OfflineManager.DrmStatus?) {
-
-                snackbar("onRegistered")
+            override fun onRegistered(assetId: String, drmStatus: OfflineManager.DrmStatus?) {
+                snackbar("onRegistered: ${drmStatus?.currentRemainingTime} seconds left")
             }
 
-            override fun onRegisterError(assetId: String?, error: Exception?) {
+            override fun onRegisterError(assetId: String, error: Exception?) {
                 snackbarLong("onRegisterError: $assetId $error")
             }
 
-            override fun onStateChanged(assetId: String?, assetInfo: OfflineManager.AssetInfo?) {
+            override fun onStateChanged(assetId: String, assetInfo: OfflineManager.AssetInfo) {
                 snackbar("onStateChanged")
             }
 
-            override fun onAssetRemoved(assetId: String?) {
+            override fun onAssetRemoved(assetId: String) {
                 snackbar("onAssetRemoved")
             }
 
