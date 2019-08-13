@@ -7,7 +7,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
 import com.google.android.material.snackbar.Snackbar
+import com.kaltura.playkit.PKDrmParams
+import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaFormat
+import com.kaltura.playkit.PKMediaSource
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.OfflineManager
 
@@ -77,15 +80,30 @@ class MainActivity : AppCompatActivity() {
         prepareButton.setOnClickListener {
             manager.prepareAsset(options, null, object: OfflineManager.PrepareCallback {
                 override fun onPrepared(
-                    assetInfo: OfflineManager.AssetInfo?,
+                    assetId: String,
+                    assetInfo: OfflineManager.AssetInfo,
                     selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
                 ) {
                     snackbar("Prepared", Snackbar.LENGTH_SHORT)
                     myAssetInfo = assetInfo
                 }
 
-                override fun onPrepareError(error: Exception?) {
-                    snackbar("Prepare error: $error", Snackbar.LENGTH_LONG)
+                override fun onPrepareError(assetId: String, error: Exception) {
+                    snackbar("onPrepareError: $error", Snackbar.LENGTH_LONG)
+                }
+
+                override fun onMediaEntryLoadError(error: Exception) {
+                    snackbar("onMediaEntryLoadError: $error", Snackbar.LENGTH_LONG)
+                }
+
+                override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
+
+                    // Reduce license duration
+                    reduceRentalDuration(mediaEntry, 300)
+                }
+
+                override fun onSourceSelected(assetId: String, source: PKMediaSource, drmParams: PKDrmParams?) {
+
                 }
             })
         }
@@ -107,11 +125,32 @@ class MainActivity : AppCompatActivity() {
         statusButton.setOnClickListener {
             val drmStatus = manager.getDrmStatus(entryId)
 
-            Snackbar.make(contentLayout, drmStatus.toString(), Snackbar.LENGTH_LONG).setAction("Renew") {
-                manager.renewDrmAsset(entryId, options)
+            val msg = if (drmStatus.isValid) "Valid" else "Expired"
+
+            Snackbar.make(contentLayout, msg, Snackbar.LENGTH_LONG).setAction("Renew") {
+                manager.renewDrmAsset(entryId, options, object: OfflineManager.MediaEntryCallback {
+                    override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
+                        reduceRentalDuration(mediaEntry, 300)
+                    }
+
+                    override fun onMediaEntryLoadError(error: Exception?) {
+                        snackbar("onMediaEntryLoadError: $error", Snackbar.LENGTH_LONG)
+                    }
+
+                })
             }.show()
         }
 
+    }
+
+    private fun reduceRentalDuration(mediaEntry: PKMediaEntry, seconds: Int) {
+        for (source in mediaEntry.sources) {
+            if (source.hasDrmParams()) {
+                for (params in source.drmData) {
+                    params.licenseUri = params.licenseUri + "&rental_duration=" + seconds
+                }
+            }
+        }
     }
 
     private fun snackbar(msg: String, duration: Int) {
