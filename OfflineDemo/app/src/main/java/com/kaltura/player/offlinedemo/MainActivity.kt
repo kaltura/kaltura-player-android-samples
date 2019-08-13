@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         statusButton.setOnClickListener {
             val drmStatus = manager.getDrmStatus(entryId)
 
-            val msg = if (drmStatus.isValid) "Valid" else "Expired"
+            val msg = if (drmStatus.isValid) "Valid; will expire in " + drmStatus.currentRemainingTime + " seconds" else "Expired"
 
             Snackbar.make(contentLayout, msg, Snackbar.LENGTH_LONG).setAction("Renew") {
                 manager.renewDrmAsset(entryId, options, object: OfflineManager.MediaEntryCallback {
@@ -136,7 +136,6 @@ class MainActivity : AppCompatActivity() {
                     override fun onMediaEntryLoadError(error: Exception?) {
                         snackbar("onMediaEntryLoadError: $error", Snackbar.LENGTH_LONG)
                     }
-
                 })
             }.show()
         }
