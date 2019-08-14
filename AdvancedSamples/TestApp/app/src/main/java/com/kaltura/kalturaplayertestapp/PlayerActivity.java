@@ -3,11 +3,12 @@ package com.kaltura.kalturaplayertestapp;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import com.google.android.material.snackbar.Snackbar;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -17,11 +18,11 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
 
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import com.kaltura.android.exoplayer2.upstream.HttpDataSource;
 import com.kaltura.kalturaplayertestapp.converters.Media;
 import com.kaltura.kalturaplayertestapp.converters.PlayerConfig;
 import com.kaltura.kalturaplayertestapp.converters.PluginDescriptor;
@@ -321,6 +322,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 .setLoadControlBuffers(appPlayerInitConfig.loadControlBuffers)
                 .setSubtitleStyle(appPlayerInitConfig.setSubtitleStyle)
                 .setAllowClearLead(appPlayerInitConfig.allowClearLead)
+                .setEnableDecoderFallback(appPlayerInitConfig.enableDecoderFallback)
                 .setAdAutoPlayOnResume(appPlayerInitConfig.adAutoPlayOnResume)
                 .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
                 .setVRSettings(appPlayerInitConfig.vrSettings)
@@ -367,6 +369,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                     phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/";
                     initOptions.tvPlayerParams = phoenixTVPlayerParams;
                 }
+
                 player = KalturaPlayer.createOTTPlayer(PlayerActivity.this, initOptions);
                 setPlayer(player);
                 OTTMediaOptions ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
@@ -602,7 +605,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.replay);
             }
             progressBar.setVisibility(View.GONE);
-            if (!isPostrollAvailableInAdCuePoint()) {
+            if (!isPostrollAvailableInAdCuePoint() || IMADAIPlugin.factory.getName().equals(adCuePoints.getAdPluginName())) {
                 playbackControlsManager.showControls(View.VISIBLE);
             }
         });

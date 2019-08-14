@@ -7,15 +7,16 @@ import android.content.res.Configuration;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 import static com.kaltura.playkit.samples.fulldemo.Consts.AD_LOAD_TIMEOUT;
 import static com.kaltura.playkit.samples.fulldemo.Consts.AUTO_PLAY;
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements VideoListFragment
                 "" + Integer.valueOf(getString(R.string.pref_min_ad_duration_for_skip_button_default))));
 
         adLoadTimeOut = 1000 * Integer.valueOf(sharedPreferences.getString(getString(R.string.pref_ad_load_timeout_key),
-               "" +  Integer.valueOf(getString(R.string.pref_ad_load_timeout_default))));
+                "" +  Integer.valueOf(getString(R.string.pref_ad_load_timeout_default))));
 
         videoBitrate = Integer.valueOf(sharedPreferences.getString(getString(R.string.pref_bitrate_key),
                 "" + Integer.valueOf(getString(R.string.pref_bitrate_value))));
