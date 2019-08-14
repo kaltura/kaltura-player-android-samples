@@ -27,15 +27,15 @@ android {
 dependencies {
 
 
-    //implementation 'com.kaltura.player:tvplayer:4.0.0'
-    //implementation 'com.kaltura.playkit:imaplugin:4.0.0'
-    //implementation 'com.kaltura.playkit:youboraplugin:4.0.0'
-    //implementation 'com.kaltura.playkit:googlecast:4.0.0'
+    implementation 'com.kaltura.player:tvplayer:4.1.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.1.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.1.0'
+    implementation 'com.kaltura.playkit:googlecast:4.1.0'
 
-    implementation project(":tvplayer")
-    implementation project(":youbora")
-    implementation project(":ima")
-    implementation project(":googlecast")
+//    implementation project(":tvplayer")
+//    implementation project(":youbora")
+//    implementation project(":ima")
+//    implementation project(":googlecast")
     
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.annotation:annotation:1.0.2'

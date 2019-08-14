@@ -34,14 +34,14 @@ dependencies {
 
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
-    //implementation 'com.kaltura.player:tvplayer:4.0.0'
+    implementation 'com.kaltura.player:tvplayer:4.1.0'
 
-    implementation project(":tvplayer");
+//    implementation project(":tvplayer");
 
     //compile 'com.kaltura.playkit:imaplugin:0.1.2'
     //compile 'com.kaltura.playkit:youboraplugin:0.1.2'
-    implementation project(":ima");
-    implementation project(":youbora"); ;
+//    implementation project(":ima");
+//    implementation project(":youbora");
     implementation 'org.greenrobot:eventbus:3.1.1'
 
     testImplementation 'junit:junit:4.12'

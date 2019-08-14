@@ -26,11 +26,11 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0')
 
-    //implementation 'com.kaltura.player:tvplayer:4.0.0'
-    //implementation 'com.kaltura.playkit:imaplugin:4.0.0'
+    implementation 'com.kaltura.player:tvplayer:4.1.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.1.0'
 
-    implementation project(':tvplayer')
-    implementation project(':ima')
+//    implementation project(':tvplayer')
+//    implementation project(':ima')
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'

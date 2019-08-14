@@ -32,12 +32,12 @@ configurations.all {
 
 dependencies {
 
-    //implementation 'com.kaltura.player:tvplayer:4.0.0'
-    //implementation 'com.kaltura.playkit:vrplugin:4.0.0'
+    implementation 'com.kaltura.player:tvplayer:4.1.0'
+    implementation 'com.kaltura.playkit:vrplugin:4.1.0'
 
-    implementation project(":tvplayer")
-    implementation project(":playkitvr")
-    implementation project(":MD360")
+//    implementation project(":tvplayer")
+//    implementation project(":playkitvr")
+//    implementation project(":MD360")
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'

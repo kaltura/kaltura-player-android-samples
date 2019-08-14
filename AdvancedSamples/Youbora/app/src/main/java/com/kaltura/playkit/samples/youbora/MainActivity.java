@@ -213,9 +213,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Youbora Configuration
         PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
-        JsonObject youboraConfigJson = getYouboraConfig();
-
-        pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.getName(), youboraConfigJson);
+        pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.getName(), getYouboraBundle());
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
         player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
