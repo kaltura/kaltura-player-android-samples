@@ -39,7 +39,7 @@ android {
 
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.1.0'
+    implementation 'com.kaltura.player:tvplayer:4.1.1'
     implementation 'com.kaltura.playkit:imaplugin:4.1.0'
     implementation 'com.kaltura.playkit:youboraplugin:4.1.0'
     implementation 'com.kaltura.playkit:googlecast:4.1.0'
