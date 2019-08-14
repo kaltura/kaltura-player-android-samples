@@ -38,13 +38,7 @@ dependencies {
 
     implementation project(":tvplayer");
 
-    //compile 'com.kaltura.playkit:imaplugin:0.1.2'
-    //compile 'com.kaltura.playkit:youboraplugin:0.1.2'
-    implementation project(":ima");
-    implementation project(":youbora"); ;
     implementation 'org.greenrobot:eventbus:3.1.1'
 
     testImplementation 'junit:junit:4.12'
-    //androidTestImplementation 'androidx.test:runner:1.1.1'
-    //androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
 }
