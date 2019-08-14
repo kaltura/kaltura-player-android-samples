@@ -6,10 +6,10 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
-    android:id="@+id/contentLayout"
+    android:id="@+id/__contentLayout"
     tools:showIn="@layout/activity_main">
 
-    <Button
+    <!--Button
         android:id="@+id/prepareButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -67,6 +67,27 @@
         android:layout_marginTop="8dp"
         android:text="@string/title_asset_status"
         app:layout_constraintStart_toEndOf="@id/removeButton"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" /-->
+
+    <!--<androidx.recyclerview.widget.RecyclerView-->
+        <!--android:id="@+id/itemList"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+
+        <!--app:layout_constraintStart_toStartOf="parent"-->
+        <!--app:layout_constraintTop_toTopOf="parent" />-->
+
+
+    <ListView
+        android:id="@+id/__itemList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+
+        android:minHeight="200dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
