@@ -5,60 +5,44 @@ import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.OfflineManager
 
-interface Item {
-    var percentDownloaded: Float?
-    var totalBytesEstimated: Long?
-    var bytesDownloaded: Long?
-    val serverUrl: String
-    val partnerId: Int
-    var assetInfo: OfflineManager.AssetInfo?
+abstract class Item(val partnerId: Int, val serverUrl: String) {
 
-    fun id() = assetInfo?.assetId
-    fun mediaOptions(): MediaOptions
+    var assetInfo: OfflineManager.AssetInfo? = null
+    var percentDownloaded: Float? = null
+    var bytesDownloaded: Long? = null
+
+    abstract fun id(): String
+    abstract fun mediaOptions(): MediaOptions
+    protected fun sizeMB(sizeBytes: Long?): Float {
+        if (sizeBytes == null || sizeBytes <= 0) {
+            return -1f
+        }
+
+        return sizeBytes.toFloat() / (1000*1000)
+    }
+
+    override fun toString(): String {
+        val state = assetInfo?.state ?: OfflineManager.AssetDownloadState.none
+        val progress = if (percentDownloaded != null) "%.1f".fmt(percentDownloaded) else "--"
+
+        val sizeMB = "%.3f".fmt(sizeMB(assetInfo?.estimatedSize))
+        return "${id()} @ $partnerId, $state\n$progress% / $sizeMB}MB"
+    }
 }
 
-enum class OTTItem(
-    override val partnerId: Int,
-    val ottAssetId: String,
-    override val serverUrl: String
-) : Item {
+class OVPItem(partnerId: Int, val entryId: String, serverUrl: String = "https://cdnapisec.kaltura.com"
+) : Item(partnerId, serverUrl) {
 
-    ottOne(2250, "3817050", "https://rest-as.ott.kaltura.com/v5_0_3/api_v3");
+    override fun id() = assetInfo?.assetId ?: entryId
 
-    override var assetInfo: OfflineManager.AssetInfo? = null
-    override var percentDownloaded: Float? = null
-    override var totalBytesEstimated: Long? = null
-    override var bytesDownloaded: Long? = null
+    override fun mediaOptions() = OVPMediaOptions(entryId)
+}
+
+class OTTItem(partnerId: Int, val ottAssetId: String, serverUrl: String) : Item(partnerId, serverUrl) {
 
     override fun id() = assetInfo?.assetId ?: ottAssetId
 
     override fun mediaOptions() = OTTMediaOptions().apply {
         assetId = ottAssetId
     }
-}
-
-enum class OVPItem(
-    override val partnerId: Int,
-    val entryId: String,
-    override val serverUrl: String = "https://cdnapisec.kaltura.com"
-) : Item {
-
-    one(1851571, "0_pl5lbfo0"),
-    two(2222401, "0_vcggu66e"),
-    three(2222401, "1_2hsw7gwj");
-
-    override var assetInfo: OfflineManager.AssetInfo? = null
-    override var percentDownloaded: Float? = null
-    override var totalBytesEstimated: Long? = null
-    override var bytesDownloaded: Long? = null
-
-    override fun id() = assetInfo?.assetId ?: entryId
-
-    override fun toString(): String {
-        val state = OfflineManager.AssetDownloadState.completed
-        val progress = if (percentDownloaded != null) "%.1f".fmt(percentDownloaded) else "--"
-        return "$entryId @ $partnerId, $state\n$progress% / ${(totalBytesEstimated?.div(1024*1024) ?: "--" )}MB"
-    }
-
-    override fun mediaOptions() = OVPMediaOptions(entryId)
 }
