@@ -2,7 +2,10 @@ package com.kaltura.player.offlinedemo
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.os.SystemClock
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
@@ -12,10 +15,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
-import com.kaltura.playkit.PKDrmParams
-import com.kaltura.playkit.PKLog
-import com.kaltura.playkit.PKMediaEntry
-import com.kaltura.playkit.PKMediaSource
+import com.kaltura.playkit.*
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OfflineManager
 
@@ -32,7 +32,7 @@ val testItems = listOf(
     OVPItem(2222401, "1_2hsw7gwj"),
     OVPItem(2215841, "1_9bwuo813"),
 
-    OTTItem(2250, "3817050", "https://rest-as.ott.kaltura.com/v5_0_3/api_v3"),
+    OTTItem(225, "381705", "https://rest-as.ott.kaltura.com/v5_0_3/api_v3", "Tablet Main"),
 
     NULL    // to avoid moving commas :-)
 )
@@ -48,22 +48,27 @@ class MainActivity : AppCompatActivity() {
     private lateinit var manager: OfflineManager
     private val itemMap = mutableMapOf<String, Item>()
 
+    var startTime = 0L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 //        setSupportActionBar(toolbar)
 
-
-
         manager = OfflineManager.getInstance(this)
+        manager.setPreferredMediaFormat(PKMediaFormat.hls)
+        manager.setEstimatedHlsAudioBitrate(64000)
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
-            override fun onAssetDownloadFailed(assetId: String, error: OfflineManager.AssetDownloadException?) {
+            override fun onAssetDownloadFailed(assetId: String, error: Exception?) {
                 toastLong("Download of $error failed: $error")
                 updateItemStatus(assetId)
             }
 
             override fun onAssetDownloadComplete(assetId: String) {
+                log.d("onAssetDownloadComplete")
+
+                log.d("onAssetDownloadComplete: ${SystemClock.elapsedRealtimeNanos() - startTime}")
                 toast("Complete")
                 updateItemStatus(assetId)
             }
@@ -111,13 +116,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
         itemArrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1)
 
-
         testItems.filter { it != NULL }.forEach {
-
-            it.assetInfo = manager.getAssetInfo(it.id())
+//            it.assetInfo = manager.getAssetInfo(it.id())
             itemArrayAdapter.add(it)
             itemMap[it.id()] = it
         }
@@ -127,6 +129,12 @@ class MainActivity : AppCompatActivity() {
         assetList.setOnItemClickListener { av: AdapterView<*>, v: View, pos: Int, id: Long ->
             showActionsDialog(av.getItemAtPosition(pos) as Item)
         }
+
+        assetList.postDelayed({
+            itemMap.values.forEach {
+                it.assetInfo = manager.getAssetInfo(it.id())
+            }
+        }, 2000)
     }
 
     private fun updateItemStatus(assetId: String) {
@@ -198,6 +206,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doStart(item: Item) {
+        log.d("doStart")
+        startTime = SystemClock.elapsedRealtime()
         manager.startAssetDownload(item.assetInfo)
         updateItemStatus(item)
     }
