@@ -26,7 +26,7 @@ abstract class Item(val partnerId: Int, val serverUrl: String) {
         val progress = if (percentDownloaded != null) "%.1f".fmt(percentDownloaded) else "--"
 
         val sizeMB = "%.3f".fmt(sizeMB(assetInfo?.estimatedSize))
-        return "${id()} @ $partnerId, $state\n$progress% / $sizeMB}MB"
+        return "${id()} @ $partnerId, $state\n$progress% / ${sizeMB}MB"
     }
 }
 
@@ -38,11 +38,12 @@ class OVPItem(partnerId: Int, val entryId: String, serverUrl: String = "https://
     override fun mediaOptions() = OVPMediaOptions(entryId)
 }
 
-class OTTItem(partnerId: Int, val ottAssetId: String, serverUrl: String) : Item(partnerId, serverUrl) {
+class OTTItem(partnerId: Int, val ottAssetId: String, serverUrl: String, val format: String) : Item(partnerId, serverUrl) {
 
     override fun id() = assetInfo?.assetId ?: ottAssetId
 
     override fun mediaOptions() = OTTMediaOptions().apply {
         assetId = ottAssetId
+        formats = arrayOf(format)
     }
 }
