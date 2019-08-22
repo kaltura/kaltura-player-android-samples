@@ -766,7 +766,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String assetTitle = "VOD - Google I/O";
         String assetKey = null;
         String apiKey = null;
-        String contentSourceId = "19463";
+        String contentSourceId = "2477953";
         String videoId = "googleio-highlights";
         StreamRequest.StreamFormat streamFormat = StreamRequest.StreamFormat.HLS;
         String licenseUrl = null;
@@ -842,7 +842,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private IMADAIConfig getDAIConfig1() {
         String assetTitle = "VOD - Tears of Steel";
         String apiKey = null;
-        String contentSourceId = "19463";
+        String contentSourceId = "2477953";
         String videoId = "tears-of-steel";
         StreamRequest.StreamFormat streamFormat = StreamRequest.StreamFormat.HLS;
         String licenseUrl = null;
