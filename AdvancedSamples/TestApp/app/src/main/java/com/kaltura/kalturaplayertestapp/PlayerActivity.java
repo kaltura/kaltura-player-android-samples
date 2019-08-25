@@ -31,7 +31,7 @@ import com.kaltura.kalturaplayertestapp.models.ima.UiConfFormatIMAConfig;
 import com.kaltura.kalturaplayertestapp.models.ima.UiConfFormatIMADAIConfig;
 import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController;
 import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor;
-import com.kaltura.netkit.connect.executor.RetryPolicy;
+
 import com.kaltura.netkit.utils.ErrorElement;
 import com.kaltura.playkit.PKDrmParams;
 import com.kaltura.playkit.PKError;
@@ -147,9 +147,9 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
         appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig.class);
 
         if (appPlayerInitConfig != null) {
-            if (appPlayerInitConfig.retryPolicy != null) {
-                APIOkRequestsExecutor.getSingleton().setRequestConfiguration(appPlayerInitConfig.retryPolicy);
-                APIOkRequestsExecutor.getSingleton().setNetworkEventListener(errorElement -> {
+            if (appPlayerInitConfig.requestConfiguration != null) {
+                APIOkRequestsExecutor.getSingleton().setRequestConfiguration(appPlayerInitConfig.requestConfiguration);
+                APIOkRequestsExecutor.getSingleton().setNetworkErrorEventListener(errorElement -> {
                     log.d("XXX NetworkError code = " + errorElement.getCode() + " " + errorElement.getMessage());
                 });
             }
@@ -353,16 +353,16 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
 
         if (KalturaPlayer.Type.ovp.equals(playerType)) {
 
-            /* inorder to generate retry error need also to remove and un install app -> KalturaPlayer.initializeOVP(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
-            if (partnerId == 1091) {
-                TVPlayerParams tvPlayerParams = new TVPlayerParams();
-                tvPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
-                tvPlayerParams.uiConfId = 1774581;
-                tvPlayerParams.partnerId = 1091;
-                tvPlayerParams.serviceUrl = "http://httpbin.org/status/401?";
-                initOptions.tvPlayerParams = tvPlayerParams;
-            }
-            */
+            // inorder to generate retry error need also to remove and un install app -> KalturaPlayer.initializeOVP(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
+//            if (partnerId == 1091) {
+//                TVPlayerParams tvPlayerParams = new TVPlayerParams();
+//                tvPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
+//                tvPlayerParams.uiConfId = 1774581;
+//                tvPlayerParams.partnerId = 1091;
+//                tvPlayerParams.serviceUrl = "http://httpbin.org/status/401?";
+//                initOptions.tvPlayerParams = tvPlayerParams;
+//            }
+
 
             player = KalturaPlayer.createOVPPlayer(PlayerActivity.this, initOptions);
             setPlayer(player);

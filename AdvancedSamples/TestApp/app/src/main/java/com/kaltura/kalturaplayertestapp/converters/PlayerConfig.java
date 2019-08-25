@@ -2,7 +2,7 @@ package com.kaltura.kalturaplayertestapp.converters;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.kaltura.netkit.connect.executor.RetryPolicy;
+import com.kaltura.netkit.connect.request.RequestConfiguration;
 import com.kaltura.playkit.PKRequestParams;
 import com.kaltura.playkit.player.ABRSettings;
 import com.kaltura.playkit.player.LoadControlBuffers;
@@ -41,7 +41,7 @@ public class PlayerConfig {
     public PKRequestParams.Adapter licenseRequestAdapter;
     public LoadControlBuffers loadControlBuffers;
     public ABRSettings abrSettings;
-    public RetryPolicy retryPolicy;
+    public RequestConfiguration requestConfiguration;
     public String referrer;
     public Boolean forceSinglePlayerEngine;
     public List<Media> mediaList;
