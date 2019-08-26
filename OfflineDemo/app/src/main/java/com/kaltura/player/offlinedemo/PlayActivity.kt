@@ -25,8 +25,8 @@ class PlayActivity : AppCompatActivity() {
 
         playerRoot.systemUiVisibility = SYSTEM_UI_FLAG_FULLSCREEN
 
-        playDrawable = ContextCompat.getDrawable(this@PlayActivity, android.R.drawable.ic_media_play)!!
-        pauseDrawable = ContextCompat.getDrawable(this@PlayActivity, android.R.drawable.ic_media_pause)!!
+        playDrawable = ContextCompat.getDrawable(this@PlayActivity, R.drawable.ic_play_arrow_white_24dp)!!
+        pauseDrawable = ContextCompat.getDrawable(this@PlayActivity, R.drawable.ic_pause_white_24dp)!!
 
         val options = PlayerInitOptions().apply {
             autoplay = true
@@ -41,12 +41,20 @@ class PlayActivity : AppCompatActivity() {
 
         manager.sendAssetToPlayer(intent.dataString, player)
 
+        fab_playpause.setOnClickListener {
+            togglePlayPause()
+        }
+
         fab_replay.setOnClickListener {
             player.replay()
         }
 
-        fab_playpause.setOnClickListener {
-            togglePlayPause()
+        fab_replay_10.setOnClickListener {
+            player.seekTo(player.currentPosition - 10000)
+        }
+
+        fab_forward_10.setOnClickListener {
+            player.seekTo(player.currentPosition + 10000)
         }
 
         player.addListener(this, PlayerEvent.playing) {

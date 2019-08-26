@@ -126,15 +126,18 @@ class MainActivity : AppCompatActivity() {
 
         assetList.adapter = this.itemArrayAdapter
 
-        assetList.setOnItemClickListener { av: AdapterView<*>, v: View, pos: Int, id: Long ->
+        assetList.setOnItemClickListener { av: AdapterView<*>, _: View, pos: Int, _: Long ->
             showActionsDialog(av.getItemAtPosition(pos) as Item)
         }
 
-        assetList.postDelayed({
+        manager.start {
+            log.d("manager started")
             itemMap.values.forEach {
                 it.assetInfo = manager.getAssetInfo(it.id())
             }
-        }, 2000)
+
+            runOnUiThread(assetList::invalidateViews)
+        }
     }
 
     private fun updateItemStatus(assetId: String) {
