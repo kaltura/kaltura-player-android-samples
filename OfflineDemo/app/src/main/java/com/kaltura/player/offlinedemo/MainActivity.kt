@@ -27,6 +27,7 @@ fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT,
 
 
 val testItems = listOf(
+    OVPItem(1091, "0_mskmqcit", "http://cdntesting.qa.mkaltura.com"),
     OVPItem(1851571, "0_pl5lbfo0"),
     OVPItem(2222401, "0_vcggu66e"),
     OVPItem(2222401, "1_2hsw7gwj"),
@@ -223,7 +224,13 @@ class MainActivity : AppCompatActivity() {
         manager.setKalturaPartnerId(item.partnerId)
         manager.setKalturaServerUrl(item.serverUrl)
 
-        manager.prepareAsset(item.mediaOptions(), null, object: OfflineManager.PrepareCallback {
+        val prefs = OfflineManager.SelectionPrefs().apply {
+            videoHeight = 300
+            videoBitrate = 800000
+            videoWidth = 400
+        }
+
+        manager.prepareAsset(item.mediaOptions(), prefs, object: OfflineManager.PrepareCallback {
             override fun onPrepared(
                 assetId: String,
                 assetInfo: OfflineManager.AssetInfo,
