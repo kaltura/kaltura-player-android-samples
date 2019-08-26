@@ -1,10 +1,10 @@
 package com.kaltura.player.offlinedemo
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.os.Parcel
 import android.os.SystemClock
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
@@ -37,9 +37,13 @@ val testItems = listOf(
     NULL    // to avoid moving commas :-)
 )
 
+@SuppressLint("ParcelCreator")
 object NULL : Item(0, "") {
     override fun id(): String = TODO()
     override fun mediaOptions(): MediaOptions = TODO()
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {}
+    override fun describeContents(): Int {return 0}
 }
 
 class MainActivity : AppCompatActivity() {
