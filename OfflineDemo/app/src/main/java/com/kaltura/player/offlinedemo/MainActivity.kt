@@ -267,9 +267,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun snackbar(msg: String, next: String, nextAction: () -> Unit) = runOnUiThread {
-        Snackbar.make(assetList, msg, Snackbar.LENGTH_LONG).setAction(next) {
-            nextAction()
-        }.show()
+        Snackbar.make(assetList, msg, Snackbar.LENGTH_LONG).apply {
+            duration = 5000
+            setAction(next) {
+                nextAction()
+            }
+            show()
+        }
     }
 
     private fun toast(msg: String) = runOnUiThread { Toast.makeText(this, msg, Toast.LENGTH_SHORT).show() }
