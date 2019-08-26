@@ -149,24 +149,6 @@ public class MainActivity extends BaseActivity implements TestCaseConfigurationA
         mConfigurationsRecycler.setHasFixedSize(true);
         mConfigurationsRecycler.setAdapter(mAdapter);
         mAdapter.startListening();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                doConnectionsWarmup();
-            }
-        });
-        thread.start();
-
-    }
-
-    private void doConnectionsWarmup() {
-        PKHttpClientManager.setHttpProvider("okhttp");
-        PKHttpClientManager.warmUp(
-                "https://rest-as.ott.kaltura.com/crossdomain.xml",
-                "https://api-preprod.ott.kaltura.com/crossdomain.xml",
-                "https://cdnapisec.kaltura.com/favicon.ico",
-                "https://cfvod.kaltura.com/favicon.ico"
-        );
     }
 
     @Override
