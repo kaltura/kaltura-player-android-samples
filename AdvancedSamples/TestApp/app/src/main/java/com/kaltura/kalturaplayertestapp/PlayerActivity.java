@@ -30,6 +30,8 @@ import com.kaltura.kalturaplayertestapp.converters.PluginDescriptor;
 import com.kaltura.kalturaplayertestapp.models.ima.UiConfFormatIMAConfig;
 import com.kaltura.kalturaplayertestapp.models.ima.UiConfFormatIMADAIConfig;
 import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController;
+import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor;
+
 import com.kaltura.netkit.utils.ErrorElement;
 import com.kaltura.playkit.PKDrmParams;
 import com.kaltura.playkit.PKError;
@@ -143,7 +145,15 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
         initDrm();
 
         appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig.class);
+
         if (appPlayerInitConfig != null) {
+            if (appPlayerInitConfig.requestConfiguration != null) {
+                APIOkRequestsExecutor.getSingleton().setRequestConfiguration(appPlayerInitConfig.requestConfiguration);
+                APIOkRequestsExecutor.getSingleton().setNetworkErrorEventListener(errorElement -> {
+                    log.d("XXX NetworkError code = " + errorElement.getCode() + " " + errorElement.getMessage());
+                });
+            }
+
             final KalturaPlayer.Type playerType = appPlayerInitConfig.playerType;
             if (KalturaPlayer.Type.basic.equals(playerType)) {
                 buildPlayer( appPlayerInitConfig, currentPlayedMediaIndex, playerType);
@@ -342,49 +352,61 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
         }
 
         if (KalturaPlayer.Type.ovp.equals(playerType)) {
-                player = KalturaPlayer.createOVPPlayer(PlayerActivity.this, initOptions);
-                setPlayer(player);
 
-                OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
-                player.loadMedia(ovpMediaOptions, (entry, error) -> {
-                    if (error != null) {
-                        log.d("OVPMedia Error Extra = " + error.getExtra());
-                        Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-                        playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.play);
-                        if (playbackControlsView != null) {
-                            playbackControlsManager.showControls(View.VISIBLE);
-                        }
-                    } else {
-                        log.d("OVPMedia onEntryLoadComplete entry =" + entry.getId());
+            // inorder to generate retry error need also to remove and un install app -> KalturaPlayer.initializeOVP(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
+//            if (partnerId == 1091) {
+//                TVPlayerParams tvPlayerParams = new TVPlayerParams();
+//                tvPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
+//                tvPlayerParams.uiConfId = 1774581;
+//                tvPlayerParams.partnerId = 1091;
+//                tvPlayerParams.serviceUrl = "http://httpbin.org/status/401?";
+//                initOptions.tvPlayerParams = tvPlayerParams;
+//            }
+
+
+            player = KalturaPlayer.createOVPPlayer(PlayerActivity.this, initOptions);
+            setPlayer(player);
+
+            OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
+            player.loadMedia(ovpMediaOptions, (entry, error) -> {
+                if (error != null) {
+                    log.d("OVPMedia Error Extra = " + error.getExtra());
+                    Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
+                    playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.play);
+                    if (playbackControlsView != null) {
+                        playbackControlsManager.showControls(View.VISIBLE);
                     }
-                });
+                } else {
+                    log.d("OVPMedia onEntryLoadComplete entry =" + entry.getId());
+                }
+            });
 
         } else if (KalturaPlayer.Type.ott.equals(playerType)) {
-                if (partnerId == 198) {
-                    PhoenixTVPlayerParams phoenixTVPlayerParams = new PhoenixTVPlayerParams();
-                    phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
-                    phoenixTVPlayerParams.ovpPartnerId = 1774581;
-                    phoenixTVPlayerParams.partnerId = 198;
-                    phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_1_0/";
-                    phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/";
-                    initOptions.tvPlayerParams = phoenixTVPlayerParams;
-                }
+            if (partnerId == 198) {
+                PhoenixTVPlayerParams phoenixTVPlayerParams = new PhoenixTVPlayerParams();
+                phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
+                phoenixTVPlayerParams.ovpPartnerId = 1774581;
+                phoenixTVPlayerParams.partnerId = 198;
+                phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_1_0/";
+                phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/";
+                initOptions.tvPlayerParams = phoenixTVPlayerParams;
+            }
 
-                player = KalturaPlayer.createOTTPlayer(PlayerActivity.this, initOptions);
-                setPlayer(player);
-                OTTMediaOptions ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
-                player.loadMedia(ottMediaOptions, (entry, error) -> {
-                    if (error != null) {
-                        log.d("OTTMedia Error Extra = " + error.getExtra());
-                        Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
-                        playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.play);
-                        if (playbackControlsView != null) {
-                            playbackControlsManager.showControls(View.VISIBLE);
-                        }
-                    } else {
-                        log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+            player = KalturaPlayer.createOTTPlayer(PlayerActivity.this, initOptions);
+            setPlayer(player);
+            OTTMediaOptions ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
+            player.loadMedia(ottMediaOptions, (entry, error) -> {
+                if (error != null) {
+                    log.d("OTTMedia Error Extra = " + error.getExtra());
+                    Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
+                    playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.play);
+                    if (playbackControlsView != null) {
+                        playbackControlsManager.showControls(View.VISIBLE);
                     }
-                });
+                } else {
+                    log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId());
+                }
+            });
         } else if (KalturaPlayer.Type.basic.equals(playerType)) {
             player = KalturaPlayer.createBasicPlayer(PlayerActivity.this, initOptions);
             setPlayer(player);
