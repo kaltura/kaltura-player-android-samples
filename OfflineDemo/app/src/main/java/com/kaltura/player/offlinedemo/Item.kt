@@ -15,20 +15,26 @@ abstract class Item(val partnerId: Int, val serverUrl: String): Parcelable {
 
     abstract fun id(): String
     abstract fun mediaOptions(): MediaOptions
-    protected fun sizeMB(sizeBytes: Long?): Float {
+
+    private fun sizeMB(): String {
+        val sizeBytes = assetInfo?.estimatedSize
         if (sizeBytes == null || sizeBytes <= 0) {
-            return -1f
+            return "--"
         }
 
-        return sizeBytes.toFloat() / (1000*1000)
+        return "%.3f".fmt(sizeBytes.toFloat() / (1000*1000)) + "mb"
     }
 
     override fun toString(): String {
         val state = assetInfo?.state ?: OfflineManager.AssetDownloadState.none
-        val progress = if (percentDownloaded != null) "%.1f".fmt(percentDownloaded) else "--"
 
-        val sizeMB = "%.3f".fmt(sizeMB(assetInfo?.estimatedSize))
-        return "${id()} @ $partnerId, $state\n$progress% / ${sizeMB}MB"
+        var string = "${id()} @ $partnerId, $state\n"
+        if (state == OfflineManager.AssetDownloadState.started) {
+            string += if (percentDownloaded != null) "%.1f".fmt(percentDownloaded) + "% / " else "--"
+        }
+        string += sizeMB()
+
+        return string
     }
 }
 
