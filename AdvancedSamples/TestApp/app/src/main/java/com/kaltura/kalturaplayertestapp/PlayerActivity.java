@@ -46,6 +46,8 @@ import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.plugins.ads.AdCuePoints;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ads.AdInfo;
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig;
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin;
 import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig;
@@ -232,6 +234,9 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
             JsonObject imadaiJson = (JsonObject) initOptions.pluginConfigs.getPluginConfig(IMADAIPlugin.factory.getName());
             //IMADAIConfig imaPluginConfig = gson.fromJson(imadaiJson, IMADAIConfig.class);
             initOptions.pluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), imadaiJson);
+        } else if (initOptions.pluginConfigs.hasConfig(FBInstreamPlugin.factory.getName())) {
+            JsonObject fbAds = (JsonObject) initOptions.pluginConfigs.getPluginConfig(FBInstreamPlugin.factory.getName());
+            initOptions.pluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbAds);
         }
 
 //        //EXAMPLE if there are no auto replacers in this format ->  {{key}}
@@ -855,6 +860,9 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 } else if (PhoenixAnalyticsPlugin.factory.getName().equalsIgnoreCase(pluginName)) {
                     PhoenixAnalyticsConfig phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.getParams(), PhoenixAnalyticsConfig.class);
                     pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.getName(), phoenixAnalyticsConfig.toJson());
+                } else if (FBInstreamPlugin.factory.getName().equalsIgnoreCase(pluginName)) {
+                    FBInstreamConfig fbInstreamConfig = gson.fromJson(pluginDescriptor.getParams(), FBInstreamConfig.class);
+                    pkPluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbInstreamConfig);
                 }
             }
         }
