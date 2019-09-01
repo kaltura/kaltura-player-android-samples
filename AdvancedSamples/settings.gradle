@@ -16,6 +16,8 @@ include ':MD360'
 project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
 include ':playkitvr'
 project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr')
+include ':fbads'
+project(':fbads').projectDir = new File('../../playkit-android-fb-ads/fbadsplugin')
 
 // Sample apps
 def samples = [
@@ -24,6 +26,7 @@ def samples = [
         'TracksSelection',
         'Youbora',
         'IMADAISample',
+        'FBAdsSample',
         'ChromecastCAFSample',
         'ErHandling',
         'EventsRegistration',
