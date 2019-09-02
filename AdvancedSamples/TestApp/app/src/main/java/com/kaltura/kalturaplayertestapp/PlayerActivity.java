@@ -495,6 +495,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
             log.d("AD CUEPOINTS CHANGED");
             updateEventsLogsList("ad:\n" + event.eventType().name());
             adCuePoints = event.cuePoints;
+            playbackControlsManager.setAdPluginName(adCuePoints.getAdPluginName());
         });
 
         player.addListener(this, AdEvent.completed, event -> {

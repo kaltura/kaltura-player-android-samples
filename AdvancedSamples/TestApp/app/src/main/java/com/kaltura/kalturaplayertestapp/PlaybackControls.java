@@ -9,4 +9,5 @@ public interface PlaybackControls {
     void showControls(int visability);
     void setContentPlayerState(Enum playerState);
     void setAdPlayerState(Enum playerState);
+    void setAdPluginName(String adPluginName);
 }
