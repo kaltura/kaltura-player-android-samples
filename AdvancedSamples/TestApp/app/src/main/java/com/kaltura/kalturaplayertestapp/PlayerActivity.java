@@ -632,7 +632,10 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.replay);
             }
             progressBar.setVisibility(View.GONE);
-            if (!isPostrollAvailableInAdCuePoint() || IMADAIPlugin.factory.getName().equals(adCuePoints.getAdPluginName())) {
+            if (!isPostrollAvailableInAdCuePoint() ||
+                    IMADAIPlugin.factory.getName().equals(adCuePoints.getAdPluginName()) ||
+                    FBInstreamPlugin.factory.getName().equals(adCuePoints.getAdPluginName())
+            ) {
                 playbackControlsManager.showControls(View.VISIBLE);
             }
         });
