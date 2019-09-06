@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcel
 import android.os.SystemClock
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -14,19 +13,27 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import com.kaltura.playkit.*
+import com.kaltura.playkit.PKDrmParams
+import com.kaltura.playkit.PKLog
+import com.kaltura.playkit.PKMediaEntry
+import com.kaltura.playkit.PKMediaSource
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OfflineManager
-
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.Exception
 import java.util.*
 
 fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
 
 
 val testItems = listOf(
+
+    BasicItem("apple1", "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"),
+    BasicItem("apple2", "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8"),
+
+    OVPItem(2215841, "0_axrfacp3"),
+
     OVPItem(1091, "0_mskmqcit", "http://cdntesting.qa.mkaltura.com"),
     OVPItem(1851571, "0_pl5lbfo0"),
     OVPItem(2222401, "0_vcggu66e"),
@@ -34,12 +41,13 @@ val testItems = listOf(
     OVPItem(2215841, "1_9bwuo813"),
 
     OTTItem(225, "381705", "https://rest-as.ott.kaltura.com/v5_0_3/api_v3", "Tablet Main"),
+    OTTItem(225, "790460", "https://rest-as.ott.kaltura.com/v5_0_3/api_v3", "Tablet Main"),
 
     NULL    // to avoid moving commas :-)
 )
 
 @SuppressLint("ParcelCreator")
-object NULL : Item(0, "") {
+object NULL : KalturaItem(0, "") {
     override fun id(): String = TODO()
     override fun mediaOptions(): MediaOptions = TODO()
 
@@ -61,11 +69,11 @@ class MainActivity : AppCompatActivity() {
 //        setSupportActionBar(toolbar)
 
         manager = OfflineManager.getInstance(this)
-        manager.setPreferredMediaFormat(PKMediaFormat.hls)
+//        manager.setPreferredMediaFormat(PKMediaFormat.hls)
         manager.setEstimatedHlsAudioBitrate(64000)
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
-            override fun onAssetDownloadFailed(assetId: String, error: Exception?) {
+            override fun onAssetDownloadFailed(assetId: String, error: Exception) {
                 toastLong("Download of $error failed: $error")
                 updateItemStatus(assetId)
             }
@@ -87,12 +95,12 @@ class MainActivity : AppCompatActivity() {
                 updateItemStatus(assetId)
             }
 
-            override fun onRegistered(assetId: String, drmStatus: OfflineManager.DrmStatus?) {
-                toast("onRegistered: ${drmStatus?.currentRemainingTime} seconds left")
+            override fun onRegistered(assetId: String, drmStatus: OfflineManager.DrmStatus) {
+                toast("onRegistered: ${drmStatus.currentRemainingTime} seconds left")
                 updateItemStatus(assetId)
             }
 
-            override fun onRegisterError(assetId: String, error: Exception?) {
+            override fun onRegisterError(assetId: String, error: Exception) {
                 toastLong("onRegisterError: $assetId $error")
                 updateItemStatus(assetId)
             }
@@ -124,7 +132,6 @@ class MainActivity : AppCompatActivity() {
         itemArrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1)
 
         testItems.filter { it != NULL }.forEach {
-//            it.assetInfo = manager.getAssetInfo(it.id())
             itemArrayAdapter.add(it)
             itemMap[it.id()] = it
         }
@@ -170,6 +177,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doStatus(item: Item) {
+
+        if (item !is KalturaItem) {
+            toastLong("Not applicable")
+            return
+        }
+
         val drmStatus = manager.getDrmStatus(item.id())
 
         if (drmStatus.isClear) {
@@ -190,7 +203,7 @@ class MainActivity : AppCompatActivity() {
                     reduceLicenseDuration(mediaEntry, 300)
                 }
 
-                override fun onMediaEntryLoadError(error: Exception?) {
+                override fun onMediaEntryLoadError(error: Exception) {
                     toastLong("onMediaEntryLoadError: $error")
                 }
             })
@@ -215,14 +228,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun doStart(item: Item) {
         log.d("doStart")
+        val assetInfo = item.assetInfo ?: return
+
         startTime = SystemClock.elapsedRealtime()
-        manager.startAssetDownload(item.assetInfo)
+        manager.startAssetDownload(assetInfo)
         updateItemStatus(item)
     }
 
     private fun doPrepare(item: Item) {
-        manager.setKalturaPartnerId(item.partnerId)
-        manager.setKalturaServerUrl(item.serverUrl)
+
+        if (item is KalturaItem) {
+            manager.setKalturaPartnerId(item.partnerId)
+            manager.setKalturaServerUrl(item.serverUrl)
+        }
 
         val prefs = OfflineManager.SelectionPrefs().apply {
             videoHeight = 300
@@ -230,7 +248,7 @@ class MainActivity : AppCompatActivity() {
             videoWidth = 400
         }
 
-        manager.prepareAsset(item.mediaOptions(), prefs, object: OfflineManager.PrepareCallback {
+        val prepareCallback = object : OfflineManager.PrepareCallback {
             override fun onPrepared(
                 assetId: String,
                 assetInfo: OfflineManager.AssetInfo,
@@ -257,12 +275,25 @@ class MainActivity : AppCompatActivity() {
                 reduceLicenseDuration(mediaEntry, 300)
             }
 
-            override fun onSourceSelected(assetId: String, source: PKMediaSource, drmParams: PKDrmParams?) {
+            override fun onSourceSelected(
+                assetId: String,
+                source: PKMediaSource,
+                drmParams: PKDrmParams?
+            ) {
 
             }
-        })
+        }
+
+        if (item is KalturaItem) {
+            manager.prepareAsset(item.mediaOptions(), prefs, prepareCallback)
+        } else {
+            item.entry?.let {
+                    entry -> manager.prepareAsset(entry, prefs, prepareCallback)
+            }
+        }
     }
 
+    @Suppress("SameParameterValue")
     private fun reduceLicenseDuration(mediaEntry: PKMediaEntry, seconds: Int) {
         for (source in mediaEntry.sources) {
             if (source.hasDrmParams()) {

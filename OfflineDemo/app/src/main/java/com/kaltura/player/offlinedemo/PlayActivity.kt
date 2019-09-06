@@ -4,6 +4,8 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
 import android.view.ViewGroup
+import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.kaltura.playkit.PlayerEvent
@@ -39,7 +41,11 @@ class PlayActivity : AppCompatActivity() {
 
         val manager = OfflineManager.getInstance(this)
 
-        manager.sendAssetToPlayer(intent.dataString, player)
+        intent.dataString?.let {
+            manager.sendAssetToPlayer(it, player)
+        } ?: run {
+            Toast.makeText(this, "No asset id given", LENGTH_LONG)
+        }
 
         fab_playpause.setOnClickListener {
             togglePlayPause()

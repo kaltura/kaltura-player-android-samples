@@ -2,19 +2,21 @@ package com.kaltura.player.offlinedemo
 
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
+import com.kaltura.playkit.PKMediaEntry
+import com.kaltura.playkit.PKMediaSource
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.OfflineManager
 
-abstract class Item(val partnerId: Int, val serverUrl: String): Parcelable {
-
+abstract class Item : Parcelable {
+    var entry: PKMediaEntry? = null
     var assetInfo: OfflineManager.AssetInfo? = null
     var percentDownloaded: Float? = null
     var bytesDownloaded: Long? = null
-
     abstract fun id(): String
-    abstract fun mediaOptions(): MediaOptions
+    abstract fun title(): String
 
     private fun sizeMB(): String {
         val sizeBytes = assetInfo?.estimatedSize
@@ -28,7 +30,7 @@ abstract class Item(val partnerId: Int, val serverUrl: String): Parcelable {
     override fun toString(): String {
         val state = assetInfo?.state ?: OfflineManager.AssetDownloadState.none
 
-        var string = "${id()} @ $partnerId, $state\n"
+        var string = "${title()}, $state\n"
         if (state == OfflineManager.AssetDownloadState.started) {
             string += if (percentDownloaded != null) "%.1f".fmt(percentDownloaded) + "% / " else "--"
         }
@@ -38,8 +40,59 @@ abstract class Item(val partnerId: Int, val serverUrl: String): Parcelable {
     }
 }
 
-class OVPItem(partnerId: Int, val entryId: String, serverUrl: String = "https://cdnapisec.kaltura.com"
-) : Item(partnerId, serverUrl) {
+class BasicItem(private val id: String, val url: String): Item() {
+
+    init {
+        this.entry = PKMediaEntry().apply {
+            id = this@BasicItem.id
+            mediaType = PKMediaEntry.MediaEntryType.Vod
+            sources = listOf(PKMediaSource().apply {
+                id = this@BasicItem.id
+                url = this@BasicItem.url
+            })
+        }
+
+        Log.d("Item", entry.toString())
+    }
+
+    override fun id() = id
+
+    override fun title() = id
+
+    constructor(parcel: Parcel) : this(
+        parcel.readString()!!,
+        parcel.readString()!!
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(id)
+        parcel.writeString(url)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<BasicItem> {
+        override fun createFromParcel(parcel: Parcel): BasicItem {
+            return BasicItem(parcel)
+        }
+
+        override fun newArray(size: Int): Array<BasicItem?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
+abstract class KalturaItem(val partnerId: Int, val serverUrl: String): Item() {
+
+    abstract fun mediaOptions(): MediaOptions
+
+    override fun title() = "${id()} @ $partnerId"
+}
+
+class OVPItem(partnerId: Int, private val entryId: String, serverUrl: String = "https://cdnapisec.kaltura.com"
+) : KalturaItem(partnerId, serverUrl) {
 
     override fun id() = assetInfo?.assetId ?: entryId
 
@@ -72,7 +125,7 @@ class OVPItem(partnerId: Int, val entryId: String, serverUrl: String = "https://
     }
 }
 
-class OTTItem(partnerId: Int, val ottAssetId: String, serverUrl: String, val format: String) : Item(partnerId, serverUrl) {
+class OTTItem(partnerId: Int, val ottAssetId: String, serverUrl: String, val format: String) : KalturaItem(partnerId, serverUrl) {
 
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
