@@ -19,6 +19,7 @@ import com.kaltura.playkit.PKDrmParams
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaSource
+import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OfflineManager
 import kotlinx.android.synthetic.main.activity_main.*
@@ -196,9 +197,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         snackbar(msg, "Renew") {
-            manager.setKalturaPartnerId(item.partnerId)
-            manager.setKalturaServerUrl(item.serverUrl)
-            manager.renewDrmAsset(item.id(), item.mediaOptions(), object: OfflineManager.MediaEntryCallback {
+            manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            manager.renewDrmAssetLicense(item.id(), item.mediaOptions(), object: OfflineManager.MediaEntryCallback {
                 override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
                     reduceLicenseDuration(mediaEntry, 300)
                 }
@@ -238,8 +238,7 @@ class MainActivity : AppCompatActivity() {
     private fun doPrepare(item: Item) {
 
         if (item is KalturaItem) {
-            manager.setKalturaPartnerId(item.partnerId)
-            manager.setKalturaServerUrl(item.serverUrl)
+            manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
         }
 
         val prefs = OfflineManager.SelectionPrefs().apply {
