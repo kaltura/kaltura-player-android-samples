@@ -42,7 +42,8 @@ class PlayActivity : AppCompatActivity() {
         val manager = OfflineManager.getInstance(this)
 
         intent.dataString?.let {
-            manager.sendAssetToPlayer(it, player)
+            val entry = manager.getLocalPlaybackEntry(it)
+            player.setMedia(entry)
         } ?: run {
             Toast.makeText(this, "No asset id given", LENGTH_LONG)
         }
