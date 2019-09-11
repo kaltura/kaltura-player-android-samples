@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.kaltura.netkit.connect.request.RequestConfiguration;
 import com.kaltura.playkit.PKRequestParams;
+import com.kaltura.playkit.PKVideoCodec;
 import com.kaltura.playkit.player.ABRSettings;
 import com.kaltura.playkit.player.LoadControlBuffers;
 import com.kaltura.playkit.player.PKAspectRatioResizeMode;
@@ -44,6 +45,7 @@ public class PlayerConfig {
     public RequestConfiguration requestConfiguration;
     public String referrer;
     public Boolean forceSinglePlayerEngine;
+    public PKVideoCodec preferredVideoCodec;
     public List<Media> mediaList;
     public TrackSelection trackSelection;
     public JsonArray plugins;

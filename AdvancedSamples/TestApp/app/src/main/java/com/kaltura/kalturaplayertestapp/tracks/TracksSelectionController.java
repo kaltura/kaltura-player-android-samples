@@ -187,11 +187,14 @@ public class TracksSelectionController {
                         } else {
                             bitrate = "Adaptive";
                         }
-                        if (label == null) {
+                        if (label == null || "Unknown".equals(label)) {
                             label = "";
                         }
                     }
-                    trackItem = new TrackItem(audioTrackInfo.getUniqueId(), label  + " " + bitrate);
+                    if ("Unknown".equals(label) || "default".equals(label)) {
+                        label = "";
+                    }
+                    trackItem = new TrackItem(audioTrackInfo.getUniqueId(), label  + " " + audioTrackInfo.getAudioCodec() + " " + bitrate);
                     trackItems.add(trackItem);
                 }
 

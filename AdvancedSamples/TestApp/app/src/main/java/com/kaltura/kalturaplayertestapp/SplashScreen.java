@@ -26,6 +26,8 @@ public class SplashScreen extends Activity {
         boolean isPlayServicesAvailable = isGooglePlayServicesAvailable();
 
         if (isPlayServicesAvailable) {
+
+            KalturaPlayer.initializeOVP(this, 2215841, "https://cdnapisec.kaltura.com/");
             KalturaPlayer.initializeOVP(this, 243342, "https://cdnapisec.kaltura.com/");
             KalturaPlayer.initializeOVP(this, 2267831, "https://cdnapisec.kaltura.com/");
             KalturaPlayer.initializeOVP(this, 2215841, "https://cdnapisec.kaltura.com/");

@@ -150,7 +150,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
             if (appPlayerInitConfig.requestConfiguration != null) {
                 APIOkRequestsExecutor.getSingleton().setRequestConfiguration(appPlayerInitConfig.requestConfiguration);
                 APIOkRequestsExecutor.getSingleton().setNetworkErrorEventListener(errorElement -> {
-                    log.d("XXX NetworkError code = " + errorElement.getCode() + " " + errorElement.getMessage());
+                    log.d("NetworkError code = " + errorElement.getCode() + " " + errorElement.getMessage());
                 });
             }
 
@@ -340,6 +340,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
                 .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
                 .forceSinglePlayerEngine(appPlayerInitConfig.forceSinglePlayerEngine)
+                .setPreferredVideoCodec(appPlayerInitConfig.preferredVideoCodec)
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject));
 
         if (appPlayerInitConfig.trackSelection != null) {
