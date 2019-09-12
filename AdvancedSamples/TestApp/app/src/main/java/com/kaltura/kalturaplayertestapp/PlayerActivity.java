@@ -343,7 +343,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
                 .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
                 .forceSinglePlayerEngine(appPlayerInitConfig.forceSinglePlayerEngine)
-                //.setPreferredVideoCodec(appPlayerInitConfig.preferredVideoCodec)
+                .setPreferredVideoCodec(appPlayerInitConfig.preferredVideoCodec)
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject));
 
         if (appPlayerInitConfig.trackSelection != null) {
