@@ -27,13 +27,20 @@ import java.util.*
 
 fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
 
+typealias Prefs = OfflineManager.SelectionPrefs
 
 val testItems = listOf(
 
     BasicItem("apple1", "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"),
     BasicItem("apple2", "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8"),
 
-    OVPItem(2215841, "0_axrfacp3"),
+    OVPItem(2215841, "0_axrfacp3", prefs = Prefs().apply {
+        videoBitrate = 800000
+        videoHeight = 600
+        audioLanguages = listOf("heb", "eng")
+        textLanguages = listOf("rus")
+//        allTextLanguages = true
+    }),
 
     OVPItem(1091, "0_mskmqcit", "http://cdntesting.qa.mkaltura.com"),
     OVPItem(1851571, "0_pl5lbfo0"),
@@ -48,12 +55,9 @@ val testItems = listOf(
 )
 
 @SuppressLint("ParcelCreator")
-object NULL : KalturaItem(0, "") {
+object NULL : KalturaItem(0, "", null) {
     override fun id(): String = TODO()
     override fun mediaOptions(): MediaOptions = TODO()
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {}
-    override fun describeContents(): Int {return 0}
 }
 
 class MainActivity : AppCompatActivity() {
@@ -239,12 +243,7 @@ class MainActivity : AppCompatActivity() {
 
         if (item is KalturaItem) {
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
-        }
-
-        val prefs = OfflineManager.SelectionPrefs().apply {
-            videoHeight = 300
-            videoBitrate = 800000
-            videoWidth = 400
+            manager.setKalturaServerUrl(item.serverUrl)
         }
 
         val prepareCallback = object : OfflineManager.PrepareCallback {
@@ -283,11 +282,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val defaultPrefs = OfflineManager.SelectionPrefs().apply {
+            videoHeight = 300
+            videoBitrate = 600000
+            videoWidth = 400
+            allAudioLanguages = true
+            allTextLanguages = true
+            allowInefficientCodecs = false
+        }
+
         if (item is KalturaItem) {
-            manager.prepareAsset(item.mediaOptions(), prefs, prepareCallback)
+            manager.prepareAsset(item.mediaOptions(), item.selectionPrefs ?: defaultPrefs, prepareCallback)
         } else {
             item.entry?.let {
-                    entry -> manager.prepareAsset(entry, prefs, prepareCallback)
+                    entry -> manager.prepareAsset(entry, item.selectionPrefs ?: defaultPrefs, prepareCallback)
             }
         }
     }

@@ -83,4 +83,48 @@
         app:layout_anchorGravity="top"
         app:srcCompat="@drawable/ic_forward_10_white_24dp" />
 
+    <Space
+        android:layout_width="wrap_content"
+        android:layout_height="10dp"
+        android:layout_gravity="top|end"
+        app:layout_anchor="@id/fab_forward_10"
+        app:layout_anchorGravity="top"
+        android:id="@+id/space4"
+
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_audio_track"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:tag="play"
+        app:fabSize="mini"
+        app:layout_anchor="@id/space4"
+        app:layout_anchorGravity="top"
+        app:srcCompat="@drawable/ic_audiotrack_white_24dp" />
+
+    <Space
+        android:layout_width="wrap_content"
+        android:layout_height="10dp"
+        android:layout_gravity="top|end"
+        app:layout_anchor="@id/fab_audio_track"
+        app:layout_anchorGravity="top"
+        android:id="@+id/space5"
+
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_text_track"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:tag="play"
+        app:fabSize="mini"
+        app:layout_anchor="@id/space5"
+        app:layout_anchorGravity="top"
+        app:srcCompat="@drawable/ic_subtitles_white_24dp" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
