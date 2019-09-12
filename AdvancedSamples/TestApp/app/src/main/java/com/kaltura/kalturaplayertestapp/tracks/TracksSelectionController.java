@@ -18,8 +18,9 @@ import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.player.TextTrack;
 import com.kaltura.playkit.player.VideoTrack;
 import com.kaltura.playkit.utils.Consts;
-import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.kalturaplayertestapp.R;
+import com.kaltura.tvplayer.KalturaPlayer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
