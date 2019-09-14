@@ -9,7 +9,7 @@ import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
 
-abstract class Item (val selectionPrefs: SelectionPrefs?) {
+abstract class Item (val selectionPrefs: SelectionPrefs?, val title: String?) {
     var entry: PKMediaEntry? = null
     var assetInfo: OfflineManager.AssetInfo? = null
     var percentDownloaded: Float? = null
@@ -43,8 +43,9 @@ abstract class Item (val selectionPrefs: SelectionPrefs?) {
 class BasicItem(
     private val id: String,
     private val url: String,
-    prefs: SelectionPrefs? = null
-): Item(prefs) {
+    prefs: SelectionPrefs? = null,
+    title: String? = null
+): Item(prefs, title) {
 
     init {
         this.entry = PKMediaEntry().apply {
@@ -61,26 +62,28 @@ class BasicItem(
 
     override fun id() = id
 
-    override fun title() = id
+    override fun title() = "$title ($id)"
 }
 
 abstract class KalturaItem(
     val partnerId: Int,
     val serverUrl: String,
-    prefs: SelectionPrefs?
-): Item(prefs) {
+    prefs: SelectionPrefs?,
+    title: String?
+): Item(prefs, title) {
 
     abstract fun mediaOptions(): MediaOptions
 
-    override fun title() = "${id()} @ $partnerId"
+    override fun title() = "$title (${id()} @ $partnerId)"
 }
 
 class OVPItem(
     partnerId: Int,
     private val entryId: String,
-    serverUrl: String = "https://cdnapisec.kaltura.com",
-    prefs: SelectionPrefs? = null
-) : KalturaItem(partnerId, serverUrl, prefs) {
+    serverUrl: String? = null,
+    prefs: SelectionPrefs? = null,
+    title: String? = null
+) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title) {
 
     override fun id() = assetInfo?.assetId ?: entryId
 
@@ -89,11 +92,12 @@ class OVPItem(
 
 class OTTItem(
     partnerId: Int,
-    val ottAssetId: String,
+    private val ottAssetId: String,
     serverUrl: String,
-    val format: String,
-    prefs: SelectionPrefs? = null
-) : KalturaItem(partnerId, serverUrl, prefs) {
+    private val format: String?,
+    prefs: SelectionPrefs? = null,
+    title: String? = null
+) : KalturaItem(partnerId, serverUrl, prefs, title) {
 
     override fun id() = assetInfo?.assetId ?: ottAssetId
 
