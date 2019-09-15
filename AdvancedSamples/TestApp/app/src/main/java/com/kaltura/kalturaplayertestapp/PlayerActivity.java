@@ -365,8 +365,9 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
 //                tvPlayerParams.partnerId = 1091;
 //                tvPlayerParams.serviceUrl = "http://httpbin.org/status/401?";
 //                initOptions.tvPlayerParams = tvPlayerParams;
-//            }
             
+//            }
+
             player = KalturaOvpPlayer.create(PlayerActivity.this, initOptions);
             setPlayer(player);
 
