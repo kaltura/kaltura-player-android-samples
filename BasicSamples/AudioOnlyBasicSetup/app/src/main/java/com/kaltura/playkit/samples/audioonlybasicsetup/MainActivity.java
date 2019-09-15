@@ -22,6 +22,7 @@ import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
+import com.kaltura.tvplayer.KalturaBasicPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.PlayerInitOptions;
 
@@ -217,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
-        player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaBasicPlayer.create(MainActivity.this, playerInitOptions);
         addAdEvents();
         subscribeToTracksAvailableEvent();
 

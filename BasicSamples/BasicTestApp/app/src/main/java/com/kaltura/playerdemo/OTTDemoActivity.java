@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.kaltura.netkit.utils.GsonParser;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.Utils;
+import com.kaltura.tvplayer.KalturaOttPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -95,7 +96,7 @@ public class OTTDemoActivity extends BaseDemoActivity {
             updatedInitOptions.tvPlayerParams = phoenixTVPlayerParams;
         }
 
-        KalturaPlayer player = KalturaPlayer.createOTTPlayer(playerActivity, updatedInitOptions);
+        KalturaPlayer player = KalturaOttPlayer.create(playerActivity, updatedInitOptions);
 
         OTTMediaOptions ottMediaOptions = new OTTMediaOptions();
         ottMediaOptions.assetId = currentItem.id;

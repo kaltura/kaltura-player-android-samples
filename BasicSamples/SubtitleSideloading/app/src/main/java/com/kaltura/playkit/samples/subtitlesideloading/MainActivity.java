@@ -29,6 +29,7 @@ import com.kaltura.playkit.player.TextTrack;
 import com.kaltura.playkit.player.VideoTrack;
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItem;
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter;
+import com.kaltura.tvplayer.KalturaBasicPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.PlayerInitOptions;
 
@@ -553,7 +554,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playerInitOptions.setSubtitleStyle(getDefaultPositionDefault());
         playerInitOptions.setAutoPlay(true);
 
-        player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaBasicPlayer.create(MainActivity.this, playerInitOptions);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
         ViewGroup container = findViewById(R.id.player_root);

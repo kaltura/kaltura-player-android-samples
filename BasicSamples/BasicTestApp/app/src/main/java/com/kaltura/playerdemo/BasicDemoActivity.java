@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.kaltura.netkit.utils.GsonParser;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.Utils;
+import com.kaltura.tvplayer.KalturaBasicPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.PlayerInitOptions;
 
@@ -94,7 +95,7 @@ public class BasicDemoActivity extends BaseDemoActivity {
             updatedInitOptions.setTextLanguage(initOptions.textLanguage, initOptions.textLanguageMode);
         }
 
-        KalturaPlayer player = KalturaPlayer.createBasicPlayer(playerActivity, updatedInitOptions);
+        KalturaPlayer player = KalturaBasicPlayer.create(playerActivity, updatedInitOptions);
         player.setMedia(currentItem.pkMediaEntry, 0L);
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, 600);
 

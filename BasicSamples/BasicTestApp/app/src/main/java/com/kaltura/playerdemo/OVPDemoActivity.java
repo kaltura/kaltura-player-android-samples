@@ -8,10 +8,10 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import com.kaltura.netkit.utils.GsonParser;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.Utils;
+import com.kaltura.tvplayer.KalturaBasicPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -99,7 +99,7 @@ public class OVPDemoActivity extends BaseDemoActivity {
             updatedInitOptions.setTextLanguage(initOptions.textLanguage, initOptions.textLanguageMode);
         }
 
-        KalturaPlayer player = KalturaPlayer.createOVPPlayer(playerActivity, updatedInitOptions);
+        KalturaPlayer player = KalturaBasicPlayer.create(playerActivity, updatedInitOptions);
         OVPMediaOptions ovpMediaOptions = new OVPMediaOptions();
         ovpMediaOptions.entryId = currentItem.id;
         player.loadMedia(ovpMediaOptions, (entry, loadError) -> log.d("onEntryLoadComplete; " + entry + "; " + loadError));

@@ -20,6 +20,7 @@ import com.kaltura.playkit.plugins.youbora.YouboraEvent;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
+import com.kaltura.tvplayer.KalturaOttPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -218,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
         pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.getName(), getYouboraBundle());
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
-        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaOttPlayer.create(MainActivity.this, playerInitOptions);
 
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
