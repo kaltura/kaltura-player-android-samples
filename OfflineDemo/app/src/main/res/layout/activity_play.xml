@@ -8,79 +8,87 @@
 
     <include layout="@layout/content_play" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_playpause"
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:fabSize="mini"
-        app:srcCompat="@drawable/ic_play_arrow_white_24dp" />
 
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="10dp"
-        android:layout_gravity="top|end"
-        app:layout_anchor="@id/fab_playpause"
-        app:layout_anchorGravity="top"
-        android:id="@+id/space1"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_replay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:tag="play"
-        app:fabSize="mini"
-        app:layout_anchor="@id/space1"
-        app:layout_anchorGravity="top"
-        app:srcCompat="@drawable/ic_replay_white_24dp" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_audio_track"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:tag="play"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_audiotrack_white_24dp" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_text_track"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:tag="play"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_subtitles_white_24dp" />
 
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="10dp"
-        android:layout_gravity="top|end"
-        app:layout_anchor="@id/fab_replay"
-        app:layout_anchorGravity="top"
-        android:id="@+id/space2"
+        </LinearLayout>
 
-        />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_replay_10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:tag="play"
-        app:fabSize="mini"
-        app:layout_anchor="@id/space2"
-        app:layout_anchorGravity="top"
-        app:srcCompat="@drawable/ic_replay_10_white_24dp" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_replay_10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:tag="play"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_replay_10_white_24dp" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_forward_10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:tag="play"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_forward_10_white_24dp" />
 
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="10dp"
-        android:layout_gravity="top|end"
-        app:layout_anchor="@id/fab_replay_10"
-        app:layout_anchorGravity="top"
-        android:id="@+id/space3"
+        </LinearLayout>
 
-        />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_forward_10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:tag="play"
-        app:fabSize="mini"
-        app:layout_anchor="@id/space3"
-        app:layout_anchorGravity="top"
-        app:srcCompat="@drawable/ic_forward_10_white_24dp" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_playpause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:tag="play"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_play_arrow_white_24dp" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_replay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:tag="play"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_replay_white_24dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
