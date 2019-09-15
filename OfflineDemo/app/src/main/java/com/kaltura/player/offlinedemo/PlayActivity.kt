@@ -1,6 +1,5 @@
 package com.kaltura.player.offlinedemo
 
-import android.content.DialogInterface
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -11,17 +10,16 @@ import androidx.appcompat.app.AlertDialog.Builder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.kaltura.playkit.PKLog
-import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerEvent.*
 import com.kaltura.playkit.player.AudioTrack
 import com.kaltura.playkit.player.PKTracks
 import com.kaltura.playkit.player.TextTrack
+import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.PlayerInitOptions
 import kotlinx.android.synthetic.main.activity_play.*
 import kotlinx.android.synthetic.main.content_play.*
-import java.util.*
 
 private val log = PKLog.get("PlayActivity")
 
@@ -52,7 +50,7 @@ class PlayActivity : AppCompatActivity() {
             autoplay = true
         }
 
-        player = KalturaPlayer.createBasicPlayer(this, options)
+        player = KalturaBasicPlayer.create(this, options)
         player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         playerRoot.addView(player.playerView)
 

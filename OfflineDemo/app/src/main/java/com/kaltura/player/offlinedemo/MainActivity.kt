@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
+import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -270,6 +271,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (item is KalturaItem) {
+            if (!TextUtils.isEmpty(item.serverUrl)) {
+                manager.setKalturaServerUrl(item.serverUrl);
+            }
             manager.prepareAsset(item.mediaOptions(), item.selectionPrefs ?: defaultPrefs, prepareCallback)
         } else {
             item.entry?.let {
