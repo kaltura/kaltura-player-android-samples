@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcel
 import android.os.SystemClock
+import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -15,10 +15,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import com.kaltura.playkit.PKDrmParams
-import com.kaltura.playkit.PKLog
-import com.kaltura.playkit.PKMediaEntry
-import com.kaltura.playkit.PKMediaSource
+import com.google.gson.Gson
+import com.kaltura.playkit.*
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OfflineManager
@@ -27,33 +25,10 @@ import java.util.*
 
 fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
 
-
-val testItems = listOf(
-
-    BasicItem("apple1", "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"),
-    BasicItem("apple2", "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8"),
-
-    OVPItem(2215841, "0_axrfacp3"),
-
-    OVPItem(1091, "0_mskmqcit", "http://cdntesting.qa.mkaltura.com"),
-    OVPItem(1851571, "0_pl5lbfo0"),
-    OVPItem(2222401, "0_vcggu66e"),
-    OVPItem(2222401, "1_2hsw7gwj"),
-    OVPItem(2215841, "1_9bwuo813"),
-
-    OTTItem(225, "381705", "https://rest-as.ott.kaltura.com/v5_0_3/api_v3", "Tablet Main"),
-    OTTItem(225, "790460", "https://rest-as.ott.kaltura.com/v5_0_3/api_v3", "Tablet Main"),
-
-    NULL    // to avoid moving commas :-)
-)
-
 @SuppressLint("ParcelCreator")
-object NULL : KalturaItem(0, "") {
+object NULL : KalturaItem(0, "", null, null) {
     override fun id(): String = TODO()
     override fun mediaOptions(): MediaOptions = TODO()
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {}
-    override fun describeContents(): Int {return 0}
 }
 
 class MainActivity : AppCompatActivity() {
@@ -68,6 +43,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 //        setSupportActionBar(toolbar)
+
+
+        val itemsJson = Utils.readAssetToString(this, "items.json")
+
+        val gson = Gson()
+        val items = gson.fromJson(itemsJson, Array<ItemJSON>::class.java)
+
+        val testItems = items.map { it.toItem() }
 
         manager = OfflineManager.getInstance(this)
 //        manager.setPreferredMediaFormat(PKMediaFormat.hls)
@@ -239,12 +222,7 @@ class MainActivity : AppCompatActivity() {
 
         if (item is KalturaItem) {
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
-        }
-
-        val prefs = OfflineManager.SelectionPrefs().apply {
-            videoHeight = 300
-            videoBitrate = 800000
-            videoWidth = 400
+            manager.setKalturaServerUrl(item.serverUrl)
         }
 
         val prepareCallback = object : OfflineManager.PrepareCallback {
@@ -283,11 +261,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val defaultPrefs = OfflineManager.SelectionPrefs().apply {
+            videoHeight = 300
+            videoBitrate = 600000
+            videoWidth = 400
+            allAudioLanguages = true
+            allTextLanguages = true
+            allowInefficientCodecs = false
+        }
+
         if (item is KalturaItem) {
-            manager.prepareAsset(item.mediaOptions(), prefs, prepareCallback)
+            if (!TextUtils.isEmpty(item.serverUrl)) {
+                manager.setKalturaServerUrl(item.serverUrl);
+            }
+            manager.prepareAsset(item.mediaOptions(), item.selectionPrefs ?: defaultPrefs, prepareCallback)
         } else {
             item.entry?.let {
-                    entry -> manager.prepareAsset(entry, prefs, prepareCallback)
+                    entry -> manager.prepareAsset(entry, item.selectionPrefs ?: defaultPrefs, prepareCallback)
             }
         }
     }
@@ -337,4 +327,3 @@ class MainActivity : AppCompatActivity() {
         val log = PKLog.get("MainActivity")
     }
 }
-
