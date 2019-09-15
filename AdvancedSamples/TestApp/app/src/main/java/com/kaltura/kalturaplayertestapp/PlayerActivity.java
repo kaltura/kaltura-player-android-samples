@@ -58,6 +58,9 @@ import com.kaltura.playkit.plugins.youbora.YouboraEvent;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
 import com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig;
 import com.kaltura.playkitvr.VRController;
+import com.kaltura.tvplayer.KalturaBasicPlayer;
+import com.kaltura.tvplayer.KalturaOttPlayer;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 
 import com.kaltura.tvplayer.PlaybackControlsView;
@@ -353,7 +356,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
 
         if (KalturaPlayer.Type.ovp.equals(playerType)) {
 
-            // inorder to generate retry error need also to remove and un install app -> KalturaPlayer.initializeOVP(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
+            // inorder to generate retry error need also to remove and un install app -> KalturaOvpPlayer.create(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
 //            if (partnerId == 1091) {
 //                TVPlayerParams tvPlayerParams = new TVPlayerParams();
 //                tvPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
@@ -364,7 +367,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
 //            }
 
 
-            player = KalturaPlayer.createOVPPlayer(PlayerActivity.this, initOptions);
+            player = KalturaOvpPlayer.create(PlayerActivity.this, initOptions);
             setPlayer(player);
 
             OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
@@ -392,7 +395,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 initOptions.tvPlayerParams = phoenixTVPlayerParams;
             }
 
-            player = KalturaPlayer.createOTTPlayer(PlayerActivity.this, initOptions);
+            player = KalturaOttPlayer.create(PlayerActivity.this, initOptions);
             setPlayer(player);
             OTTMediaOptions ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
             player.loadMedia(ottMediaOptions, (entry, error) -> {
@@ -408,7 +411,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 }
             });
         } else if (KalturaPlayer.Type.basic.equals(playerType)) {
-            player = KalturaPlayer.createBasicPlayer(PlayerActivity.this, initOptions);
+            player = KalturaBasicPlayer.create(PlayerActivity.this, initOptions);
             setPlayer(player);
             PKMediaEntry mediaEntry = appPlayerInitConfig.mediaList.get(currentPlayedMediaIndex).pkMediaEntry;
             if (appPlayerInitConfig.mediaList != null && appPlayerInitConfig.mediaList.get(currentPlayedMediaIndex) != null) {
@@ -710,7 +713,9 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
             if (vrController != null) {
                 vrController.setOnClickListener(v -> {
                     //application code for handaling ui operations
-                    playbackControlsManager.showControls(View.VISIBLE);
+                    if (playbackControlsManager != null) {
+                        playbackControlsManager.handleContainerClick();
+                    }
                 });
             } else {
                 if (adCuePoints != null && IMADAIPlugin.factory.getName().equals(adCuePoints.getAdPluginName())) {
