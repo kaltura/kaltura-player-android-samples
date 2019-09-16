@@ -14,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.PlayerState;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -216,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions(PARTNER_ID);
         playerInitOptions.setAutoPlay(true);
         playerInitOptions.setAllowCrossProtocolEnabled(true);
-        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaOvpPlayer.create(MainActivity.this, playerInitOptions);
 
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         ViewGroup container = findViewById(R.id.player_root);

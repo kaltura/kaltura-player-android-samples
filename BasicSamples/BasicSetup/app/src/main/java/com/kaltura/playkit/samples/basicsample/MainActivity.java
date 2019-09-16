@@ -14,6 +14,7 @@ import com.kaltura.playkit.PKDrmParams;
 import com.kaltura.playkit.PKMediaEntry;
 import com.kaltura.playkit.PKMediaFormat;
 import com.kaltura.playkit.PKMediaSource;
+import com.kaltura.tvplayer.KalturaBasicPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.PlayerInitOptions;
 
@@ -186,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     public void loadPlaykitPlayer(PKMediaEntry pkMediaEntry) {
         PlayerInitOptions playerInitOptions = new PlayerInitOptions();
 
-        player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaBasicPlayer.create(MainActivity.this, playerInitOptions);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
         ViewGroup container = findViewById(R.id.player_root);

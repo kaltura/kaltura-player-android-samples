@@ -20,6 +20,10 @@ include ':MD360'
 project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
 include ':playkitvr'
 project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr')
+include ':dtglib'
+project(':dtglib').projectDir = new File('../../playkit-dtg-android/dtglib')
+
+
 
 // Sample apps
 def samples = [

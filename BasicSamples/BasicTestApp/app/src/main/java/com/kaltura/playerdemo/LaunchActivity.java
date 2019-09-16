@@ -6,7 +6,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.kaltura.playkit.player.PKHttpClientManager;
-import com.kaltura.tvplayer.KalturaPlayer;
+import com.kaltura.tvplayer.KalturaOttPlayer;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 
 public class LaunchActivity extends AppCompatActivity {
 
@@ -14,10 +15,10 @@ public class LaunchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
-        KalturaPlayer.initializeOTT(this, 3009, "https://rest-us.ott.kaltura.com/v4_5/");
-        KalturaPlayer.initializeOVP(this, 2215841, "https://cdnapisec.kaltura.com/");
-        KalturaPlayer.initializeOVP(this, 2222401, "https://cdnapisec.kaltura.com/");
-        KalturaPlayer.initializeOVP(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
+        KalturaOttPlayer.initialize(this, 3009, "https://rest-us.ott.kaltura.com/v4_5/");
+        KalturaOvpPlayer.initialize(this, 2215841, "https://cdnapisec.kaltura.com/");
+        KalturaOvpPlayer.initialize(this, 2222401, "https://cdnapisec.kaltura.com/");
+        KalturaOvpPlayer.initialize(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
         doConnectionsWarmup();
 
         findViewById(R.id.btn_basic).setOnClickListener(v -> startActivity(new Intent(LaunchActivity.this, BasicDemoActivity.class)));

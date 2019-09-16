@@ -28,6 +28,7 @@ import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.playkit.samples.tracksselection.tracks.TrackItem;
 import com.kaltura.playkit.samples.tracksselection.tracks.TrackItemAdapter;
+import com.kaltura.tvplayer.KalturaOttPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -470,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
 
-        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaOttPlayer.create(MainActivity.this, playerInitOptions);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());

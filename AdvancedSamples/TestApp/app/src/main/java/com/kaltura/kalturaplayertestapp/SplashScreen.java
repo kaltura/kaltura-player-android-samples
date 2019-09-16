@@ -13,7 +13,8 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.player.PKHttpClientManager;
-import com.kaltura.tvplayer.KalturaPlayer;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
+
 
 public class SplashScreen extends Activity {
     private static final PKLog log = PKLog.get("SplashScreen");
@@ -26,16 +27,16 @@ public class SplashScreen extends Activity {
         boolean isPlayServicesAvailable = isGooglePlayServicesAvailable();
 
         if (isPlayServicesAvailable) {
-            KalturaPlayer.initializeOVP(this, 243342, "https://cdnapisec.kaltura.com/");
-            KalturaPlayer.initializeOVP(this, 2267831, "https://cdnapisec.kaltura.com/");
-            KalturaPlayer.initializeOVP(this, 2215841, "https://cdnapisec.kaltura.com/");
-            KalturaPlayer.initializeOVP(this, 2222401, "https://cdnapisec.kaltura.com/");
-            KalturaPlayer.initializeOVP(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
-            KalturaPlayer.initializeOVP(this, 1740481, "https://cdnapisec.kaltura.com/");
-            KalturaPlayer.initializeOVP(this, 2093031, "https://cdnapisec.kaltura.com/");
-            KalturaPlayer.initializeOVP(this, 1068292, "https://cdnapisec.kaltura.com/");
-            KalturaPlayer.initializeOVP(this, 1281471, "https://cdnapisec.kaltura.com/");
-            KalturaPlayer.initializeOTT(this, 3009, "https://rest-us.ott.kaltura.com/v4_5/");
+            KalturaOvpPlayer.initialize(this, 243342, "https://cdnapisec.kaltura.com/");
+            KalturaOvpPlayer.initialize(this, 2267831, "https://cdnapisec.kaltura.com/");
+            KalturaOvpPlayer.initialize(this, 2215841, "https://cdnapisec.kaltura.com/");
+            KalturaOvpPlayer.initialize(this, 2222401, "https://cdnapisec.kaltura.com/");
+            KalturaOvpPlayer.initialize(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
+            KalturaOvpPlayer.initialize(this, 1740481, "https://cdnapisec.kaltura.com/");
+            KalturaOvpPlayer.initialize(this, 2093031, "https://cdnapisec.kaltura.com/");
+            KalturaOvpPlayer.initialize(this, 1068292, "https://cdnapisec.kaltura.com/");
+            KalturaOvpPlayer.initialize(this, 1281471, "https://cdnapisec.kaltura.com/");
+            KalturaOvpPlayer.initialize(this, 3009, "https://rest-us.ott.kaltura.com/v4_5/");
             doConnectionsWarmup();
             Intent i = new Intent(SplashScreen.this, SignInActivity.class);
             startActivity(i);

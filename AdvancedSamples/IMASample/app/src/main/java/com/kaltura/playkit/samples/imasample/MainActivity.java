@@ -22,6 +22,7 @@ import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
+import com.kaltura.tvplayer.KalturaOttPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -161,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
-        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaOttPlayer.create(MainActivity.this, playerInitOptions);
 
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         subscribeToAdEvents();

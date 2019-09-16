@@ -3,16 +3,14 @@ package com.kaltura.playkit.samples.audioonlybasicsetup;
 import android.app.Application;
 import android.content.res.Configuration;
 import com.kaltura.playkit.player.PKHttpClientManager;
-import com.kaltura.tvplayer.KalturaPlayer;
-
-
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 
 public class DemoApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
-        KalturaPlayer.initializeOVP(this, MainActivity.PARTNER_ID, MainActivity.SERVER_URL);
+        KalturaOvpPlayer.initialize(this, MainActivity.PARTNER_ID, MainActivity.SERVER_URL);
         doConnectionsWarmup();
     }
     private void doConnectionsWarmup() {
