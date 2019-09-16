@@ -357,7 +357,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
 
         if (KalturaPlayer.Type.ovp.equals(playerType)) {
 
-            // inorder to generate retry error need also to remove and un install app -> KalturaPlayer.initialize(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
+            // inorder to generate retry error need also to remove and un install app -> KalturaOvpPlayer.create(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
 //            if (partnerId == 1091) {
 //                TVPlayerParams tvPlayerParams = new TVPlayerParams();
 //                tvPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
@@ -365,8 +365,9 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
 //                tvPlayerParams.partnerId = 1091;
 //                tvPlayerParams.serviceUrl = "http://httpbin.org/status/401?";
 //                initOptions.tvPlayerParams = tvPlayerParams;
-            
+
 //            }
+
 
             player = KalturaOvpPlayer.create(PlayerActivity.this, initOptions);
             setPlayer(player);
@@ -713,6 +714,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
             VRController vrController = player.getController(VRController.class);
             if (vrController != null) {
                 vrController.setOnClickListener(v -> {
+                    //application code for handaling ui operations
                     if (playbackControlsManager != null) {
                         playbackControlsManager.handleContainerClick();
                     }

@@ -21,6 +21,7 @@ import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
+import com.kaltura.tvplayer.KalturaOttPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -287,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         playerInitOptions.setAllowCrossProtocolEnabled(true);
 
 
-        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaOttPlayer.create(MainActivity.this, playerInitOptions);
         //Subscribe to events, which will notify about changes in player states.
         subscribeToPlayerStateChanges();
 

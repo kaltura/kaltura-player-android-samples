@@ -204,9 +204,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/";
                 playerInitOptions.tvPlayerParams = phoenixTVPlayerParams;
             }
-            player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+            player = KalturaOttPlayer.create(MainActivity.this, playerInitOptions);
         } else if (playerType == KalturaPlayer.Type.ovp) {
-            player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+            player = KalturaOvpPlayer.create(MainActivity.this, playerInitOptions);
         } else {
             log.e("Wrong player type is passed. Please check the loadOvpOttPlaykitPlayer method");
         }

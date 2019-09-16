@@ -21,6 +21,7 @@ import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
-        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaOvpPlayer.create(MainActivity.this, playerInitOptions);
         addAdEvents();
         subscribeToTracksAvailableEvent();
 
