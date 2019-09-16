@@ -16,6 +16,7 @@ import com.kaltura.playkit.PKMediaSource;
 import com.kaltura.playkit.PKPluginConfigs;
 import com.kaltura.playkit.plugins.ima.IMAConfig;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
+import com.kaltura.tvplayer.KalturaBasicPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.PlayerInitOptions;
 
@@ -343,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
         playerInitOptions.setAllowCrossProtocolEnabled(true);
         playerInitOptions.setAutoPlay(true);
 
-        player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaBasicPlayer.create(MainActivity.this, playerInitOptions);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());

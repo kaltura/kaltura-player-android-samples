@@ -18,6 +18,7 @@ import com.kaltura.playkit.player.vr.VRInteractionMode;
 import com.kaltura.playkit.player.vr.VRSettings;
 import com.kaltura.playkitvr.VRController;
 import com.kaltura.playkitvr.VRUtil;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -184,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         // Configure VR Settings
         playerInitOptions.setVRSettings(configureVRSettings());
 
-        player = KalturaPlayer.createOVPPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaOvpPlayer.create(MainActivity.this, playerInitOptions);
 
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         ViewGroup container = findViewById(R.id.player_root);

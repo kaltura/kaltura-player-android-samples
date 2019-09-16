@@ -53,6 +53,8 @@ dependencies {
     api project(":ima");
     api project(":MD360");
     api project(":playkitvr");
+    //api project(':fbads')
+
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 

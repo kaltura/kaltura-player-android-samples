@@ -23,6 +23,7 @@ import com.kaltura.playkit.plugins.imadai.IMADAIConfig;
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
+import com.kaltura.tvplayer.KalturaOttPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.PlayerInitOptions;
@@ -444,7 +445,7 @@ public class MainActivity extends AppCompatActivity {
         // IMA DAI Configuration
         playerInitOptions.setPluginConfigs(createIMADAIPlugin());
 
-        player = KalturaPlayer.createOTTPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaOttPlayer.create(MainActivity.this, playerInitOptions);
         //Subscribe to the ad events.
         subscribeToAdEvents();
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
