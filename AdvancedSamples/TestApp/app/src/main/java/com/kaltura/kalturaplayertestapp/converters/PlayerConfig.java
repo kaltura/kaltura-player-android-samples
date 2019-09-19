@@ -23,7 +23,7 @@ public class PlayerConfig {
     public String baseUrl;
     public String partnerId;
     public String ks;
-    public int startPosition;
+    public Long startPosition;
     public Boolean autoPlay;
     public Boolean preload;
     public Boolean allowCrossProtocolEnabled;
