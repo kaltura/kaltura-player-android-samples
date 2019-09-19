@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.res.Configuration;
 
 import com.kaltura.playkit.player.PKHttpClientManager;
+import com.kaltura.tvplayer.KalturaOttPlayer;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 
 import static com.kaltura.playkitdemo.PartnersConfig.OTT_PARTNER_ID;
