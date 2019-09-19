@@ -961,7 +961,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
     }
 
     private boolean isPlaybackEndedState() {
-        return playbackControlsManager.getPlayerState() == ENDED || (allAdsCompeted && isPostrollAvailableInAdCuePoint());
+        return playbackControlsManager.getPlayerState() == ENDED || (allAdsCompeted && isPostrollAvailableInAdCuePoint() && player.getCurrentPosition() >= player.getDuration());
     }
 
     private boolean isPostrollAvailableInAdCuePoint() {
