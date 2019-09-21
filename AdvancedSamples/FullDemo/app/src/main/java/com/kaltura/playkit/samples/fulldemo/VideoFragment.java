@@ -40,6 +40,7 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsConfig;
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin;
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin;
+import com.kaltura.tvplayer.KalturaBasicPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.PlayerInitOptions;
 
@@ -372,7 +373,7 @@ public class VideoFragment extends Fragment {
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
 
-        player = KalturaPlayer.createBasicPlayer(getActivity(), playerInitOptions);
+        player = KalturaBasicPlayer.create(getActivity(), playerInitOptions);
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
         ViewGroup container = rootView.findViewById(R.id.player_root);

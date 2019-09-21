@@ -64,6 +64,9 @@ import com.kaltura.playkit.profiler.PlayKitProfiler;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.playkit.utils.Consts;
+import com.kaltura.tvplayer.KalturaBasicPlayer;
+import com.kaltura.tvplayer.KalturaOttPlayer;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.OVPMediaOptions;
@@ -251,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
-        player = KalturaPlayer.createBasicPlayer(MainActivity.this, playerInitOptions);
+        player = KalturaBasicPlayer.create(MainActivity.this, playerInitOptions);
         player.setMedia(pkMediaEntry, START_POSITION);
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
