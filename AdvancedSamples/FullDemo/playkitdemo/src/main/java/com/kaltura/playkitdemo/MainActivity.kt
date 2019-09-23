@@ -1,5 +1,7 @@
 package com.kaltura.playkitdemo
 
+import android.content.pm.ActivityInfo
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.widget.AdapterView
@@ -8,14 +10,19 @@ import android.widget.RelativeLayout
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import com.google.android.gms.common.GooglePlayServicesRepairableException
+import com.google.android.gms.security.ProviderInstaller
+import com.kaltura.playkit.PKDrmParams
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.playkit.player.PKTracks
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OrientationManager.OrientationListener {
 
     private val log = PKLog.get("MainActivity")
     private val IMA_PLUGIN : String = "IMA"
@@ -37,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     private var audioSpinner:Spinner? = null
     private var textSpinner:Spinner? = null
 
-    private var mOrientationManager: OrientationManager? = null
+    var mOrientationManager: OrientationManager? = null
     private var userIsInteracting: Boolean = false
     private var tracksInfo: PKTracks? = null
     private val isAdsEnabled = false
@@ -50,7 +57,47 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //getPermissionToReadExternalStorage()
+        initDrm()
+        //PlayKitProfiler.init(this)
 
+        try {
+            ProviderInstaller.installIfNeeded(this)
+        } catch (e: GooglePlayServicesRepairableException) {
+            e.printStackTrace()
+        } catch (e: GooglePlayServicesNotAvailableException) {
+            e.printStackTrace()
+        }
+
+        mOrientationManager = OrientationManager(this, SensorManager.SENSOR_DELAY_NORMAL, this)
+        mOrientationManager.enable()
+
+
+    }
+
+    private fun initDrm() {
+        MediaSupport.initializeDrm(this) { supportedDrmSchemes, provisionPerformed, provisionError ->
+            if (provisionPerformed) {
+                if (provisionError != null) {
+                    log.e("DRM Provisioning failed", provisionError)
+                } else {
+                    log.d("DRM Provisioning succeeded")
+                }
+            }
+            log.d("DRM initialized; supported: $supportedDrmSchemes")
+
+            // Now it's safe to look at `supportedDrmSchemes`
+        }
+    }
+
+    override fun onOrientationChange(screenOrientation: OrientationManager.ScreenOrientation) {
+        when (screenOrientation) {
+            OrientationManager.ScreenOrientation.PORTRAIT -> requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            OrientationManager.ScreenOrientation.REVERSED_PORTRAIT -> requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+            OrientationManager.ScreenOrientation.LANDSCAPE -> requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            OrientationManager.ScreenOrientation.REVERSED_LANDSCAPE -> requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+            else -> requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
     }
 
 }
