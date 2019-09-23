@@ -9,6 +9,7 @@ import com.kaltura.playkit.player.ABRSettings;
 import com.kaltura.playkit.player.LoadControlBuffers;
 import com.kaltura.playkit.player.PKAspectRatioResizeMode;
 import com.kaltura.playkit.player.SubtitleStyleSettings;
+import com.kaltura.playkit.player.VideoCodecSettings;
 import com.kaltura.playkit.player.vr.VRSettings;
 import com.kaltura.tvplayer.KalturaPlayer;
 
@@ -45,7 +46,7 @@ public class PlayerConfig {
     public RequestConfiguration requestConfiguration;
     public String referrer;
     public Boolean forceSinglePlayerEngine;
-    public PKVideoCodec preferredVideoCodec;
+    public VideoCodecSettings videoCodecSettings;
     public List<Media> mediaList;
     public TrackSelection trackSelection;
     public JsonArray plugins;
