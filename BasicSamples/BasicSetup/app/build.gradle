@@ -32,9 +32,9 @@ configurations.all {
 
 dependencies {
 
-    //implementation 'com.kaltura.player:tvplayer:4.0.0'
+    implementation 'com.kaltura.player:tvplayer:4.2.0'
 
-    implementation project(":tvplayer")
+//    implementation project(":tvplayer")
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
 

@@ -42,5 +42,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    implementation project(':tvplayer')
+    implementation 'com.kaltura.player:tvplayer:4.2.0'
+
+    //implementation project(':tvplayer')
 }
