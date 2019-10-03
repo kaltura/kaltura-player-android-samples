@@ -33,6 +33,7 @@ public class PlayerConfig {
     public Boolean secureSurface;
     public Boolean adAutoPlayOnResume;
     public Boolean vrPlayerEnabled;
+    public Boolean isTunneledAudioPlayback;
     public VRSettings vrSettings;
     public Boolean isVideoViewHidden;
     public SubtitleStyleSettings setSubtitleStyle;
