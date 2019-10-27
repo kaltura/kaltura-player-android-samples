@@ -13,6 +13,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.player.PKHttpClientManager;
+import com.kaltura.tvplayer.KalturaOttPlayer;
 import com.kaltura.tvplayer.KalturaOvpPlayer;
 
 
@@ -37,7 +38,7 @@ public class SplashScreen extends Activity {
             KalturaOvpPlayer.initialize(this, 2093031, "https://cdnapisec.kaltura.com/");
             KalturaOvpPlayer.initialize(this, 1068292, "https://cdnapisec.kaltura.com/");
             KalturaOvpPlayer.initialize(this, 1281471, "https://cdnapisec.kaltura.com/");
-            KalturaOvpPlayer.initialize(this, 3009, "https://rest-us.ott.kaltura.com/v4_5/");
+            KalturaOttPlayer.initialize(this, 3009, "https://rest-us.ott.kaltura.com/v4_5/");
             doConnectionsWarmup();
             Intent i = new Intent(SplashScreen.this, SignInActivity.class);
             startActivity(i);

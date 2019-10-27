@@ -23,7 +23,7 @@ public class PlayerConfig {
     public String baseUrl;
     public String partnerId;
     public String ks;
-    public int startPosition;
+    public Long startPosition;
     public Boolean autoPlay;
     public Boolean preload;
     public Boolean allowCrossProtocolEnabled;
@@ -33,6 +33,7 @@ public class PlayerConfig {
     public Boolean secureSurface;
     public Boolean adAutoPlayOnResume;
     public Boolean vrPlayerEnabled;
+    public Boolean isTunneledAudioPlayback;
     public VRSettings vrSettings;
     public Boolean isVideoViewHidden;
     public SubtitleStyleSettings setSubtitleStyle;

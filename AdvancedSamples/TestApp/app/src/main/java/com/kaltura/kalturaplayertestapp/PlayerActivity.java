@@ -180,7 +180,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
 
         updatePluginsConfig(mediaList.get(currentPlayedMediaIndex));
         if (KalturaPlayer.Type.ovp.equals(appPlayerInitConfig.playerType)) {
-            OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions(0, currentPlayedMediaIndex);
+            OVPMediaOptions ovpMediaOptions = buildOvpMediaOptions(0L, currentPlayedMediaIndex);
             if (ovpMediaOptions == null) {
                 return;
             }
@@ -193,7 +193,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 handleOnEntryLoadComplete(error);
             });
         } else if (KalturaPlayer.Type.ott.equals(appPlayerInitConfig.playerType)){
-            OTTMediaOptions ottMediaOptions = buildOttMediaOptions(0, currentPlayedMediaIndex);
+            OTTMediaOptions ottMediaOptions = buildOttMediaOptions(0L, currentPlayedMediaIndex);
             if (ottMediaOptions == null) {
                 return;
             }
@@ -348,6 +348,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
                 .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
                 .forceSinglePlayerEngine(appPlayerInitConfig.forceSinglePlayerEngine)
+                .setTunneledAudioPlayback(appPlayerInitConfig.isTunneledAudioPlayback)
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject));
 
         if (appPlayerInitConfig.trackSelection != null) {
@@ -423,7 +424,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 if (appPlayerInitConfig.vrSettings != null) {
                     mediaEntry.setIsVRMediaType(true);
                 }
-                player.setMedia(mediaEntry, (long) appPlayerInitConfig.startPosition);
+                player.setMedia(mediaEntry, appPlayerInitConfig.startPosition);
             }
         }
         else {
@@ -446,7 +447,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
         }
     }
 
-    private OTTMediaOptions buildOttMediaOptions(int startPosition, int playListMediaIndex) {
+    private OTTMediaOptions buildOttMediaOptions(Long startPosition, int playListMediaIndex) {
         Media ottMedia = mediaList.get(playListMediaIndex);
         if (ottMedia == null) {
             return null;
@@ -473,7 +474,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
     }
 
     @NonNull
-    private OVPMediaOptions buildOvpMediaOptions(int startPosition, int playListMediaIndex) {
+    private OVPMediaOptions buildOvpMediaOptions(Long startPosition, int playListMediaIndex) {
         Media ovpMedia = mediaList.get(playListMediaIndex);
         OVPMediaOptions ovpMediaOptions = new OVPMediaOptions();
         ovpMediaOptions.entryId = ovpMedia.entryId;
@@ -973,7 +974,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
     }
 
     private boolean isPlaybackEndedState() {
-        return playbackControlsManager.getPlayerState() == ENDED || (allAdsCompeted && isPostrollAvailableInAdCuePoint());
+        return playbackControlsManager.getPlayerState() == ENDED || (allAdsCompeted && isPostrollAvailableInAdCuePoint() && player.getCurrentPosition() >= player.getDuration());
     }
 
     private boolean isPostrollAvailableInAdCuePoint() {
