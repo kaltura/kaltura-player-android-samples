@@ -77,6 +77,8 @@ public class Media {
             return APIDefines.AssetReferenceType.ExternalEpg;
         } else if (APIDefines.AssetReferenceType.InternalEpg.value.toLowerCase().equals(assetReferenceType.toLowerCase())) {
             return APIDefines.AssetReferenceType.InternalEpg;
+        } else if (APIDefines.AssetReferenceType.Npvr.value.toLowerCase().equals(assetReferenceType.toLowerCase())) {
+            return APIDefines.AssetReferenceType.Npvr;
         }
         return null;
     }
