@@ -41,18 +41,18 @@ configurations.all {
 
 dependencies {
 
-    //implementation 'com.kaltura.player:tvplayer:4.0.0'
-    //implementation 'com.kaltura.playkit:imaplugin:4.0.0'
-    //implementation 'com.kaltura.playkit:youboraplugin:4.0.0'
-    //implementation 'com.kaltura.playkit:googlecast:4.0.0'
-    //implementation 'com.kaltura.playkit:vrplugin:4.0.0'
+    implementation 'com.kaltura.player:tvplayer:4.3.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.3.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.3.0'
+    implementation 'com.kaltura.playkit:googlecast:4.3.0'
+    implementation 'com.kaltura.playkit:vrplugin:4.3.0'
 
-    api project(':tvplayer')
-    api project(":googlecast");
-    api project(":youbora");
-    api project(":ima");
-    api project(":MD360");
-    api project(":playkitvr");
+//    api project(':tvplayer')
+//    api project(":googlecast");
+//    api project(":youbora");
+//    api project(":ima");
+//    api project(":MD360");
+//    api project(":playkitvr");
     //api project(':fbads')
 
 

@@ -29,11 +29,11 @@ configurations.all {
 
 dependencies {
 
-    //implementation 'com.kaltura.player:tvplayer:4.0.0'
-    //implementation 'com.kaltura.playkit:imaplugin:4.0.0'
+    implementation 'com.kaltura.player:tvplayer:4.3.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.3.0'
 
-    implementation project(":tvplayer")
-    implementation project(":ima")
+//    implementation project(":tvplayer")
+//    implementation project(":ima")
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
