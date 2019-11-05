@@ -1019,6 +1019,10 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
         super.onPause();
         unregisterReceiver(networkChangeReceiver);
         NetworkChangeReceiver.getObservable().deleteObserver(this);
+        if (adCuePoints != null && FBInstreamPlugin.factory.getName().equals(adCuePoints.getAdPluginName())) {
+            return;
+        }
+
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager.showControls(View.VISIBLE);
         }
