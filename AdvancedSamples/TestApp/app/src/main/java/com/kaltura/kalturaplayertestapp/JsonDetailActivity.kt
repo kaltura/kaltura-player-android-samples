@@ -70,7 +70,7 @@ class JsonDetailActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSe
         FirebaseFirestore.setLoggingEnabled(true)
 
         // RecyclerView
-        mAdapter = object : TestCaseConfigurationAdapter(mQuery, this) {
+        mAdapter = object : TestCaseConfigurationAdapter(mQuery!!, this@JsonDetailActivity) {
             override fun onDataChanged() {
                 // Show/hide content if the query returns empty.
                 if (itemCount == 0) {
@@ -113,11 +113,10 @@ class JsonDetailActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSe
 
     }
 
-    override fun onJsonSelected(configuration: Configuration) {
-
+    override fun onJsonSelected(configuration: Configuration?) {
         //Snackbar.make(findViewById(android.R.id.content), "Item Selected " + configuration.getId(), Snackbar.LENGTH_SHORT).show();
         val context = this
-        if (configuration.type == Configuration.FOLDER) {
+        if (configuration?.type == Configuration.FOLDER) {
             //staticCollRef = collRef.document(configuration.getId()).collection("configurations");
             val path = currenConfigurationRef!!.document(configuration.id!!).collection("configurations").path
             val destinationClass = JsonDetailActivity::class.java
@@ -126,7 +125,7 @@ class JsonDetailActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSe
             intent.putExtra(MainActivity.KEY_NEW_CONFIGURATION_PATH, path)
             startActivity(intent)
             return
-        } else if (configuration.type == Configuration.JSON) {
+        } else if (configuration?.type == Configuration.JSON) {
             val destinationClass = PlayerActivity::class.java
             val intent = Intent(context, destinationClass)
             intent.putExtra(PlayerActivity.PLAYER_CONFIG_TITLE_KEY, configuration.title)

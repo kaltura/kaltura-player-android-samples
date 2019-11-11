@@ -101,10 +101,12 @@ class BarcodeCaptureActivity : AppCompatActivity(), BarcodeGraphicTracker.Barcod
         }
 
         findViewById<View>(R.id.topLayout).setOnClickListener(listener)
-        Snackbar.make(mGraphicOverlay, R.string.permission_camera_rationale,
+        mGraphicOverlay?.let {
+            Snackbar.make(it, R.string.permission_camera_rationale,
                 Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.ok, listener)
                 .show()
+        }
     }
 
     override fun onTouchEvent(e: MotionEvent): Boolean {
@@ -132,7 +134,7 @@ class BarcodeCaptureActivity : AppCompatActivity(), BarcodeGraphicTracker.Barcod
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
         val barcodeDetector = BarcodeDetector.Builder(context).build()
-        val barcodeFactory = BarcodeTrackerFactory(mGraphicOverlay, this)
+        val barcodeFactory = mGraphicOverlay?.let { BarcodeTrackerFactory(it, this) }
         barcodeDetector.setProcessor(
                 MultiProcessor.Builder(barcodeFactory).build())
 
@@ -300,13 +302,13 @@ class BarcodeCaptureActivity : AppCompatActivity(), BarcodeGraphicTracker.Barcod
         var bestDistance = java.lang.Float.MAX_VALUE
         for (graphic in mGraphicOverlay!!.graphics) {
             val barcode = graphic.barcode
-            if (barcode.boundingBox.contains(x.toInt(), y.toInt())) {
+            if (barcode?.boundingBox!!.contains(x.toInt(), y.toInt())) {
                 // Exact hit, no need to keep looking.
                 best = barcode
                 break
             }
-            val dx = x - barcode.boundingBox.centerX()
-            val dy = y - barcode.boundingBox.centerY()
+            val dx = x - barcode?.boundingBox!!.centerX()
+            val dy = y - barcode?.boundingBox!!.centerY()
             val distance = dx * dx + dy * dy  // actually squared distance
             if (distance < bestDistance) {
                 best = barcode

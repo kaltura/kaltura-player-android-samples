@@ -6,11 +6,9 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import java.util.*
 
-class NetworkChangeReceiver : BroadcastReceiver() {
+object NetworkChangeReceiver : BroadcastReceiver() {
 
-    companion object {
-        private var isConnected = true
-    }
+    private var isConnected = true
 
     override fun onReceive(context: Context, intent: Intent) {
         getObservable().connectionChanged(isInternetOn(context))

@@ -125,25 +125,25 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             videoTracksBtn.visibility = View.INVISIBLE
         }
 
-        if (tracksSelectionController!!.tracks.audioTracks.size > 1) {
+        if (tracksSelectionController!!.tracks?.audioTracks!!.size > 1) {
             audioTracksBtn.visibility = visibility
         } else {
             audioTracksBtn.visibility = View.INVISIBLE
         }
 
-        if (tracksSelectionController!!.tracks.textTracks.size > 1) {
+        if (tracksSelectionController!!.tracks?.textTracks!!.size > 1) {
             textTracksBtn.visibility = visibility
         } else {
             textTracksBtn.visibility = View.INVISIBLE
         }
     }
 
-    override fun setContentPlayerState(playerState: Enum<*>) {
+    override fun setContentPlayerState(playerState: Enum<*>?) {
         this.playerState = playerState
 
     }
 
-    override fun setAdPlayerState(adPlayerState: Enum<*>) {
+    override fun setAdPlayerState(adPlayerState: Enum<*>?) {
         this.adPlayerState = adPlayerState
         if (adPlayerState === AdEvent.Type.STARTED || adPlayerState === AdEvent.Type.CONTENT_PAUSE_REQUESTED || adPlayerState === AdEvent.Type.TAPPED) {
             isAdDisplayed = true
@@ -230,7 +230,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         }
     }
 
-    fun setTracksSelectionController(tracksSelectionController: TracksSelectionController) {
+    fun setTracksSelectionController(tracksSelectionController: TracksSelectionController?) {
         this.tracksSelectionController = tracksSelectionController
     }
 
@@ -238,4 +238,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         private val log = PKLog.get("PlaybackControlsManager")
         private val REMOVE_CONTROLS_TIMEOUT = 3000 //3250
     }
+
+
+
 }

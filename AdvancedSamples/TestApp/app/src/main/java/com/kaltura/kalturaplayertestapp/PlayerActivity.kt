@@ -100,7 +100,7 @@ class PlayerActivity : AppCompatActivity(), Observer {
         setContentView(R.layout.activity_player)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowHomeEnabled(true)
-        networkChangeReceiver = NetworkChangeReceiver()
+        networkChangeReceiver = NetworkChangeReceiver
         eventsListView = findViewById(R.id.events_list)
         val layoutManager = LinearLayoutManager(this)
         eventsListView?.setLayoutManager(layoutManager)
@@ -168,14 +168,14 @@ class PlayerActivity : AppCompatActivity(), Observer {
                 handleOnEntryLoadComplete(error)
             }
         } else if (KalturaPlayer.Type.basic == appPlayerInitConfig?.playerType) run {
-            val mediaEntry = appPlayerInitConfig!!.mediaList[currentPlayedMediaIndex].pkMediaEntry
-            if (appPlayerInitConfig?.mediaList != null && appPlayerInitConfig!!.mediaList[currentPlayedMediaIndex] != null) {
+            val mediaEntry = appPlayerInitConfig!!.mediaList?.get(currentPlayedMediaIndex)?.pkMediaEntry
+            if (appPlayerInitConfig?.mediaList != null && appPlayerInitConfig?.mediaList?.get(currentPlayedMediaIndex) != null) {
                 if (appPlayerInitConfig?.vrSettings != null) {
                     mediaEntry!!.setIsVRMediaType(true)
                 }
 
-                if (appPlayerInitConfig!!.mediaList[currentPlayedMediaIndex].externalSubtitles != null) {
-                    mediaEntry!!.externalSubtitleList = appPlayerInitConfig!!.mediaList[currentPlayedMediaIndex].externalSubtitles
+                if (appPlayerInitConfig!!.mediaList?.get(currentPlayedMediaIndex)?.externalSubtitles != null) {
+                    mediaEntry!!.externalSubtitleList = appPlayerInitConfig!!.mediaList?.get(currentPlayedMediaIndex)?.externalSubtitles
                 }
                 player?.setMedia(mediaEntry, 0L)
             }
@@ -272,10 +272,10 @@ class PlayerActivity : AppCompatActivity(), Observer {
         })
     }
 
-    private fun buildPlayer(appPlayerInitConfig: PlayerConfig, playListMediaIndex: Int, playerType: KalturaPlayer.Type) {
+    private fun buildPlayer(appPlayerInitConfig: PlayerConfig?, playListMediaIndex: Int, playerType: KalturaPlayer.Type) {
         var player: KalturaPlayer? = null
 
-        val appPluginConfigJsonObject = appPlayerInitConfig.plugins
+        val appPluginConfigJsonObject = appPlayerInitConfig!!.plugins
         //        int playerUiConfId = -1;
         //        if (appPlayerInitConfig.uiConf != null) {
         //            playerUiConfId = Integer.valueOf(appPlayerInitConfig.uiConf.id);
@@ -308,11 +308,11 @@ class PlayerActivity : AppCompatActivity(), Observer {
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject))
 
         if (appPlayerInitConfig.trackSelection != null) {
-            if (appPlayerInitConfig.trackSelection.audioSelectionMode != null) {
-                initOptions?.setAudioLanguage(appPlayerInitConfig.trackSelection.audioSelectionLanguage, PKTrackConfig.Mode.valueOf(appPlayerInitConfig.trackSelection.audioSelectionMode))
+            if (appPlayerInitConfig.trackSelection!!.audioSelectionMode != null) {
+                initOptions?.setAudioLanguage(appPlayerInitConfig.trackSelection!!.audioSelectionLanguage, PKTrackConfig.Mode.valueOf(appPlayerInitConfig.trackSelection?.audioSelectionMode!!))
             }
-            if (appPlayerInitConfig.trackSelection.textSelectionMode != null) {
-                initOptions?.setTextLanguage(appPlayerInitConfig.trackSelection.textSelectionLanguage, PKTrackConfig.Mode.valueOf(appPlayerInitConfig.trackSelection.textSelectionMode))
+            if (appPlayerInitConfig.trackSelection!!.textSelectionMode != null) {
+                initOptions?.setTextLanguage(appPlayerInitConfig.trackSelection!!.textSelectionLanguage, PKTrackConfig.Mode.valueOf(appPlayerInitConfig.trackSelection?.textSelectionMode!!))
             }
         }
 
@@ -375,8 +375,8 @@ class PlayerActivity : AppCompatActivity(), Observer {
         } else if (KalturaPlayer.Type.basic == playerType) {
             player = KalturaBasicPlayer.create(this@PlayerActivity, initOptions)
             setPlayer(player)
-            val mediaEntry = appPlayerInitConfig.mediaList[currentPlayedMediaIndex].pkMediaEntry
-            if (appPlayerInitConfig.mediaList != null && appPlayerInitConfig.mediaList[currentPlayedMediaIndex] != null) {
+            val mediaEntry = appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex)?.pkMediaEntry
+            if (appPlayerInitConfig.mediaList != null && appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex) != null) {
                 if (appPlayerInitConfig.vrSettings != null) {
                     mediaEntry!!.setIsVRMediaType(true)
                 }
@@ -395,10 +395,10 @@ class PlayerActivity : AppCompatActivity(), Observer {
         }
 
         if (appPlayerInitConfig.mediaList != null) {
-            if (appPlayerInitConfig.mediaList.size > 1) {
-                playbackControlsManager?.addChangeMediaButtonsListener(appPlayerInitConfig.mediaList.size)
+            if (appPlayerInitConfig.mediaList!!.size > 1) {
+                playbackControlsManager?.addChangeMediaButtonsListener(appPlayerInitConfig.mediaList!!.size)
             }
-            playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, appPlayerInitConfig.mediaList.size)
+            playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, appPlayerInitConfig.mediaList!!.size)
         }
     }
 
@@ -594,10 +594,10 @@ class PlayerActivity : AppCompatActivity(), Observer {
 
         player?.addListener<PlayerEvent.TextTrackChanged>(this, PlayerEvent.textTrackChanged) { event ->
             log.d("PLAYER textTrackChanged")
-            if (tracksSelectionController != null && tracksSelectionController?.getTracks() != null) {
-                for (i in 0..tracksSelectionController?.getTracks()!!.textTracks.size - 1) {
-                    log.d(tracksSelectionController?.getTracks()!!.textTracks.size.toString() + ", PLAYER textTrackChanged " + tracksSelectionController?.getTracks()!!.textTracks[i].uniqueId + "/" + event.newTrack.getUniqueId())
-                    if (event.newTrack.getUniqueId() == tracksSelectionController?.getTracks()!!.textTracks[i].uniqueId) {
+            if (tracksSelectionController != null && tracksSelectionController?.tracks != null) {
+                for (i in 0..tracksSelectionController?.tracks!!.textTracks.size - 1) {
+                    log.d(tracksSelectionController?.tracks!!.textTracks.size.toString() + ", PLAYER textTrackChanged " + tracksSelectionController?.tracks!!.textTracks[i].uniqueId + "/" + event.newTrack.getUniqueId())
+                    if (event.newTrack.getUniqueId() == tracksSelectionController?.tracks!!.textTracks[i].uniqueId) {
                         if (tracksSelectionController != null) {
                             tracksSelectionController?.setTrackLastSelectionIndex(TRACK_TYPE_TEXT, i)
                         }
@@ -609,9 +609,9 @@ class PlayerActivity : AppCompatActivity(), Observer {
 
         player?.addListener<PlayerEvent.AudioTrackChanged>(this, PlayerEvent.audioTrackChanged) { event ->
             log.d("PLAYER audioTrackChanged")
-            if (tracksSelectionController != null && tracksSelectionController?.getTracks() != null) {
-                for (i in 0..tracksSelectionController?.getTracks()!!.audioTracks.size - 1) {
-                    if (event.newTrack.getUniqueId() == tracksSelectionController?.getTracks()!!.audioTracks[i].uniqueId) {
+            if (tracksSelectionController != null && tracksSelectionController?.tracks != null) {
+                for (i in 0..tracksSelectionController?.tracks!!.audioTracks.size - 1) {
+                    if (event.newTrack.getUniqueId() == tracksSelectionController?.tracks!!.audioTracks[i].uniqueId) {
                         tracksSelectionController?.setTrackLastSelectionIndex(TRACK_TYPE_AUDIO, i)
                         break
                     }
@@ -621,9 +621,9 @@ class PlayerActivity : AppCompatActivity(), Observer {
 
         player?.addListener<PlayerEvent.VideoTrackChanged>(this, PlayerEvent.videoTrackChanged) { event ->
             log.d("PLAYER videoTrackChanged")
-            if (tracksSelectionController != null && tracksSelectionController?.getTracks() != null) {
-                for (i in 0..tracksSelectionController?.getTracks()!!.videoTracks.size - 1) {
-                    if (event.newTrack.getUniqueId() == tracksSelectionController?.getTracks()!!.videoTracks[i].uniqueId) {
+            if (tracksSelectionController != null && tracksSelectionController?.tracks != null) {
+                for (i in 0..tracksSelectionController?.tracks!!.videoTracks.size - 1) {
+                    if (event.newTrack.getUniqueId() == tracksSelectionController?.tracks!!.videoTracks[i].uniqueId) {
                         tracksSelectionController?.setTrackLastSelectionIndex(TRACK_TYPE_VIDEO, i)
                         break
                     }
@@ -792,7 +792,7 @@ class PlayerActivity : AppCompatActivity(), Observer {
         }
     }
 
-    private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray): PKPluginConfigs {
+    private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs : JsonArray?): PKPluginConfigs {
         val pkPluginConfigs = PKPluginConfigs()
         val pluginDescriptors = gson.fromJson(pluginConfigs, Array<PluginDescriptor>::class.java)
 
@@ -908,7 +908,7 @@ class PlayerActivity : AppCompatActivity(), Observer {
     }
 
     private fun isPlaybackEndedState(): Boolean {
-        return playbackControlsManager?.getPlayerState() === PlayerEvent.Type.ENDED || allAdsCompeted && isPostrollAvailableInAdCuePoint() && player!!.getCurrentPosition() >= player!!.getDuration()
+        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompeted && isPostrollAvailableInAdCuePoint() && player!!.getCurrentPosition() >= player!!.getDuration()
     }
 
     private fun isPostrollAvailableInAdCuePoint(): Boolean {

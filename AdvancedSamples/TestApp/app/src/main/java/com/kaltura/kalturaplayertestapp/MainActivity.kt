@@ -108,7 +108,7 @@ open class MainActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSel
                 .limit(LIMIT.toLong())
 
         // RecyclerView
-        mAdapter = object : TestCaseConfigurationAdapter(mQuery, this) {
+        mAdapter = object : TestCaseConfigurationAdapter(mQuery!!, this@MainActivity) {
             override fun onDataChanged() {
                 // Show/hide content if the query returns empty.
                 if (itemCount == 0) {
@@ -344,7 +344,7 @@ open class MainActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSel
         }
         val testDescriptor = testDescriptorArray[0]
         testDescriptorArray.removeAt(0)
-        val splittedPath = testDescriptor.url.split("Tests/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val splittedPath = testDescriptor.url!!.split("Tests/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val testPath = ArrayList<String>()
         if (splittedPath.size > 1) {
             val testPathParts = splittedPath[1].split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()

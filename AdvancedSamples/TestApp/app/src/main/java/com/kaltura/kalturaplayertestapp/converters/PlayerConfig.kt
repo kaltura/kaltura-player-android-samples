@@ -3,6 +3,7 @@ package com.kaltura.kalturaplayertestapp.converters
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.kaltura.netkit.connect.request.RequestConfiguration
+import com.kaltura.playkit.PKMediaFormat
 import com.kaltura.playkit.PKRequestParams
 import com.kaltura.playkit.player.ABRSettings
 import com.kaltura.playkit.player.LoadControlBuffers
@@ -21,7 +22,7 @@ class PlayerConfig {
     var autoPlay: Boolean? = null
     var preload: Boolean? = null
     var allowCrossProtocolEnabled: Boolean? = null
-    var preferredFormat: String? = null
+    var preferredFormat: PKMediaFormat? = null
     var allowClearLead: Boolean? = null
     var enableDecoderFallback: Boolean? = null
     var secureSurface: Boolean? = null

@@ -48,7 +48,7 @@ class BarcodeGraphicTracker internal constructor(private val mOverlay: GraphicOv
      */
     override fun onUpdate(detectionResults: Detector.Detections<Barcode>?, item: Barcode?) {
         mOverlay.add(mGraphic)
-        mGraphic.updateItem(item)
+        mGraphic.updateItem(item!!)
     }
 
     /**

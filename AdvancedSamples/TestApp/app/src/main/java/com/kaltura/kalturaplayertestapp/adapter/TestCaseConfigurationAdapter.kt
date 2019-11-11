@@ -22,7 +22,7 @@ import org.json.JSONObject
 /**
  * RecyclerView adapter for a list of Restaurants.
  */
-class TestCaseConfigurationAdapter(query: Query, private val mListener: OnJsonSelectedListener) : FirestoreAdapter<TestCaseConfigurationAdapter.ViewHolder>(query) {
+open class TestCaseConfigurationAdapter(query: Query, var mListener: OnJsonSelectedListener) : FirestoreAdapter<TestCaseConfigurationAdapter.ViewHolder>(query) {
     private var context: Context? = null
 
     fun removeItem(adapterPosition: Int) {

@@ -18,7 +18,7 @@ import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class TracksSelectionController(private val context: Context, private val player: KalturaPlayer, val tracks: PKTracks?) {
+class TracksSelectionController(private val context: Context, private val player: KalturaPlayer?, val tracks: PKTracks?) {
 
     private var lastVideoTrackSelectionIndex = 0
     private var lastAudioTrackSelectionIndex = 0
@@ -61,7 +61,7 @@ class TracksSelectionController(private val context: Context, private val player
 
         builder.setTitle(getDialogTitle(trackType))
         builder.setPositiveButton(R.string.ok) { dialogInterface, i ->
-            onTrackSelected(trackType, adapter.getTrackItemId(), adapter.getLastTrackSelection())
+            onTrackSelected(trackType, adapter.trackItemId, adapter.lastTrackSelection)
             dialogInterface.dismiss()
         }
         builder.setView(recyclerView)
@@ -81,7 +81,7 @@ class TracksSelectionController(private val context: Context, private val player
             TRACK_TYPE_TEXT -> lastTextTrackSelectionIndex = lastTrackSelected
             else -> return
         }
-        player.changeTrack(uniqueId)
+        player?.changeTrack(uniqueId)
     }
 
     private fun getDialogTitle(trackType: Int): String {
