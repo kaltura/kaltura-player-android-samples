@@ -272,10 +272,10 @@ class PlayerActivity : AppCompatActivity(), Observer {
         })
     }
 
-    private fun buildPlayer(appPlayerInitConfig: PlayerConfig?, playListMediaIndex: Int, playerType: KalturaPlayer.Type) {
-        var player: KalturaPlayer? = null
+    private fun buildPlayer(appPlayerInitConfig: PlayerConfig, playListMediaIndex: Int, playerType: KalturaPlayer.Type) {
+        var player: KalturaPlayer
 
-        val appPluginConfigJsonObject = appPlayerInitConfig!!.plugins
+        val appPluginConfigJsonObject = appPlayerInitConfig.plugins
         //        int playerUiConfId = -1;
         //        if (appPlayerInitConfig.uiConf != null) {
         //            playerUiConfId = Integer.valueOf(appPlayerInitConfig.uiConf.id);
