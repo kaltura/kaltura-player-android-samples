@@ -1,3 +1,4 @@
+/*
 package com.kaltura.playkit.samples.tracksselection.tracks;
 
 import android.content.Context;
@@ -7,10 +8,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+*/
 /**
  * Just a custom adapter which will be populated with {@link TrackItem`s}
  * Created by anton.afanasiev on 16/03/2017.
- */
+ *//*
+
 
 public class TrackItemAdapter extends ArrayAdapter<TrackItem> {
 
@@ -46,3 +49,4 @@ public class TrackItemAdapter extends ArrayAdapter<TrackItem> {
         return trackItems.length;
     }
 }
+*/
