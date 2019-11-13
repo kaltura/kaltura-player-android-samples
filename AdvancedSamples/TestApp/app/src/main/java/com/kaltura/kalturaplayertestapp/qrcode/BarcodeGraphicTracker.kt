@@ -14,7 +14,7 @@ import com.kaltura.kalturaplayertestapp.camera.GraphicOverlay
  * goes away.
  */
 class BarcodeGraphicTracker internal constructor(private val mOverlay: GraphicOverlay<BarcodeGraphic>, private val mGraphic: BarcodeGraphic,
-                                                 context: Context) : Tracker<Barcode>() {
+                                                 context: Context): Tracker<Barcode>() {
 
     private var mBarcodeUpdateListener: BarcodeUpdateListener? = null
 

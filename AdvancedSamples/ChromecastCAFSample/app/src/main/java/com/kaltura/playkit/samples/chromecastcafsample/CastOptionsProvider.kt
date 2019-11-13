@@ -17,7 +17,7 @@ import java.util.Arrays
 /**
  * Implements [OptionsProvider] to provide [CastOptions].
  */
-class CastOptionsProvider : OptionsProvider {
+class CastOptionsProvider: OptionsProvider {
 
     override fun getCastOptions(context: Context): CastOptions {
         val notificationOptions = NotificationOptions.Builder()
@@ -41,7 +41,7 @@ class CastOptionsProvider : OptionsProvider {
         return null
     }
 
-    private class ImagePickerImpl : ImagePicker() {
+    private class ImagePickerImpl: ImagePicker() {
 
         override fun onPickImage(mediaMetadata: MediaMetadata?, type: Int): WebImage? {
             if (mediaMetadata == null || !mediaMetadata.hasImages()) {

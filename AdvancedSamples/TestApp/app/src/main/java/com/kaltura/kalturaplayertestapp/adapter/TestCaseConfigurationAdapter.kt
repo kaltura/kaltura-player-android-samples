@@ -22,7 +22,7 @@ import org.json.JSONObject
 /**
  * RecyclerView adapter for a list of Restaurants.
  */
-open class TestCaseConfigurationAdapter(query: Query, var mListener: OnJsonSelectedListener) : FirestoreAdapter<TestCaseConfigurationAdapter.ViewHolder>(query) {
+open class TestCaseConfigurationAdapter(query: Query, var mListener: OnJsonSelectedListener): FirestoreAdapter<TestCaseConfigurationAdapter.ViewHolder>(query) {
     private var context: Context? = null
 
     fun removeItem(adapterPosition: Int) {
@@ -45,7 +45,7 @@ open class TestCaseConfigurationAdapter(query: Query, var mListener: OnJsonSelec
         holder.bind(getSnapshot(position), mListener)
     }
 
-    inner class ViewHolder(private val context: Context, itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(private val context: Context, itemView: View): RecyclerView.ViewHolder(itemView) {
         private val jsonTitle: TextView
         private val folderIcon: ImageView
         private val infoIcon: ImageView

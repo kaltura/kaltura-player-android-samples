@@ -16,7 +16,7 @@ import com.kaltura.playkitvr.VRController
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlaybackControlsView
 
-class PlaybackControlsManager(private val playerActivity: PlayerActivity, private val player: KalturaPlayer?, private val playbackControlsView: PlaybackControlsView?) : PlaybackControls {
+class PlaybackControlsManager(private val playerActivity: PlayerActivity, private val player: KalturaPlayer?, private val playbackControlsView: PlaybackControlsView?): PlaybackControls {
     private var tracksSelectionController: TracksSelectionController? = null
 
     private val videoTracksBtn: Button

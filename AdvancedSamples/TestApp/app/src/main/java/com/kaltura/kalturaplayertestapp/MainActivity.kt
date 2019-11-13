@@ -37,7 +37,7 @@ import org.json.JSONObject
 import java.util.*
 import java.util.concurrent.ExecutionException
 
-open class MainActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSelectedListener {
+open class MainActivity: BaseActivity(), TestCaseConfigurationAdapter.OnJsonSelectedListener {
 
     private val TAG = "MainActivity"
     private val RC_BARCODE_CAPTURE = 9001
@@ -108,7 +108,7 @@ open class MainActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSel
                 .limit(LIMIT.toLong())
 
         // RecyclerView
-        mAdapter = object : TestCaseConfigurationAdapter(mQuery!!, this@MainActivity) {
+        mAdapter = object: TestCaseConfigurationAdapter(mQuery!!, this@MainActivity) {
             override fun onDataChanged() {
                 // Show/hide content if the query returns empty.
                 if (itemCount == 0) {

@@ -6,7 +6,7 @@ import com.kaltura.playkit.player.PKHttpClientManager
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaOvpPlayer
 
-class DemoApplication : Application() {
+class DemoApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()

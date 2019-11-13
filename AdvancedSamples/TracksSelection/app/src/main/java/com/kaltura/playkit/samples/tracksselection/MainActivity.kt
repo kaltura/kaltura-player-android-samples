@@ -38,7 +38,7 @@ import java.util.HashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 
-class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+class MainActivity: AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
@@ -164,7 +164,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         stylesStrings.add(styleForPositionTwo.styleName)
         val ccStyleAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, stylesStrings)
         ccStyleSpinner!!.adapter = ccStyleAdapter
-        ccStyleSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        ccStyleSpinner!!.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 if (!userIsInteracting) {
                     return

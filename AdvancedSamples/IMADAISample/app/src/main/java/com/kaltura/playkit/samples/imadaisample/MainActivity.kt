@@ -28,7 +28,7 @@ import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity: AppCompatActivity() {
 
     private var player: KalturaPlayer? = null
     private val mediaConfig: PKMediaConfig? = null
@@ -324,7 +324,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         player!!.addListener(this, AdEvent.error) { event ->
-            Log.e(TAG, "AD_ERROR : " + event.error.errorType.name)
+            Log.e(TAG, "AD_ERROR: " + event.error.errorType.name)
         }
     }
 

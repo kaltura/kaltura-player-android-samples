@@ -13,7 +13,7 @@ import java.util.ArrayList
  * [DocumentSnapshot.toObject] is not cached so the same object may be deserialized
  * many times as the user scrolls.
  */
-abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Query?) : RecyclerView.Adapter<VH>(), EventListener<QuerySnapshot> {
+abstract class FirestoreAdapter<VH: RecyclerView.ViewHolder>(private var mQuery: Query?): RecyclerView.Adapter<VH>(), EventListener<QuerySnapshot> {
     private var mRegistration: ListenerRegistration? = null
 
     val snapshots = ArrayList<DocumentSnapshot>()

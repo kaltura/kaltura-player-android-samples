@@ -854,7 +854,7 @@ public class CameraSource {
         // closest aspect ratio vs. using the closest pixel area.
         SizePair selectedPair = null;
         int minDiff = Integer.MAX_VALUE;
-        for (SizePair sizePair : validPreviewSizes) {
+        for (SizePair sizePair: validPreviewSizes) {
             Size size = sizePair.previewSize();
             int diff = Math.abs(size.getWidth() - desiredWidth) +
                     Math.abs(size.getHeight() - desiredHeight);
@@ -911,13 +911,13 @@ public class CameraSource {
         List<Camera.Size> supportedPictureSizes =
                 parameters.getSupportedPictureSizes();
         List<SizePair> validPreviewSizes = new ArrayList<>();
-        for (android.hardware.Camera.Size previewSize : supportedPreviewSizes) {
+        for (android.hardware.Camera.Size previewSize: supportedPreviewSizes) {
             float previewAspectRatio = (float) previewSize.width / (float) previewSize.height;
 
             // By looping through the picture sizes in order, we favor the higher resolutions.
             // We choose the highest resolution in order to support taking the full resolution
             // picture later.
-            for (android.hardware.Camera.Size pictureSize : supportedPictureSizes) {
+            for (android.hardware.Camera.Size pictureSize: supportedPictureSizes) {
                 float pictureAspectRatio = (float) pictureSize.width / (float) pictureSize.height;
                 if (Math.abs(previewAspectRatio - pictureAspectRatio) < ASPECT_RATIO_TOLERANCE) {
                     validPreviewSizes.add(new SizePair(previewSize, pictureSize));
@@ -931,7 +931,7 @@ public class CameraSource {
         // still account for it.
         if (validPreviewSizes.size() == 0) {
             Log.w(TAG, "No preview sizes have a corresponding same-aspect-ratio picture size");
-            for (android.hardware.Camera.Size previewSize : supportedPreviewSizes) {
+            for (android.hardware.Camera.Size previewSize: supportedPreviewSizes) {
                 // The null picture size will let us know that we shouldn't set a picture size.
                 validPreviewSizes.add(new SizePair(previewSize, null));
             }
@@ -961,7 +961,7 @@ public class CameraSource {
         int[] selectedFpsRange = null;
         int minDiff = Integer.MAX_VALUE;
         List<int[]> previewFpsRangeList = camera.getParameters().getSupportedPreviewFpsRange();
-        for (int[] range : previewFpsRangeList) {
+        for (int[] range: previewFpsRangeList) {
             int deltaMin = desiredPreviewFpsScaled - range[Camera.Parameters.PREVIEW_FPS_MIN_INDEX];
             int deltaMax = desiredPreviewFpsScaled - range[Camera.Parameters.PREVIEW_FPS_MAX_INDEX];
             int diff = Math.abs(deltaMin) + Math.abs(deltaMax);

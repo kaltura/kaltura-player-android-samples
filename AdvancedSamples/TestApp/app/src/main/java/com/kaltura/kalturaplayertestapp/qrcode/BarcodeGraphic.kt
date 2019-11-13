@@ -11,7 +11,7 @@ import com.kaltura.kalturaplayertestapp.camera.GraphicOverlay
  * Graphic instance for rendering barcode position, size, and ID within an associated graphic
  * overlay view.
  */
-class BarcodeGraphic internal constructor(overlay: GraphicOverlay<*>) : GraphicOverlay.Graphic(overlay) {
+class BarcodeGraphic internal constructor(overlay: GraphicOverlay<*>): GraphicOverlay.Graphic(overlay) {
 
     var id: Int = 0
 

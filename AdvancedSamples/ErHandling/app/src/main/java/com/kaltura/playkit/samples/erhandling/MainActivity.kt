@@ -27,7 +27,7 @@ import com.kaltura.tvplayer.PlayerInitOptions
 
 import java.util.ArrayList
 
-class MainActivity : AppCompatActivity() {
+class MainActivity: AppCompatActivity() {
 
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         player!!.addListener(this, AdEvent.error) { event ->
-            Log.e(TAG, "AD_ERROR : " + event.error.errorType.name + " " + event.error.errorType.name)
+            Log.e(TAG, "AD_ERROR: " + event.error.errorType.name + " " + event.error.errorType.name)
         }
     }
 

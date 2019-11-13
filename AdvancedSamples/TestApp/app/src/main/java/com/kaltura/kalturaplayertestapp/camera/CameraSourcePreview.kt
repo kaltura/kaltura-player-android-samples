@@ -11,7 +11,7 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresPermission
 import java.io.IOException
 
-class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : ViewGroup(mContext, attrs) {
+class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet): ViewGroup(mContext, attrs) {
     private val mSurfaceView: SurfaceView
     private var mStartRequested: Boolean = false
     private var mSurfaceAvailable: Boolean = false
@@ -99,7 +99,7 @@ class CameraSourcePreview(private val mContext: Context, attrs: AttributeSet) : 
         }
     }
 
-    private inner class SurfaceCallback : SurfaceHolder.Callback {
+    private inner class SurfaceCallback: SurfaceHolder.Callback {
         override fun surfaceCreated(surface: SurfaceHolder) {
             mSurfaceAvailable = true
             try {

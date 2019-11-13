@@ -16,7 +16,7 @@ import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.utils.Consts
 import java.util.*
 
-class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0): LinearLayout(context, attrs, defStyleAttr), View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     private var player: Player? = null
     private var playerState: PlayerState? = null

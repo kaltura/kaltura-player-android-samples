@@ -2,8 +2,8 @@ package com.kaltura.playkit.samples.chromecastcafsample
 
 import com.google.gson.JsonObject
 
-data class KInitObjModel(var mLocale : KLocaleModel, var mPlatform : String, var mSiteGuid : String, var mDomainID : Integer,
-                    var mUDID : String, var mApiUser : String, var mApiPass : String) {
+data class KInitObjModel(var mLocale: KLocaleModel, var mPlatform: String, var mSiteGuid: String, var mDomainID: Integer,
+                    var mUDID: String, var mApiUser: String, var mApiPass: String) {
 
     init {
         mLocale = KLocaleModel()

@@ -23,7 +23,7 @@ import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 
-class MainActivity : AppCompatActivity() {
+class MainActivity: AppCompatActivity() {
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
     private var vrButton: Button? = null

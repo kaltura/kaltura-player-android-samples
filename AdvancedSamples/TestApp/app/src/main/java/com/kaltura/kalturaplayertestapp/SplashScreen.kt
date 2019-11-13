@@ -14,7 +14,7 @@ import com.kaltura.playkit.player.PKHttpClientManager
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaOvpPlayer
 
-class SplashScreen : Activity() {
+class SplashScreen: Activity() {
 
     private val log = PKLog.get("SplashScreen")
     private val gson = Gson()

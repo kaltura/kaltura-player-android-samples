@@ -14,7 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.kaltura.kalturaplayertestapp.models.User
 import java.util.*
 
-class SignInActivity : BaseActivity(), View.OnClickListener {
+class SignInActivity: BaseActivity(), View.OnClickListener {
 
     private val TAG = "SignInActivity"
 

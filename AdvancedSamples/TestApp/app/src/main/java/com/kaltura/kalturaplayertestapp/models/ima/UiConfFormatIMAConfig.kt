@@ -6,9 +6,9 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.kaltura.playkit.ads.AdTagType
 
-data class UiConfFormatIMAConfig(var adTagUrl : String,
-                                 var adTagType : AdTagType = AdTagType.VAST,
-                                 var alwaysStartWithPreroll : Boolean) {
+data class UiConfFormatIMAConfig(var adTagUrl: String,
+                                 var adTagType: AdTagType = AdTagType.VAST,
+                                 var alwaysStartWithPreroll: Boolean) {
 
     val DEFAULT_AD_LOAD_TIMEOUT = 5
     val DEFAULT_CUE_POINTS_CHANGED_DELAY = 2000

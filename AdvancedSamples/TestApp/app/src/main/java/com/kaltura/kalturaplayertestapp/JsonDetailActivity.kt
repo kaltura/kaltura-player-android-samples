@@ -17,7 +17,7 @@ import com.google.firebase.firestore.Query
 import com.kaltura.kalturaplayertestapp.adapter.TestCaseConfigurationAdapter
 import com.kaltura.kalturaplayertestapp.models.Configuration
 
-class JsonDetailActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSelectedListener {
+class JsonDetailActivity: BaseActivity(), TestCaseConfigurationAdapter.OnJsonSelectedListener {
 
     private var mFirestore: FirebaseFirestore? = null
     private var mConfigurationsRecycler: RecyclerView? = null
@@ -39,7 +39,7 @@ class JsonDetailActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSe
                 ?: throw IllegalArgumentException("Must pass extra " + MainActivity.KEY_NEW_CONFIGURATION_PATH)
         mConfigurationsRecycler = findViewById(R.id.details_recycler_configuration)
 
-        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        val itemTouchHelperCallback = object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 return false
             }
@@ -70,7 +70,7 @@ class JsonDetailActivity : BaseActivity(), TestCaseConfigurationAdapter.OnJsonSe
         FirebaseFirestore.setLoggingEnabled(true)
 
         // RecyclerView
-        mAdapter = object : TestCaseConfigurationAdapter(mQuery!!, this@JsonDetailActivity) {
+        mAdapter = object: TestCaseConfigurationAdapter(mQuery!!, this@JsonDetailActivity) {
             override fun onDataChanged() {
                 // Show/hide content if the query returns empty.
                 if (itemCount == 0) {

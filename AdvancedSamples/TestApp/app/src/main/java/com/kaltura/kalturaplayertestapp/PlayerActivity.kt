@@ -56,7 +56,7 @@ import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class PlayerActivity : AppCompatActivity(), Observer {
+class PlayerActivity: AppCompatActivity(), Observer {
 
     private val log = PKLog.get("PlayerActivity")
     private val REMOVE_CONTROLS_TIMEOUT = 3000
@@ -184,7 +184,7 @@ class PlayerActivity : AppCompatActivity(), Observer {
         }
     }
 
-    fun updatePluginsConfig(media : Media) {
+    fun updatePluginsConfig(media: Media) {
         if(initOptions?.pluginConfigs!!.hasConfig(IMAPlugin.factory.name)) run {
             val imaJson = initOptions?.pluginConfigs!!.getPluginConfig(IMAPlugin.factory.name) as JsonObject
             if (media.mediaAdTag != null) {
@@ -244,7 +244,7 @@ class PlayerActivity : AppCompatActivity(), Observer {
     }
 
     private fun addSearchListener() {
-        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String): Boolean {
 
@@ -792,7 +792,7 @@ class PlayerActivity : AppCompatActivity(), Observer {
         }
     }
 
-    private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs : JsonArray?): PKPluginConfigs {
+    private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray?): PKPluginConfigs {
         val pkPluginConfigs = PKPluginConfigs()
         val pluginDescriptors = gson.fromJson(pluginConfigs, Array<PluginDescriptor>::class.java)
 
@@ -865,7 +865,7 @@ class PlayerActivity : AppCompatActivity(), Observer {
         val container = findViewById<ViewGroup>(R.id.player_container_layout)
         playbackControlsView = findViewById(R.id.player_controls)
         playbackControlsView?.setVisibility(View.INVISIBLE)
-        container.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 container.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {

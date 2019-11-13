@@ -6,14 +6,14 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 
-data class UiConfFormatIMADAIConfig(var assetTitle : String,
-                                    var assetKey : String, // null for VOD
-                                    var apiKey : String, // seems to be always null in demos
-                                    var contentSourceId : String, // null for Live
-                                    var videoId : String, // null for Live
-                                    var streamFormat : StreamRequest.StreamFormat,
-                                    var licenseUrl : String,
-                                    var alwaysStartWithPreroll : Boolean) {
+data class UiConfFormatIMADAIConfig(var assetTitle: String,
+                                    var assetKey: String, // null for VOD
+                                    var apiKey: String, // seems to be always null in demos
+                                    var contentSourceId: String, // null for Live
+                                    var videoId: String, // null for Live
+                                    var streamFormat: StreamRequest.StreamFormat,
+                                    var licenseUrl: String,
+                                    var alwaysStartWithPreroll: Boolean) {
     val DEFAULT_AD_LOAD_TIMEOUT = 5
     val DEFAULT_CUE_POINTS_CHANGED_DELAY = 2000
     val DEFAULT_AD_LOAD_COUNT_DOWN_TICK = 250

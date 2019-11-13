@@ -44,7 +44,7 @@ import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_TYPE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ENABLED
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USERNAME
 
-class MainActivity : AppCompatActivity() {
+class MainActivity: AppCompatActivity() {
 
     //Tag for logging.
     private val TAG = MainActivity::class.java.simpleName

@@ -4,7 +4,7 @@ import android.app.ProgressDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 
-open class BaseActivity : AppCompatActivity() {
+open class BaseActivity: AppCompatActivity() {
 
     private var mProgressDialog: ProgressDialog? = null
 
@@ -24,7 +24,7 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-    fun getUid() : String {
+    fun getUid(): String {
         return FirebaseAuth.getInstance().currentUser!!.uid
     }
 

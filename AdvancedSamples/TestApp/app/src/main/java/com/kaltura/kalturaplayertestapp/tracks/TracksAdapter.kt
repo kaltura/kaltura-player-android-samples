@@ -9,7 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.kaltura.kalturaplayertestapp.R
 
-class TracksAdapter constructor(trackItems: List<*>, lastTrackSelection: Int) : RecyclerView.Adapter<TracksAdapter.ViewHolder>() {
+class TracksAdapter constructor(trackItems: List<*>, lastTrackSelection: Int): RecyclerView.Adapter<TracksAdapter.ViewHolder>() {
 
     private var trackItems: List<TrackItem>? = null
     var trackItemId: String? = null
@@ -46,7 +46,7 @@ class TracksAdapter constructor(trackItems: List<*>, lastTrackSelection: Int) : 
         } else 0
     }
 
-    inner class ViewHolder(layout: ConstraintLayout) : RecyclerView.ViewHolder(layout) {
+    inner class ViewHolder(layout: ConstraintLayout): RecyclerView.ViewHolder(layout) {
 
         val textView: TextView
         val radioButton: RadioButton

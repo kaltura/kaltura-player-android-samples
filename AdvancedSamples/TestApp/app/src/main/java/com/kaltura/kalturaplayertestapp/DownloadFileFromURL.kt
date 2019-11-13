@@ -4,7 +4,7 @@ import android.os.AsyncTask
 import java.io.IOException
 import java.net.URL
 
-internal class DownloadFileFromURL : AsyncTask<String, String, String>() {
+internal class DownloadFileFromURL: AsyncTask<String, String, String>() {
 
     override fun onPreExecute() {
         super.onPreExecute()

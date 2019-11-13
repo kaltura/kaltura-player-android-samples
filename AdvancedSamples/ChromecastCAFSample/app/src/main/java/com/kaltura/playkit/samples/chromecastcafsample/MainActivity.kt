@@ -35,7 +35,7 @@ import org.json.JSONObject
 import java.util.ArrayList
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity: AppCompatActivity() {
     private var mIntroductoryOverlay: IntroductoryOverlay? = null
 
     private val player: KalturaPlayer? = null
@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupCastListener() {
-        mSessionManagerListener = object : SessionManagerListener<CastSession> {
+        mSessionManagerListener = object: SessionManagerListener<CastSession> {
 
             override fun onSessionEnded(session: CastSession, error: Int) {
                 onApplicationDisconnected()
@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
         if (remoteMediaClient == null) {
             return
         }
-        remoteMediaClient!!.addListener(object : RemoteMediaClient.Listener {
+        remoteMediaClient!!.addListener(object: RemoteMediaClient.Listener {
             override fun onStatusUpdated() {
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
@@ -274,7 +274,7 @@ class MainActivity : AppCompatActivity() {
         if (remoteMediaClient == null) {
             return
         }
-        remoteMediaClient!!.addListener(object : RemoteMediaClient.Listener {
+        remoteMediaClient!!.addListener(object: RemoteMediaClient.Listener {
             override fun onStatusUpdated() {
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)

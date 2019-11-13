@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-class EventsAdapter : RecyclerView.Adapter<EventsAdapter.EventItemViewHolder>() {
+class EventsAdapter: RecyclerView.Adapter<EventsAdapter.EventItemViewHolder>() {
 
     private var eventsList: List<String>? = null
 
@@ -40,7 +40,7 @@ class EventsAdapter : RecyclerView.Adapter<EventsAdapter.EventItemViewHolder>() 
         notifyDataSetChanged()
     }
 
-    inner class EventItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class EventItemViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
 
         internal var eventNumberView: TextView
         internal var eventDesc: TextView

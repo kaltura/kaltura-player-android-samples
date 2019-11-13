@@ -11,7 +11,7 @@ import com.kaltura.kalturaplayertestapp.camera.GraphicOverlay
  * multi-processor uses this factory to create barcode trackers as needed -- one for each barcode.
  */
 internal class BarcodeTrackerFactory(private val mGraphicOverlay: GraphicOverlay<BarcodeGraphic>,
-                                     private val mContext: Context) : MultiProcessor.Factory<Barcode> {
+                                     private val mContext: Context): MultiProcessor.Factory<Barcode> {
 
     override fun create(barcode: Barcode): Tracker<Barcode> {
         val graphic = BarcodeGraphic(mGraphicOverlay)

@@ -6,7 +6,7 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import java.util.*
 
-object NetworkChangeReceiver : BroadcastReceiver() {
+object NetworkChangeReceiver: BroadcastReceiver() {
 
     private var isConnected = true
 
@@ -15,7 +15,7 @@ object NetworkChangeReceiver : BroadcastReceiver() {
     }
 
     class NetworkObservable private constructor()// Exist to defeat instantiation.
-        : Observable() {
+       : Observable() {
 
         fun connectionChanged(connected: Boolean?) {
             if (isConnected != connected) {

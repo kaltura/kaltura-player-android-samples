@@ -36,7 +36,7 @@ import java.io.IOException
  * rear facing camera. During detection overlay graphics are drawn to indicate the position,
  * size, and ID of each barcode.
  */
-class BarcodeCaptureActivity : AppCompatActivity(), BarcodeGraphicTracker.BarcodeUpdateListener {
+class BarcodeCaptureActivity: AppCompatActivity(), BarcodeGraphicTracker.BarcodeUpdateListener {
 
     private var mCameraSource: CameraSource? = null
     private var mPreview: CameraSourcePreview? = null
@@ -326,13 +326,13 @@ class BarcodeCaptureActivity : AppCompatActivity(), BarcodeGraphicTracker.Barcod
         return false
     }
 
-    private inner class CaptureGestureListener : GestureDetector.SimpleOnGestureListener() {
+    private inner class CaptureGestureListener: GestureDetector.SimpleOnGestureListener() {
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             return onTap(e.rawX, e.rawY) || super.onSingleTapConfirmed(e)
         }
     }
 
-    private inner class ScaleListener : ScaleGestureDetector.OnScaleGestureListener {
+    private inner class ScaleListener: ScaleGestureDetector.OnScaleGestureListener {
 
         /**
          * Responds to scaling events for a gesture in progress.

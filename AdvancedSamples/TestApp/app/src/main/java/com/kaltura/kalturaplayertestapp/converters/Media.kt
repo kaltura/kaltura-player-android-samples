@@ -22,7 +22,7 @@ class Media {
     var mediaAdTag: String? = null
     var externalSubtitles: List<PKExternalSubtitle>? = null
 
-    fun getAssetType() : APIDefines.KalturaAssetType? {
+    fun getAssetType(): APIDefines.KalturaAssetType? {
         if (assetType == null) {
             return null
         }
@@ -38,11 +38,11 @@ class Media {
     }
 
     @JvmName("setAsset")
-    fun setAssetType(assetType : String) {
+    fun setAssetType(assetType: String) {
         this.assetType = assetType
     }
 
-    fun getPlaybackContextType() : APIDefines.PlaybackContextType? {
+    fun getPlaybackContextType(): APIDefines.PlaybackContextType? {
         if (playbackContextType == null) {
             return null
         }
@@ -60,11 +60,11 @@ class Media {
     }
 
     @JvmName("setPlaybackContext")
-    fun setPlaybackContextType(playbackContextType : String) {
+    fun setPlaybackContextType(playbackContextType: String) {
         this.playbackContextType = playbackContextType
     }
 
-    fun getAssetReferenceType() : APIDefines.AssetReferenceType? {
+    fun getAssetReferenceType(): APIDefines.AssetReferenceType? {
         if (assetReferenceType == null) {
             return null
         }

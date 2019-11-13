@@ -28,7 +28,7 @@ import com.kaltura.tvplayer.PlayerInitOptions
 
 import java.util.ArrayList
 
-class MainActivity : AppCompatActivity() {
+class MainActivity: AppCompatActivity() {
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
     private var vrButton: Button? = null

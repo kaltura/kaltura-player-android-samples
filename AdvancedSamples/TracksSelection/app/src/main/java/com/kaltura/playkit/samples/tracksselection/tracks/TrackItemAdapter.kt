@@ -12,7 +12,7 @@ import android.widget.TextView
  * Created by anton.afanasiev on 16/03/2017.
  */
 
-class TrackItemAdapter(context: Context, textViewResourceId: Int, private val trackItems: Array<TrackItem?>) : ArrayAdapter<TrackItem>(context, textViewResourceId, trackItems) {
+class TrackItemAdapter(context: Context, textViewResourceId: Int, private val trackItems: Array<TrackItem?>): ArrayAdapter<TrackItem>(context, textViewResourceId, trackItems) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val label = TextView(context)
