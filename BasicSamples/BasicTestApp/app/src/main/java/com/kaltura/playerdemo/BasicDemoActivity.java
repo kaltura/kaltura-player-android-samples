@@ -1,3 +1,4 @@
+/*
 package com.kaltura.playerdemo;
 
 import android.content.Intent;
@@ -59,7 +60,7 @@ public class BasicDemoActivity extends BaseDemoActivity {
     @Override
     @NonNull
     protected DemoItem parseItem(JsonObject object) {
-        return new DemoItem(object.get("name").getAsString(), object.get("entryId").getAsString());
+        return new DemoItem(object.get("name").getAsString(), object.get("entryId").getAsString(), pkMediaEntry);
     }
 
     @Override
@@ -119,3 +120,4 @@ public class BasicDemoActivity extends BaseDemoActivity {
         EventBus.getDefault().unregister(this);
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package com.kaltura.playerdemo;
 
 import android.content.Intent;
@@ -39,3 +40,4 @@ public class LaunchActivity extends AppCompatActivity {
         );
     }
 }
+*/

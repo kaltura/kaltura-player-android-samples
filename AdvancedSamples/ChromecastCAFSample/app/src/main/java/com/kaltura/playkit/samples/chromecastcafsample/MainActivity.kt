@@ -36,6 +36,19 @@ import java.util.ArrayList
 
 
 class MainActivity: AppCompatActivity() {
+
+    //Tag for logging.
+    private val TAG = MainActivity::class.java.simpleName
+    //Media entry configuration constants.
+    private val SOURCE_URL = "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_w9zx2eti/protocol/https/format/applehttp/falvorIds/1_1obpcggb,1_yyuvftfz,1_1xdbzoa6,1_k16ccgto,1_djdf6bk8/a.m3u8"
+    private val ENTRY_ID = "entry_id"
+    private val MEDIA_SOURCE_ID = "source_id"
+
+    //Ad configuration constants.
+    private val AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator="
+    private val INCORRECT_AD_TAG_URL = "incorrect_ad_tag_url"
+    private val PREFERRED_AD_BITRATE = 600
+
     private var mIntroductoryOverlay: IntroductoryOverlay? = null
 
     private val player: KalturaPlayer? = null
@@ -293,7 +306,7 @@ class MainActivity: AppCompatActivity() {
         })
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
         val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position.toLong()).build()
-        pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548579", "Web_Main", "", null, CAFCastBuilder.HttpProtocol.Http), loadOptions)
+        pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("756836", "DASH_Mobile_SD", "", null, CAFCastBuilder.HttpProtocol.Https), loadOptions)
         pendingResult!!.setResultCallback { mediaChannelResult ->
             val customData = mediaChannelResult.customData
             if (customData != null) {
@@ -416,20 +429,5 @@ class MainActivity: AppCompatActivity() {
     override fun onPause() {
         mCastContext!!.removeCastStateListener(mCastStateListener)
         super.onPause()
-    }
-
-    companion object {
-
-        //Tag for logging.
-        private val TAG = MainActivity::class.java.simpleName
-        //Media entry configuration constants.
-        private val SOURCE_URL = "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_w9zx2eti/protocol/https/format/applehttp/falvorIds/1_1obpcggb,1_yyuvftfz,1_1xdbzoa6,1_k16ccgto,1_djdf6bk8/a.m3u8"
-        private val ENTRY_ID = "entry_id"
-        private val MEDIA_SOURCE_ID = "source_id"
-
-        //Ad configuration constants.
-        private val AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator="
-        private val INCORRECT_AD_TAG_URL = "incorrect_ad_tag_url"
-        private val PREFERRED_AD_BITRATE = 600
     }
 }

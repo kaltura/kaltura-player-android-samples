@@ -1,3 +1,4 @@
+/*
 package com.kaltura.playerdemo;
 
 import android.os.Bundle;
@@ -61,3 +62,4 @@ public class PlayerActivity extends AppCompatActivity {
         container.addView(player.getPlayerView());
     }
 }
+*/
