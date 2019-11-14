@@ -19,20 +19,17 @@ import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKSubtitleFormat
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
-import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.AudioTrack
 import com.kaltura.playkit.player.PKExternalSubtitle
 import com.kaltura.playkit.player.PKTracks
 import com.kaltura.playkit.player.SubtitleStyleSettings
 import com.kaltura.playkit.player.TextTrack
 import com.kaltura.playkit.player.VideoTrack
-import com.kaltura.playkit.providers.api.phoenix.APIDefines
-import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItem
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter
-import com.kaltura.tvplayer.KalturaOttPlayer
+import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
-import com.kaltura.tvplayer.OTTMediaOptions
+import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 
 import java.util.ArrayList
@@ -129,28 +126,18 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      */
     private fun addPlayPauseButton() {
         //Get reference to the play/pause button.
-        playPauseButton = this.findViewById(R.id.play_pause_button)
+        playPauseButton = this.findViewById<View>(R.id.play_pause_button) as Button
         //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
+        playPauseButton!!.setOnClickListener {
             if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
-                if (player!!.isPlaying || adController != null && adController.isAdDisplayed && adController.isAdPlaying) {
-                    if (adController != null && adController.isAdDisplayed) {
-                        adController.pause()
-                    } else {
-                        player!!.pause()
-                    }
+                if (player!!.isPlaying) {
                     //If player is playing, change text of the button and pause.
                     playPauseButton!!.setText(R.string.play_text)
+                    player!!.pause()
                 } else {
-                    if (adController != null && adController.isAdDisplayed) {
-                        adController.play()
-                    } else {
-                        player!!.play()
-                    }
                     //If player is not playing, change text of the button and play.
                     playPauseButton!!.setText(R.string.pause_text)
-
+                    player!!.play()
                 }
             }
         }
@@ -161,12 +148,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * and set OnItemSelectedListener.
      */
     private fun initializeTrackSpinners() {
-        tracksSelectionMenu = this.findViewById(R.id.tracks_selection_menu)
-        videoSpinner = this.findViewById(R.id.videoSpinner)
-        audioSpinner = this.findViewById(R.id.audioSpinner)
-        textSpinner = this.findViewById(R.id.textSpinner)
-        ccStyleSpinner = this.findViewById(R.id.ccStyleSpinner)
-        tvSpinnerTitle = this.findViewById(R.id.tvSpinnerTitle)
+        tracksSelectionMenu = this.findViewById(R.id.tracks_selection_menu) as View
+        videoSpinner = this.findViewById<View>(R.id.videoSpinner) as Spinner
+        audioSpinner = this.findViewById<View>(R.id.audioSpinner) as Spinner
+        textSpinner = this.findViewById<View>(R.id.textSpinner) as Spinner
+        ccStyleSpinner = this.findViewById<View>(R.id.ccStyleSpinner) as Spinner
+        tvSpinnerTitle = this.findViewById<View>(R.id.tvSpinnerTitle) as TextView
         tvSpinnerTitle!!.visibility = View.INVISIBLE
         ccStyleSpinner!!.visibility = View.INVISIBLE
 
@@ -211,21 +198,24 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             //When the track data available, this event occurs. It brings the info object with it.
             Log.d(TAG, "Event TRACKS_AVAILABLE")
 
+            //Cast event to the TracksAvailable object that is actually holding the necessary data.
+            val tracksAvailable = event as PlayerEvent.TracksAvailable
+
             //Obtain the actual tracks info from it. Default track index values are coming from manifest
-            val tracks = event.tracksInfo
-            val defaultAudioTrackIndex = tracks.getDefaultAudioTrackIndex()
-            val defaultTextTrackIndex = tracks.getDefaultTextTrackIndex()
+            val tracks = tracksAvailable.tracksInfo
+            val defaultAudioTrackIndex = tracks.defaultAudioTrackIndex
+            val defaultTextTrackIndex = tracks.defaultTextTrackIndex
             if (tracks.audioTracks.size > 0) {
-                Log.d(TAG, "Default Audio language = " + tracks.audioTracks[defaultAudioTrackIndex].label)
+                Log.d(TAG, "Default Audio langae = " + tracks.audioTracks[defaultAudioTrackIndex]?.label)
             }
             if (tracks.textTracks.size > 0) {
-                Log.d(TAG, "Default Text language = " + tracks.textTracks[defaultTextTrackIndex].label)
+                Log.d(TAG, "Default Text langae = " + tracks.textTracks[defaultTextTrackIndex].label)
                 if (tvSpinnerTitle != null && ccStyleSpinner != null) {
                     tvSpinnerTitle!!.visibility = View.VISIBLE
                     ccStyleSpinner!!.visibility = View.VISIBLE
                 }
             }
-            if (tracks.getVideoTracks().size > 0) {
+            if (tracks.videoTracks.size > 0) {
                 Log.d(TAG, "Default video isAdaptive = " + tracks.videoTracks[tracks.defaultAudioTrackIndex].isAdaptive + " bitrate = " + tracks.videoTracks[tracks.defaultAudioTrackIndex].bitrate)
             }
             //player.changeTrack(tracksAvailable.tracksInfo.getVideoTracks().get(1).getUniqueId());
@@ -233,13 +223,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             populateSpinnersWithTrackInfo(tracks)
         }
 
-        player!!.addListener<PlayerEvent.VideoTrackChanged>(this, PlayerEvent.videoTrackChanged) { event -> Log.d(TAG, "Event VideoTrackChanged " + event.newTrack.getBitrate()) }
+        player!!.addListener<PlayerEvent.VideoTrackChanged>(this, PlayerEvent.videoTrackChanged) { event -> Log.d(TAG, "Event VideoTrackChanged " + (event as PlayerEvent.VideoTrackChanged).newTrack.bitrate) }
 
-        player!!.addListener<PlayerEvent.AudioTrackChanged>(this, PlayerEvent.audioTrackChanged) { event -> Log.d(TAG, "Event AudioTrackChanged " + event.newTrack.getLanguage()!!) }
+        player!!.addListener<PlayerEvent.AudioTrackChanged>(this, PlayerEvent.audioTrackChanged) { event -> Log.d(TAG, "Event AudioTrackChanged " + (event as PlayerEvent.AudioTrackChanged).newTrack.language!!) }
 
-        player!!.addListener<PlayerEvent.TextTrackChanged>(this, PlayerEvent.textTrackChanged) { event -> Log.d(TAG, "Event TextTrackChanged " + event.newTrack.getLanguage()!!) }
+        player!!.addListener<PlayerEvent.TextTrackChanged>(this, PlayerEvent.textTrackChanged) { event -> Log.d(TAG, "Event TextTrackChanged " + (event as PlayerEvent.TextTrackChanged).newTrack.language!!) }
 
-        player!!.addListener<PlayerEvent.SubtitlesStyleChanged>(this, PlayerEvent.subtitlesStyleChanged) { event -> Log.d(TAG, "Event SubtitlesStyleChanged " + event.styleName) }
+        player!!.addListener<PlayerEvent.SubtitlesStyleChanged>(this, PlayerEvent.subtitlesStyleChanged) { event -> Log.d(TAG, "Event SubtitlesStyleChanged " + (event as PlayerEvent.SubtitlesStyleChanged).styleName) }
 
         player!!.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
             Log.d(TAG, "State changed from " + event.oldState + " to " + event.newState)
@@ -434,6 +424,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         userIsInteracting = true
     }
 
+
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
@@ -459,30 +450,20 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setSubtitleStyle(defaultPositionDefault)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
         playerInitOptions.setAutoPlay(true)
 
+        player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
 
-        /*
-                  //PhoenixTVPlayerParams
-                  "analyticsUrl": "https://analytics.kaltura.com/api_v3/index.php"
-                  "ovpServiceUrl": "https://cdnapisec.kaltura.com"
-                  "ovpPartnerId": 2254732
-                  "uiConfId": 44267972
-                 */
-
-
-        player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
-        player!!.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        player!!.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         val container = findViewById<ViewGroup>(R.id.player_root)
         container.addView(player!!.playerView)
 
-        val ottMediaOptions = buildOttMediaOptions()
-        player!!.loadMedia(ottMediaOptions) { entry, loadError ->
+        val ovpMediaOptions = buildOvpMediaOptions()
+        player!!.loadMedia(ovpMediaOptions) { entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
-                Log.d(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.id)
+                Log.d(TAG, "OVPMedia onEntryLoadComplete  entry = " + entry.id)
             }
         }
 
@@ -496,30 +477,23 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         subscribeToTracksAvailableEvent()
     }
 
-    private fun buildOttMediaOptions(): OTTMediaOptions {
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = ASSET_ID
-        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
-        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
-        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaOptions.formats = arrayOf("Mobile_Main")
-        ottMediaOptions.ks = null
-        ottMediaOptions.startPosition = START_POSITION
-        ottMediaOptions.externalSubtitles = externalSubtitles
+    private fun buildOvpMediaOptions(): OVPMediaOptions {
+        val ovpMediaOptions = OVPMediaOptions()
+        ovpMediaOptions.entryId = ENTRY_ID
+        ovpMediaOptions.ks = null
+        ovpMediaOptions.startPosition = START_POSITION
+        ovpMediaOptions.externalSubtitles = externalSubtitles
 
-        return ottMediaOptions
+        return ovpMediaOptions
     }
 
     companion object {
 
         private val TAG = "MainActivity"
 
-        val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
-        val PARTNER_ID = 3009
-
-        private val ASSET_ID = "548576"
+        val PARTNER_ID = 2215841
+        val SERVER_URL = "https://cdnapisec.kaltura.com"
+        private val ENTRY_ID = "1_w9zx2eti"
         private val START_POSITION = 0L // position for start playback in msec.
     }
-
 }
