@@ -45,7 +45,6 @@ public class PlayerConfig {
     public ABRSettings abrSettings;
     public RequestConfiguration requestConfiguration;
     public String referrer;
-    public String widgetId;
     public Boolean forceSinglePlayerEngine;
     public List<Media> mediaList;
     public TrackSelection trackSelection;
