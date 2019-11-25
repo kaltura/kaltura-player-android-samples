@@ -327,7 +327,6 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 .setKs(appPlayerInitConfig.ks)
                 .setPreload(appPlayerInitConfig.preload)
                 .setReferrer(appPlayerInitConfig.referrer)
-                .setWidgetId(appPlayerInitConfig.widgetId)
                 .setAllowCrossProtocolEnabled(appPlayerInitConfig.allowCrossProtocolEnabled)
                 .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
                 .setSecureSurface(appPlayerInitConfig.secureSurface)
