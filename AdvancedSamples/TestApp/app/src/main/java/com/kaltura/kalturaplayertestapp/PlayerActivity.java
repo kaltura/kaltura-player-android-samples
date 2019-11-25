@@ -63,10 +63,10 @@ import com.kaltura.tvplayer.KalturaOttPlayer;
 import com.kaltura.tvplayer.KalturaOvpPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
 
+import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.PlaybackControlsView;
 import com.kaltura.tvplayer.PlayerInitOptions;
 import com.kaltura.tvplayer.OTTMediaOptions;
-import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams;
 import com.kaltura.tvplayer.config.TVPlayerParams;
 
@@ -327,7 +327,6 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 .setKs(appPlayerInitConfig.ks)
                 .setPreload(appPlayerInitConfig.preload)
                 .setReferrer(appPlayerInitConfig.referrer)
-                .setWidgetId(appPlayerInitConfig.widgetId)
                 .setAllowCrossProtocolEnabled(appPlayerInitConfig.allowCrossProtocolEnabled)
                 .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
                 .setSecureSurface(appPlayerInitConfig.secureSurface)
@@ -474,6 +473,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
         Media ovpMedia = mediaList.get(playListMediaIndex);
         OVPMediaOptions ovpMediaOptions = new OVPMediaOptions();
         ovpMediaOptions.entryId = ovpMedia.entryId;
+        ovpMediaOptions.widgetId = ovpMedia.widgetId;
         ovpMediaOptions.ks = ovpMedia.ks;
         ovpMediaOptions.startPosition = startPosition;
         ovpMediaOptions.externalSubtitles = ovpMedia.externalSubtitles;
