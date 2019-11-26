@@ -39,7 +39,6 @@ class PlayerConfig {
     var abrSettings: ABRSettings? = null
     var requestConfiguration: RequestConfiguration? = null
     var referrer: String? = null
-    var widgetId: String? = null
     var forceSinglePlayerEngine: Boolean? = null
     var mediaList: List<Media>? = null
     var trackSelection: TrackSelection? = null

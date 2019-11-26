@@ -288,7 +288,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setKs(appPlayerInitConfig.ks)
                 .setPreload(appPlayerInitConfig.preload)
                 .setReferrer(appPlayerInitConfig.referrer)
-                .setWidgetId(appPlayerInitConfig.widgetId)
                 .setAllowCrossProtocolEnabled(appPlayerInitConfig.allowCrossProtocolEnabled)
                 .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
                 .setSecureSurface(appPlayerInitConfig.secureSurface)
@@ -430,6 +429,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val ovpMedia = mediaList?.get(playListMediaIndex)
         val ovpMediaOptions = OVPMediaOptions()
         ovpMediaOptions.entryId = ovpMedia?.entryId
+        ovpMediaOptions.widgetId = ovpMedia?.widgetId
         ovpMediaOptions.ks = ovpMedia?.ks
         ovpMediaOptions.startPosition = startPosition
         ovpMediaOptions.externalSubtitles = ovpMedia?.externalSubtitles
