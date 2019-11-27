@@ -464,7 +464,6 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
         if (ottMedia.fileId != null) {
             ottMediaOptions.fileIds = new String[]{String.valueOf(ottMedia.fileId)};
         }
-
         return ottMediaOptions;
     }
 
@@ -473,7 +472,6 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
         Media ovpMedia = mediaList.get(playListMediaIndex);
         OVPMediaOptions ovpMediaOptions = new OVPMediaOptions();
         ovpMediaOptions.entryId = ovpMedia.entryId;
-        ovpMediaOptions.widgetId = ovpMedia.widgetId;
         ovpMediaOptions.ks = ovpMedia.ks;
         ovpMediaOptions.startPosition = startPosition;
         ovpMediaOptions.externalSubtitles = ovpMedia.externalSubtitles;
