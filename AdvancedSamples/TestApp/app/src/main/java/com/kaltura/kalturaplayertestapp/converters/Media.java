@@ -13,7 +13,6 @@ import java.util.List;
 
 public class Media {
     public String entryId;   // ovp
-    public String widgetId;  // ovp
     public String ks;        // ovp or ott
     public String assetId;   // ott
     public String format;    // ott
