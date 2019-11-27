@@ -238,7 +238,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
             //IMADAIConfig imaPluginConfig = gson.fromJson(imadaiJson, IMADAIConfig.class);
             initOptions.pluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), imadaiJson);
         } else if (initOptions.pluginConfigs.hasConfig(FBInstreamPlugin.factory.getName())) {
-            JsonObject fbAds = (JsonObject) initOptions.pluginConfigs.getPluginConfig(FBInstreamPlugin.factory.getName());
+            FBInstreamConfig fbAds =  (FBInstreamConfig) initOptions.pluginConfigs.getPluginConfig(FBInstreamPlugin.factory.getName());
             initOptions.pluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbAds);
         }
 
