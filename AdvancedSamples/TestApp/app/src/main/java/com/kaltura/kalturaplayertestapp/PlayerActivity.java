@@ -401,6 +401,16 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 initOptions.tvPlayerParams = phoenixTVPlayerParams;
             }
 
+            if (partnerId == 3079) {
+                PhoenixTVPlayerParams phoenixTVPlayerParams = new PhoenixTVPlayerParams();
+                phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
+                phoenixTVPlayerParams.ovpPartnerId = 1774581;
+                phoenixTVPlayerParams.partnerId = 3079;
+                phoenixTVPlayerParams.serviceUrl = "https://rest.irs1.ott.kaltura.com/v5_2_4/";
+                phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/";
+                initOptions.tvPlayerParams = phoenixTVPlayerParams;
+            }
+
             player = KalturaOttPlayer.create(PlayerActivity.this, initOptions);
             setPlayer(player);
             OTTMediaOptions ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
