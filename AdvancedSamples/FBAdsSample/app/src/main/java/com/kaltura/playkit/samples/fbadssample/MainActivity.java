@@ -1,25 +1,29 @@
-package com.kaltura.playkit.samples.imasample;
+package com.kaltura.playkit.samples.fbadssample;
 
 import android.os.Build;
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKPluginConfigs;
+import com.kaltura.playkit.PlayKitManager;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.PlayerState;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ads.AdInfo;
-import com.kaltura.playkit.plugins.ima.IMAConfig;
-import com.kaltura.playkit.plugins.ima.IMAPlugin;
+import com.kaltura.playkit.plugins.ads.AdPositionType;
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInStreamAd;
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInStreamAdBreak;
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig;
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin;
 import com.kaltura.playkit.providers.api.phoenix.APIDefines;
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider;
 import com.kaltura.tvplayer.KalturaOttPlayer;
@@ -29,6 +33,9 @@ import com.kaltura.tvplayer.PlayerInitOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+
+
+
 
 
 public class MainActivity extends AppCompatActivity {
@@ -47,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     private KalturaPlayer player;
     private Button playPauseButton;
+    private Button seekButton;
     private boolean isFullScreen;
     private PlayerState playerState;
 
@@ -118,6 +126,70 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+        private void addSeekButton() {
+
+        seekButton = this.findViewById(R.id.seekTo0);
+        seekButton.setOnClickListener(v -> {
+            if (player == null) {
+                return;
+            }
+            AdController adController = player.getController(AdController.class);
+            if (adController != null && adController.isAdPlaying()) {
+               return;
+            } else {
+                player.seekTo(0L);
+            }
+        });
+    }
+
+    private PKPluginConfigs createFBInStreamPlugin(PKPluginConfigs pluginConfigs) {
+
+        //First register your IMAPlugin.
+        PlayKitManager.registerPlugins(this, FBInstreamPlugin.factory);
+
+        addFBInStreamPluginConfig(pluginConfigs);
+
+        //Return created PluginConfigs object.
+        return pluginConfigs;
+    }
+
+    private void addFBInStreamPluginConfig(PKPluginConfigs config) {
+        List<FBInStreamAd> preRollFBInStreamAdList = new ArrayList<>();
+        FBInStreamAd preRoll1 = new FBInStreamAd("156903085045437_239184776817267",0, 0);
+        FBInStreamAd preRoll2 = new FBInStreamAd("156903085045437_239184776817267",0, 1);
+        preRollFBInStreamAdList.add(preRoll1);
+        //preRollFBInStreamAdList.add(preRoll2);
+        FBInStreamAdBreak preRollAdBreak = new FBInStreamAdBreak(AdPositionType.PRE_ROLL, 0, preRollFBInStreamAdList);
+
+        List<FBInStreamAd> midRoll1FBInStreamAdList = new ArrayList<>();
+        FBInStreamAd midRoll1 = new FBInStreamAd("156903085045437_239184776817267",15000, 0);
+        midRoll1FBInStreamAdList.add(midRoll1);
+        FBInStreamAdBreak midRoll1AdBreak = new FBInStreamAdBreak(AdPositionType.MID_ROLL, 15000, midRoll1FBInStreamAdList);
+
+
+        List<FBInStreamAd> midRoll2FBInStreamAdList = new ArrayList<>();
+        FBInStreamAd midRoll2 = new FBInStreamAd("156903085045437_239184776817267", 30000, 0);
+        midRoll2FBInStreamAdList.add(midRoll2);
+        FBInStreamAdBreak midRoll2AdBreak = new FBInStreamAdBreak(AdPositionType.MID_ROLL, 30000, midRoll2FBInStreamAdList);
+
+
+        List<FBInStreamAd> postRollFBInStreamAdList = new ArrayList<>();
+        FBInStreamAd postRoll1 = new FBInStreamAd("156903085045437_239184776817267", Long.MAX_VALUE, 0);
+        postRollFBInStreamAdList.add(postRoll1);
+        FBInStreamAdBreak postRollAdBreak = new FBInStreamAdBreak(AdPositionType.POST_ROLL, Long.MAX_VALUE, postRollFBInStreamAdList);
+
+        List<FBInStreamAdBreak> fbInStreamAdBreakList = new ArrayList<>();
+        fbInStreamAdBreakList.add(preRollAdBreak);
+        fbInStreamAdBreakList.add(midRoll1AdBreak);
+        fbInStreamAdBreakList.add(midRoll2AdBreak);
+        fbInStreamAdBreakList.add(postRollAdBreak);
+
+        //"294d7470-4781-4795-9493-36602bf29231");//("7450a453-4ba6-464b-85b6-6f319c7f7326");
+        FBInstreamConfig fbInstreamConfig = new FBInstreamConfig(fbInStreamAdBreakList).enableDebugMode(true).setTestDevice("294d7470-4781-4795-9493-36602bf29231").setAlwaysStartWithPreroll(false);
+        config.setPluginConfig(FBInstreamPlugin.factory.getName(), fbInstreamConfig);
+    }
+
+
     private void addPlayerStateListener() {
         player.addListener(this, PlayerEvent.stateChanged, event -> {
             log.d("State changed from " + event.oldState + " to " + event.newState);
@@ -157,15 +229,12 @@ public class MainActivity extends AppCompatActivity {
 
         // IMA Configuration
         PKPluginConfigs pkPluginConfigs = new PKPluginConfigs();
-        IMAConfig adsConfig = getAdsConfig(preMidPostSingleAdTagUrl);
-        pkPluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), adsConfig);
-
+        PKPluginConfigs setPlugins = createFBInStreamPlugin(pkPluginConfigs);
         playerInitOptions.setPluginConfigs(pkPluginConfigs);
 
         player = KalturaOttPlayer.create(MainActivity.this, playerInitOptions);
 
         player.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        subscribeToAdEvents();
         ViewGroup container = findViewById(R.id.player_root);
         container.addView(player.getPlayerView());
 
@@ -179,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         addPlayPauseButton();
-
+        addSeekButton();
         showSystemUI();
 
         addPlayerStateListener();
@@ -197,14 +266,6 @@ public class MainActivity extends AppCompatActivity {
         ottMediaOptions.formats = new String []{"Mobile_Main"};
 
         return ottMediaOptions;
-    }
-
-    private IMAConfig getAdsConfig(String adTagUrl) {
-        List<String> videoMimeTypes = new ArrayList<>();
-        videoMimeTypes.add("video/mp4");
-        videoMimeTypes.add("application/x-mpegURL");
-        videoMimeTypes.add("application/dash+xml");
-        return new IMAConfig().setAdTagUrl(adTagUrl).setVideoMimeTypes(videoMimeTypes).enableDebugMode(true).setAlwaysStartWithPreroll(true).setAdLoadTimeOut(8);
     }
 
     private void subscribeToAdEvents() {

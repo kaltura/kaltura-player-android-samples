@@ -11,6 +11,7 @@ import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.ads.AdController;
 import com.kaltura.playkit.plugins.ads.AdEvent;
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin;
 import com.kaltura.playkit.utils.Consts;
 import com.kaltura.playkitvr.VRController;
 import com.kaltura.tvplayer.KalturaPlayer;
@@ -44,6 +45,7 @@ public class PlaybackControlsManager implements PlaybackControls {
     private Enum playerState;
     private Enum adPlayerState;
     private boolean isAdDisplayed;
+    private String adPluginName;
 
     private Handler hideButtonsHandler = new Handler(Looper.getMainLooper());
     private Runnable hideButtonsRunnable = new Runnable() {
@@ -107,7 +109,11 @@ public class PlaybackControlsManager implements PlaybackControls {
         if (playerState == null && adPlayerState == null) {
             return;
         }
-        showControls(View.VISIBLE);
+        if (isAdDisplayed && FBInstreamPlugin.factory.getName().equals(adPluginName)) {
+            showControls(View.INVISIBLE);
+        } else {
+            showControls(View.VISIBLE);
+        }
         hideButtonsHandler.removeCallbacks(hideButtonsRunnable);
         hideButtonsHandler.postDelayed(hideButtonsRunnable, REMOVE_CONTROLS_TIMEOUT);
     }
@@ -172,6 +178,11 @@ public class PlaybackControlsManager implements PlaybackControls {
     public void setContentPlayerState(Enum playerState) {
         this.playerState = playerState;
 
+    }
+
+    @Override
+    public void setAdPluginName(String adPluginName) {
+        this.adPluginName = adPluginName;
     }
 
     @Override

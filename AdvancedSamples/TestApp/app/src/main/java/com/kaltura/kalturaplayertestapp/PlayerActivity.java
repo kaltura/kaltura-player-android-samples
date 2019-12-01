@@ -46,6 +46,8 @@ import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.plugins.ads.AdCuePoints;
 import com.kaltura.playkit.plugins.ads.AdEvent;
 import com.kaltura.playkit.plugins.ads.AdInfo;
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig;
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin;
 import com.kaltura.playkit.plugins.ima.IMAPlugin;
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin;
 import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig;
@@ -235,6 +237,9 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
             JsonObject imadaiJson = (JsonObject) initOptions.pluginConfigs.getPluginConfig(IMADAIPlugin.factory.getName());
             //IMADAIConfig imaPluginConfig = gson.fromJson(imadaiJson, IMADAIConfig.class);
             initOptions.pluginConfigs.setPluginConfig(IMAPlugin.factory.getName(), imadaiJson);
+        } else if (initOptions.pluginConfigs.hasConfig(FBInstreamPlugin.factory.getName())) {
+            FBInstreamConfig fbAds =  (FBInstreamConfig) initOptions.pluginConfigs.getPluginConfig(FBInstreamPlugin.factory.getName());
+            initOptions.pluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbAds);
         }
 
 //        //EXAMPLE if there are no auto replacers in this format ->  {{key}}
@@ -396,6 +401,16 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 initOptions.tvPlayerParams = phoenixTVPlayerParams;
             }
 
+            if (partnerId == 3079) {
+                PhoenixTVPlayerParams phoenixTVPlayerParams = new PhoenixTVPlayerParams();
+                phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
+                phoenixTVPlayerParams.ovpPartnerId = 1774581;
+                phoenixTVPlayerParams.partnerId = 3079;
+                phoenixTVPlayerParams.serviceUrl = "https://rest.irs1.ott.kaltura.com/v5_2_4/";
+                phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/";
+                initOptions.tvPlayerParams = phoenixTVPlayerParams;
+            }
+
             player = KalturaOttPlayer.create(PlayerActivity.this, initOptions);
             setPlayer(player);
             OTTMediaOptions ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex);
@@ -493,6 +508,7 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
             log.d("AD CUEPOINTS CHANGED");
             updateEventsLogsList("ad:\n" + event.eventType().name());
             adCuePoints = event.cuePoints;
+            playbackControlsManager.setAdPluginName(adCuePoints.getAdPluginName());
         });
 
         player.addListener(this, AdEvent.completed, event -> {
@@ -630,7 +646,10 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 playbackControlsView.getPlayPauseToggle().setBackgroundResource(R.drawable.replay);
             }
             progressBar.setVisibility(View.GONE);
-            if (!isPostrollAvailableInAdCuePoint() || IMADAIPlugin.factory.getName().equals(adCuePoints.getAdPluginName())) {
+            if (!isPostrollAvailableInAdCuePoint() ||
+                    IMADAIPlugin.factory.getName().equals(adCuePoints.getAdPluginName()) ||
+                    FBInstreamPlugin.factory.getName().equals(adCuePoints.getAdPluginName())
+            ) {
                 playbackControlsManager.showControls(View.VISIBLE);
             }
         });
@@ -860,6 +879,9 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
                 } else if (PhoenixAnalyticsPlugin.factory.getName().equalsIgnoreCase(pluginName)) {
                     PhoenixAnalyticsConfig phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.getParams(), PhoenixAnalyticsConfig.class);
                     pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.getName(), phoenixAnalyticsConfig.toJson());
+                } else if (FBInstreamPlugin.factory.getName().equalsIgnoreCase(pluginName)) {
+                    FBInstreamConfig fbInstreamConfig = gson.fromJson(pluginDescriptor.getParams(), FBInstreamConfig.class);
+                    pkPluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbInstreamConfig);
                 }
             }
         }
@@ -1006,6 +1028,10 @@ public class PlayerActivity extends AppCompatActivity implements Observer {
         super.onPause();
         unregisterReceiver(networkChangeReceiver);
         NetworkChangeReceiver.getObservable().deleteObserver(this);
+        if (adCuePoints != null && FBInstreamPlugin.factory.getName().equals(adCuePoints.getAdPluginName())) {
+            return;
+        }
+
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager.showControls(View.VISIBLE);
         }
