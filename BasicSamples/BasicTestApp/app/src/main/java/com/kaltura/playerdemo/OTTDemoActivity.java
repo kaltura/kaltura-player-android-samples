@@ -71,7 +71,7 @@ public class OTTDemoActivity extends BaseDemoActivity {
         updatedInitOptions.setLoadControlBuffers(initOptions.loadControlBuffers);
         updatedInitOptions.setAbrSettings(initOptions.abrSettings);
         updatedInitOptions.setAspectRatioResizeMode(initOptions.aspectRatioResizeMode);
-        updatedInitOptions.setPreferredMediaFormat(initOptions.preferredMediaFormat != null ? initOptions.preferredMediaFormat.name() : null);
+        updatedInitOptions.setPreferredMediaFormat(initOptions.preferredMediaFormat);
         updatedInitOptions.setAllowClearLead(initOptions.allowClearLead);
         updatedInitOptions.setAllowCrossProtocolEnabled(initOptions.allowCrossProtocolEnabled);
         updatedInitOptions.setSecureSurface(initOptions.secureSurface);

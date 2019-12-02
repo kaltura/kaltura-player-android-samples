@@ -36,9 +36,9 @@ dependencies {
 
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
-    //implementation 'com.kaltura.player:tvplayer:4.0.0'
+    implementation 'com.kaltura.player:tvplayer:4.4.0'
 
-    implementation project(":tvplayer");
+//    implementation project(":tvplayer");
 
     testImplementation 'junit:junit:4.12'
 }

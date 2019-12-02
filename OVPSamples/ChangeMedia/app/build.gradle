@@ -29,13 +29,13 @@ configurations.all {
 
 dependencies {
 
-    //implementation 'com.kaltura.player:tvplayer:4.0.0'
-    //implementation 'com.kaltura.playkit:imaplugin:4.0.0'
-    //implementation 'com.kaltura.playkit:youboraplugin:4.0.0'
+    implementation 'com.kaltura.player:tvplayer:4.4.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.4.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.4.0'
 
-    implementation project(":tvplayer")
-    implementation project(":ima")
-    implementation project(":youbora")
+//    implementation project(":tvplayer")
+//    implementation project(":ima")
+//    implementation project(":youbora")
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0')
