@@ -13,6 +13,7 @@ import com.kaltura.playkit.PlayerEvent
 import kotlinx.android.synthetic.main.activity_fullscreen.*
 
 import com.kaltura.playkit.PlayerState
+import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
@@ -139,7 +140,7 @@ class FullscreenActivity : AppCompatActivity() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID) //player config/behavior
         playerInitOptions.setAutoPlay(true)
 
-        val player = KalturaPlayer.createOVPPlayer(this@FullscreenActivity, playerInitOptions) ?: return
+        val player = KalturaOvpPlayer.create(this@FullscreenActivity, playerInitOptions) ?: return
 
         //create A VIEW that is determined by the size of the player
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
