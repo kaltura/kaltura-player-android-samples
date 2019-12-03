@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Getting Started</string>
+
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="play_button">|&gt;</string>
+    <string name="pause_button">||</string>
+</resources>
