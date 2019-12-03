@@ -421,7 +421,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (ottMedia.fileId != null) {
             ottMediaOptions.fileIds = arrayOf(ottMedia.fileId.toString())
         }
-
         return ottMediaOptions
     }
 
@@ -429,7 +428,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val ovpMedia = mediaList?.get(playListMediaIndex)
         val ovpMediaOptions = OVPMediaOptions()
         ovpMediaOptions.entryId = ovpMedia?.entryId
-        ovpMediaOptions.widgetId = ovpMedia?.widgetId
         ovpMediaOptions.ks = ovpMedia?.ks
         ovpMediaOptions.startPosition = startPosition
         ovpMediaOptions.externalSubtitles = ovpMedia?.externalSubtitles
