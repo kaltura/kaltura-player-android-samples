@@ -27,6 +27,7 @@ project(':dtglib').projectDir = new File('../../playkit-dtg-android/dtglib')
 
 // Sample apps
 def samples = [
+        'GettingStarted',
         'BasicSetup',
         'ChangeMedia',
         'SubtitleSideloading',
