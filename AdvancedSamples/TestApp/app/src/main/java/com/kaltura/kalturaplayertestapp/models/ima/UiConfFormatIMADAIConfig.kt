@@ -1,3 +1,4 @@
+/*
 package com.kaltura.kalturaplayertestapp.models.ima
 
 import com.google.ads.interactivemedia.v3.api.StreamRequest
@@ -87,4 +88,4 @@ data class UiConfFormatIMADAIConfig(var assetTitle: String,
     }
 
 
-}
+}*/

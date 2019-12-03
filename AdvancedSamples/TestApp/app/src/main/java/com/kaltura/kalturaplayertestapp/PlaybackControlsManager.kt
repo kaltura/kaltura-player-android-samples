@@ -11,12 +11,14 @@ import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.plugins.ads.AdEvent
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin
 import com.kaltura.playkit.utils.Consts
 import com.kaltura.playkitvr.VRController
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlaybackControlsView
 
 class PlaybackControlsManager(private val playerActivity: PlayerActivity, private val player: KalturaPlayer?, private val playbackControlsView: PlaybackControlsView?): PlaybackControls {
+
     private var tracksSelectionController: TracksSelectionController? = null
 
     private val videoTracksBtn: Button
@@ -25,7 +27,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     private val prevBtn: Button
     private val nextBtn: Button
     private val vrToggle: ImageView
-    private val adPluginName: String? = null
+    private var adPluginName: String? = null
 
 
     var playerState: Enum<*>? = null
@@ -145,15 +147,14 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
 
     override fun setContentPlayerState(playerState: Enum<*>?) {
         this.playerState = playerState
-
     }
 
     override fun setAdPluginName(adPluginName: String) {
         this.adPluginName = adPluginName;
     }
 
-    override fun setAdPlayerState(adPlayerState: Enum<*>?) {
-        this.adPlayerState = adPlayerState
+    override fun setAdPlayerState(playerState: Enum<*>?) {
+        this.adPlayerState = playerState
         if (adPlayerState === AdEvent.Type.STARTED || adPlayerState === AdEvent.Type.CONTENT_PAUSE_REQUESTED || adPlayerState === AdEvent.Type.TAPPED) {
             isAdDisplayed = true
         } else if (adPlayerState === AdEvent.Type.CONTENT_RESUME_REQUESTED || adPlayerState === AdEvent.Type.ALL_ADS_COMPLETED) {

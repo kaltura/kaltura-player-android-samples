@@ -35,6 +35,8 @@ import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig
+import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin
 import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
@@ -199,9 +201,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             val imadaiJson = initOptions!!.pluginConfigs.getPluginConfig(IMADAIPlugin.factory.name) as JsonObject
             //IMADAIConfig imaPluginConfig = gson.fromJson(imadaiJson, IMADAIConfig.class);
             initOptions!!.pluginConfigs.setPluginConfig(IMAPlugin.factory.name, imadaiJson)
-        } else if (initOptions.pluginConfigs.hasConfig(FBInstreamPlugin.factory.getName())) {
-            FBInstreamConfig fbAds =  (FBInstreamConfig) initOptions.pluginConfigs.getPluginConfig(FBInstreamPlugin.factory.getName());
-            initOptions.pluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbAds);
+        } else if (initOptions!!.pluginConfigs.hasConfig(FBInstreamPlugin.factory.getName())) {
+            val fbAds =  initOptions!!.pluginConfigs.getPluginConfig(FBInstreamPlugin.factory.getName());
+            initOptions!!.pluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbAds);
         }
 
 //        //EXAMPLE if there are no auto replacers in this format ->  {{key}}
@@ -393,7 +395,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (appPlayerInitConfig.vrSettings != null) {
                     mediaEntry!!.setIsVRMediaType(true)
                 }
-                player!!.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
+                player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
             }
         } else {
             log.e("Failed to initialize player...")
@@ -462,7 +464,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("AD CUEPOINTS CHANGED")
             updateEventsLogsList("ad:\n" + event.eventType().name)
             adCuePoints = event.cuePoints
-            playbackControlsManager?.setAdPluginName(adCuePoints.getAdPluginName());
+            playbackControlsManager?.setAdPluginName(adCuePoints!!.getAdPluginName());
         }
 
         player?.addListener(this, AdEvent.completed) { event ->
@@ -830,8 +832,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 } else if (PhoenixAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     val phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params, PhoenixAnalyticsConfig::class.java)
                     pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig.toJson())
-                } else if (FBInstreamPlugin.factory.getName().equalsIgnoreCase(pluginName)) {
-                    val fbInstreamConfig = gson.fromJson(pluginDescriptor.getParams(), FBInstreamConfig::class.java);
+                } else if (FBInstreamPlugin.factory.name.equals(pluginName)) {
+                    val fbInstreamConfig = gson.fromJson(pluginDescriptor.params, FBInstreamConfig::class.java);
                     pkPluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbInstreamConfig);
                 }
             }
@@ -969,7 +971,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         super.onPause()
         unregisterReceiver(networkChangeReceiver)
         NetworkChangeReceiver.getObservable().deleteObserver(this)
-        if (adCuePoints != null && FBInstreamPlugin.factory.getName().equals(adCuePoints.getAdPluginName())) {
+        if (adCuePoints != null && FBInstreamPlugin.factory.getName().equals(adCuePoints!!.getAdPluginName())) {
             return;
         }
 

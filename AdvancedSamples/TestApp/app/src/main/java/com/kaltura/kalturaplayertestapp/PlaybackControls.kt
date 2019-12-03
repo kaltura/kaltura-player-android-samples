@@ -6,8 +6,8 @@ package com.kaltura.kalturaplayertestapp
 
 interface PlaybackControls {
     fun handleContainerClick()
-    fun showControls(visability: Int)
-    fun setContentPlayerState(playerState: Enum<*>)
-    fun setAdPlayerState(playerState: Enum<*>)
+    fun showControls(visibility: Int)
+    fun setContentPlayerState(playerState: Enum<*>?)
+    fun setAdPlayerState(playerState: Enum<*>?)
     fun setAdPluginName(adPluginName: String)
 }
