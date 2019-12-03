@@ -182,4 +182,22 @@ class FullscreenActivity : AppCompatActivity() {
         public const val PARTNER_ID = 2215841
 
     }
+
+    override fun onResume() {
+        super.onResume()
+        if (player != null && playerState != null) {
+            if (playPauseButton != null) {
+                playPauseButton!!.setImageResource(R.drawable.exo_controls_pause)
+            }
+            player!!.onApplicationResumed()
+            player!!.play()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (player != null) {
+            player!!.onApplicationPaused()
+        }
+    }
 }
