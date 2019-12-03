@@ -199,6 +199,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             val imadaiJson = initOptions!!.pluginConfigs.getPluginConfig(IMADAIPlugin.factory.name) as JsonObject
             //IMADAIConfig imaPluginConfig = gson.fromJson(imadaiJson, IMADAIConfig.class);
             initOptions!!.pluginConfigs.setPluginConfig(IMAPlugin.factory.name, imadaiJson)
+        } else if (initOptions.pluginConfigs.hasConfig(FBInstreamPlugin.factory.getName())) {
+            FBInstreamConfig fbAds =  (FBInstreamConfig) initOptions.pluginConfigs.getPluginConfig(FBInstreamPlugin.factory.getName());
+            initOptions.pluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbAds);
         }
 
 //        //EXAMPLE if there are no auto replacers in this format ->  {{key}}
@@ -357,6 +360,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 initOptions?.tvPlayerParams = phoenixTVPlayerParams
             }
 
+            if (partnerId == 3079) {
+                val phoenixTVPlayerParams = PhoenixTVPlayerParams();
+                phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com";
+                phoenixTVPlayerParams.ovpPartnerId = 1774581;
+                phoenixTVPlayerParams.partnerId = 3079;
+                phoenixTVPlayerParams.serviceUrl = "https://rest.irs1.ott.kaltura.com/v5_2_4/";
+                phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/";
+                initOptions?.tvPlayerParams = phoenixTVPlayerParams;
+            }
+
             player = KalturaOttPlayer.create(this@PlayerActivity, initOptions)
             setPlayer(player)
             val ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
@@ -449,6 +462,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("AD CUEPOINTS CHANGED")
             updateEventsLogsList("ad:\n" + event.eventType().name)
             adCuePoints = event.cuePoints
+            playbackControlsManager?.setAdPluginName(adCuePoints.getAdPluginName());
         }
 
         player?.addListener(this, AdEvent.completed) { event ->
@@ -586,7 +600,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.replay)
             }
             progressBar?.setVisibility(View.GONE)
-            if (!isPostrollAvailableInAdCuePoint() || IMADAIPlugin.factory.name == adCuePoints?.getAdPluginName()) {
+            if (!isPostrollAvailableInAdCuePoint() ||
+                    IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName()) ||
+                    FBInstreamPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())
+            ) {
                 playbackControlsManager?.showControls(View.VISIBLE)
             }
         }
@@ -813,6 +830,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 } else if (PhoenixAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     val phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params, PhoenixAnalyticsConfig::class.java)
                     pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig.toJson())
+                } else if (FBInstreamPlugin.factory.getName().equalsIgnoreCase(pluginName)) {
+                    val fbInstreamConfig = gson.fromJson(pluginDescriptor.getParams(), FBInstreamConfig::class.java);
+                    pkPluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbInstreamConfig);
                 }
             }
         }
@@ -949,6 +969,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         super.onPause()
         unregisterReceiver(networkChangeReceiver)
         NetworkChangeReceiver.getObservable().deleteObserver(this)
+        if (adCuePoints != null && FBInstreamPlugin.factory.getName().equals(adCuePoints.getAdPluginName())) {
+            return;
+        }
+
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager?.showControls(View.VISIBLE)
         }

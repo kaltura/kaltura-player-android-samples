@@ -25,6 +25,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     private val prevBtn: Button
     private val nextBtn: Button
     private val vrToggle: ImageView
+    private val adPluginName: String? = null
 
 
     var playerState: Enum<*>? = null
@@ -78,7 +79,11 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         if (playerState == null && adPlayerState == null) {
             return
         }
-        showControls(View.VISIBLE)
+        if (isAdDisplayed && FBInstreamPlugin.factory.getName().equals(adPluginName)) {
+            showControls(View.INVISIBLE);
+        } else {
+            showControls(View.VISIBLE);
+        }
         hideButtonsHandler.removeCallbacks(hideButtonsRunnable)
         hideButtonsHandler.postDelayed(hideButtonsRunnable, REMOVE_CONTROLS_TIMEOUT.toLong())
     }
@@ -141,6 +146,10 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     override fun setContentPlayerState(playerState: Enum<*>?) {
         this.playerState = playerState
 
+    }
+
+    override fun setAdPluginName(adPluginName: String) {
+        this.adPluginName = adPluginName;
     }
 
     override fun setAdPlayerState(adPlayerState: Enum<*>?) {
