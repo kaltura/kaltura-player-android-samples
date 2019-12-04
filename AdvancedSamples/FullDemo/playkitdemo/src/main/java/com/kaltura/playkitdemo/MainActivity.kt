@@ -53,6 +53,8 @@ import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.plugins.imadai.IMADAIConfig
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin
+import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
+import com.kaltura.playkit.plugins.kava.KavaAnalyticsPlugin
 import com.kaltura.playkit.plugins.ott.OttEvent
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsConfig
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsEvent
@@ -264,7 +266,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         initSpinners()
         registerFullScreenButton()
 
-        val pkPluginConfigs = configurePlugins()
+        var pkPluginConfigs = configurePlugins()
+        //EXAMPLE FOR OVERIDING KAVA DEFAULT PLUGIN CONFIG
+        pkPluginConfigs.setPluginConfig(KavaAnalyticsPlugin.factory.name, getKavaAnalyticsConfig(112233))
+
+
 
         // Basic Playkit Player
         //loadBasicKalturaPlayer(pkPluginConfigs);
@@ -277,6 +283,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
         // OVP Playkit Player
         //loadKalturaPlayer(OVP_PARTNER_ID_HLS, KalturaPlayer.Type.ovp, pkPluginConfigs);
+    }
+
+    private fun getKavaAnalyticsConfig(partnerId: Int): KavaAnalyticsConfig {
+        return KavaAnalyticsConfig()
+                .setApplicationVersion(BuildConfig.VERSION_NAME)
+                .setPartnerId(partnerId)
+                .setUserId("aaa@gmail.com")
+                .setCustomVar1("Test1")
+                .setApplicationVersion("Test123")
     }
 
     /**
