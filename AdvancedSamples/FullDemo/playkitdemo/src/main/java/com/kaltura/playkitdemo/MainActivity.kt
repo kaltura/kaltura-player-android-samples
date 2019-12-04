@@ -267,7 +267,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         registerFullScreenButton()
 
         var pkPluginConfigs = configurePlugins()
-        //EXAMPLE FOR OVERIDING KAVA DEFAULT PLUGIN CONFIG
+        //EXAMPLE FOR OVERRIDNG KAVA DEFAULT PLUGIN CONFIG
         pkPluginConfigs.setPluginConfig(KavaAnalyticsPlugin.factory.name, getKavaAnalyticsConfig(112233))
 
 
