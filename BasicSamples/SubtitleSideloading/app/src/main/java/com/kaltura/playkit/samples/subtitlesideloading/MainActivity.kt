@@ -40,6 +40,12 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
+    private val TAG = "MainActivity"
+    private val START_POSITION = 0L // position for start playback in msec.
+
+    private val MEDIA_FORMAT = PKMediaFormat.hls
+    private val SOURCE_URL = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+    private val LICENSE_URL: String? = null
     // Source to see subtitles any source can be used
     //   private static final String SOURCE_URL = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
 
@@ -524,15 +530,5 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         container.addView(player!!.playerView)
         player!!.setMedia(pkMediaEntry, START_POSITION)
 
-    }
-
-    companion object {
-
-        private val TAG = "MainActivity"
-        private val START_POSITION = 0L // position for start playback in msec.
-
-        private val MEDIA_FORMAT = PKMediaFormat.hls
-        private val SOURCE_URL = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
-        private val LICENSE_URL: String? = null
     }
 }

@@ -19,6 +19,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class TracksSelectionController(private val context: Context, private val player: KalturaPlayer?, val tracks: PKTracks?) {
+    private val log = PKLog.get("TracksSelectionController")
 
     private var lastVideoTrackSelectionIndex = 0
     private var lastAudioTrackSelectionIndex = 0
@@ -28,6 +29,20 @@ class TracksSelectionController(private val context: Context, private val player
         lastVideoTrackSelectionIndex = tracks!!.getDefaultVideoTrackIndex()
         lastAudioTrackSelectionIndex = tracks.getDefaultAudioTrackIndex()
         lastTextTrackSelectionIndex = tracks.getDefaultTextTrackIndex()
+    }
+
+    private fun buildBitrateString(bitrate: Long): String {
+        return if (bitrate == Consts.NO_VALUE)
+            ""
+        else
+            String.format("%.2fMbit", bitrate / 1000000f)
+    }
+
+    private fun buildLanguageString(language: String): String {
+        return if (TextUtils.isEmpty(language) || "und" == language)
+            ""
+        else
+            language
     }
 
     private fun buildTracksSelectionView(): RecyclerView {
@@ -211,24 +226,6 @@ class TracksSelectionController(private val context: Context, private val player
             TRACK_TYPE_AUDIO -> lastAudioTrackSelectionIndex = trackIndex
             TRACK_TYPE_TEXT -> lastTextTrackSelectionIndex = trackIndex
             else -> return
-        }
-    }
-
-    companion object {
-        private val log = PKLog.get("TracksSelectionController")
-
-        private fun buildBitrateString(bitrate: Long): String {
-            return if (bitrate == Consts.NO_VALUE)
-                ""
-            else
-                String.format("%.2fMbit", bitrate / 1000000f)
-        }
-
-        private fun buildLanguageString(language: String): String {
-            return if (TextUtils.isEmpty(language) || "und" == language)
-                ""
-            else
-                language
         }
     }
 }

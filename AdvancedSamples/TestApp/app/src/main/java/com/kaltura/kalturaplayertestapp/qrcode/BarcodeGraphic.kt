@@ -13,6 +13,9 @@ import com.kaltura.kalturaplayertestapp.camera.GraphicOverlay
  */
 class BarcodeGraphic internal constructor(overlay: GraphicOverlay<*>): GraphicOverlay.Graphic(overlay) {
 
+    private val COLOR_CHOICES = intArrayOf(Color.BLUE, Color.CYAN, Color.GREEN)
+
+    private var mCurrentColorIndex = 0
     var id: Int = 0
 
     private val mRectPaint: Paint
@@ -61,12 +64,5 @@ class BarcodeGraphic internal constructor(overlay: GraphicOverlay<*>): GraphicOv
 
         // Draws a label at the bottom of the barcode indicate the barcode value that was detected.
         canvas.drawText("OK"/*barcode.rawValue*/, rect.left, rect.bottom, mTextPaint)
-    }
-
-    companion object {
-
-        private val COLOR_CHOICES = intArrayOf(Color.BLUE, Color.CYAN, Color.GREEN)
-
-        private var mCurrentColorIndex = 0
     }
 }

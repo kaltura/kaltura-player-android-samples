@@ -115,6 +115,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
     private var playerState: PlayerState? = null
 
     internal var playerInitOptions: PlayerInitOptions? = null
+    private val log = PKLog.get("MainActivity")
+    val IMA_PLUGIN = "IMA"
+    val DAI_PLUGIN = "DAI"
+    var READ_EXTERNAL_STORAGE_PERMISSIONS_REQUEST = 123
+    var changeMediaIndex = -1
+    var START_POSITION: Long? = 0L//65L;
 
     private val daiConfig6: IMADAIConfig
         get() {
@@ -1283,6 +1289,18 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         return Comparator { track1, track2 -> java.lang.Long.valueOf(track1.bitrate).compareTo(track2.bitrate) }
     }
 
+    private fun getVideoTracksInRange(videoTracks: List<VideoTrack>, bitRateRange: BitRateRange?): List<VideoTrack> {
+        val videoTrackInfo = ArrayList<VideoTrack>()
+        var bitRate: Long
+        for (track in videoTracks) {
+            bitRate = track.bitrate
+            if (bitRate >= bitRateRange!!.low && bitRate <= bitRateRange.high) {
+                videoTrackInfo.add(track)
+            }
+        }
+        return videoTrackInfo
+    }
+
     private fun buildAudioChannelString(channelCount: Int): String {
         when (channelCount) {
             1 -> return "Mono"
@@ -1295,6 +1313,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
     //Example for Custom Licens Adapter
     internal class DRMAdapter : PKRequestParams.Adapter {
+        var customData: String? = null
         override fun adapt(requestParams: PKRequestParams): PKRequestParams {
             requestParams.headers["customData"] = customData!!
             return requestParams
@@ -1307,11 +1326,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         override fun getApplicationName(): String? {
             return null
         }
-
-        companion object {
-
-            var customData: String? = null
-        }
     }
 
     private fun changeBasicMediaOptions(pkMediaEntry: PKMediaEntry?) {
@@ -1319,28 +1333,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             player!!.setMedia(pkMediaEntry, START_POSITION)
         } else {
             log.d("PKMediaEntry is null")
-        }
-    }
-
-    companion object {
-
-        private val log = PKLog.get("MainActivity")
-        val IMA_PLUGIN = "IMA"
-        val DAI_PLUGIN = "DAI"
-        var READ_EXTERNAL_STORAGE_PERMISSIONS_REQUEST = 123
-        var changeMediaIndex = -1
-        var START_POSITION: Long? = 0L//65L;
-
-        private fun getVideoTracksInRange(videoTracks: List<VideoTrack>, bitRateRange: BitRateRange?): List<VideoTrack> {
-            val videoTrackInfo = ArrayList<VideoTrack>()
-            var bitRate: Long
-            for (track in videoTracks) {
-                bitRate = track.bitrate
-                if (bitRate >= bitRateRange!!.low && bitRate <= bitRateRange.high) {
-                    videoTrackInfo.add(track)
-                }
-            }
-            return videoTrackInfo
         }
     }
 }

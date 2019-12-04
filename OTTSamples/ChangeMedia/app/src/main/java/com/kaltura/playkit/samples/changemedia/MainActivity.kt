@@ -24,7 +24,11 @@ import com.kaltura.tvplayer.PlayerInitOptions
 
 class MainActivity : AppCompatActivity() {
 
+    private val log = PKLog.get("MainActivity")
 
+    private val FIRST_ASSET_ID = "548576"
+    private val SECOND_ASSET_ID = "548577"
+    private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
     private var isFullScreen: Boolean = false
@@ -233,15 +237,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-
-        private val log = PKLog.get("MainActivity")
-
         val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
         val PARTNER_ID = 3009
-
-        private val FIRST_ASSET_ID = "548576"
-        private val SECOND_ASSET_ID = "548577"
-        private val START_POSITION = 0L // position for start playback in msec.
     }
-
 }

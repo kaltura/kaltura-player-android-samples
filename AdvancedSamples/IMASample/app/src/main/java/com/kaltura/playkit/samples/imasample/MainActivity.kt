@@ -31,6 +31,11 @@ import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
+    private val log = PKLog.get("MainActivity")
+
+    private val START_POSITION = 0L // position for start playback in msec.
+    private val ASSET_ID = "548576"
+
     //Ad configuration constants.
     internal var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
 
@@ -284,14 +289,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-
-        private val log = PKLog.get("MainActivity")
-
-        private val START_POSITION = 0L // position for start playback in msec.
-
         //Media entry configuration constants.
         val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
-        private val ASSET_ID = "548576"
         val PARTNER_ID = 3009
     }
 }

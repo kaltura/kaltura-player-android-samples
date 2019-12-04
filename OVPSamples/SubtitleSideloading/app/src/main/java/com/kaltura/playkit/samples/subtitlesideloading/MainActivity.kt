@@ -39,6 +39,9 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
+    private val TAG = "MainActivity"
+    private val ENTRY_ID = "1_w9zx2eti"
+    private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
 
@@ -488,12 +491,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     companion object {
-
-        private val TAG = "MainActivity"
-
         val PARTNER_ID = 2215841
         val SERVER_URL = "https://cdnapisec.kaltura.com"
-        private val ENTRY_ID = "1_w9zx2eti"
-        private val START_POSITION = 0L // position for start playback in msec.
     }
 }

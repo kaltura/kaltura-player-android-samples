@@ -29,6 +29,8 @@ import java.util.Collections
 
 class LocalAssets(context: Context) {
 
+    private val log = PKLog.get("LocalAssets")
+
     private val drmParams = PKDrmParams("https://udrm.kaltura.com/widevine/license?custom_data=eyJjYV9zeXN0ZW0iOiJPVlAiLCJ1c2VyX3Rva2VuIjoiZGpKOE1UZzFNVFUzTVh4NThBVkFQOXo1R0lvU3BXWE95emEtdWlQNnk5cXpBdkpkMzZfUFZOcUNfT0NZWWhLRVh5LThqcGFMRktGcU15d3VTN2ZLZmxibTd1VVJGQkVtSGxsNkc4NEU2LUxrcnFXbVV1ZWEtZnFqdXc9PSIsImFjY291bnRfaWQiOiIxODUxNTcxIiwiY29udGVudF9pZCI6IjBfcGw1bGJmbzAiLCJmaWxlcyI6IjBfendxM2w0NHIsMF91YTYycms2cywwX290bWFxcG5mLDBfeXdrbXFua2csMV9lMHF0YWoxaiwxX2IycXp5dmE3In0%3D&signature=LFiNPZL8%2BNevsZ8cNhrmSDM4SDQ%3D", PKDrmParams.Scheme.WidevineClassic)
     private val widevineClassicSource = PKMediaSource()
             .setId("wvc")
@@ -84,46 +86,42 @@ class LocalAssets(context: Context) {
         localAssetsManager.unregisterAsset(localAssetPath, widevineClassicSource.id, assetRemovalListener)
     }
 
-    companion object {
-        private val log = PKLog.get("LocalAssets")
+    internal fun start(context: Context, completion: OnMediaLoadCompletion) {
 
-        internal fun start(context: Context, completion: OnMediaLoadCompletion) {
+        val localAssets = LocalAssets(context)
 
-            val localAssets = LocalAssets(context)
-
-            val alertBuilder = AlertDialog.Builder(context)
-            alertBuilder.setTitle("Local Assets")
-                    .setNegativeButton("Hide") { dialog, which -> Handler(Looper.getMainLooper()).postDelayed({ alertBuilder.show() }, 5000) }
-                    .setItems(arrayOf("Register", "Check Status", "Play", "Unregister")) { dialog, which ->
-                        log.d("clicked: $which")
-                        when (which) {
-                            0 -> localAssets.registerAsset(object : LocalAssetsManager.AssetRegistrationListener {
-                                override fun onRegistered(localAssetPath: String) {
-                                    Toast.makeText(context, "Registered", Toast.LENGTH_LONG).show()
-                                    alertBuilder.show()
-                                }
-
-                                override fun onFailed(localAssetPath: String, error: Exception) {
-                                    Toast.makeText(context, "Failed: $error", Toast.LENGTH_LONG).show()
-                                    alertBuilder.show()
-                                }
-                            })
-                            1 -> localAssets.checkAssetStatus(LocalAssetsManager.AssetStatusListener { localAssetPath, expiryTimeSeconds, availableTimeSeconds, isRegistered ->
-                                Toast.makeText(context, "Status: $isRegistered, $expiryTimeSeconds, $availableTimeSeconds", Toast.LENGTH_LONG).show()
-                                alertBuilder.show()
-                            })
-                            2 -> {
-                                localAssets.getLocalMediaEntry(completion)
+        val alertBuilder = AlertDialog.Builder(context)
+        alertBuilder.setTitle("Local Assets")
+                .setNegativeButton("Hide") { dialog, which -> Handler(Looper.getMainLooper()).postDelayed({ alertBuilder.show() }, 5000) }
+                .setItems(arrayOf("Register", "Check Status", "Play", "Unregister")) { dialog, which ->
+                    log.d("clicked: $which")
+                    when (which) {
+                        0 -> localAssets.registerAsset(object : LocalAssetsManager.AssetRegistrationListener {
+                            override fun onRegistered(localAssetPath: String) {
+                                Toast.makeText(context, "Registered", Toast.LENGTH_LONG).show()
                                 alertBuilder.show()
                             }
-                            3 -> {
-                                localAssets.unregisterAsset(LocalAssetsManager.AssetRemovalListener { Toast.makeText(context, "Unregistered:", Toast.LENGTH_LONG).show() })
+
+                            override fun onFailed(localAssetPath: String, error: Exception) {
+                                Toast.makeText(context, "Failed: $error", Toast.LENGTH_LONG).show()
                                 alertBuilder.show()
                             }
+                        })
+                        1 -> localAssets.checkAssetStatus(LocalAssetsManager.AssetStatusListener { localAssetPath, expiryTimeSeconds, availableTimeSeconds, isRegistered ->
+                            Toast.makeText(context, "Status: $isRegistered, $expiryTimeSeconds, $availableTimeSeconds", Toast.LENGTH_LONG).show()
+                            alertBuilder.show()
+                        })
+                        2 -> {
+                            localAssets.getLocalMediaEntry(completion)
+                            alertBuilder.show()
+                        }
+                        3 -> {
+                            localAssets.unregisterAsset(LocalAssetsManager.AssetRemovalListener { Toast.makeText(context, "Unregistered:", Toast.LENGTH_LONG).show() })
+                            alertBuilder.show()
                         }
                     }
+                }
 
-            alertBuilder.show()
-        }
+        alertBuilder.show()
     }
 }

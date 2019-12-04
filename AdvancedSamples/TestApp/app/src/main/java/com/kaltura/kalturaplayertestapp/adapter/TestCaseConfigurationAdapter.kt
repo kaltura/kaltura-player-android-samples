@@ -24,6 +24,7 @@ import org.json.JSONObject
  */
 open class TestCaseConfigurationAdapter(query: Query, var mListener: OnJsonSelectedListener): FirestoreAdapter<TestCaseConfigurationAdapter.ViewHolder>(query) {
     private var context: Context? = null
+    private val log = PKLog.get("TestCaseConfigurationAdapter")
 
     fun removeItem(adapterPosition: Int) {
         snapshots[adapterPosition].reference.delete().addOnSuccessListener { log.d("Document Snapshot successfully deleted!") }
@@ -105,9 +106,5 @@ open class TestCaseConfigurationAdapter(query: Query, var mListener: OnJsonSelec
             }
 
         }
-    }
-
-    companion object {
-        private val log = PKLog.get("TestCaseConfigurationAdapter")
     }
 }

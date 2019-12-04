@@ -20,6 +20,8 @@ import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 
 class MainActivity : AppCompatActivity() {
+    private val log = PKLog.get("MainActivity")
+    private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
 
@@ -151,10 +153,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-
-        private val log = PKLog.get("MainActivity")
         val PARTNER_ID = 2215841
         val SERVER_URL = "https://cdnapisec.kaltura.com"
-        private val START_POSITION = 0L // position for start playback in msec.
     }
 }

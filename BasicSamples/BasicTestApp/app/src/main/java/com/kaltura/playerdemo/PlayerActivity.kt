@@ -12,6 +12,7 @@ import org.greenrobot.eventbus.EventBus
 
 class PlayerActivity : AppCompatActivity() {
 
+    private val log = PKLog.get("PlayerActivity")
     private var player: KalturaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,10 +54,5 @@ class PlayerActivity : AppCompatActivity() {
 
         val container = findViewById<ViewGroup>(R.id.player_container)
         container.addView(player.playerView)
-    }
-
-    companion object {
-
-        private val log = PKLog.get("PlayerActivity")
     }
 }

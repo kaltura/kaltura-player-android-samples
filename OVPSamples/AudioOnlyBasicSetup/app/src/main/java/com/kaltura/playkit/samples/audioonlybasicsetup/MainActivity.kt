@@ -22,6 +22,11 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    private val log = PKLog.get("MainActivity")
+
+    private val START_POSITION = 0L // position for start playback in msec.
+    private val AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
+    private val ENTRY_ID = "1_w9zx2eti"
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
     private var artworkView: ImageView? = null
@@ -197,26 +202,20 @@ class MainActivity : AppCompatActivity() {
             val tracks = event.tracksInfo
             val defaultAudioTrackIndex = tracks.getDefaultAudioTrackIndex()
             val defaultTextTrackIndex = tracks.getDefaultTextTrackIndex()
-            if (tracks.getAudioTracks().size > 0) {
-                log.d("Default Audio language = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel()!!)
+            if (tracks.audioTracks.size > 0) {
+                log.d("Default Audio language = " + tracks.audioTracks.get(defaultAudioTrackIndex).label)
             }
-            if (tracks.getTextTracks().size > 0) {
-                log.d("Default Text language = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel()!!)
+            if (tracks.textTracks.size > 0) {
+                log.d("Default Text language = " + tracks.textTracks.get(defaultTextTrackIndex).label)
             }
-            if (tracks.getVideoTracks().size > 0) {
-                log.d("Default video isAdaptive = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).isAdaptive() + " bitrate = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).getBitrate())
+            if (tracks.videoTracks.size > 0) {
+                log.d("Default video isAdaptive = " + tracks.videoTracks.get(tracks.defaultAudioTrackIndex).isAdaptive + " bitrate = " + tracks.videoTracks.get(tracks.defaultAudioTrackIndex).bitrate)
             }
         }
     }
 
     companion object {
-
-        private val log = PKLog.get("MainActivity")
-
         val PARTNER_ID = 2215841
         val SERVER_URL = "https://cdnapisec.kaltura.com"
-        private val START_POSITION = 0L // position for start playback in msec.
-        private val AD_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
-        private val ENTRY_ID = "1_w9zx2eti"
     }
 }

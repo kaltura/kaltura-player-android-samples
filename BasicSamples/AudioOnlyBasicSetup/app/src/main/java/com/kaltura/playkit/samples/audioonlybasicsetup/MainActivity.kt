@@ -1,4 +1,3 @@
-/*
 package com.kaltura.playkit.samples.audioonlybasicsetup
 
 import android.os.Bundle
@@ -7,16 +6,28 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
+
 import androidx.appcompat.app.AppCompatActivity
-import com.kaltura.playkit.*
+
+import com.kaltura.playkit.PKDrmParams
+import com.kaltura.playkit.PKLog
+import com.kaltura.playkit.PKMediaEntry
+import com.kaltura.playkit.PKMediaFormat
+import com.kaltura.playkit.PKMediaSource
+import com.kaltura.playkit.PKPluginConfigs
+import com.kaltura.playkit.PKSubtitleFormat
+import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.player.PKExternalSubtitle
+import com.kaltura.playkit.player.PKTracks
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
-import java.util.*
+
+import java.util.ArrayList
+import java.util.Collections
 
 
 class MainActivity : AppCompatActivity() {
@@ -80,13 +91,11 @@ class MainActivity : AppCompatActivity() {
         mediaEntry.externalSubtitleList = mList
     }
 
-    */
-/**
+    /**
      * Create [PKMediaEntry] with minimum necessary data.
      *
      * @return - the [PKMediaEntry] object.
-     *//*
-
+     */
     private fun createMediaEntry(): PKMediaEntry {
         //Create media entry.
         val mediaEntry = PKMediaEntry()
@@ -115,13 +124,11 @@ class MainActivity : AppCompatActivity() {
         return mediaEntry
     }
 
-    */
-/**
+    /**
      * Create list of [PKMediaSource].
      *
      * @return - the list of sources.
-     *//*
-
+     */
     private fun createMediaSources(): List<PKMediaSource> {
 
         //Create new PKMediaSource instance.
@@ -144,11 +151,9 @@ class MainActivity : AppCompatActivity() {
         return listOf(mediaSource)
     }
 
-    */
-/**
+    /**
      * Just add a simple button which will start/pause playback.
-     *//*
-
+     */
     private fun addPlayPauseButton() {
         //Get reference to the play/pause button.
         playPauseButton = this.findViewById(R.id.play_pause_button)
@@ -235,10 +240,10 @@ class MainActivity : AppCompatActivity() {
             val defaultAudioTrackIndex = tracks.defaultAudioTrackIndex
             val defaultTextTrackIndex = tracks.defaultTextTrackIndex
             if (tracks.audioTracks.size > 0) {
-                log.d("Default Audio langae = " + tracks.audioTracks[defaultAudioTrackIndex].label!!)
+                log.d("Default Audio langae = " + tracks.audioTracks[defaultAudioTrackIndex].label)
             }
             if (tracks.textTracks.size > 0) {
-                log.d("Default Text langae = " + tracks.textTracks[defaultTextTrackIndex].label!!)
+                log.d("Default Text langae = " + tracks.textTracks[defaultTextTrackIndex].label)
                 if (tracks.textTracks.size > 2) {
                     player!!.changeTrack(tracks.textTracks[2].uniqueId)
                 }
@@ -249,4 +254,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-*/

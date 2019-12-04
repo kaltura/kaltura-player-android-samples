@@ -29,6 +29,14 @@ import java.util.ArrayList
 
 class MainActivity: AppCompatActivity() {
 
+    //Tag for logging.
+    private val TAG = MainActivity::class.java.simpleName
+    private val START_POSITION = 0L // position for start playback in msec.
+    private val ASSET_ID = "548576"
+
+    //Ad configuration constants.
+    private val INCORRECT_AD_TAG_URL = "incorrect_ad_tag_url"
+
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
     private var isFullScreen: Boolean = false
@@ -211,18 +219,8 @@ class MainActivity: AppCompatActivity() {
     }
 
     companion object {
-
-        //Tag for logging.
-        private val TAG = MainActivity::class.java.simpleName
-
-        private val START_POSITION = 0L // position for start playback in msec.
-
         //The url of the source to play
         val SERVER_URL = "incorrect_source_url" // "https://rest-us.ott.kaltura.com/v4_5/api_v3/";
-        private val ASSET_ID = "548576"
         val PARTNER_ID = 3009
-
-        //Ad configuration constants.
-        private val INCORRECT_AD_TAG_URL = "incorrect_ad_tag_url"
     }
 }

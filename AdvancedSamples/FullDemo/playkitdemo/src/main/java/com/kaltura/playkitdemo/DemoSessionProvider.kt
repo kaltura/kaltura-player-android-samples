@@ -11,6 +11,15 @@ import com.kaltura.netkit.utils.SessionProvider
 class DemoSessionProvider private constructor() : SessionProvider {
 
     private var ks: String? = null
+    private var self: DemoSessionProvider? = null
+
+    val sessionProvider: DemoSessionProvider
+        get() {
+            if (self == null) {
+                self = DemoSessionProvider()
+            }
+            return self!!
+        }
 
     fun setKs(ks: String) {
         this.ks = ks
@@ -28,16 +37,4 @@ class DemoSessionProvider private constructor() : SessionProvider {
         return MockParams.OttPartnerId
     }
 
-    companion object {
-
-        private var self: DemoSessionProvider? = null
-
-        val sessionProvider: DemoSessionProvider
-            get() {
-                if (self == null) {
-                    self = DemoSessionProvider()
-                }
-                return self!!
-            }
-    }
 }

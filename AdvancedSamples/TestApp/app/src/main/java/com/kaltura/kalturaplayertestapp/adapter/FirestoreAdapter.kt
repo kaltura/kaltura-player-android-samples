@@ -14,6 +14,7 @@ import java.util.ArrayList
  * many times as the user scrolls.
  */
 abstract class FirestoreAdapter<VH: RecyclerView.ViewHolder>(private var mQuery: Query?): RecyclerView.Adapter<VH>(), EventListener<QuerySnapshot> {
+    private val TAG = "FirestoreAdapter"
     private var mRegistration: ListenerRegistration? = null
 
     val snapshots = ArrayList<DocumentSnapshot>()
@@ -101,9 +102,4 @@ abstract class FirestoreAdapter<VH: RecyclerView.ViewHolder>(private var mQuery:
     protected open fun onError(e: FirebaseFirestoreException) {}
 
     protected open fun onDataChanged() {}
-
-    companion object {
-
-        private val TAG = "FirestoreAdapter"
-    }
 }

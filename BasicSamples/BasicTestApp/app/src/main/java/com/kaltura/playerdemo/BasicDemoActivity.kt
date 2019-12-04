@@ -20,6 +20,7 @@ import java.io.IOException
 import java.net.URL
 
 class BasicDemoActivity : BaseDemoActivity() {
+    private val log = PKLog.get("BasicDemoActivity")
     private var currentItem: DemoItem? = null
 
     override fun items(): Array<DemoItem> {
@@ -106,10 +107,5 @@ class BasicDemoActivity : BaseDemoActivity() {
     public override fun onStop() {
         super.onStop()
         EventBus.getDefault().unregister(this)
-    }
-
-    companion object {
-
-        private val log = PKLog.get("BasicDemoActivity")
     }
 }

@@ -27,6 +27,9 @@ import java.util.Locale
 
 class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
 
+    private val log = PKLog.get("PlaybackControlsView")
+    private val PROGRESS_BAR_MAX = 100
+
     private var player: KalturaPlayer? = null
     private var playerState: PlayerState? = null
 
@@ -268,11 +271,4 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
     fun resume() {
         updateProgress()
     }
-
-    companion object {
-
-        private val log = PKLog.get("PlaybackControlsView")
-        private val PROGRESS_BAR_MAX = 100
-    }
-
 }

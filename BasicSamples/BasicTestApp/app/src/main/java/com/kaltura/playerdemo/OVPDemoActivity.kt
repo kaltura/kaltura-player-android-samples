@@ -22,6 +22,7 @@ import java.io.IOException
 import java.net.URL
 
 class OVPDemoActivity : BaseDemoActivity() {
+    private val log = PKLog.get("OVPDemoActivity")
     private val gson = Gson()
     private var currentItem: DemoItem? = null
 
@@ -112,10 +113,5 @@ class OVPDemoActivity : BaseDemoActivity() {
     public override fun onStop() {
         super.onStop()
         EventBus.getDefault().unregister(this)
-    }
-
-    companion object {
-
-        private val log = PKLog.get("OVPDemoActivity")
     }
 }

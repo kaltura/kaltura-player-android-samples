@@ -23,7 +23,11 @@ import com.kaltura.tvplayer.PlayerInitOptions
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 
 class MainActivity : AppCompatActivity() {
+    private val log = PKLog.get("MainActivity")
 
+    private val ASSET_ID = "480989"
+    val MEDIA_FORMAT = "Mobile_Devices_Main_HD_Dash"
+    private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
     private var isFullScreen: Boolean = false
@@ -181,14 +185,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-
-        private val log = PKLog.get("MainActivity")
-
         val SERVER_URL = "https://api-preprod.ott.kaltura.com/v5_1_0/"
-        val MEDIA_FORMAT = "Mobile_Devices_Main_HD_Dash"
         val PARTNER_ID = 198
-        private val ASSET_ID = "480989"
-
-        private val START_POSITION = 0L // position for start playback in msec.
     }
 }

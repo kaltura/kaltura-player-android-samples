@@ -45,6 +45,7 @@ import com.kaltura.playkit.samples.fulldemo.R.id.mediaUrl
 
 class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
 
+    private val ADS_LOADER = 22
     private var mSelectedCallback: OnVideoSelectedListener? = null
     internal var mInflater: LayoutInflater? = null
     internal var mContainer: ViewGroup? = null
@@ -284,8 +285,4 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
 
     private class AdsSample(var name: String, var uri: String, var lic: String, var adTagUri: String, var image: Int)
 
-    companion object {
-
-        private val ADS_LOADER = 22
-    }
 }
