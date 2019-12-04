@@ -185,7 +185,7 @@ class FullscreenActivity : AppCompatActivity() {
         }
 
         player!!.addListener(this,  PlayerEvent.error) { event ->
-            Log.d(TAG, "Error PlayerEvent " + event.error.message)
+            Log.d(TAG, "Error PlayerEvent " + event.error.message + " isFatal = " + event.error.isFatal)
         }
     }
 
