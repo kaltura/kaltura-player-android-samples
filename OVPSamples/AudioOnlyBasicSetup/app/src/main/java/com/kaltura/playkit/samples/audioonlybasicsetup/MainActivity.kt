@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addPlayerStateListener() {
-        player!!.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
@@ -192,7 +192,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun subscribeToTracksAvailableEvent() {
-        player!!.addListener<PlayerEvent.TracksAvailable>(this, PlayerEvent.tracksAvailable) { event ->
+        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             log.d("Event TRACKS_AVAILABLE")
 

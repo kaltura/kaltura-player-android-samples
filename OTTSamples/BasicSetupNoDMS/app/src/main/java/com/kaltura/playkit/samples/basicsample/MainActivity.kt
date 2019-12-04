@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addPlayerStateListener() {
-        player!!.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }

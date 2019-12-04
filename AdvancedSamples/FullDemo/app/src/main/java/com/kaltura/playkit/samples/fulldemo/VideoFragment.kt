@@ -648,7 +648,7 @@ class VideoFragment : Fragment() {
 
         player!!.addListener(this, AdEvent.contentResumeRequested) { event -> log("ADS_PLAYBACK_ENDED") }
 
-        player!!.addListener<AdEvent.AdPlaybackInfoUpdated>(this, AdEvent.adPlaybackInfoUpdated) { event ->
+        player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
             log("AD_PLAYBACK_INFO_UPDATED")
             //log.d("XXX playbackInfoUpdated  = " + playbackInfoUpdated.width + "/" + playbackInfoUpdated.height + "/" + playbackInfoUpdated.bitrate);
             log("AD_PLAYBACK_INFO_UPDATED bitrate = " + event.bitrate)
@@ -656,12 +656,12 @@ class VideoFragment : Fragment() {
 
         player!!.addListener(this, AdEvent.skippableStateChanged) { event -> log("SKIPPABLE_STATE_CHANGED") }
 
-        player!!.addListener<AdEvent.AdRequestedEvent>(this, AdEvent.adRequested) { event ->
+        player!!.addListener(this, AdEvent.adRequested) { event ->
             val adRequestEvent = event
             log("AD_REQUESTED")// adtag = " + adRequestEvent.adTagUrl);
         }
 
-        player!!.addListener<AdEvent.AdPlayHeadEvent>(this, AdEvent.playHeadChanged) { event ->
+        player!!.addListener(this, AdEvent.playHeadChanged) { event ->
             appProgressBar.visibility = View.INVISIBLE
             val adEventProress = event
             //log.d("received AD PLAY_HEAD_CHANGED " + adEventProress.adPlayHead);
@@ -678,29 +678,29 @@ class VideoFragment : Fragment() {
             appProgressBar.visibility = View.VISIBLE
         }
 
-        player!!.addListener<AdEvent.AdCuePointsUpdateEvent>(this, AdEvent.cuepointsChanged) { event ->
+        player!!.addListener(this, AdEvent.cuepointsChanged) { event ->
             Log.d(TAG, "Has Postroll = " + event.cuePoints.hasPostRoll())
             log("AD_CUEPOINTS_UPDATED")
             onCuePointChanged()
         }
 
-        player!!.addListener<AdEvent.AdLoadedEvent>(this, AdEvent.loaded) { event ->
+        player!!.addListener(this, AdEvent.loaded) { event ->
             log("AD_LOADED " + event.adInfo.getAdIndexInPod() + "/" + event.adInfo.getTotalAdsInPod())
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener<AdEvent.AdStartedEvent>(this, AdEvent.started) { event ->
+        player!!.addListener(this, AdEvent.started) { event ->
             log("AD_STARTED w/h - " + event.adInfo.getAdWidth() + "/" + event.adInfo.getAdHeight())
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener<AdEvent.AdResumedEvent>(this, AdEvent.resumed) { event ->
+        player!!.addListener(this, AdEvent.resumed) { event ->
             log("AD_RESUMED")
             nowPlaying = true
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener<AdEvent.AdPausedEvent>(this, AdEvent.paused) { event ->
+        player!!.addListener(this, AdEvent.paused) { event ->
             log("AD_PAUSED")
             nowPlaying = true
             if (player != null) {
@@ -713,7 +713,7 @@ class VideoFragment : Fragment() {
             }
         }
 
-        player!!.addListener<AdEvent.AdSkippedEvent>(this, AdEvent.skipped) { event -> log("AD_SKIPPED") }
+        player!!.addListener(this, AdEvent.skipped) { event -> log("AD_SKIPPED") }
 
         player!!.addListener(this, AdEvent.allAdsCompleted) { event ->
             log("AD_ALL_ADS_COMPLETED")
@@ -753,7 +753,7 @@ class VideoFragment : Fragment() {
 
         player!!.addListener(this, AdEvent.adBreakEnded) { event -> log("AD_BREAK_ENDED") }
 
-        player!!.addListener<AdEvent.AdClickedEvent>(this, AdEvent.adClickedEvent) { event ->
+        player!!.addListener(this, AdEvent.adClickedEvent) { event ->
             log("AD_CLICKED")
             Log.d(TAG, "AD_CLICKED url = " + event.clickThruUrl)
             //                nowPlaying = false;
@@ -770,12 +770,12 @@ class VideoFragment : Fragment() {
         //            }
         //        }, AdEvent.Type.COMPANION_AD_CLICKED);
 
-        player!!.addListener<AdEvent.AdBufferStart>(this, AdEvent.adBufferStart) { event ->
+        player!!.addListener(this, AdEvent.adBufferStart) { event ->
             log("AD_STARTED_BUFFERING")
             appProgressBar.visibility = View.VISIBLE
         }
 
-        player!!.addListener<AdEvent.AdBufferEnd>(this, AdEvent.adBufferEnd) { event ->
+        player!!.addListener(this, AdEvent.adBufferEnd) { event ->
             log("AD_BUFFER_END")
             appProgressBar.visibility = View.INVISIBLE
         }
@@ -788,12 +788,12 @@ class VideoFragment : Fragment() {
 
         ////PLAYER Events
 
-        player!!.addListener<PlayerEvent.VideoFramesDropped>(this, PlayerEvent.videoFramesDropped) { event ->
+        player!!.addListener(this, PlayerEvent.videoFramesDropped) { event ->
             val videoFramesDropped = event
             //log("VIDEO_FRAMES_DROPPED " + videoFramesDropped.droppedVideoFrames);
         }
 
-        player!!.addListener<PlayerEvent.BytesLoaded>(this, PlayerEvent.bytesLoaded) { event ->
+        player!!.addListener(this, PlayerEvent.bytesLoaded) { event ->
             val bytesLoaded = event
             //log("BYTES_LOADED " + bytesLoaded.bytesLoaded);
         }
@@ -828,7 +828,7 @@ class VideoFragment : Fragment() {
             nowPlaying = false
         }
 
-        player!!.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
             //log("State changed from " + stateChanged.oldState + " to " + stateChanged.newState);
             if (event.newState == PlayerState.BUFFERING) {
                 appProgressBar.visibility = View.VISIBLE
@@ -841,7 +841,7 @@ class VideoFragment : Fragment() {
             }
         }
 
-        player!!.addListener<PlayerEvent.TracksAvailable>(this, PlayerEvent.tracksAvailable) { event ->
+        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
             log("TRACKS_AVAILABLE")
             //When the track data available, this event occurs. It brings the info object with it.
             //PlayerEvent.TracksAvailable tracksAvailable = (PlayerEvent.TracksAvailable) event;
@@ -858,7 +858,7 @@ class VideoFragment : Fragment() {
             }
         }
 
-        player!!.addListener<PlayerEvent.PlayheadUpdated>(this, PlayerEvent.playheadUpdated) { event ->
+        player!!.addListener(this, PlayerEvent.playheadUpdated) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             val playheadUpdated = event
             //log.d("playheadUpdated event  position = " + playheadUpdated.position + " duration = " + playheadUpdated.duration);

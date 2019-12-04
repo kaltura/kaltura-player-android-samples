@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun subscribeToPlayerStateChanges() {
 
-        player!!.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
             playerState = event.newState
             //Switch on the new state that is received.
             when (event.newState) {
@@ -144,12 +144,12 @@ class MainActivity : AppCompatActivity() {
 
         player!!.addListener(this, PlayerEvent.pause) { event -> Log.d(TAG, "event received: " + event.eventType().name) }
 
-        player!!.addListener<PlayerEvent.PlaybackRateChanged>(this, PlayerEvent.playbackRateChanged) { event ->
+        player!!.addListener(this, PlayerEvent.playbackRateChanged) { event ->
             Log.d(TAG, "event received: " + event.eventType().name + " Rate = " + event.rate)
 
         }
 
-        player!!.addListener<PlayerEvent.TracksAvailable>(this, PlayerEvent.tracksAvailable) { event ->
+        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
             Log.d(TAG, "Event TRACKS_AVAILABLE")
 
             //Then you can use the data object itself.

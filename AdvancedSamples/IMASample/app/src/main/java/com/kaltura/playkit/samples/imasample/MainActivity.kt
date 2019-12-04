@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addPlayerStateListener() {
-        player!!.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
@@ -199,7 +199,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun subscribeToAdEvents() {
 
-        player!!.addListener<AdEvent.AdStartedEvent>(this, AdEvent.started) { event ->
+        player!!.addListener(this, AdEvent.started) { event ->
             //Some events holds additional data objects in them.
             //In order to get access to this object you need first cast event to
             //the object it belongs to. You can learn more about this kind of objects in
@@ -216,17 +216,17 @@ class MainActivity : AppCompatActivity() {
 
         player!!.addListener(this, AdEvent.contentResumeRequested) { event -> log.d("ADS_PLAYBACK_ENDED") }
 
-        player!!.addListener<AdEvent.AdPlaybackInfoUpdated>(this, AdEvent.adPlaybackInfoUpdated) { event ->
+        player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
             log.d("AD_PLAYBACK_INFO_UPDATED  = " + event.width + "/" + event.height + "/" + event.bitrate)
         }
 
         player!!.addListener(this, AdEvent.skippableStateChanged) { event -> log.d("SKIPPABLE_STATE_CHANGED") }
 
-        player!!.addListener<AdEvent.AdRequestedEvent>(this, AdEvent.adRequested) { event ->
+        player!!.addListener(this, AdEvent.adRequested) { event ->
             log.d("AD_REQUESTED adtag = " + event.adTagUrl)
         }
 
-        player!!.addListener<AdEvent.AdPlayHeadEvent>(this, AdEvent.playHeadChanged) { event ->
+        player!!.addListener(this, AdEvent.playHeadChanged) { event ->
             val adEventProress = event
             //Log.d(TAG, "received AD PLAY_HEAD_CHANGED " + adEventProress.adPlayHead);
         }
@@ -234,23 +234,23 @@ class MainActivity : AppCompatActivity() {
 
         player!!.addListener(this, AdEvent.adBreakStarted) { event -> log.d("AD_BREAK_STARTED") }
 
-        player!!.addListener<AdEvent.AdCuePointsUpdateEvent>(this, AdEvent.cuepointsChanged) { event ->
+        player!!.addListener(this, AdEvent.cuepointsChanged) { event ->
             log.d("AD_CUEPOINTS_UPDATED HasPostroll = " + event.cuePoints.hasPostRoll())
         }
 
-        player!!.addListener<AdEvent.AdLoadedEvent>(this, AdEvent.loaded) { event ->
+        player!!.addListener(this, AdEvent.loaded) { event ->
             log.d("AD_LOADED " + event.adInfo.getAdIndexInPod() + "/" + event.adInfo.getTotalAdsInPod())
         }
 
-        player!!.addListener<AdEvent.AdStartedEvent>(this, AdEvent.started) { event ->
+        player!!.addListener(this, AdEvent.started) { event ->
             log.d("AD_STARTED w/h - " + event.adInfo.getAdWidth() + "/" + event.adInfo.getAdHeight())
         }
 
-        player!!.addListener<AdEvent.AdResumedEvent>(this, AdEvent.resumed) { event -> log.d("AD_RESUMED") }
+        player!!.addListener(this, AdEvent.resumed) { event -> log.d("AD_RESUMED") }
 
-        player!!.addListener<AdEvent.AdPausedEvent>(this, AdEvent.paused) { event -> log.d("AD_PAUSED") }
+        player!!.addListener(this, AdEvent.paused) { event -> log.d("AD_PAUSED") }
 
-        player!!.addListener<AdEvent.AdSkippedEvent>(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
+        player!!.addListener(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
 
         player!!.addListener(this, AdEvent.allAdsCompleted) { event -> log.d("AD_ALL_ADS_COMPLETED") }
 
@@ -277,7 +277,7 @@ class MainActivity : AppCompatActivity() {
 
         player!!.addListener(this, AdEvent.adBreakEnded) { event -> log.d("AD_BREAK_ENDED") }
 
-        player!!.addListener<AdEvent.AdClickedEvent>(this, AdEvent.adClickedEvent) { event ->
+        player!!.addListener(this, AdEvent.adClickedEvent) { event ->
             log.d("AD_CLICKED url = " + event.clickThruUrl)
         }
 

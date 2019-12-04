@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * by the player.
      */
     private fun subscribeToTracksAvailableEvent() {
-        player!!.addListener<PlayerEvent.TracksAvailable>(this, PlayerEvent.tracksAvailable) { event ->
+        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             Log.d(TAG, "Event TRACKS_AVAILABLE")
 
@@ -236,15 +236,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             populateSpinnersWithTrackInfo(tracks)
         }
 
-        player!!.addListener<PlayerEvent.VideoTrackChanged>(this, PlayerEvent.videoTrackChanged) { event -> Log.d(TAG, "Event VideoTrackChanged " + event.newTrack.getBitrate()) }
+        player!!.addListener(this, PlayerEvent.videoTrackChanged) { event -> Log.d(TAG, "Event VideoTrackChanged " + event.newTrack.getBitrate()) }
 
-        player!!.addListener<PlayerEvent.AudioTrackChanged>(this, PlayerEvent.audioTrackChanged) { event -> Log.d(TAG, "Event AudioTrackChanged " + event.newTrack.getLanguage()!!) }
+        player!!.addListener(this, PlayerEvent.audioTrackChanged) { event -> Log.d(TAG, "Event AudioTrackChanged " + event.newTrack.getLanguage()!!) }
 
-        player!!.addListener<PlayerEvent.TextTrackChanged>(this, PlayerEvent.textTrackChanged) { event -> Log.d(TAG, "Event TextTrackChanged " + event.newTrack.getLanguage()!!) }
+        player!!.addListener(this, PlayerEvent.textTrackChanged) { event -> Log.d(TAG, "Event TextTrackChanged " + event.newTrack.getLanguage()!!) }
 
-        player!!.addListener<PlayerEvent.SubtitlesStyleChanged>(this, PlayerEvent.subtitlesStyleChanged) { event -> Log.d(TAG, "Event SubtitlesStyleChanged " + event.styleName) }
+        player!!.addListener(this, PlayerEvent.subtitlesStyleChanged) { event -> Log.d(TAG, "Event SubtitlesStyleChanged " + event.styleName) }
 
-        player!!.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
             Log.d(TAG, "State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }

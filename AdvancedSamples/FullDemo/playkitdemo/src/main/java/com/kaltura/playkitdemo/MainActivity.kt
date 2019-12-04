@@ -873,7 +873,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             controlsView!!.setPlayerState(PlayerState.READY)
         }
 
-        player!!.addListener<AdEvent.DAISourceSelected>(this, AdEvent.daiSourceSelected) { event ->
+        player!!.addListener(this, AdEvent.daiSourceSelected) { event ->
             log.d("DAI_SOURCE_SELECTED: " + event.sourceURL)
 
         }
@@ -885,12 +885,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             controlsView!!.setPlayerState(PlayerState.READY)
         }
 
-        player!!.addListener<AdEvent.AdPlaybackInfoUpdated>(this, AdEvent.adPlaybackInfoUpdated) { event ->
+        player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
             log.d("AD_PLAYBACK_INFO_UPDATED")
             log.d("playbackInfoUpdated  = " + event.width + "/" + event.height + "/" + event.bitrate)
         }
 
-        player!!.addListener<AdEvent.AdCuePointsUpdateEvent>(this, AdEvent.cuepointsChanged) { event ->
+        player!!.addListener(this, AdEvent.cuepointsChanged) { event ->
             adCuePoints = event.cuePoints
 
             if (adCuePoints != null) {
@@ -898,12 +898,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             }
         }
 
-        player!!.addListener<AdEvent.AdBufferStart>(this, AdEvent.adBufferStart) { event ->
+        player!!.addListener(this, AdEvent.adBufferStart) { event ->
             log.d("AD_BUFFER_START pos = " + event.adPosition)
             appProgressBar.visibility = View.VISIBLE
         }
 
-        player!!.addListener<AdEvent.AdBufferEnd>(this, AdEvent.adBufferEnd) { event ->
+        player!!.addListener(this, AdEvent.adBufferEnd) { event ->
             log.d("AD_BUFFER_END pos = " + event.adPosition)
             appProgressBar.visibility = View.INVISIBLE
         }
@@ -913,18 +913,18 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener<AdEvent.AdStartedEvent>(this, AdEvent.started) { event ->
+        player!!.addListener(this, AdEvent.started) { event ->
             log.d("AD_STARTED w/h - " + event.adInfo.getAdWidth() + "/" + event.adInfo.getAdHeight())
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener<AdEvent.AdResumedEvent>(this, AdEvent.resumed) { event ->
+        player!!.addListener(this, AdEvent.resumed) { event ->
             log.d("Ad Event AD_RESUMED")
             nowPlaying = true
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener<AdEvent.AdPlayHeadEvent>(this, AdEvent.playHeadChanged) { event ->
+        player!!.addListener(this, AdEvent.playHeadChanged) { event ->
             appProgressBar.visibility = View.INVISIBLE
             //log.d("received AD PLAY_HEAD_CHANGED " + event.adPlayHead);
         }
@@ -944,12 +944,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             }
         }
 
-        player!!.addListener<AdEvent.AdSkippedEvent>(this, AdEvent.skipped) { event ->
+        player!!.addListener(this, AdEvent.skipped) { event ->
             log.d("Ad Event SKIPPED")
             nowPlaying = true
         }
 
-        player!!.addListener<PlayerEvent.SurfaceAspectRationResizeModeChanged>(this, PlayerEvent.surfaceAspectRationSizeModeChanged) { event -> log.d("resizeMode updated" + event.resizeMode) }
+        player!!.addListener(this, PlayerEvent.surfaceAspectRationSizeModeChanged) { event -> log.d("resizeMode updated" + event.resizeMode) }
 
 
         /////// PLAYER EVENTS
@@ -970,15 +970,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             nowPlaying = false
         }
 
-        player!!.addListener<PlayerEvent.PlaybackRateChanged>(this, PlayerEvent.playbackRateChanged) { event -> log.d("playbackRateChanged event  rate = " + event.rate) }
+        player!!.addListener(this, PlayerEvent.playbackRateChanged) { event -> log.d("playbackRateChanged event  rate = " + event.rate) }
 
-        player!!.addListener<PlayerEvent.TracksAvailable>(this, PlayerEvent.tracksAvailable) { event ->
+        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             tracksInfo = event.tracksInfo
             populateSpinnersWithTrackInfo(event.tracksInfo)
         }
 
-        player!!.addListener<PlayerEvent.PlaybackRateChanged>(this, PlayerEvent.playbackRateChanged) { event -> log.d("playbackRateChanged event  rate = " + event.rate) }
+        player!!.addListener(this, PlayerEvent.playbackRateChanged) { event -> log.d("playbackRateChanged event  rate = " + event.rate) }
 
         player!!.addListener(this, PlayerEvent.error) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
@@ -989,20 +989,20 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
         player!!.addListener(this, PlayerEvent.ended) { event -> appProgressBar.visibility = View.INVISIBLE }
 
-        player!!.addListener<PlayerEvent.PlayheadUpdated>(this, PlayerEvent.playheadUpdated) { event ->
+        player!!.addListener(this, PlayerEvent.playheadUpdated) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             //log.d("playheadUpdated event  position = " + event.position + " duration = " + event.duration);
         }
 
-        player!!.addListener<PlayerEvent.VideoFramesDropped>(this, PlayerEvent.videoFramesDropped) { event ->
+        player!!.addListener(this, PlayerEvent.videoFramesDropped) { event ->
             //log.d("VIDEO_FRAMES_DROPPED " + event.droppedVideoFrames);
         }
 
-        player!!.addListener<PlayerEvent.BytesLoaded>(this, PlayerEvent.bytesLoaded) { event ->
+        player!!.addListener(this, PlayerEvent.bytesLoaded) { event ->
             //log.d("BYTES_LOADED " + event.bytesLoaded);
         }
 
-        player!!.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
 
@@ -1020,13 +1020,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
         /////Phoenix events
 
-        player!!.addListener<PhoenixAnalyticsEvent.BookmarkErrorEvent>(this, PhoenixAnalyticsEvent.bookmarkError) { event -> log.d("bookmarkErrorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
+        player!!.addListener(this, PhoenixAnalyticsEvent.bookmarkError) { event -> log.d("bookmarkErrorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
 
-        player!!.addListener<PhoenixAnalyticsEvent.ConcurrencyErrorEvent>(this, PhoenixAnalyticsEvent.concurrencyError) { event -> log.d("ConcurrencyErrorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
+        player!!.addListener(this, PhoenixAnalyticsEvent.concurrencyError) { event -> log.d("ConcurrencyErrorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
 
-        player!!.addListener<PhoenixAnalyticsEvent.ErrorEvent>(this, PhoenixAnalyticsEvent.error) { event -> log.d("Phoenox Analytics errorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
+        player!!.addListener(this, PhoenixAnalyticsEvent.error) { event -> log.d("Phoenox Analytics errorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
 
-        player!!.addListener<PhoenixAnalyticsEvent.ErrorEvent>(this, PhoenixAnalyticsEvent.error) { event -> log.d("Phoenox Analytics errorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
+        player!!.addListener(this, PhoenixAnalyticsEvent.error) { event -> log.d("Phoenox Analytics errorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
 
         player!!.addListener(this, OttEvent.ottEvent) { event -> log.d("Concurrency event = " + event.type) }
     }

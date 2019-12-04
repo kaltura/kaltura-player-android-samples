@@ -211,7 +211,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * by the player.
      */
     private fun subscribeToTracksAvailableEvent() {
-        player!!.addListener<PlayerEvent.TracksAvailable>(this, PlayerEvent.tracksAvailable) { event ->
+        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             Log.d(TAG, "Event TRACKS_AVAILABLE")
 
@@ -240,13 +240,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             populateSpinnersWithTrackInfo(tracks)
         }
 
-        player!!.addListener<PlayerEvent.VideoTrackChanged>(this, PlayerEvent.videoTrackChanged) { event -> Log.d(TAG, "Event VideoTrackChanged " + (event as PlayerEvent.VideoTrackChanged).newTrack.bitrate) }
+        player!!.addListener(this, PlayerEvent.videoTrackChanged) { event -> Log.d(TAG, "Event VideoTrackChanged " + (event as PlayerEvent.VideoTrackChanged).newTrack.bitrate) }
 
-        player!!.addListener<PlayerEvent.AudioTrackChanged>(this, PlayerEvent.audioTrackChanged) { event -> Log.d(TAG, "Event AudioTrackChanged " + (event as PlayerEvent.AudioTrackChanged).newTrack.language!!) }
+        player!!.addListener(this, PlayerEvent.audioTrackChanged) { event -> Log.d(TAG, "Event AudioTrackChanged " + (event as PlayerEvent.AudioTrackChanged).newTrack.language!!) }
 
-        player!!.addListener<PlayerEvent.TextTrackChanged>(this, PlayerEvent.textTrackChanged) { event -> Log.d(TAG, "Event TextTrackChanged " + (event as PlayerEvent.TextTrackChanged).newTrack.language!!) }
+        player!!.addListener(this, PlayerEvent.textTrackChanged) { event -> Log.d(TAG, "Event TextTrackChanged " + (event as PlayerEvent.TextTrackChanged).newTrack.language!!) }
 
-        player!!.addListener<PlayerEvent.SubtitlesStyleChanged>(this, PlayerEvent.subtitlesStyleChanged) { event -> Log.d(TAG, "Event SubtitlesStyleChanged " + (event as PlayerEvent.SubtitlesStyleChanged).styleName) }
+        player!!.addListener(this, PlayerEvent.subtitlesStyleChanged) { event -> Log.d(TAG, "Event SubtitlesStyleChanged " + (event as PlayerEvent.SubtitlesStyleChanged).styleName) }
     }
 
     /**
