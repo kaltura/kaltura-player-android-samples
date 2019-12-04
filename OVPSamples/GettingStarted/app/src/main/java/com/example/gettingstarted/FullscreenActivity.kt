@@ -156,15 +156,31 @@ class FullscreenActivity : AppCompatActivity() {
             }
         }
         this.player = player
+        addPlayerEventsListener()
         addPlayerStateListener()
     }
 
     private fun addPlayerStateListener() {
-        player!!.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
             Log.d(TAG, "State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
     }
+
+    private fun addPlayerEventsListener() {
+        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
+            Log.d(TAG, "TracksAvailable event")
+            val trackInfo = event.tracksInfo
+            for(videoTrack in trackInfo.videoTracks) {
+                Log.d(TAG, "video id = " + videoTrack.uniqueId + " track bitrate = " + videoTrack.bitrate)
+            }
+        }
+
+        player!!.addListener(this,  PlayerEvent.canPlay) { event ->
+            Log.d(TAG, "Event canPlay PlayerEvent " + event.eventType())
+        }
+    }
+
 
     private fun buildOvpMediaOptions(): OVPMediaOptions {
         val ovpMediaOptions = OVPMediaOptions()
@@ -199,5 +215,14 @@ class FullscreenActivity : AppCompatActivity() {
         if (player != null) {
             player!!.onApplicationPaused()
         }
+    }
+
+    public override fun onDestroy() {
+        if (player != null) {
+            player!!.removeListeners(this)
+            player!!.destroy()
+            player = null
+        }
+        super.onDestroy()
     }
 }
