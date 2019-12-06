@@ -2,7 +2,6 @@
 package com.kaltura.kalturaplayertestapp.models.ima;
 
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -101,13 +100,12 @@ public class UiConfFormatIMADAIConfig {
 
         jsonObject.addProperty(AD_TAG_LANGUAGE, getSdkSettings().getLanguage());
         jsonObject.addProperty(AD_VIDEO_BITRATE, getAdsRenderingSettings().getBitrate());
-        jsonObject.addProperty(AD_ATTRIBUTION_UIELEMENT, getAdsRenderingSettings().getUiElements().isAdAttribution());
-        jsonObject.addProperty(AD_COUNTDOWN_UIELEMENT, getAdsRenderingSettings().getUiElements().isAdCountDown());
+        jsonObject.addProperty(AD_ATTRIBUTION_UIELEMENT, getAdsRenderingSettings().getUiElements().getAdAttribution());
+        jsonObject.addProperty(AD_COUNTDOWN_UIELEMENT, getAdsRenderingSettings().getUiElements().getAdCountDown());
         jsonObject.addProperty(AD_LOAD_TIMEOUT, getAdsRenderingSettings().getLoadVideoTimeout());
-        jsonObject.addProperty(AD_ENABLE_DEBUG_MODE, getSdkSettings().isDebugMode());
+        jsonObject.addProperty(AD_ENABLE_DEBUG_MODE, getSdkSettings().getDebugMode());
         jsonObject.addProperty(AD_ALWAYES_START_WITH_PREROLL , alwaysStartWithPreroll);
 
-        Gson gson = new Gson();
         JsonArray jArray = new JsonArray();
         if (adsRenderingSettings.getMimeTypes() != null) {
             for (String mimeType : adsRenderingSettings.getMimeTypes()) {

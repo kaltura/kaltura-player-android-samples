@@ -1,3 +1,4 @@
+/*
 package com.kaltura.playerdemo;
 
 import android.content.Context;
@@ -386,3 +387,4 @@ public abstract class BaseDemoActivity extends AppCompatActivity
         return itemListView;
     }
 }
+*/

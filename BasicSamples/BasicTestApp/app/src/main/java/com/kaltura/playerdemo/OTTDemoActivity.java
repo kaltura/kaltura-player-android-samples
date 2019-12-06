@@ -1,3 +1,4 @@
+/*
 package com.kaltura.playerdemo;
 
 import android.content.Intent;
@@ -143,3 +144,4 @@ public class OTTDemoActivity extends BaseDemoActivity {
         }
     }
 }
+*/
