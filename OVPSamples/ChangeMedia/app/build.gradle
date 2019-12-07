@@ -1,0 +1,71 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 28
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    defaultConfig {
+        applicationId "com.kaltura.playkit.samples.changemedia"
+        minSdkVersion 17
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+dependencies {
+
+    implementation 'com.kaltura.player:tvplayer:4.4.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.4.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.4.0'
+    implementation 'com.kaltura.playkit:googlecast:4.4.0'
+    implementation 'com.kaltura.playkit:vrplugin:4.4.0'
+    implementation 'com.kaltura.playkit:fbadsplugin:4.4.0'
+
+//    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
+//    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'
+//    implementation 'com.kaltura:playkit-android-youbora:develop-SNAPSHOT'
+//    implementation 'com.kaltura:playkit-android-googlecast:develop-SNAPSHOT'
+//    implementation 'com.kaltura:playkit-android-vr:develop-SNAPSHOT'
+//    implementation 'com.kaltura:playkit-android-fb-ads:develop-SNAPSHOT'
+
+
+//    implementation project(':tvplayer')
+//    implementation project(":ima")
+//    implementation project(":youbora")
+//    implementation project(":googlecast")
+//    implementation project(":playkitvr")
+//    implementation project(":MD360")
+//    implementation project(':fbads')
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0')
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.core:core-ktx:+'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    testImplementation 'junit:junit:4.12'
+}
+
+repositories {
+    google()
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}

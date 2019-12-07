@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">EventsRegistration</string>
+    <string name="play_text">Play</string>
+    <string name="pause_text">Pause</string>
+
+    <string name="speed_prompt">Choose Playback Rate</string>
+    <string name="speed_rate">Speed Rate:</string>
+
+    <string-array name="speed_arrays">
+        <item>0.5X</item>
+        <item>1.0X</item>
+        <item>1.5X</item>
+        <item>2.0X</item>
+    </string-array>
+</resources>
