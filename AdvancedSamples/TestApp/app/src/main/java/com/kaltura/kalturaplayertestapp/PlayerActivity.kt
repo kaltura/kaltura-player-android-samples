@@ -460,7 +460,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.setAdPlayerState(adError.type)
         }
 
-        player?.addListener<AdEvent.AdCuePointsUpdateEvent>(this, AdEvent.cuepointsChanged) { event ->
+        player?.addListener(this, AdEvent.cuepointsChanged) { event ->
             log.d("AD CUEPOINTS CHANGED")
             updateEventsLogsList("ad:\n" + event.eventType().name)
             adCuePoints = event.cuePoints
@@ -502,13 +502,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.showControls(View.INVISIBLE)
         }
 
-        player?.addListener<AdEvent.AdLoadedEvent>(this, AdEvent.loaded) { event ->
+        player?.addListener(this, AdEvent.loaded) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD LOADED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.LOADED)
         }
 
-        player?.addListener<AdEvent.AdStartedEvent>(this, AdEvent.started) { event ->
+        player?.addListener(this, AdEvent.started) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD STARTED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.STARTED)
@@ -521,7 +521,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             progressBar?.setVisibility(View.INVISIBLE)
         }
 
-        player?.addListener<AdEvent.AdPausedEvent>(this, AdEvent.paused) { event ->
+        player?.addListener(this, AdEvent.paused) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD PAUSED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.PAUSED)
@@ -529,7 +529,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.play)
         }
 
-        player?.addListener<AdEvent.AdResumedEvent>(this, AdEvent.resumed) { event ->
+        player?.addListener(this, AdEvent.resumed) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD RESUMED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.RESUMED)
@@ -542,18 +542,18 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.handleContainerClick()
         }
 
-        player?.addListener<AdEvent.AdSkippedEvent>(this, AdEvent.skipped) { event ->
+        player?.addListener(this, AdEvent.skipped) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD SKIPPED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.SKIPPED)
         }
 
-        player?.addListener<AdEvent.AdBufferStart>(this, AdEvent.adBufferStart) { event ->
+        player?.addListener(this, AdEvent.adBufferStart) { event ->
             log.d("AD_BUFFER_START pos = " + event.adPosition)
             progressBar?.setVisibility(View.VISIBLE)
         }
 
-        player?.addListener<AdEvent.AdBufferEnd>(this, AdEvent.adBufferEnd) { event ->
+        player?.addListener(this, AdEvent.adBufferEnd) { event ->
             log.d("AD_BUFFER_END pos = " + event.adPosition)
             progressBar?.setVisibility(View.INVISIBLE)
         }
@@ -571,7 +571,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
 
-        player?.addListener<PlayerEvent.DurationChanged>(this, PlayerEvent.durationChanged) { event ->
+        player?.addListener(this, PlayerEvent.durationChanged) { event ->
             log.d("Player Event DurationChanged")
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
@@ -610,7 +610,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-        player?.addListener<PlayerEvent.TextTrackChanged>(this, PlayerEvent.textTrackChanged) { event ->
+        player?.addListener(this, PlayerEvent.textTrackChanged) { event ->
             log.d("PLAYER textTrackChanged")
             if (tracksSelectionController != null && tracksSelectionController?.tracks != null) {
                 for (i in 0..tracksSelectionController?.tracks!!.textTracks.size - 1) {
@@ -625,7 +625,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-        player?.addListener<PlayerEvent.AudioTrackChanged>(this, PlayerEvent.audioTrackChanged) { event ->
+        player?.addListener(this, PlayerEvent.audioTrackChanged) { event ->
             log.d("PLAYER audioTrackChanged")
             if (tracksSelectionController != null && tracksSelectionController?.tracks != null) {
                 for (i in 0..tracksSelectionController?.tracks!!.audioTracks.size - 1) {
@@ -637,7 +637,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-        player?.addListener<PlayerEvent.VideoTrackChanged>(this, PlayerEvent.videoTrackChanged) { event ->
+        player?.addListener(this, PlayerEvent.videoTrackChanged) { event ->
             log.d("PLAYER videoTrackChanged")
             if (tracksSelectionController != null && tracksSelectionController?.tracks != null) {
                 for (i in 0..tracksSelectionController?.tracks!!.videoTracks.size - 1) {
@@ -649,7 +649,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-        player?.addListener<PlayerEvent.TracksAvailable>(this, PlayerEvent.tracksAvailable) { event ->
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             log.d("PLAYER tracksAvailable")
             updateEventsLogsList("player:\n" + event.eventType().name)
             //Obtain the actual tracks info from it.
@@ -659,10 +659,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
             val defaultAudioTrackIndex = tracks.getDefaultAudioTrackIndex()
             val defaultTextTrackIndex = tracks.getDefaultTextTrackIndex()
             if (tracks.getAudioTracks().size > 0) {
-                log.d("Default Audio lang = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel()!!)
+                var labelAudio = tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel() ?: "";
+                log.d("Default Audio lang = " + labelAudio)
             }
             if (tracks.getTextTracks().size > 0) {
-                log.d("Default Text lang = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel()!!)
+                var labelText = tracks.getTextTracks().get(defaultTextTrackIndex).getLabel() ?: ""
+                log.d("Default Text lang = " + labelText)
             }
             if (tracks.getVideoTracks().size > 0) {
                 log.d("Default video isAdaptive = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).isAdaptive() + " bitrate = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).getBitrate())
@@ -676,7 +678,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-        player?.addListener<PlayerEvent.SourceSelected>(this, PlayerEvent.sourceSelected) { event ->
+        player?.addListener(this, PlayerEvent.sourceSelected) { event ->
             log.d("PLAYER SOURCE SELECTED")
             updateEventsLogsList("player:\n" + event.eventType().name)
             log.d("Selected Source = " + event.source.getUrl())
@@ -705,7 +707,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
 
-        player?.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("PLAYER stateChangeEvent " + event.eventType().name + " = " + event.newState)
             updateEventsLogsList("player:\n" + event.eventType().name + ":" + event.newState)
 
@@ -726,7 +728,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-        player?.addListener<PlayerEvent.Seeking>(this, PlayerEvent.seeking) { event ->
+        player?.addListener(this, PlayerEvent.seeking) { event ->
             log.d("PLAYER SEEKING $event")
 
             this@PlayerActivity.updateEventsLogsList("player:\n" + event.eventType().name)
@@ -737,14 +739,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
 
-        player?.addListener<KavaAnalyticsEvent.KavaAnalyticsReport>(this, KavaAnalyticsEvent.reportSent) { event ->
+        player?.addListener(this, KavaAnalyticsEvent.reportSent) { event ->
             val reportedEventName = event.reportedEventName
             if (PlayerEvent.Type.PLAYHEAD_UPDATED.name != reportedEventName) {
                 updateEventsLogsList("kava:\n$reportedEventName")
             }
         }
 
-        player?.addListener<YouboraEvent.YouboraReport>(this, YouboraEvent.reportSent) { event ->
+        player?.addListener(this, YouboraEvent.reportSent) { event ->
             val reportedEventName = event.reportedEventName
             if (PlayerEvent.Type.PLAYHEAD_UPDATED.name != reportedEventName) {
                 updateEventsLogsList("youbora:\n$reportedEventName")
@@ -752,7 +754,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         }
 
-        player?.addListener<PhoenixAnalyticsEvent.PhoenixAnalyticsReport>(this, PhoenixAnalyticsEvent.reportSent) { event ->
+        player?.addListener(this, PhoenixAnalyticsEvent.reportSent) { event ->
             val reportedEventName = event.reportedEventName
             if (PlayerEvent.Type.PLAYHEAD_UPDATED.name != reportedEventName) {
                 updateEventsLogsList("phoenix:\n$reportedEventName")
