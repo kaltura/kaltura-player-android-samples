@@ -123,7 +123,8 @@ class MainActivity: AppCompatActivity() {
         }
         //Add clickListener.
         playPauseButton!!.setOnClickListener(View.OnClickListener {
-            loadRemoteMediaOtt(0, true)
+            // usually protocol should be https!!!
+            loadRemoteMediaOtt(0, true, CAFCastBuilder.HttpProtocol.Http /* CAFCastBuilder.HttpProtocol.Https */)
             return@OnClickListener
         })
     }
@@ -146,7 +147,8 @@ class MainActivity: AppCompatActivity() {
                     }
                 }
             } else {
-                pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548571", "Web_Main", "", null, CAFCastBuilder.HttpProtocol.Http), loadOptions)
+                val protocol = CAFCastBuilder.HttpProtocol.Http /* CAFCastBuilder.HttpProtocol.Https */
+                pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548571", "Web_Main", "", null, protocol), loadOptions)
                 pendingResult!!.setResultCallback { mediaChannelResult ->
                     val customData = mediaChannelResult.customData
                     if (customData != null) {
@@ -279,7 +281,7 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
-    private fun loadRemoteMediaOtt(position: Int, autoPlay: Boolean) {
+    private fun loadRemoteMediaOtt(position: Int, autoPlay: Boolean, protocol : CAFCastBuilder.HttpProtocol) {
         if (mCastSession == null) {
             return
         }
@@ -306,7 +308,7 @@ class MainActivity: AppCompatActivity() {
         })
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
         val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position.toLong()).build()
-        pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("756836", "DASH_Mobile_SD", "", null, CAFCastBuilder.HttpProtocol.Https), loadOptions)
+        pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548579","Web_Main", "", null, protocol), loadOptions)
         pendingResult!!.setResultCallback { mediaChannelResult ->
             val customData = mediaChannelResult.customData
             if (customData != null) {
@@ -377,7 +379,6 @@ class MainActivity: AppCompatActivity() {
         }
         return returnResult(ovpV3CastBuilder)
     }
-
 
     private fun returnResult(cafCastBuilder: CAFCastBuilder<*>): MediaInfo {
         return cafCastBuilder.build()
