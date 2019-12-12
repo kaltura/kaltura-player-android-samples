@@ -90,70 +90,13 @@ class MainActivity : AppCompatActivity() {
         isFullScreen = false
     }
 
-/*
-    *//**
-     * Just add a simple button which will start/pause playback.
-     *//*
-    private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById(R.id.play_pause_button)
-        //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
-            if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
-                if (player!!.isPlaying || adController != null && adController.isAdPlaying) {
-                    player!!.pause()
-                    //If player is playing, change text of the button and pause.
-                    playPauseButton!!.setText(R.string.play_text)
-                } else {
-                    player!!.play()
-                    //If player is not playing, change text of the button and play.
-                    playPauseButton!!.setText(R.string.pause_text)
-                }
-            }
-        }
-    }*/
-
     private fun addPlayerStateListener() {
         player!!.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
 
-        player!!.addListener(this, AdEvent.contentResumeRequested) { event ->
-            log.d("CONTENT_RESUME_REQUESTED")
-            controlsView!!.setSeekBarStateForAd(false)
-            controlsView!!.setPlayerState(PlayerState.READY)
-        }
-
-        player!!.addListener(this, AdEvent.contentPauseRequested) { event ->
-            log.d("AD_CONTENT_PAUSE_REQUESTED")
-            controlsView!!.setSeekBarStateForAd(true)
-            controlsView!!.setPlayerState(PlayerState.READY)
-        }
-
-        player!!.addListener(this, AdEvent.cuepointsChanged) { event ->
-            adCuePoints = event.cuePoints
-
-            if (adCuePoints != null) {
-                log.d("Has Postroll = " + adCuePoints!!.hasPostRoll())
-            }
-        }
-
-        player!!.addListener(this, AdEvent.allAdsCompleted) { event ->
-            log.d("Ad Event AD_ALL_ADS_COMPLETED")
-            if (adCuePoints != null && adCuePoints!!.hasPostRoll()) {
-                controlsView!!.setPlayerState(PlayerState.IDLE)
-            }
-        }
-
-        player!!.addListener(this, AdEvent.error) { event ->
-            if (event != null && event.error != null) {
-                controlsView!!.setSeekBarStateForAd(false)
-                log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
-            }
-        }
-
+        player!!.addListener(this, PlayerEvent.error) { event -> log.d("PLAYER ERROR " + event.error.message!!) }
     }
 
     override fun onPause() {
@@ -215,8 +158,6 @@ class MainActivity : AppCompatActivity() {
 
         controlsView!!.setPlayer(player!!)
 
-     //   addPlayPauseButton()
-
         showSystemUI()
 
         addPlayerStateListener()
@@ -261,7 +202,17 @@ class MainActivity : AppCompatActivity() {
                     + adInfo.getAdContentType())
         }
 
-        player!!.addListener(this, AdEvent.contentResumeRequested) { event -> log.d("ADS_PLAYBACK_ENDED") }
+        player!!.addListener(this, AdEvent.contentResumeRequested) {
+            event -> log.d("ADS_PLAYBACK_ENDED")
+            controlsView!!.setSeekBarStateForAd(false)
+            controlsView!!.setPlayerState(PlayerState.READY)
+        }
+
+        player!!.addListener(this, AdEvent.contentPauseRequested) { event ->
+            log.d("AD_CONTENT_PAUSE_REQUESTED")
+            controlsView!!.setSeekBarStateForAd(true)
+            controlsView!!.setPlayerState(PlayerState.READY)
+        }
 
         player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
             log.d("AD_PLAYBACK_INFO_UPDATED  = " + event.width + "/" + event.height + "/" + event.bitrate)
@@ -283,6 +234,10 @@ class MainActivity : AppCompatActivity() {
 
         player!!.addListener(this, AdEvent.cuepointsChanged) { event ->
             log.d("AD_CUEPOINTS_UPDATED HasPostroll = " + event.cuePoints.hasPostRoll())
+            adCuePoints = event.cuePoints
+            if (adCuePoints != null) {
+                log.d("Has Postroll = " + adCuePoints!!.hasPostRoll())
+            }
         }
 
         player!!.addListener(this, AdEvent.loaded) { event ->
@@ -299,7 +254,12 @@ class MainActivity : AppCompatActivity() {
 
         player!!.addListener(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
 
-        player!!.addListener(this, AdEvent.allAdsCompleted) { event -> log.d("AD_ALL_ADS_COMPLETED") }
+        player!!.addListener(this, AdEvent.allAdsCompleted) {
+            event -> log.d("AD_ALL_ADS_COMPLETED")
+            if (adCuePoints != null && adCuePoints!!.hasPostRoll()) {
+                controlsView!!.setPlayerState(PlayerState.IDLE)
+            }
+        }
 
         player!!.addListener(this, AdEvent.completed) { event -> log.d("AD_COMPLETED") }
 
@@ -330,9 +290,11 @@ class MainActivity : AppCompatActivity() {
 
         player!!.addListener(this, AdEvent.error) { event ->
             log.d("AD_ERROR : " + event.error.errorType.name)
+            if (event != null && event.error != null) {
+                controlsView!!.setSeekBarStateForAd(false)
+                log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
+            }
         }
-
-        player!!.addListener(this, PlayerEvent.error) { event -> log.d("PLAYER ERROR " + event.error.message!!) }
     }
 
     companion object {
