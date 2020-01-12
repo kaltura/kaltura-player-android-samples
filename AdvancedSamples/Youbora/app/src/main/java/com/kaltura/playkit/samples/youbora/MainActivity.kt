@@ -279,7 +279,7 @@ class MainActivity: AppCompatActivity() {
         val propertiesJson = JsonObject()
         propertiesJson.addProperty("genre", GENRE)
         propertiesJson.addProperty("type", TYPE)
-        propertiesJson.addProperty("transaction_type", TRANSACTION_TYPE)
+        propertiesJson.addProperty("transactionType", TRANSACTION_TYPE)
         propertiesJson.addProperty("year", YEAR)
         propertiesJson.addProperty("cast", CAST)
         propertiesJson.addProperty("director", DIRECTOR)
