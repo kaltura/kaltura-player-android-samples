@@ -16,10 +16,12 @@ import java.net.URL
 open class GetPreviewFromSprite(val spriteUrl: String, var spriteSliceWidth: Int,
                                 var spriteSliceHeight: Int, var spriteSlicesCount: Int) {
 
-    private var spritesHashMap: HashMap<String, Bitmap>? = null
-    val log = PKLog.get("GetPreviewFromSprite")
+    private val log = PKLog.get("GetPreviewFromSprite")
 
     open suspend fun downloadSpriteCoroutine(): HashMap<String, Bitmap>? {
+
+        var spritesHashMap: HashMap<String, Bitmap>? = null
+
         return GlobalScope.async(Dispatchers.IO) {
             var connection: HttpURLConnection? = null
             var inputStream: InputStream? = null
