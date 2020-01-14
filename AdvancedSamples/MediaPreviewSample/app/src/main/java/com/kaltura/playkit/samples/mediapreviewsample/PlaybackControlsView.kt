@@ -161,7 +161,11 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
                 previewImage?.translationX = leftMargin
             }
 
-            previewImage?.setImageBitmap(MainActivity.previewImageHashMap?.get(position.toString()))
+            if (!MainActivity.previewImageHashMap.isNullOrEmpty()) {
+                previewImage?.setImageBitmap(MainActivity.previewImageHashMap?.get(position.toString()))
+            } else {
+                previewImage?.visibility = View.GONE
+            }
 
             if (player != null) {
                 tvCurTime?.text = stringForTime(position * player!!.duration / PROGRESS_BAR_MAX)

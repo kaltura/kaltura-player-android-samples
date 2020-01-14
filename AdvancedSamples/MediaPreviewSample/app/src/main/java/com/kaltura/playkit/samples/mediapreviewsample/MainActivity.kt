@@ -64,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         controlsView = findViewById(R.id.playerControls);
-        //  previewImage = findViewById(R.id.image_preview)
 
         loadPlaykitPlayer()
 
