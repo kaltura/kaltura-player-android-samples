@@ -1,18 +1,12 @@
 package com.kaltura.playkit.samples.mediapreviewsample
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.BitmapRegionDecoder
-import android.graphics.Rect
-import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
@@ -26,16 +20,15 @@ import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.playkit.samples.mediapreviewsample.preview.GetPreviewFromSprite
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-import java.io.IOException
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.collections.HashMap
 
 
 class MainActivity : AppCompatActivity() {
@@ -44,20 +37,18 @@ class MainActivity : AppCompatActivity() {
         //Media entry configuration constants.
         val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
         val PARTNER_ID = 3009
-        val previewUrl: String = "http://cdnapi.kaltura.com/p/1982551/sp/198255100/thumbnail/entry_id/0_howqvlcs/width/100/vid_slices/100"
-        private var previewImage: ImageView? = null
+        val log = PKLog.get("MainActivity")
         var previewImageHashMap: HashMap<String, Bitmap>? = null
         val previewImageWidth: Int = 90
-        val previewImageHeight: Int = 50
         val slicesCount = 100
-        val log = PKLog.get("MainActivity")
     }
 
     private val START_POSITION = 0L // position for start playback in msec.
     private val ASSET_ID = "548576"
 
     //Ad configuration constants.
-    var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
+    private var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
+    private val previewUrl: String = "http://cdnapi.kaltura.com/p/1982551/sp/198255100/thumbnail/entry_id/0_howqvlcs/width/100/vid_slices/100"
 
     private var player: KalturaPlayer? = null
     private var isFullScreen: Boolean = false
@@ -66,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     private var adCuePoints: AdCuePoints? = null
     private var isAdEnabled: Boolean = false
 
+    private val previewImageHeight: Int = 50
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +76,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        DownloadPreviewImage().execute()
+        // Start download image coroutine on Main Thread
+        GlobalScope.launch(Dispatchers.Main) {
+            val getPreviewImage = GetPreviewFromSprite(previewUrl, previewImageWidth, previewImageHeight, slicesCount)
+            previewImageHashMap = getPreviewImage.downloadSpriteCoroutine()
+        }
+
     }
 
     private fun hideSystemUI() {
@@ -321,52 +318,6 @@ class MainActivity : AppCompatActivity() {
                 controlsView?.setSeekBarStateForAd(false)
                 log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
             }
-        }
-    }
-
-    class DownloadPreviewImage : AsyncTask<Void, Void, Bitmap>() {
-        override fun doInBackground(vararg params: Void?) : Bitmap?{
-            var connection: HttpURLConnection? = null
-            var inputStream: InputStream? = null
-            var imageBitmap: Bitmap? = null
-
-            try {
-                val url = URL(previewUrl)
-                connection = url.openConnection() as HttpURLConnection
-                connection.readTimeout = 120000
-                connection.connectTimeout = 120000
-                connection.requestMethod = "GET"
-                connection.doInput = true
-                connection.connect()
-
-                if (connection.responseCode == 200) {
-                    inputStream = connection.inputStream
-                    Log.d("Gourav", "inputStream ==  " + inputStream)
-                }
-                previewImageHashMap = framesFromImageStream(inputStream, slicesCount)
-            } catch (exception: IOException) {
-                log.e(exception.toString())
-            } finally {
-                connection?.disconnect()
-            }
-
-            return imageBitmap
-
-        }
-
-        private fun framesFromImageStream(inputStream: InputStream?, columns: Int): HashMap<String, Bitmap>? {
-
-            val previewImageHashMap: HashMap<String, Bitmap>? = HashMap()
-            val options = BitmapFactory.Options()
-            val bitmapRegionDecoder: BitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
-
-            for (previewImageSize: Int in 0..columns) {
-                val cropRect = Rect(previewImageSize * previewImageWidth, 0, (previewImageSize + 1) * previewImageWidth, previewImageHeight)
-                val extractedImageBitmap: Bitmap = bitmapRegionDecoder.decodeRegion(cropRect, options)
-                previewImageHashMap?.put("" + previewImageSize, extractedImageBitmap)
-            }
-
-            return previewImageHashMap
         }
     }
 }
