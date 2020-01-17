@@ -155,9 +155,14 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         override fun onScrubMove(timeBar: TimeBar, position: Long) {
             previewImage?.visibility = View.VISIBLE
 
+            // position.toFloat() - Gives seek percent
+            // seekBar?.width - Seekbar width which changes based on device width
+            // leftMargin - Gives the margin from left of the screen
             val leftMargin: Float = (seekBar?.width?.times(position.toFloat()))?.div(MainActivity.slicesCount)!!
 
-            if (leftMargin < seekBar?.width!! - MainActivity.previewImageWidth - 30) {
+
+            // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
+            if (leftMargin < (seekBar?.width!! + (4 * tvCurTime!!.paddingLeft) - MainActivity.previewImageWidth - tvCurTime!!.width)) {
                 previewImage?.translationX = leftMargin
             }
 
