@@ -57,10 +57,7 @@ import com.kaltura.playkitvr.VRController
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import com.kaltura.tvplayer.config.TVPlayerParams
-import com.kaltura.tvplayer.playlist.BasicPlaylistOptions
-import com.kaltura.tvplayer.playlist.OTTPlaylistOptions
-import com.kaltura.tvplayer.playlist.OVPPlaylistIdOptions
-import com.kaltura.tvplayer.playlist.OVPPlaylistOptions
+import com.kaltura.tvplayer.playlist.*
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -153,6 +150,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playNext()
+            playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, player?.playlistController?.playlist?.mediaListSize ?: 0)
         }
     }
 
@@ -163,6 +161,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playPrev()
+            playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, player?.playlistController?.playlist?.mediaListSize ?: 0)
         }
     }
 
@@ -191,7 +190,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             player?.loadMedia(ottMediaOptions) { entry, error ->
                 var entryId = ""
                 if (entry != null) {
-                    entryId = entry!!.getId()
+                    entryId = entry.getId()
                 }
                 log.d("OTTMedia onEntryLoadComplete; $entryId ; $error")
                 handleOnEntryLoadComplete(error)
@@ -268,6 +267,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     fun getCurrentPlayedMediaIndex(): Int {
+        if (player?.playlistController != null) {
+          return player?.playlistController?.currentMediaIndex ?: 0
+        }
         return currentPlayedMediaIndex
     }
 
@@ -389,6 +391,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     var mediaList = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList
 
                     val ovpPlaylistIdOptions = OVPPlaylistIdOptions()
+                    ovpPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
+                    ovpPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
+                    ovpPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
                     ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
                     ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.isUseApiCaptions ?: false
                     ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
@@ -402,7 +407,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     var mediaList = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList
 
                     val ovpPlaylistOptions = OVPPlaylistOptions()
-                    ovpPlaylistOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+                    ovpPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
+                    ovpPlaylistOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
+                    ovpPlaylistOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
+                    ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
                     ovpPlaylistOptions.ovpMediaOptionsList = mediaList
                     ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
                     ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
@@ -455,7 +463,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 var mediaList = appPlayerInitConfig.playlistConfig?.ottMediaOptionsList
 
                 val ottPlaylistIdOptions = OTTPlaylistOptions()
-                ottPlaylistIdOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+                ottPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
+                ottPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
+                ottPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
+                ottPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
                 ottPlaylistIdOptions.ottMediaOptionsList = mediaList
                 ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
                 ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
@@ -479,7 +490,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 var mediaList = appPlayerInitConfig.playlistConfig?.playlistPKMediaEntryList
 
                 val basicPlaylistIdOptions = BasicPlaylistOptions()
-                basicPlaylistIdOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+                basicPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
+                basicPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?:PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+                basicPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
                 basicPlaylistIdOptions.playlistPKMediaEntryList = mediaList
                 basicPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
                 basicPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
@@ -509,16 +522,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
             var listSize : Int? =  null
             if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ovp) {
                 if (appPlayerInitConfig.playlistConfig?.playlistId == null) {
-                    listSize = appPlayerInitConfig.playlistConfig!!.ovpMediaOptionsList.size
+                    listSize = appPlayerInitConfig.playlistConfig!!.ovpMediaOptionsList?.size ?: 0
                     //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
                     playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
                 }
             } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ott) {
-                listSize = appPlayerInitConfig.playlistConfig!!.ottMediaOptionsList.size
+                listSize = appPlayerInitConfig.playlistConfig!!.ottMediaOptionsList?.size ?: 0
                 //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
                 playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
             } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.basic) {
-                listSize = appPlayerInitConfig.playlistConfig!!.playlistPKMediaEntryList.size
+                listSize = appPlayerInitConfig.playlistConfig!!.playlistPKMediaEntryList?.size ?: 0
                 //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
                 playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
             }
