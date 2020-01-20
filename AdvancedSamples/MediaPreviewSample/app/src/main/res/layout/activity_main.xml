@@ -26,6 +26,15 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="300dp" />
 
+    <Button
+        android:id="@+id/btnChangeMedia"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/change_media"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        app:layout_constraintTop_toBottomOf="@id/guideline2"/>
+
     <com.kaltura.playkit.samples.mediapreviewsample.PlaybackControlsView
         android:id="@+id/playerControls"
         android:layout_width="match_parent"

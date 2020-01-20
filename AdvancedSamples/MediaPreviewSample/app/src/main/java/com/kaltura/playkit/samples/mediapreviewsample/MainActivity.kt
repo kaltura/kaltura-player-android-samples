@@ -39,25 +39,31 @@ class MainActivity : AppCompatActivity() {
         val PARTNER_ID = 3009
         val log = PKLog.get("MainActivity")
         var previewImageHashMap: HashMap<String, Bitmap>? = null
-        val previewImageWidth: Int = 90
-        val slicesCount = 100
+        var previewImageWidth: Int? = null
+        var slicesCount: Int? = null
     }
 
     private val START_POSITION = 0L // position for start playback in msec.
-    private val ASSET_ID = "548576"
+    private val FIRST_ASSET_ID = "548576"
+    private val SECOND_ASSET_ID = "548577"
 
     //Ad configuration constants.
     private var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
-    private val previewUrl: String = "http://cdnapi.kaltura.com/p/1982551/sp/198255100/thumbnail/entry_id/0_howqvlcs/width/100/vid_slices/100"
+    var preMidPostAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpodbumper&cmsid=496&vid=short_onecue&correlator="
+
+    private val firstPreviewUrl: String = "http://cdnapi.kaltura.com/p/1982551/sp/198255100/thumbnail/entry_id/0_howqvlcs/width/100/vid_slices/100"
+    private val secondPreviewUrl: String = "http://cdnapi.kaltura.com/p/1982551/sp/198255100/thumbnail/entry_id/0_3a1x1vaw/width/160/vid_slices/100"
 
     private var player: KalturaPlayer? = null
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
     private var controlsView: PlaybackControlsView? = null
     private var adCuePoints: AdCuePoints? = null
-    private var isAdEnabled: Boolean = false
+    private var isAdEnabled: Boolean = true
 
-    private val previewImageHeight: Int = 50
+    private var previewImageHeight: Int? = null
+
+    private var changeMediaCount = 0;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,10 +81,36 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Start download image coroutine on Main Thread
-        GlobalScope.launch(Dispatchers.Main) {
-            val getPreviewImage = GetPreviewFromSprite(previewUrl, previewImageWidth, previewImageHeight, slicesCount)
-            previewImageHashMap = getPreviewImage.downloadSpriteCoroutine()
+        findViewById<View>(R.id.btnChangeMedia).setOnClickListener{v ->
+            if (changeMediaCount >=10) {
+                changeMediaCount = 0
+            }
+
+            if (player?.mediaEntry?.id == FIRST_ASSET_ID) {
+                if (isAdEnabled) {
+                    val adsConfig = getAdsConfig(preMidPostAdTagUrl)
+                    player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+                }
+
+                previewImageWidth = 150
+                previewImageHeight = 84
+                slicesCount = 100
+
+                downloadPreviewImage(secondPreviewUrl, previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100)
+                buildSecondOttMediaOptions()
+            } else {
+                if (isAdEnabled) {
+                    val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
+                    player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+                }
+
+                previewImageWidth = 90
+                previewImageHeight = 50
+                slicesCount = 100
+
+                downloadPreviewImage(firstPreviewUrl, previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100)
+                buildFirstOttMediaOptions()
+            }
         }
 
     }
@@ -108,6 +140,16 @@ class MainActivity : AppCompatActivity() {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         }
         isFullScreen = false
+    }
+
+    private fun downloadPreviewImage(imageUrl: String, imageWidth: Int, imageHeight: Int, noOfSlices: Int) {
+        // Start download image coroutine on Main Thread
+        GlobalScope.launch(Dispatchers.Main) {
+            val getPreviewImage = GetPreviewFromSprite(imageUrl, imageWidth, imageHeight, noOfSlices)
+            // Clear the preview hashmap everytime when it tries downloading another image
+            previewImageHashMap?.clear()
+            previewImageHashMap = getPreviewImage.downloadSpriteCoroutine()
+        }
     }
 
     private fun addPlayerStateListener() {
@@ -152,14 +194,12 @@ class MainActivity : AppCompatActivity() {
         playerInitOptions.setAutoPlay(true)
         playerInitOptions.setAllowCrossProtocolEnabled(true)
 
-
         // IMA Configuration
         val pkPluginConfigs = PKPluginConfigs()
 
         if (isAdEnabled) {
             val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
             pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
-
             playerInitOptions.setPluginConfigs(pkPluginConfigs)
         }
 
@@ -170,7 +210,31 @@ class MainActivity : AppCompatActivity() {
         val container = findViewById<ViewGroup>(R.id.player_root)
         container.addView(player?.playerView)
 
-        val ottMediaOptions = buildOttMediaOptions()
+        controlsView?.setPlayer(player)
+
+        previewImageWidth = 90
+        previewImageHeight = 50
+        slicesCount = 100
+
+        downloadPreviewImage(firstPreviewUrl, previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100)
+
+        buildFirstOttMediaOptions()
+
+        showSystemUI()
+
+        addPlayerStateListener()
+    }
+
+    private fun buildFirstOttMediaOptions() {
+        val ottMediaOptions = OTTMediaOptions()
+        ottMediaOptions.assetId = FIRST_ASSET_ID
+        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
+        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
+        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http
+        ottMediaOptions.ks = null
+        ottMediaOptions.startPosition = START_POSITION
+
         player?.loadMedia(ottMediaOptions) { entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
@@ -178,26 +242,25 @@ class MainActivity : AppCompatActivity() {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
             }
         }
-
-        controlsView?.setPlayer(player)
-
-        showSystemUI()
-
-        addPlayerStateListener()
     }
 
-    private fun buildOttMediaOptions(): OTTMediaOptions {
+    private fun buildSecondOttMediaOptions() {
         val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = ASSET_ID
+        ottMediaOptions.assetId = SECOND_ASSET_ID
         ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
         ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
         ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
         ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http
         ottMediaOptions.ks = null
         ottMediaOptions.startPosition = START_POSITION
-        ottMediaOptions.formats = arrayOf("Mobile_Main")
 
-        return ottMediaOptions
+        player?.loadMedia(ottMediaOptions) { entry, loadError ->
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
+            } else {
+                log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
+            }
+        }
     }
 
     private fun getAdsConfig(adTagUrl: String): IMAConfig {

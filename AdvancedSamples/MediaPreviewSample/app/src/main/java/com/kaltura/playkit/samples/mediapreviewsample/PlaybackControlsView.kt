@@ -113,11 +113,11 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
                 //log.d("adController Duration:" + duration);
                 //log.d("adController Position:" + position);
             } else {
-                duration = player!!.duration
-                position = player!!.currentPosition
+                duration = player?.duration!!
+                position = player?.currentPosition!!
                 //log.d("Duration:" + duration);
                 //log.d("Position:" + position);
-                bufferedPosition = player!!.bufferedPosition
+                bufferedPosition = player?.bufferedPosition!!
             }
         }
 
@@ -158,11 +158,11 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
             // position.toFloat() - Gives seek percent
             // seekBar?.width - Seekbar width which changes based on device width
             // leftMargin - Gives the margin from left of the screen
-            val leftMargin: Float = (seekBar?.width?.times(position.toFloat()))?.div(MainActivity.slicesCount)!!
+            val leftMargin: Float = (seekBar?.width?.times(position.toFloat()))?.div(MainActivity.slicesCount ?: 100)!!
 
 
             // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
-            if (leftMargin < (seekBar?.width!! + (4 * tvCurTime!!.paddingLeft) - MainActivity.previewImageWidth - tvCurTime!!.width)) {
+            if (leftMargin < (seekBar?.width!! + (4 * tvCurTime?.paddingLeft!!) - (MainActivity.previewImageWidth ?: 90) - tvCurTime?.width!!)) {
                 previewImage?.translationX = leftMargin
             }
 
@@ -173,7 +173,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
             }
 
             if (player != null) {
-                tvCurTime?.text = stringForTime(position * player!!.duration / PROGRESS_BAR_MAX)
+                tvCurTime?.text = stringForTime(position * player?.duration!! / PROGRESS_BAR_MAX)
             }
         }
 
@@ -182,7 +182,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
             previewImage?.visibility = View.GONE
 
             if (player != null) {
-                player?.seekTo(position * player!!.duration / PROGRESS_BAR_MAX)
+                player?.seekTo(position * player?.duration!! / PROGRESS_BAR_MAX)
             }
         }
 
@@ -205,7 +205,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         var progressValue = 0
         if (player != null) {
 
-            var duration = player!!.duration
+            var duration = player?.duration!!
             //log.d("position = "  + position);
             //log.d("duration = "  + duration);
             val adController = player?.getController(AdController::class.java)
@@ -225,7 +225,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
     private fun positionValue(progress: Long): Long {
         var positionValue: Long = 0
         if (player != null) {
-            var duration = player!!.duration
+            var duration = player?.duration!!
             val adController = player?.getController(AdController::class.java)
             if (adController != null && adController.isAdDisplayed) {
                 duration = adController.adDuration
