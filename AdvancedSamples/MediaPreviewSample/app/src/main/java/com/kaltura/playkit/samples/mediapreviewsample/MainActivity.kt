@@ -62,9 +62,7 @@ class MainActivity : AppCompatActivity() {
     private var isAdEnabled: Boolean = true
 
     private var previewImageHeight: Int? = null
-
-    private var changeMediaCount = 0;
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -82,10 +80,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btnChangeMedia).setOnClickListener{v ->
-            if (changeMediaCount >=10) {
-                changeMediaCount = 0
-            }
-
             if (player?.mediaEntry?.id == FIRST_ASSET_ID) {
                 if (isAdEnabled) {
                     val adsConfig = getAdsConfig(preMidPostAdTagUrl)
