@@ -526,8 +526,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("AD PAUSED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.PAUSED)
             playbackControlsManager?.showControls(View.VISIBLE)
-            if (playbackControlsView?.getPlayPauseToggle() != null)
-                playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
         }
 
         player?.addListener(this, AdEvent.resumed) { event ->
@@ -535,8 +534,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("AD RESUMED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.RESUMED)
             playbackControlsManager?.showControls(View.INVISIBLE)
-            if (playbackControlsView?.getPlayPauseToggle() != null)
-                playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
         }
 
         player?.addListener(this, AdEvent.tapped) { event ->
