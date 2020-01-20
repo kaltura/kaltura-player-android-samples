@@ -15,6 +15,7 @@ import com.kaltura.tvplayer.KalturaPlayer
 
 class PlayerConfig {
     var playerType: KalturaPlayer.Type? = null
+    var playlistConfig : PlaylistConfig? = null
     var baseUrl: String? = null
     var partnerId: String? = null
     var ks: String? = null

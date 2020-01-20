@@ -4,6 +4,8 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.View
@@ -48,12 +50,17 @@ import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin
 import com.kaltura.playkit.plugins.youbora.YouboraEvent
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin
 import com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig
+import com.kaltura.playkit.providers.PlaylistMetadata
 import com.kaltura.playkit.utils.Consts.TRACK_TYPE_TEXT
 import com.kaltura.playkit.utils.Consts.TRACK_TYPE_VIDEO
 import com.kaltura.playkitvr.VRController
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import com.kaltura.tvplayer.config.TVPlayerParams
+import com.kaltura.tvplayer.playlist.BasicPlaylistOptions
+import com.kaltura.tvplayer.playlist.OTTPlaylistOptions
+import com.kaltura.tvplayer.playlist.OVPPlaylistIdOptions
+import com.kaltura.tvplayer.playlist.OVPPlaylistOptions
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -136,6 +143,26 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         } else {
             showMessage(R.string.error_empty_input)
+        }
+    }
+
+    fun playNext() {
+        if (player != null) {
+            tracksSelectionController = null
+            player?.stop()
+        }
+        if (player?.playlistController != null) {
+            player?.playlistController?.playNext()
+        }
+    }
+
+    fun playPrev() {
+        if (player != null) {
+            tracksSelectionController = null
+            player?.stop()
+        }
+        if (player?.playlistController != null) {
+            player?.playlistController?.playPrev()
         }
     }
 
@@ -248,6 +275,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         this.currentPlayedMediaIndex = currentPlayedMediaIndex
     }
 
+    fun playNextItem(currentPlayedMediaIndex: Int) {
+        this.currentPlayedMediaIndex = currentPlayedMediaIndex
+    }
+
     private fun addSearchListener() {
         searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
 
@@ -338,19 +369,50 @@ class PlayerActivity: AppCompatActivity(), Observer {
             setPlayer(player)
 
             val ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
-            player!!.loadMedia(ovpMediaOptions) { entry, error ->
-                if (error != null) {
-                    log.d("OVPMedia Error Extra = " + error!!.getExtra())
-                    Snackbar.make(findViewById<View>(android.R.id.content), error!!.getMessage(), Snackbar.LENGTH_LONG).show()
-                    playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.play)
-                    if (playbackControlsView != null) {
-                        playbackControlsManager?.showControls(View.VISIBLE)
+            if (ovpMediaOptions != null) {
+                player!!.loadMedia(ovpMediaOptions) { entry, error ->
+                    if (error != null) {
+                        log.d("OVPMedia Error Extra = " + error!!.getExtra())
+                        Snackbar.make(findViewById<View>(android.R.id.content), error!!.getMessage(), Snackbar.LENGTH_LONG).show()
+                        playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.play)
+                        if (playbackControlsView != null) {
+                            playbackControlsManager?.showControls(View.VISIBLE)
+                        }
+                    } else {
+                        log.d("OVPMedia onEntryLoadComplete entry =" + entry.getId())
                     }
+                }
+
+            } else {
+                // PLAYLIST
+                if (appPlayerInitConfig.playlistConfig?.playlistId != null) {
+                    var mediaList = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList
+
+                    val ovpPlaylistIdOptions = OVPPlaylistIdOptions()
+                    ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
+                    ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.isUseApiCaptions ?: false
+                    ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
+                    ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
+                    player!!.loadPlaylistById(ovpPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+                        if (error != null) {
+                            Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                        }
+                    })
                 } else {
-                    log.d("OVPMedia onEntryLoadComplete entry =" + entry.getId())
+                    var mediaList = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList
+
+                    val ovpPlaylistOptions = OVPPlaylistOptions()
+                    ovpPlaylistOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+                    ovpPlaylistOptions.ovpMediaOptionsList = mediaList
+                    ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
+                    ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
+                    player!!.loadPlaylist(ovpPlaylistOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+                        if (error != null) {
+                            Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                        }
+                    })
                 }
             }
-
         } else if (KalturaPlayer.Type.ott == playerType) {
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
@@ -375,17 +437,33 @@ class PlayerActivity: AppCompatActivity(), Observer {
             player = KalturaOttPlayer.create(this@PlayerActivity, initOptions)
             setPlayer(player)
             val ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
-            player!!.loadMedia(ottMediaOptions!!) { entry, error ->
-                if (error != null) {
-                    log.d("OTTMedia Error Extra = " + error!!.getExtra())
-                    Snackbar.make(findViewById<View>(android.R.id.content), error!!.getMessage(), Snackbar.LENGTH_LONG).show()
-                    playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.play)
-                    if (playbackControlsView != null) {
-                        playbackControlsManager?.showControls(View.VISIBLE)
+            if (ottMediaOptions != null) {
+                player!!.loadMedia(ottMediaOptions!!) { entry, error ->
+                    if (error != null) {
+                        log.d("OTTMedia Error Extra = " + error!!.getExtra())
+                        Snackbar.make(findViewById<View>(android.R.id.content), error!!.getMessage(), Snackbar.LENGTH_LONG).show()
+                        playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.play)
+                        if (playbackControlsView != null) {
+                            playbackControlsManager?.showControls(View.VISIBLE)
+                        }
+                    } else {
+                        log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId())
                     }
-                } else {
-                    log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId())
                 }
+            } else {
+                // PLAYLIST
+                var mediaList = appPlayerInitConfig.playlistConfig?.ottMediaOptionsList
+
+                val ottPlaylistIdOptions = OTTPlaylistOptions()
+                ottPlaylistIdOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+                ottPlaylistIdOptions.ottMediaOptionsList = mediaList
+                ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
+                ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
+                player!!.loadPlaylist(ottPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+                    if (error != null) {
+                        Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                    }
+                })
             }
         } else if (KalturaPlayer.Type.basic == playerType) {
             player = KalturaBasicPlayer.create(this@PlayerActivity, initOptions)
@@ -396,6 +474,24 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     mediaEntry!!.setIsVRMediaType(true)
                 }
                 player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
+            } else {
+                //PLAYLIST
+                var mediaList = appPlayerInitConfig.playlistConfig?.playlistPKMediaEntryList
+
+                val basicPlaylistIdOptions = BasicPlaylistOptions()
+                basicPlaylistIdOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+                basicPlaylistIdOptions.playlistPKMediaEntryList = mediaList
+                basicPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
+                basicPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
+
+                player!!.loadPlaylist(basicPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+                    if (error != null) {
+                        Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                    } else {
+                        log.d("BasicPlaylist OnPlaylistLoadListener  entry = " +  basicPlaylistIdOptions.playlistMetadata.name)
+                        val handler = Handler(Looper.getMainLooper())
+                    }
+                })
             }
         } else {
             log.e("Failed to initialize player...")
@@ -409,11 +505,35 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.pause)
         }
 
-        if (appPlayerInitConfig.mediaList != null) {
-            if (appPlayerInitConfig.mediaList!!.size > 1) {
-                playbackControlsManager?.addChangeMediaButtonsListener(appPlayerInitConfig.mediaList!!.size)
+        if (appPlayerInitConfig.playlistConfig != null) {
+            var listSize : Int? =  null
+            if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ovp) {
+                if (appPlayerInitConfig.playlistConfig?.playlistId == null) {
+                    listSize = appPlayerInitConfig.playlistConfig!!.ovpMediaOptionsList.size
+                    //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
+                    playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
+                }
+            } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ott) {
+                listSize = appPlayerInitConfig.playlistConfig!!.ottMediaOptionsList.size
+                //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
+                playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
+            } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.basic) {
+                listSize = appPlayerInitConfig.playlistConfig!!.playlistPKMediaEntryList.size
+                //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
+                playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
             }
-            playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, appPlayerInitConfig.mediaList!!.size)
+
+            if (listSize != null) {
+                //playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, listSize)
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, listSize)
+            }
+        } else if (appPlayerInitConfig.mediaList != null) {
+            if (appPlayerInitConfig.mediaList!!.size > 1) {
+                //playbackControlsManager?.addChangeMediaButtonsListener(appPlayerInitConfig.mediaList!!.size)
+                playbackControlsManager?.addChangeMediaImgButtonsListener(appPlayerInitConfig.mediaList!!.size)
+            }
+            //playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, appPlayerInitConfig.mediaList!!.size)
+            playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, appPlayerInitConfig.mediaList!!.size)
         }
     }
 
@@ -439,8 +559,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         return ottMediaOptions
     }
 
-    private fun buildOvpMediaOptions(startPosition: Long?, playListMediaIndex: Int): OVPMediaOptions {
-        val ovpMedia = mediaList?.get(playListMediaIndex)
+    private fun buildOvpMediaOptions(startPosition: Long?, playListMediaIndex: Int): OVPMediaOptions? {
+        val ovpMedia = mediaList?.get(playListMediaIndex) ?: return null
         val ovpMediaOptions = OVPMediaOptions()
         ovpMediaOptions.entryId = ovpMedia?.entryId
         ovpMediaOptions.ks = ovpMedia?.ks
@@ -1024,5 +1144,4 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val snackbar = Snackbar.make(itemView, string!!, Snackbar.LENGTH_LONG)
         snackbar.show()
     }
-
 }

@@ -36,6 +36,7 @@ class SplashScreen: Activity() {
             KalturaOvpPlayer.initialize(this, 2093031, "https://cdnapisec.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 1068292, "https://cdnapisec.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 1281471, "https://cdnapisec.kaltura.com/")
+            KalturaOvpPlayer.initialize(this, 2068231, "https://cdnapisec.kaltura.com/")
             KalturaOttPlayer.initialize(this, 3009, "https://rest-us.ott.kaltura.com/v4_5/")
             doConnectionsWarmup()
             val i = Intent(this@SplashScreen, SignInActivity::class.java)
