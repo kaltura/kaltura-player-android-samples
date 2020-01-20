@@ -150,7 +150,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playNext()
-            playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, player?.playlistController?.playlist?.mediaListSize ?: 0)
+            playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
+                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
         }
     }
 
@@ -161,7 +162,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playPrev()
-            playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, player?.playlistController?.playlist?.mediaListSize ?: 0)
+            playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
+                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
         }
     }
 
@@ -401,6 +403,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     player!!.loadPlaylistById(ovpPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
                         if (error != null) {
                             Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                        } else {
+                            playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
                         }
                     })
                 } else {
@@ -711,6 +715,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlayerEvent.playing) { event ->
             log.d("Player Event PLAYING")
+            if (player?.playlistController != null) {
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
+                        ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+            }
+
             updateEventsLogsList("player:\n" + event.eventType().name)
             progressBar?.setVisibility(View.INVISIBLE)
             playbackControlsManager?.setContentPlayerState(event.eventType())
@@ -731,6 +740,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlayerEvent.ended) { event ->
             log.d("PLAYER ENDED")
+            if (player?.playlistController != null) {
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
+                        ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+            }
+
             if (adCuePoints == null || adCuePoints != null && !adCuePoints!!.hasPostRoll() || IMADAIPlugin.factory.name == adCuePoints!!.getAdPluginName()) {
                 playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.replay)
             }
@@ -739,7 +753,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName()) ||
                     FBInstreamPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())
             ) {
-                playbackControlsManager?.showControls(View.VISIBLE)
+                if (player?.playlistController == null) {
+                    playbackControlsManager?.showControls(View.VISIBLE)
+                }
             }
         }
 
