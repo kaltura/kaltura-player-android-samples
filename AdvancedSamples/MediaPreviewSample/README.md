@@ -1,19 +1,18 @@
-# IMA Sample
+# MediaPreview Sample
 
 ## Purpose
 
-This PlayKit sample shows how to create and setup IMAPlugin with PlayKit SDK.
-
-For more info see [documentation]https://vpaas.kaltura.com/documentation/Mobile-Video-Player-SDKs/v3_Android_Ads.html)
+This PlayKit sample shows how to show a media preview when seekbar is being scrubbed.
 
 ## How to use
 
-1. Open IMASample project in Android Studio.
+1. Open `MediaPreviewSample` project in Android Studio.
 2. Compile.
-3. See logs for received ad events.
-4. For sample purpose, we will show subscription only for a couple of ad events and for one adError event.
-5. In order to receive adError event, you should change the AD_TAG_URL to INCORRECT_AD_TAG_URL,
-when configuring ima plugin in createIMAPlugin() method.
+3. This sample has an option to change media and ads are enabled.
+4. For sample purpose, we are keeping two sample Image Sprites (https://www.w3schools.com/css/css_image_sprites.asp). The width, height and no of slices, we are keeping in `MainActivity.kt`.
+5. We are currently supporting the (1 row x n columns or no of slices) image sprite.
+6. In `PlaybackControlsView.kt`, there is an inner class `ComponentListener` where in `onScrubMove` interface method has the logic showing the preview image while scrubbing.
+7. `com.kaltura.playkit.samples.mediapreviewsample.preview` package has the class to download and extract images from image sprite.
 
 
 ## License
