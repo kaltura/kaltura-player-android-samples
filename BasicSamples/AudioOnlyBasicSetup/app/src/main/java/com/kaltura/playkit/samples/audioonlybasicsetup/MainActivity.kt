@@ -18,7 +18,6 @@ import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PKSubtitleFormat
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.player.PKExternalSubtitle
-import com.kaltura.playkit.player.PKTracks
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
@@ -27,8 +26,6 @@ import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
 
 import java.util.ArrayList
-import java.util.Collections
-
 
 class MainActivity : AppCompatActivity() {
 

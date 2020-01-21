@@ -1,5 +1,14 @@
 include ':app'
+
+//include ':tvplayer'
+//project(':tvplayer').projectDir = new File('../../../kaltura-player-android/tvplayer')
 //include ':playkit'
-//project(':playkit').projectDir = new File('../../playkit-android/playkit')
+//project(':playkit').projectDir = new File('../../../playkit-android/playkit')
+//include ':providers'
+//project(':providers').projectDir = new File('../../../playkit-android-providers/mediaproviders')
+//include ':kava'
+//project(':kava').projectDir = new File('../../../playkit-android-kava/kavaplugin')
 //include ':ima'
-//project(':ima').projectDir = new File('../../playkit-android-ima/imaplugin')
+//project(':ima').projectDir = new File('../../../playkit-android-ima/imaplugin')
+//include ':dtglib'
+//project(':dtglib').projectDir = new File('../../../playkit-dtg-android/dtglib')
