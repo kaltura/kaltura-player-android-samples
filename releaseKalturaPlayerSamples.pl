@@ -11,7 +11,7 @@ if ($num_args != 3) {
 }
 
 my ($pathToSamplesFolder, $oldVer, $newVer) = @ARGV;
-print "Relase Android Samples\n";
+print "Release Android Samples\n";
 
 my @files = `find $pathToSamplesFolder/*/* | grep build.gradle`;
 
@@ -41,7 +41,7 @@ foreach my $file(@files) {
          print OUTFILE $newLine;
    }
    close OUTFILE;
-  
+  `git add $file`  
   # system ("cat $file");
 }
 
