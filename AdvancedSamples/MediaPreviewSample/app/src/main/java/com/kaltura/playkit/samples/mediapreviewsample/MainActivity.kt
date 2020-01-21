@@ -13,6 +13,7 @@ import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
+
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
@@ -49,20 +50,17 @@ class MainActivity : AppCompatActivity() {
 
     //Ad configuration constants.
     private var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
-    var preMidPostAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpodbumper&cmsid=496&vid=short_onecue&correlator="
-
-    private val firstPreviewUrl: String = "http://cdnapi.kaltura.com/p/1982551/sp/198255100/thumbnail/entry_id/0_howqvlcs/width/100/vid_slices/100"
-    private val secondPreviewUrl: String = "http://cdnapi.kaltura.com/p/1982551/sp/198255100/thumbnail/entry_id/0_3a1x1vaw/width/160/vid_slices/100"
+    private var preMidPostAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpodbumper&cmsid=496&vid=short_onecue&correlator="
 
     private var player: KalturaPlayer? = null
+    private var controlsView: PlaybackControlsView? = null
+
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
-    private var controlsView: PlaybackControlsView? = null
     private var adCuePoints: AdCuePoints? = null
-    private var isAdEnabled: Boolean = true
-
+    private var isAdEnabled: Boolean = false
     private var previewImageHeight: Int? = null
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -80,33 +78,37 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btnChangeMedia).setOnClickListener{v ->
-            if (player?.mediaEntry?.id == FIRST_ASSET_ID) {
-                if (isAdEnabled) {
-                    val adsConfig = getAdsConfig(preMidPostAdTagUrl)
-                    player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+
+            player?.let { it ->
+                it.mediaEntry?.let {
+                    if (it.id == FIRST_ASSET_ID) {
+                        if (isAdEnabled) {
+                            val adsConfig = getAdsConfig(preMidPostAdTagUrl)
+                            player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+                        }
+
+                        previewImageWidth = 150
+                        previewImageHeight = 84
+                        slicesCount = 100
+
+                        downloadPreviewImage( previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, "0_3a1x1vaw")
+                        buildSecondOttMediaOptions()
+                    } else {
+                        if (isAdEnabled) {
+                            val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
+                            player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+                        }
+
+                        previewImageWidth = 90
+                        previewImageHeight = 50
+                        slicesCount = 100
+
+                        downloadPreviewImage( previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100, "0_howqvlcs")
+                        buildFirstOttMediaOptions()
+                    }
                 }
-
-                previewImageWidth = 150
-                previewImageHeight = 84
-                slicesCount = 100
-
-                downloadPreviewImage(secondPreviewUrl, previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100)
-                buildSecondOttMediaOptions()
-            } else {
-                if (isAdEnabled) {
-                    val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
-                    player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
-                }
-
-                previewImageWidth = 90
-                previewImageHeight = 50
-                slicesCount = 100
-
-                downloadPreviewImage(firstPreviewUrl, previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100)
-                buildFirstOttMediaOptions()
             }
         }
-
     }
 
     private fun hideSystemUI() {
@@ -136,10 +138,10 @@ class MainActivity : AppCompatActivity() {
         isFullScreen = false
     }
 
-    private fun downloadPreviewImage(imageUrl: String, imageWidth: Int, imageHeight: Int, noOfSlices: Int) {
+    private fun downloadPreviewImage(imageWidth: Int, imageHeight: Int, noOfSlices: Int, mediaEntryId: String) {
         // Start download image coroutine on Main Thread
         GlobalScope.launch(Dispatchers.Main) {
-            val getPreviewImage = GetPreviewFromSprite(imageUrl, imageWidth, imageHeight, noOfSlices)
+            val getPreviewImage = GetPreviewFromSprite(imageWidth, imageHeight, noOfSlices, mediaEntryId)
             // Clear the preview hashmap everytime when it tries downloading another image
             previewImageHashMap?.clear()
             previewImageHashMap = getPreviewImage.downloadSpriteCoroutine()
@@ -152,7 +154,7 @@ class MainActivity : AppCompatActivity() {
             playerState = event.newState
         }
 
-        player?.addListener(this, PlayerEvent.error) { event -> log.d("PLAYER ERROR " + event.error.message) }
+        player?.addListener(this, PlayerEvent.error) { event -> log.d("player ERROR " + event.error.message) }
     }
 
     override fun onPause() {
@@ -163,9 +165,7 @@ class MainActivity : AppCompatActivity() {
             controlsView?.release()
         }
 
-        if (player != null) {
-            player?.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
     }
 
     override fun onResume() {
@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity() {
         previewImageHeight = 50
         slicesCount = 100
 
-        downloadPreviewImage(firstPreviewUrl, previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100)
+        downloadPreviewImage(previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100, "0_howqvlcs")
 
         buildFirstOttMediaOptions()
 
@@ -236,6 +236,7 @@ class MainActivity : AppCompatActivity() {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
             }
         }
+
     }
 
     private fun buildSecondOttMediaOptions() {
@@ -347,8 +348,9 @@ class MainActivity : AppCompatActivity() {
 
         player?.addListener(this, AdEvent.midpoint) { event ->
             log.d("MIDPOINT")
-            if (player != null) {
-                val adController = player?.getController(AdController::class.java)
+
+            player?.let {
+                val adController = it.getController(AdController::class.java)
                 if (adController != null) {
                     if (adController.isAdDisplayed) {
                         log.d("AD CONTROLLER API: " + adController.adCurrentPosition + "/" + adController.adDuration)

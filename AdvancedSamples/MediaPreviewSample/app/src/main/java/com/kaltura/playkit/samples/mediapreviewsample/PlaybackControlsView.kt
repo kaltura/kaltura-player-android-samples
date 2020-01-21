@@ -35,19 +35,19 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
     private val formatter: Formatter
     private val formatBuilder: StringBuilder
 
-    private var seekBar: DefaultTimeBar? = null
-    private var tvCurTime: TextView? = null
-    private var tvTime: TextView? = null
-    private var btnPlay: ImageButton? = null
-    private var btnPause: ImageButton? = null
-    private var btnFastForward: ImageButton? = null
-    private var btnRewind: ImageButton? = null
-    private var btnNext: ImageButton? = null
-    private var btnPrevious: ImageButton? = null
-    private var btnShuffle: ImageButton? = null
-    private var btnRepeatToggle: ImageButton? = null
-    private var btnVr: ImageButton? = null
-    private var previewImage: ImageView? = null
+    private lateinit var seekBar: DefaultTimeBar
+    private lateinit var tvCurTime: TextView
+    private lateinit var tvTime: TextView
+    private lateinit var btnPlay: ImageButton
+    private lateinit var btnPause: ImageButton
+    private lateinit var btnFastForward: ImageButton
+    private lateinit var btnRewind: ImageButton
+    private lateinit var btnNext: ImageButton
+    private lateinit var btnPrevious: ImageButton
+    private lateinit var btnShuffle: ImageButton
+    private lateinit var btnRepeatToggle: ImageButton
+    private lateinit var btnVr: ImageButton
+    private lateinit var previewImage: ImageView
 
     private var dragging = false
 
@@ -68,32 +68,32 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         btnPlay = this.findViewById(R.id.exo_play)
         btnPause = this.findViewById(R.id.exo_pause)
         btnFastForward = this.findViewById(R.id.exo_ffwd)
-        btnFastForward?.visibility = View.GONE
+        btnFastForward.visibility = View.GONE
         btnRewind = this.findViewById(R.id.exo_rew)
-        btnRewind?.visibility = View.GONE
+        btnRewind.visibility = View.GONE
         btnNext = this.findViewById(R.id.exo_next)
         btnPrevious = this.findViewById(R.id.exo_prev)
         btnRepeatToggle = this.findViewById(R.id.exo_repeat_toggle)
-        btnRepeatToggle?.visibility = View.GONE
+        btnRepeatToggle.visibility = View.GONE
         btnShuffle = this.findViewById(R.id.exo_shuffle)
-        btnShuffle?.visibility = View.GONE
+        btnShuffle.visibility = View.GONE
         btnVr = this.findViewById(R.id.exo_vr)
-        btnVr?.visibility = View.GONE
+        btnVr.visibility = View.GONE
         previewImage = this.findViewById(R.id.image_preview)
 
-        btnPlay?.setOnClickListener(this)
-        btnPause?.setOnClickListener(this)
-        btnFastForward?.setOnClickListener(this)
-        btnRewind?.setOnClickListener(this)
-        btnNext?.setOnClickListener(this)
-        btnPrevious?.setOnClickListener(this)
+        btnPlay.setOnClickListener(this)
+        btnPause.setOnClickListener(this)
+        btnFastForward.setOnClickListener(this)
+        btnRewind.setOnClickListener(this)
+        btnNext.setOnClickListener(this)
+        btnPrevious.setOnClickListener(this)
 
         seekBar = this.findViewById(R.id.exo_progress)
-        seekBar?.setPlayedColor(resources.getColor(R.color.colorAccent))
-        seekBar?.setBufferedColor(resources.getColor(R.color.grey))
-        seekBar?.setUnplayedColor(resources.getColor(R.color.black))
-        seekBar?.setScrubberColor(resources.getColor(R.color.colorAccent))
-        seekBar?.addListener(componentListener)
+        seekBar.setPlayedColor(resources.getColor(R.color.colorAccent))
+        seekBar.setBufferedColor(resources.getColor(R.color.grey))
+        seekBar.setUnplayedColor(resources.getColor(R.color.black))
+        seekBar.setScrubberColor(resources.getColor(R.color.colorAccent))
+        seekBar.addListener(componentListener)
 
         tvCurTime = this.findViewById(R.id.exo_position)
         tvTime = this.findViewById(R.id.exo_duration)
@@ -104,8 +104,9 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         var duration = C.TIME_UNSET
         var position = C.POSITION_UNSET.toLong()
         var bufferedPosition: Long = 0
-        if (player != null) {
-            val adController = player?.getController(AdController::class.java)
+
+        player?.let {
+            val adController = it.getController(AdController::class.java)
             if (adController != null && adController.isAdDisplayed) {
                 duration = adController.adDuration
                 position = adController.adCurrentPosition
@@ -113,27 +114,27 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
                 //log.d("adController Duration:" + duration);
                 //log.d("adController Position:" + position);
             } else {
-                duration = player?.duration!!
-                position = player?.currentPosition!!
+                duration = it.duration
+                position = it.currentPosition
                 //log.d("Duration:" + duration);
                 //log.d("Position:" + position);
-                bufferedPosition = player?.bufferedPosition!!
+                bufferedPosition = it.bufferedPosition
             }
         }
 
         if (duration != C.TIME_UNSET) {
             //log.d("updateProgress Set Duration:" + duration);
-            tvTime?.text = stringForTime(duration)
+            tvTime.text = stringForTime(duration)
         }
 
         if (!dragging && position != C.POSITION_UNSET.toLong() && duration != C.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
-            tvCurTime?.text = stringForTime(position)
-            seekBar?.setPosition(progressBarValue(position).toLong())
-            seekBar?.setDuration(progressBarValue(duration).toLong())
+            tvCurTime.text = stringForTime(position)
+            seekBar.setPosition(progressBarValue(position).toLong())
+            seekBar.setDuration(progressBarValue(duration).toLong())
         }
 
-        seekBar?.setBufferedPosition(progressBarValue(bufferedPosition).toLong())
+        seekBar.setBufferedPosition(progressBarValue(bufferedPosition).toLong())
         // Remove scheduled updates.
         removeCallbacks(updateProgressAction)
         // Schedule an update if necessary.
@@ -153,36 +154,36 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         }
 
         override fun onScrubMove(timeBar: TimeBar, position: Long) {
-            previewImage?.visibility = View.VISIBLE
+            previewImage.visibility = View.VISIBLE
 
             // position.toFloat() - Gives seek percent
             // seekBar?.width - Seekbar width which changes based on device width
             // leftMargin - Gives the margin from left of the screen
-            val leftMargin: Float = (seekBar?.width?.times(position.toFloat()))?.div(MainActivity.slicesCount ?: 100)!!
+            val leftMargin: Float = (seekBar.width.times(position.toFloat())).div(MainActivity.slicesCount ?: 100)
 
 
             // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
-            if (leftMargin < (seekBar?.width!! + (4 * tvCurTime?.paddingLeft!!) - (MainActivity.previewImageWidth ?: 90) - tvCurTime?.width!!)) {
-                previewImage?.translationX = leftMargin
+            if (leftMargin < (seekBar.width + (4 * tvCurTime.paddingLeft) - (MainActivity.previewImageWidth ?: 90) - tvCurTime.width)) {
+                previewImage.translationX = leftMargin
             }
 
             if (!MainActivity.previewImageHashMap.isNullOrEmpty()) {
-                previewImage?.setImageBitmap(MainActivity.previewImageHashMap?.get(position.toString()))
+                previewImage.setImageBitmap(MainActivity.previewImageHashMap?.get(position.toString()))
             } else {
-                previewImage?.visibility = View.GONE
+                previewImage.visibility = View.GONE
             }
 
-            if (player != null) {
-                tvCurTime?.text = stringForTime(position * player?.duration!! / PROGRESS_BAR_MAX)
+            player?.let {
+                tvCurTime.text = stringForTime(position * it.duration / PROGRESS_BAR_MAX)
             }
         }
 
         override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
             dragging = false
-            previewImage?.visibility = View.GONE
+            previewImage.visibility = View.GONE
 
-            if (player != null) {
-                player?.seekTo(position * player?.duration!! / PROGRESS_BAR_MAX)
+            player?.let {
+                it.seekTo(position * it.duration / PROGRESS_BAR_MAX)
             }
         }
 
@@ -203,12 +204,12 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
 
     private fun progressBarValue(position: Long): Int {
         var progressValue = 0
-        if (player != null) {
+        player?.let {
 
-            var duration = player?.duration!!
+            var duration = it.duration
             //log.d("position = "  + position);
             //log.d("duration = "  + duration);
-            val adController = player?.getController(AdController::class.java)
+            val adController = it.getController(AdController::class.java)
             if (adController != null && adController.isAdDisplayed) {
                 duration = adController.adDuration
             }
@@ -224,9 +225,9 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
 
     private fun positionValue(progress: Long): Long {
         var positionValue: Long = 0
-        if (player != null) {
-            var duration = player?.duration!!
-            val adController = player?.getController(AdController::class.java)
+        player?.let {
+            var duration = it.duration
+            val adController = it.getController(AdController::class.java)
             if (adController != null && adController.isAdDisplayed) {
                 duration = adController.adDuration
             }
@@ -259,17 +260,13 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
     }
 
     fun setSeekBarStateForAd(isAdPlaying: Boolean) {
-        seekBar?.isEnabled = !isAdPlaying
+        seekBar.isEnabled = !isAdPlaying
     }
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.exo_play -> if (player != null) {
-                player?.play()
-            }
-            R.id.exo_pause -> if (player != null) {
-                player?.pause()
-            }
+            R.id.exo_play -> player?.play()
+            R.id.exo_pause -> player?.pause()
             R.id.exo_ffwd -> {
                 //Do nothing for now
             }
