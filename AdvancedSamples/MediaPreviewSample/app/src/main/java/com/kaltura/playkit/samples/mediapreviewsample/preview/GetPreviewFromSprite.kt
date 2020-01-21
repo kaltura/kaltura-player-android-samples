@@ -77,6 +77,8 @@ open class GetPreviewFromSprite(var spriteSliceWidth: Int,
                 bitmapRegionDecoder.decodeRegion(cropRect, options)
             } catch (e: IllegalArgumentException) {
                 log.e("The given height and width is out of rectangle which is outside the image. ImageSpriteUrl: ${imageSpriteUrl}")
+                previewImagesHashMap?.clear()
+                bitmapRegionDecoder.recycle()
                 return null
             }
             previewImagesHashMap?.put("" + previewImageSize, extractedImageBitmap)
