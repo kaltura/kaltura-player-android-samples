@@ -9,27 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.fragment.app.Fragment
-
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.kaltura.android.exoplayer2.util.MimeTypes
-import com.kaltura.playkit.PKDrmParams
-import com.kaltura.playkit.PKMediaEntry
-import com.kaltura.playkit.PKMediaFormat
-import com.kaltura.playkit.PKMediaSource
-import com.kaltura.playkit.PKPluginConfigs
-import com.kaltura.playkit.PlayerEvent
-import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.ads.AdEnabledPlayerController
 import com.kaltura.playkit.plugins.ads.AdEvent
@@ -38,12 +25,6 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsConfig
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin
-import com.kaltura.tvplayer.KalturaBasicPlayer
-import com.kaltura.tvplayer.KalturaPlayer
-import com.kaltura.tvplayer.PlayerInitOptions
-
-import java.util.ArrayList
-
 import com.kaltura.playkit.samples.fulldemo.Consts.AD_LOAD_TIMEOUT
 import com.kaltura.playkit.samples.fulldemo.Consts.AUTO_PLAY
 import com.kaltura.playkit.samples.fulldemo.Consts.COMPANION_AD_HEIGHT
@@ -54,6 +35,10 @@ import com.kaltura.playkit.samples.fulldemo.Consts.MIME_TYPE
 import com.kaltura.playkit.samples.fulldemo.Consts.MIN_AD_DURATION_FOR_SKIP_BUTTON
 import com.kaltura.playkit.samples.fulldemo.Consts.PREFERRED_BITRATE
 import com.kaltura.playkit.samples.fulldemo.Consts.START_FROM
+import com.kaltura.tvplayer.KalturaBasicPlayer
+import com.kaltura.tvplayer.KalturaPlayer
+import com.kaltura.tvplayer.PlayerInitOptions
+import java.util.*
 
 //import com.kaltura.plugins.adsmanager.AdsConfig;
 //import com.kaltura.plugins.adsmanager.AdsPlugin;
@@ -104,10 +89,11 @@ class VideoFragment : Fragment() {
         return false
     }
 
-    private var mVideoItem: VideoItem? = null
-    private var mVideoTitle: TextView? = null
-    private var playerLayout: FrameLayout? = null
-    private var adSkin: RelativeLayout? = null
+    private lateinit var mVideoItem: VideoItem
+    private lateinit var mVideoTitle: TextView
+    private lateinit var playerLayout: FrameLayout
+    private lateinit var adSkin: RelativeLayout
+
     private var player: KalturaPlayer? = null
     private var controlsView: PlaybackControlsView? = null
     private var nowPlaying: Boolean = false
@@ -156,10 +142,6 @@ class VideoFragment : Fragment() {
         super.onAttach(activity)
     }
 
-    override fun onActivityCreated(bundle: Bundle?) {
-        super.onActivityCreated(bundle)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         isAutoPlay = arguments!!.getBoolean(AUTO_PLAY)
@@ -192,7 +174,7 @@ class VideoFragment : Fragment() {
         val videoMimeTypes = ArrayList<String>()
         videoMimeTypes.add("video/mp4")
         videoMimeTypes.add("application/x-mpegURL")
-        if (player!!.mediaEntry.id == FIRST_ENTRY_ID) {
+        if (player?.mediaEntry?.id == FIRST_ENTRY_ID) {
             val AD_HOND = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="//"http://externaltests.dev.kaltura.com/player/Vast_xml/alexs.qacore-vast3-rol_02.xml";
 
             val adsConfig = IMAConfig().setAdTagUrl(AD_HOND).enableDebugMode(true).setVideoMimeTypes(videoMimeTypes)
@@ -210,9 +192,9 @@ class VideoFragment : Fragment() {
 
             val referrer = "app://NonDefaultReferrer1/" + activity!!.packageCodePath
             //player.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
-            player!!.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
-            player!!.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
-            player!!.updatePluginConfig(YouboraPlugin.factory.name, getConverterYoubora(MEDIA_TITLE + "_changeMedia1", false).toJson())
+            player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
+            player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+            player?.updatePluginConfig(YouboraPlugin.factory.name, getConverterYoubora(MEDIA_TITLE + "_changeMedia1", false).toJson())
             //If first one is active, prepare second one.
             prepareFirstEntry()
         } else {
@@ -229,10 +211,10 @@ class VideoFragment : Fragment() {
             //                    setCompanionAdHeight(companionAdHeight);
 
             val referrer = "app://NonDefaultReferrer2/" + activity!!.packageName
-            player!!.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
-            //player.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
-            player!!.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
-            player!!.updatePluginConfig(YouboraPlugin.factory.name, getConverterYoubora(MEDIA_TITLE + "_changeMedia2", false).toJson())
+            player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
+            //player?.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
+            player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+            player?.updatePluginConfig(YouboraPlugin.factory.name, getConverterYoubora(MEDIA_TITLE + "_changeMedia2", false).toJson())
 
             //If the second one is active, prepare the first one.
             prepareSecondEntry()
@@ -247,7 +229,7 @@ class VideoFragment : Fragment() {
         val mediaEntry = createFirstMediaEntry()
 
         //Prepare player with media configuration.
-        player!!.setMedia(mediaEntry, 0L)
+        player?.setMedia(mediaEntry, 0L)
     }
 
     /**
@@ -258,7 +240,7 @@ class VideoFragment : Fragment() {
         val mediaEntry = createSecondMediaEntry()
 
         //Prepare player with media configuration.
-        player!!.setMedia(mediaEntry, 0L)
+        player?.setMedia(mediaEntry, 0L)
     }
 
     private fun createFirstMediaEntry(): PKMediaEntry {
@@ -383,10 +365,10 @@ class VideoFragment : Fragment() {
 
 
         player = KalturaBasicPlayer.create(activity, playerInitOptions)
-        player!!.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT)
 
         val container = rootView!!.findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
+        container.addView(player?.playerView)
     }
 
 
@@ -485,7 +467,7 @@ class VideoFragment : Fragment() {
 
     private fun prepareMediaEntry() {
         val pkMediaEntry = createMediaEntry()
-        player!!.setMedia(pkMediaEntry)
+        player?.setMedia(pkMediaEntry)
     }
 
     /**
@@ -604,7 +586,7 @@ class VideoFragment : Fragment() {
         mLog = logger
         if (mVideoItem != null) {
             loadPlaykitPlayer()
-            controlsView!!.setPlayer(player!!)
+            controlsView!!.setPlayer(player)
             addPlayerListeners(progressBar!!)
             prepareMediaEntry()
         }
@@ -616,17 +598,14 @@ class VideoFragment : Fragment() {
     }
 
     override fun onPause() {
-
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
         super.onPause()
+        player?.onApplicationPaused()
     }
 
     override fun onDestroy() {
         if (player != null) {
-            player!!.removeListeners(this)
-            player!!.destroy()
+            player?.removeListeners(this)
+            player?.destroy()
             player = null
         }
         super.onDestroy()
@@ -639,88 +618,97 @@ class VideoFragment : Fragment() {
             return
         }
         if (player != null) {
-            player!!.onApplicationResumed()
+            player?.onApplicationResumed()
             //player.play();
         }
     }
 
     private fun addPlayerListeners(appProgressBar: ProgressBar) {
 
-        player!!.addListener(this, AdEvent.contentResumeRequested) { event -> log("ADS_PLAYBACK_ENDED") }
+        player?.addListener(this, AdEvent.contentResumeRequested) { event ->
+            log("ADS_PLAYBACK_ENDED")
+            controlsView?.setSeekBarStateForAd(false)
+        }
 
-        player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
+        player?.addListener(this, AdEvent.contentPauseRequested) { event ->
+            log("AD_CONTENT_PAUSE_REQUESTED")
+            controlsView?.setSeekBarStateForAd(true)
+        }
+
+        player?.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
             log("AD_PLAYBACK_INFO_UPDATED")
             //log.d("XXX playbackInfoUpdated  = " + playbackInfoUpdated.width + "/" + playbackInfoUpdated.height + "/" + playbackInfoUpdated.bitrate);
             log("AD_PLAYBACK_INFO_UPDATED bitrate = " + event.bitrate)
         }
 
-        player!!.addListener(this, AdEvent.skippableStateChanged) { event -> log("SKIPPABLE_STATE_CHANGED") }
+        player?.addListener(this, AdEvent.skippableStateChanged) { event -> log("SKIPPABLE_STATE_CHANGED") }
 
-        player!!.addListener(this, AdEvent.adRequested) { event ->
+        player?.addListener(this, AdEvent.adRequested) { event ->
             val adRequestEvent = event
             log("AD_REQUESTED")// adtag = " + adRequestEvent.adTagUrl);
         }
 
-        player!!.addListener(this, AdEvent.playHeadChanged) { event ->
+        player?.addListener(this, AdEvent.playHeadChanged) { event ->
             appProgressBar.visibility = View.INVISIBLE
             val adEventProress = event
             //log.d("received AD PLAY_HEAD_CHANGED " + adEventProress.adPlayHead);
         }
 
-        player!!.addListener(this, AdEvent.error) { event ->
+        player?.addListener(this, AdEvent.error) { event ->
             Log.d(TAG, "AD_ERROR " + event.type + " " + event.error.message)
             appProgressBar.visibility = View.INVISIBLE
+            controlsView?.setSeekBarStateForAd(false)
             log("AD_ERROR")
         }
 
-        player!!.addListener(this, AdEvent.adBreakStarted) { event ->
+        player?.addListener(this, AdEvent.adBreakStarted) { event ->
             log("AD_BREAK_STARTED")
             appProgressBar.visibility = View.VISIBLE
         }
 
-        player!!.addListener(this, AdEvent.cuepointsChanged) { event ->
+        player?.addListener(this, AdEvent.cuepointsChanged) { event ->
             Log.d(TAG, "Has Postroll = " + event.cuePoints.hasPostRoll())
             log("AD_CUEPOINTS_UPDATED")
             onCuePointChanged()
         }
 
-        player!!.addListener(this, AdEvent.loaded) { event ->
+        player?.addListener(this, AdEvent.loaded) { event ->
             log("AD_LOADED " + event.adInfo.getAdIndexInPod() + "/" + event.adInfo.getTotalAdsInPod())
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.started) { event ->
+        player?.addListener(this, AdEvent.started) { event ->
             log("AD_STARTED w/h - " + event.adInfo.getAdWidth() + "/" + event.adInfo.getAdHeight())
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.resumed) { event ->
+        player?.addListener(this, AdEvent.resumed) { event ->
             log("AD_RESUMED")
             nowPlaying = true
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.paused) { event ->
+        player?.addListener(this, AdEvent.paused) { event ->
             log("AD_PAUSED")
             nowPlaying = true
-            if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
+            player?.let {
+                val adController = it.getController(AdController::class.java)
                 if (adController != null && adController.isAdDisplayed) {
                     log("Ad " + adController.adCurrentPosition + "/" + adController.adDuration)
                 } else {
-                    log("Player " + player!!.currentPosition + "/" + player!!.duration)
+                    log("Player " + it.currentPosition + "/" + it.duration)
                 }
             }
         }
 
-        player!!.addListener(this, AdEvent.skipped) { event -> log("AD_SKIPPED") }
+        player?.addListener(this, AdEvent.skipped) { event -> log("AD_SKIPPED") }
 
-        player!!.addListener(this, AdEvent.allAdsCompleted) { event ->
+        player?.addListener(this, AdEvent.allAdsCompleted) { event ->
             log("AD_ALL_ADS_COMPLETED")
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.completed) { event ->
+        player?.addListener(this, AdEvent.completed) { event ->
             log("AD_COMPLETED")
             //                AdEvent.AdEndedEvent adEndedEvent = (AdEvent.AdEndedEvent) event;
             //                if (adEndedEvent.adEndedReason == PKAdEndedReason.COMPLETED) {
@@ -732,12 +720,12 @@ class VideoFragment : Fragment() {
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.firstQuartile) { event -> log("FIRST_QUARTILE") }
+        player?.addListener(this, AdEvent.firstQuartile) { event -> log("FIRST_QUARTILE") }
 
-        player!!.addListener(this, AdEvent.midpoint) { event ->
+        player?.addListener(this, AdEvent.midpoint) { event ->
             log("MIDPOINT")
-            if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
+            player?.let {
+                val adController = it.getController(AdController::class.java)
                 if (adController != null) {
                     if (adController.isAdDisplayed) {
                         log(adController.adCurrentPosition.toString() + "/" + adController.adDuration)
@@ -749,11 +737,11 @@ class VideoFragment : Fragment() {
             }
         }
 
-        player!!.addListener(this, AdEvent.thirdQuartile) { event -> log("THIRD_QUARTILE") }
+        player?.addListener(this, AdEvent.thirdQuartile) { event -> log("THIRD_QUARTILE") }
 
-        player!!.addListener(this, AdEvent.adBreakEnded) { event -> log("AD_BREAK_ENDED") }
+        player?.addListener(this, AdEvent.adBreakEnded) { event -> log("AD_BREAK_ENDED") }
 
-        player!!.addListener(this, AdEvent.adClickedEvent) { event ->
+        player?.addListener(this, AdEvent.adClickedEvent) { event ->
             log("AD_CLICKED")
             Log.d(TAG, "AD_CLICKED url = " + event.clickThruUrl)
             //                nowPlaying = false;
@@ -770,17 +758,17 @@ class VideoFragment : Fragment() {
         //            }
         //        }, AdEvent.Type.COMPANION_AD_CLICKED);
 
-        player!!.addListener(this, AdEvent.adBufferStart) { event ->
+        player?.addListener(this, AdEvent.adBufferStart) { event ->
             log("AD_STARTED_BUFFERING")
             appProgressBar.visibility = View.VISIBLE
         }
 
-        player!!.addListener(this, AdEvent.adBufferEnd) { event ->
+        player?.addListener(this, AdEvent.adBufferEnd) { event ->
             log("AD_BUFFER_END")
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.adBreakEnded) { event ->
+        player?.addListener(this, AdEvent.adBreakEnded) { event ->
             log("AD_BREAK_ENDED")
             appProgressBar.visibility = View.INVISIBLE
         }
@@ -788,47 +776,47 @@ class VideoFragment : Fragment() {
 
         ////PLAYER Events
 
-        player!!.addListener(this, PlayerEvent.videoFramesDropped) { event ->
+        player?.addListener(this, PlayerEvent.videoFramesDropped) { event ->
             val videoFramesDropped = event
             //log("VIDEO_FRAMES_DROPPED " + videoFramesDropped.droppedVideoFrames);
         }
 
-        player!!.addListener(this, PlayerEvent.bytesLoaded) { event ->
+        player?.addListener(this, PlayerEvent.bytesLoaded) { event ->
             val bytesLoaded = event
             //log("BYTES_LOADED " + bytesLoaded.bytesLoaded);
         }
 
-        player!!.addListener(this, PlayerEvent.play) { event ->
+        player?.addListener(this, PlayerEvent.play) { event ->
             log("PLAYER PLAY")
             nowPlaying = true
         }
 
-        player!!.addListener(this, PlayerEvent.pause) { event ->
+        player?.addListener(this, PlayerEvent.pause) { event ->
             log("PLAYER PAUSE")
             nowPlaying = false
-            if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
+            player?.let {
+                val adController = it.getController(AdController::class.java)
                 if (adController != null && adController.isAdDisplayed) {
                     log("Ad " + adController.adCurrentPosition + "/" + adController.adDuration)
                 } else {
-                    log("Player " + player!!.currentPosition + "/" + player!!.duration)
+                    log("Player " + it.currentPosition + "/" + it.duration)
                 }
             }
         }
 
-        player!!.addListener(this, PlayerEvent.error) { event ->
+        player?.addListener(this, PlayerEvent.error) { event ->
             log("PLAYER ERROR " + event.error.message!!)
             appProgressBar.visibility = View.INVISIBLE
             nowPlaying = false
         }
 
-        player!!.addListener(this, PlayerEvent.ended) { event ->
+        player?.addListener(this, PlayerEvent.ended) { event ->
             log("PLAYER ENDED")
             appProgressBar.visibility = View.INVISIBLE
             nowPlaying = false
         }
 
-        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
             //log("State changed from " + stateChanged.oldState + " to " + stateChanged.newState);
             if (event.newState == PlayerState.BUFFERING) {
                 appProgressBar.visibility = View.VISIBLE
@@ -841,15 +829,15 @@ class VideoFragment : Fragment() {
             }
         }
 
-        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             log("TRACKS_AVAILABLE")
             //When the track data available, this event occurs. It brings the info object with it.
             //PlayerEvent.TracksAvailable tracksAvailable = (PlayerEvent.TracksAvailable) event;
             //populateSpinnersWithTrackInfo(tracksAvailable.tracksInfo);
             //log("PLAYER TRACKS_AVAILABLE");
 
-            if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
+            player?.let {
+                val adController = it.getController(AdController::class.java)
                 if (adController != null) {
                     if (adController.isAdDisplayed) {
                         //log(adController.getCurrentPosition() + "/" + adController.getDuration());
@@ -858,7 +846,7 @@ class VideoFragment : Fragment() {
             }
         }
 
-        player!!.addListener(this, PlayerEvent.playheadUpdated) { event ->
+        player?.addListener(this, PlayerEvent.playheadUpdated) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             val playheadUpdated = event
             //log.d("playheadUpdated event  position = " + playheadUpdated.position + " duration = " + playheadUpdated.duration);
@@ -884,7 +872,7 @@ class VideoFragment : Fragment() {
 
         val companionAdPlaceHolder = adSkin!!.findViewById<View>(R.id.companionAdSlot) as LinearLayout
         companionAdPlaceHolder.findViewById<View>(R.id.imageViewCompanion).setOnClickListener {
-            if (player != null && player!!.getController(AdController::class.java) != null) {
+            if (player != null && player?.getController(AdController::class.java) != null) {
                 log("Controller openCompanionAdLearnMore")
                 //player.getController(AdEnabledPlayerController.class).openCompanionAdLearnMore();
             }
@@ -896,30 +884,30 @@ class VideoFragment : Fragment() {
             return
         }
 
-        if (player != null && player!!.getController(AdController::class.java) != null) {
+        if (player != null && player?.getController(AdController::class.java) != null) {
             //log("Controller screenOrientationChanged");
             //player.getController(AdEnabledPlayerController.class).screenOrientationChanged(isFullScreen);
         }
 
-        val params = playerLayout!!.layoutParams as RelativeLayout.LayoutParams
+        val params = playerLayout?.layoutParams as RelativeLayout.LayoutParams
         // Checks the orientation of the screen
         this.isFullScreen = isFullScreen
         if (isFullScreen) {
-            (activity as AppCompatActivity).supportActionBar!!.hide()
-            activity!!.window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            fullScreenBtn!!.setImageResource(R.drawable.ic_no_fullscreen)
+            (activity as AppCompatActivity).supportActionBar?.hide()
+            activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            fullScreenBtn?.setImageResource(R.drawable.ic_no_fullscreen)
             params.height = RelativeLayout.LayoutParams.MATCH_PARENT
             params.width = RelativeLayout.LayoutParams.MATCH_PARENT
 
         } else {
-            (activity as AppCompatActivity).supportActionBar!!.show()
-            activity!!.window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            fullScreenBtn!!.setImageResource(R.drawable.ic_fullscreen)
+            (activity as AppCompatActivity).supportActionBar?.show()
+            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            fullScreenBtn?.setImageResource(R.drawable.ic_fullscreen)
 
             params.height = resources.getDimension(R.dimen.player_height).toInt()
             params.width = RelativeLayout.LayoutParams.MATCH_PARENT
         }
-        playerLayout!!.requestLayout()
+        playerLayout?.requestLayout()
     }
 
     interface Logger {
@@ -928,14 +916,11 @@ class VideoFragment : Fragment() {
     }
 
     private fun log(message: String) {
-        if (mLog != null) {
-            mLog!!.log(message + "\n")
-        }
+        mLog?.log(message + "\n")
+
     }
 
     private fun clearLog() {
-        if (mLog != null) {
-            mLog!!.clearLog()
-        }
+        mLog?.clearLog()
     }
 }

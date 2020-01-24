@@ -12,41 +12,19 @@ import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.AdapterView
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
-import android.widget.Spinner
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-
 import com.google.ads.interactivemedia.v3.api.StreamRequest
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonObject
-import com.kaltura.playkit.PKDrmParams
-import com.kaltura.playkit.PKLog
-import com.kaltura.playkit.PKMediaEntry
-import com.kaltura.playkit.PKMediaSource
-import com.kaltura.playkit.PKPluginConfigs
-import com.kaltura.playkit.PKRequestParams
-import com.kaltura.playkit.PlayKitManager
-import com.kaltura.playkit.Player
-import com.kaltura.playkit.PlayerEvent
-import com.kaltura.playkit.PlayerState
-import com.kaltura.playkit.player.AudioTrack
-import com.kaltura.playkit.player.BaseTrack
-import com.kaltura.playkit.player.MediaSupport
-import com.kaltura.playkit.player.PKTracks
-import com.kaltura.playkit.player.TextTrack
-import com.kaltura.playkit.player.VideoTrack
+import com.kaltura.playkit.*
+import com.kaltura.playkit.player.*
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
@@ -63,20 +41,6 @@ import com.kaltura.playkit.plugins.youbora.YouboraPlugin
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.playkit.utils.Consts
-import com.kaltura.tvplayer.KalturaBasicPlayer
-import com.kaltura.tvplayer.KalturaOttPlayer
-import com.kaltura.tvplayer.KalturaOvpPlayer
-import com.kaltura.tvplayer.KalturaPlayer
-import com.kaltura.tvplayer.OTTMediaOptions
-import com.kaltura.tvplayer.OVPMediaOptions
-import com.kaltura.tvplayer.PlayerInitOptions
-import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
-
-import java.util.ArrayList
-import java.util.Collections
-import java.util.Comparator
-import java.util.concurrent.atomic.AtomicInteger
-
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_CLEAR
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_DRM
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_HLS
@@ -90,6 +54,10 @@ import com.kaltura.playkitdemo.PartnersConfig.inLinePreAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preMidPostAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preMidPostSingleAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preSkipAdTagUrl
+import com.kaltura.tvplayer.*
+import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
+import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 //import com.kaltura.playkitvr.VRUtil;
 
@@ -97,32 +65,34 @@ import com.kaltura.playkitdemo.PartnersConfig.preSkipAdTagUrl
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, OrientationManager.OrientationListener {
 
     private var player: KalturaPlayer? = null
-    private var controlsView: PlaybackControlsView? = null
     private var nowPlaying: Boolean = false
     private var isFullScreen: Boolean = false
-    internal var progressBar: ProgressBar? = null
-    private var playerContainer: RelativeLayout? = null
-    private var spinerContainer: RelativeLayout? = null
-    private var fullScreenBtn: AppCompatImageView? = null
-    private var adCuePoints: AdCuePoints? = null
-    private var videoSpinner: Spinner? = null
-    private var audioSpinner: Spinner? = null
-    private var textSpinner: Spinner? = null
+    private var controlsView: PlaybackControlsView? = null
 
-    private var mOrientationManager: OrientationManager? = null
+    private lateinit var progressBar: ProgressBar
+    private lateinit var playerContainer: RelativeLayout
+    private lateinit var spinerContainer: RelativeLayout
+    private lateinit var fullScreenBtn: AppCompatImageView
+    private lateinit var videoSpinner: Spinner
+    private lateinit var audioSpinner: Spinner
+    private lateinit var textSpinner: Spinner
+    private lateinit var mOrientationManager: OrientationManager
+
+    private var adCuePoints: AdCuePoints? = null
     private var userIsInteracting: Boolean = false
     private var tracksInfo: PKTracks? = null
-    private val isAdsEnabled = false
-    private val isDAIMode = false
     private var playerState: PlayerState? = null
+    private var playerInitOptions: PlayerInitOptions? = null
+    private var changeMediaIndex = -1
+    private var START_POSITION: Long? = 0L//65L
 
-    internal var playerInitOptions: PlayerInitOptions? = null
     private val log = PKLog.get("MainActivity")
-    val IMA_PLUGIN = "IMA"
-    val DAI_PLUGIN = "DAI"
-    var READ_EXTERNAL_STORAGE_PERMISSIONS_REQUEST = 123
-    var changeMediaIndex = -1
-    var START_POSITION: Long? = 0L//65L;
+    private val isAdsEnabled = true
+    private val isDAIMode = false
+
+    private val IMA_PLUGIN = "IMA"
+    private val DAI_PLUGIN = "DAI"
+    private var READ_EXTERNAL_STORAGE_PERMISSIONS_REQUEST = 123
 
     private val daiConfig6: IMADAIConfig
         get() {
@@ -254,7 +224,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         }
 
         mOrientationManager = OrientationManager(this, SensorManager.SENSOR_DELAY_NORMAL, this)
-        mOrientationManager!!.enable()
+        mOrientationManager.enable()
         setContentView(R.layout.activity_main)
 
         log.i("PlayKitManager: " + PlayKitManager.CLIENT_TAG)
@@ -338,13 +308,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             log.e("Wrong player type is passed. Please check the loadOvpOttPlaykitPlayer method")
         }
 
-        player!!.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         val container = findViewById<ViewGroup>(R.id.player_view)
-        container.addView(player!!.playerView)
+        container.addView(player?.playerView)
 
-        controlsView!!.setPlayer(player!!)
+        controlsView?.setPlayer(player)
 
-        addPlayerListeners(progressBar!!)
+        addPlayerListeners(progressBar)
 
         //------------ OVP/OTT Mock Methods -----------//
 
@@ -379,15 +349,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         playerInitOptions?.setPluginConfigs(pkPluginConfigs)
 
         player = KalturaBasicPlayer.create(this@MainActivity, playerInitOptions)
-        player!!.setMedia(pkMediaEntry, START_POSITION)
-        player!!.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        player?.setMedia(pkMediaEntry, START_POSITION)
+        player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
 
         val container = findViewById<ViewGroup>(R.id.player_view)
-        container.addView(player!!.playerView)
+        container.addView(player?.playerView)
 
-        controlsView!!.setPlayer(player!!)
+        controlsView?.setPlayer(player)
 
-        addPlayerListeners(progressBar!!)
+        addPlayerListeners(progressBar)
     }
 
 
@@ -404,7 +374,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             ottMediaOptions.formats = arrayOf(format)
         }
 
-        player!!.loadMedia(ottMediaOptions) { entry, error ->
+        player?.loadMedia(ottMediaOptions) { entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -419,7 +389,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         ovpMediaOptions.ks = ks
         ovpMediaOptions.startPosition = START_POSITION
 
-        player!!.loadMedia(ovpMediaOptions) { entry, error ->
+        player?.loadMedia(ovpMediaOptions) { entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -430,12 +400,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
     private fun initProgressBar() {
         progressBar = findViewById(R.id.progressBar)
-        progressBar!!.visibility = View.INVISIBLE
+        progressBar.visibility = View.INVISIBLE
     }
 
     private fun registerFullScreenButton() {
         fullScreenBtn = findViewById(R.id.full_screen_switcher)
-        fullScreenBtn!!.setOnClickListener { v ->
+        fullScreenBtn.setOnClickListener { v ->
             val orient: Int
             if (isFullScreen) {
                 orient = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -503,7 +473,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
     private fun startSimpleOvpMediaLoadingLive1() {
         buildOvpMediaOptions(OVP_ENTRY_ID_LIVE_1, null)
     }
-
 
     private fun getPermissionToReadExternalStorage() {
 
@@ -630,49 +599,49 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             if (isAdsEnabled) {
                 if (isDAIMode) {
                     promptMessage(DAI_PLUGIN, daiConfig2.assetTitle)
-                    player!!.updatePluginConfig(IMADAIPlugin.factory.name, daiConfig2)
+                    player?.updatePluginConfig(IMADAIPlugin.factory.name, daiConfig2)
                 } else {
                     log.d("Play Ad preMidPostAdTagUrl")
                     promptMessage(IMA_PLUGIN, "preMidPostAdTagUrl")
-                    player!!.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(preMidPostAdTagUrl))
+                    player?.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(preMidPostAdTagUrl))
                 }
             }
-            player!!.updatePluginConfig(YouboraPlugin.factory.name, getYouboraJsonObject("preMidPostAdTagUrl media2"))
+            player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraJsonObject("preMidPostAdTagUrl media2"))
         } else if (changeMediaIndex % 4 == 1) {
             if (isAdsEnabled) {
                 if (isDAIMode) {
                     promptMessage(DAI_PLUGIN, daiConfig3.assetTitle)
-                    player!!.updatePluginConfig(IMADAIPlugin.factory.name, daiConfig3)
+                    player?.updatePluginConfig(IMADAIPlugin.factory.name, daiConfig3)
                 } else {
                     log.d("Play Ad inLinePreAdTagUrl")
                     promptMessage(IMA_PLUGIN, "inLinePreAdTagUrl")
-                    player!!.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(inLinePreAdTagUrl))
+                    player?.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(inLinePreAdTagUrl))
                 }
             }
-            player!!.updatePluginConfig(YouboraPlugin.factory.name, getYouboraJsonObject("inLinePreAdTagUrl media3"))
+            player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraJsonObject("inLinePreAdTagUrl media3"))
         }
         if (changeMediaIndex % 4 == 2) {
             if (isAdsEnabled) {
                 if (isDAIMode) {
                     promptMessage(DAI_PLUGIN, daiConfig4.assetTitle)
-                    player!!.updatePluginConfig(IMADAIPlugin.factory.name, daiConfig4)
+                    player?.updatePluginConfig(IMADAIPlugin.factory.name, daiConfig4)
                 } else {
                     log.d("Play NO Ad")
                     promptMessage(IMA_PLUGIN, "Enpty AdTag")
-                    player!!.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(""))
+                    player?.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(""))
                 }
             }
-            player!!.updatePluginConfig(YouboraPlugin.factory.name, getYouboraJsonObject("NO AD media4"))
+            player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraJsonObject("NO AD media4"))
         }
         if (changeMediaIndex % 4 == 3) {
             if (isAdsEnabled) {
                 if (isDAIMode) {
                     promptMessage(DAI_PLUGIN, daiConfig5.assetTitle)
-                    player!!.updatePluginConfig(IMADAIPlugin.factory.name, daiConfig5)
+                    player?.updatePluginConfig(IMADAIPlugin.factory.name, daiConfig5)
                 } else {
                     log.d("Play Ad preSkipAdTagUrl")
                     promptMessage(IMA_PLUGIN, "preSkipAdTagUrl")
-                    player!!.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(preSkipAdTagUrl))
+                    player?.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(preSkipAdTagUrl))
                 }
             }
 
@@ -680,7 +649,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             //                        setMinPlayerBufferMs(2500).
             //                        setMaxPlayerBufferMs(50000).setAllowedVideoJoiningTimeMs(4000));
 
-            player!!.updatePluginConfig(YouboraPlugin.factory.name, getYouboraJsonObject("preSkipAdTagUrl media1"))
+            player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraJsonObject("preSkipAdTagUrl media1"))
         }
     }
 
@@ -690,9 +659,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         audioSpinner = this.findViewById(R.id.audioSpinner)
         textSpinner = this.findViewById(R.id.subtitleSpinner)
 
-        textSpinner!!.onItemSelectedListener = this
-        audioSpinner!!.onItemSelectedListener = this
-        videoSpinner!!.onItemSelectedListener = this
+        textSpinner.onItemSelectedListener = this
+        audioSpinner.onItemSelectedListener = this
+        videoSpinner.onItemSelectedListener = this
     }
 
     private fun configurePlugins(): PKPluginConfigs {
@@ -860,19 +829,14 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
     override fun onPause() {
         super.onPause()
-
-        if (controlsView != null) {
-            controlsView!!.release()
-        }
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        controlsView?.release()
+        player?.onApplicationPaused()
     }
 
     public override fun onDestroy() {
         if (player != null) {
-            player!!.removeListeners(this)
-            player!!.destroy()
+            player?.removeListeners(this)
+            player?.destroy()
             player = null
         }
         super.onDestroy()
@@ -880,144 +844,137 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
     private fun addPlayerListeners(appProgressBar: ProgressBar) {
 
-
-        player!!.addListener(this, AdEvent.contentResumeRequested) { event ->
+        player?.addListener(this, AdEvent.contentResumeRequested) { event ->
             log.d("CONTENT_RESUME_REQUESTED")
             appProgressBar.visibility = View.INVISIBLE
-            controlsView!!.setSeekBarStateForAd(false)
-            controlsView!!.setPlayerState(PlayerState.READY)
+            controlsView?.setSeekBarStateForAd(false)
+            controlsView?.setPlayerState(PlayerState.READY)
         }
 
-        player!!.addListener(this, AdEvent.daiSourceSelected) { event ->
+        player?.addListener(this, AdEvent.daiSourceSelected) { event ->
             log.d("DAI_SOURCE_SELECTED: " + event.sourceURL)
 
         }
 
-        player!!.addListener(this, AdEvent.contentPauseRequested) { event ->
+        player?.addListener(this, AdEvent.contentPauseRequested) { event ->
             log.d("AD_CONTENT_PAUSE_REQUESTED")
             appProgressBar.visibility = View.VISIBLE
-            controlsView!!.setSeekBarStateForAd(true)
-            controlsView!!.setPlayerState(PlayerState.READY)
+            controlsView?.setSeekBarStateForAd(true)
+            controlsView?.setPlayerState(PlayerState.READY)
         }
 
-        player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
+        player?.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
             log.d("AD_PLAYBACK_INFO_UPDATED")
             log.d("playbackInfoUpdated  = " + event.width + "/" + event.height + "/" + event.bitrate)
         }
 
-        player!!.addListener(this, AdEvent.cuepointsChanged) { event ->
+        player?.addListener(this, AdEvent.cuepointsChanged) { event ->
             adCuePoints = event.cuePoints
-
-            if (adCuePoints != null) {
-                log.d("Has Postroll = " + adCuePoints!!.hasPostRoll())
-            }
+            log.d("Has Postroll = " + adCuePoints?.hasPostRoll())
         }
 
-        player!!.addListener(this, AdEvent.adBufferStart) { event ->
+        player?.addListener(this, AdEvent.adBufferStart) { event ->
             log.d("AD_BUFFER_START pos = " + event.adPosition)
             appProgressBar.visibility = View.VISIBLE
         }
 
-        player!!.addListener(this, AdEvent.adBufferEnd) { event ->
+        player?.addListener(this, AdEvent.adBufferEnd) { event ->
             log.d("AD_BUFFER_END pos = " + event.adPosition)
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.adFirstPlay) { event ->
+        player?.addListener(this, AdEvent.adFirstPlay) { event ->
             log.d("AD_FIRST_PLAY")
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.started) { event ->
+        player?.addListener(this, AdEvent.started) { event ->
             log.d("AD_STARTED w/h - " + event.adInfo.getAdWidth() + "/" + event.adInfo.getAdHeight())
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.resumed) { event ->
+        player?.addListener(this, AdEvent.resumed) { event ->
             log.d("Ad Event AD_RESUMED")
             nowPlaying = true
             appProgressBar.visibility = View.INVISIBLE
         }
 
-        player!!.addListener(this, AdEvent.playHeadChanged) { event ->
+        player?.addListener(this, AdEvent.playHeadChanged) { event ->
             appProgressBar.visibility = View.INVISIBLE
             //log.d("received AD PLAY_HEAD_CHANGED " + event.adPlayHead);
         }
 
-        player!!.addListener(this, AdEvent.allAdsCompleted) { event ->
+        player?.addListener(this, AdEvent.allAdsCompleted) { event ->
             log.d("Ad Event AD_ALL_ADS_COMPLETED")
             appProgressBar.visibility = View.INVISIBLE
-            if (adCuePoints != null && adCuePoints!!.hasPostRoll()) {
-                controlsView!!.setPlayerState(PlayerState.IDLE)
+            adCuePoints?.let {
+                it.hasPostRoll().let {
+                    controlsView?.setPlayerState(PlayerState.IDLE)
+                }
             }
         }
 
-        player!!.addListener(this, AdEvent.error) { event ->
-            if (event != null && event.error != null) {
-                controlsView!!.setSeekBarStateForAd(false)
-                log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
-            }
+        player?.addListener(this, AdEvent.error) { event ->
+            controlsView?.setSeekBarStateForAd(false)
+            log.e("ERROR: " + event?.error?.errorType + ", " + event?.error?.message)
         }
 
-        player!!.addListener(this, AdEvent.skipped) { event ->
+        player?.addListener(this, AdEvent.skipped) { event ->
             log.d("Ad Event SKIPPED")
             nowPlaying = true
         }
 
-        player!!.addListener(this, PlayerEvent.surfaceAspectRationSizeModeChanged) { event -> log.d("resizeMode updated" + event.resizeMode) }
-
+        player?.addListener(this, PlayerEvent.surfaceAspectRationSizeModeChanged) { event -> log.d("resizeMode updated" + event.resizeMode) }
 
         /////// PLAYER EVENTS
 
-        player!!.addListener(this, PlayerEvent.play) { event ->
+        player?.addListener(this, PlayerEvent.play) { event ->
             log.d("Player Event PLAY")
             nowPlaying = true
         }
 
-        player!!.addListener(this, PlayerEvent.playing) { event ->
+        player?.addListener(this, PlayerEvent.playing) { event ->
             log.d("Player Event PLAYING")
             appProgressBar.visibility = View.INVISIBLE
             nowPlaying = true
         }
 
-        player!!.addListener(this, PlayerEvent.pause) { event ->
+        player?.addListener(this, PlayerEvent.pause) { event ->
             log.d("Player Event PAUSE")
             nowPlaying = false
         }
 
-        player!!.addListener(this, PlayerEvent.playbackRateChanged) { event -> log.d("playbackRateChanged event  rate = " + event.rate) }
+        player?.addListener(this, PlayerEvent.playbackRateChanged) { event -> log.d("playbackRateChanged event  rate = " + event.rate) }
 
-        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             tracksInfo = event.tracksInfo
             populateSpinnersWithTrackInfo(event.tracksInfo)
         }
 
-        player!!.addListener(this, PlayerEvent.playbackRateChanged) { event -> log.d("playbackRateChanged event  rate = " + event.rate) }
+        player?.addListener(this, PlayerEvent.playbackRateChanged) { event -> log.d("playbackRateChanged event  rate = " + event.rate) }
 
-        player!!.addListener(this, PlayerEvent.error) { event ->
+        player?.addListener(this, PlayerEvent.error) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
-            if (event != null && event.error != null) {
-                log.d("PlayerEvent.Error event  position = " + event.error.errorType + " errorMessage = " + event.error.message)
-            }
+            log.d("PlayerEvent.Error event  position = " + event?.error?.errorType + " errorMessage = " + event?.error?.message)
         }
 
-        player!!.addListener(this, PlayerEvent.ended) { event -> appProgressBar.visibility = View.INVISIBLE }
+        player?.addListener(this, PlayerEvent.ended) { event -> appProgressBar.visibility = View.INVISIBLE }
 
-        player!!.addListener(this, PlayerEvent.playheadUpdated) { event ->
+        player?.addListener(this, PlayerEvent.playheadUpdated) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             //log.d("playheadUpdated event  position = " + event.position + " duration = " + event.duration);
         }
 
-        player!!.addListener(this, PlayerEvent.videoFramesDropped) { event ->
+        player?.addListener(this, PlayerEvent.videoFramesDropped) { event ->
             //log.d("VIDEO_FRAMES_DROPPED " + event.droppedVideoFrames);
         }
 
-        player!!.addListener(this, PlayerEvent.bytesLoaded) { event ->
+        player?.addListener(this, PlayerEvent.bytesLoaded) { event ->
             //log.d("BYTES_LOADED " + event.bytesLoaded);
         }
 
-        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
 
@@ -1028,33 +985,33 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
                 appProgressBar.visibility = View.INVISIBLE
 
             }
-            if (controlsView != null) {
-                controlsView!!.setPlayerState(event.newState)
-            }
+
+            controlsView?.setPlayerState(event.newState)
+
         }
 
         /////Phoenix events
 
-        player!!.addListener(this, PhoenixAnalyticsEvent.bookmarkError) { event -> log.d("bookmarkErrorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
+        player?.addListener(this, PhoenixAnalyticsEvent.bookmarkError) { event -> log.d("bookmarkErrorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
 
-        player!!.addListener(this, PhoenixAnalyticsEvent.concurrencyError) { event -> log.d("ConcurrencyErrorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
+        player?.addListener(this, PhoenixAnalyticsEvent.concurrencyError) { event -> log.d("ConcurrencyErrorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
 
-        player!!.addListener(this, PhoenixAnalyticsEvent.error) { event -> log.d("Phoenox Analytics errorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
+        player?.addListener(this, PhoenixAnalyticsEvent.error) { event -> log.d("Phoenox Analytics errorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
 
-        player!!.addListener(this, PhoenixAnalyticsEvent.error) { event -> log.d("Phoenox Analytics errorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
+        player?.addListener(this, PhoenixAnalyticsEvent.error) { event -> log.d("Phoenox Analytics errorEvent errorCode = " + event.errorCode + " message = " + event.errorMessage) }
 
-        player!!.addListener(this, OttEvent.ottEvent) { event -> log.d("Concurrency event = " + event.type) }
+        player?.addListener(this, OttEvent.ottEvent) { event -> log.d("Concurrency event = " + event.type) }
     }
 
     override fun onResume() {
         log.d("Application onResume")
         super.onResume()
+
         if (player != null && playerState != null) {
-            player!!.onApplicationResumed()
+            player?.onApplicationResumed()
         }
-        if (controlsView != null) {
-            controlsView!!.resume()
-        }
+
+        controlsView?.resume()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -1065,24 +1022,24 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
 
     private fun setFullScreen(isFullScreen: Boolean) {
-        val params = playerContainer!!.layoutParams as RelativeLayout.LayoutParams
+        val params = playerContainer.layoutParams as RelativeLayout.LayoutParams
         // Checks the orientation of the screen
         this.isFullScreen = isFullScreen
         if (isFullScreen) {
             window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            fullScreenBtn!!.setImageResource(R.drawable.ic_no_fullscreen)
-            spinerContainer!!.visibility = View.GONE
+            fullScreenBtn.setImageResource(R.drawable.ic_no_fullscreen)
+            spinerContainer.visibility = View.GONE
             params.height = RelativeLayout.LayoutParams.MATCH_PARENT
             params.width = RelativeLayout.LayoutParams.MATCH_PARENT
 
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            fullScreenBtn!!.setImageResource(R.drawable.ic_fullscreen)
-            spinerContainer!!.visibility = View.VISIBLE
+            fullScreenBtn.setImageResource(R.drawable.ic_fullscreen)
+            spinerContainer.visibility = View.VISIBLE
             params.height = resources.getDimension(R.dimen.player_height).toInt()
             params.width = RelativeLayout.LayoutParams.MATCH_PARENT
         }
-        playerContainer!!.requestLayout()
+        playerContainer.requestLayout()
     }
 
     /**
@@ -1096,13 +1053,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         val videoTrackItems = obtainRelevantTrackInfo(Consts.TRACK_TYPE_VIDEO, tracksInfo.videoTracks)
         //populate spinner with this info.
 
-        applyAdapterOnSpinner(videoSpinner!!, videoTrackItems, tracksInfo.defaultVideoTrackIndex)
+        applyAdapterOnSpinner(videoSpinner, videoTrackItems, tracksInfo.defaultVideoTrackIndex)
 
         val audioTrackItems = obtainRelevantTrackInfo(Consts.TRACK_TYPE_AUDIO, tracksInfo.audioTracks)
-        applyAdapterOnSpinner(audioSpinner!!, audioTrackItems, tracksInfo.defaultAudioTrackIndex)
+        applyAdapterOnSpinner(audioSpinner, audioTrackItems, tracksInfo.defaultAudioTrackIndex)
 
         val subtitlesTrackItems = obtainRelevantTrackInfo(Consts.TRACK_TYPE_TEXT, tracksInfo.textTracks)
-        applyAdapterOnSpinner(textSpinner!!, subtitlesTrackItems, tracksInfo.defaultTextTrackIndex)
+        applyAdapterOnSpinner(textSpinner, subtitlesTrackItems, tracksInfo.defaultTextTrackIndex)
     }
 
     /**
@@ -1186,10 +1143,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         //hide spinner if no data available.
         if (trackInfos.isEmpty()) {
             textView.visibility = View.GONE
-            spinner!!.visibility = View.GONE
+            spinner?.visibility = View.GONE
         } else {
             textView.visibility = View.VISIBLE
-            spinner!!.visibility = View.VISIBLE
+            spinner?.visibility = View.VISIBLE
         }
     }
 
@@ -1213,7 +1170,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         val trackItem = parent.getItemAtPosition(position) as TrackItem
         //tell to the player, to switch track based on the user selection.
 
-        player!!.changeTrack(trackItem.uniqueId)
+        player?.changeTrack(trackItem.uniqueId)
 
         //String selectedIndex = getQualityIndex(BitRateRange.QualityType.Auto, currentTracks.getVideoTracks());
     }
@@ -1232,7 +1189,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         }
     }
 
-    protected fun getQualityIndex(videoQuality: BitRateRange.QualityType, videoTrackInfo: List<VideoTrack>): String? {
+    private fun getQualityIndex(videoQuality: BitRateRange.QualityType, videoTrackInfo: List<VideoTrack>): String? {
         var uniqueTrackId: String? = null
         var bitRateValue: Long = 0
         var bitRateRange: BitRateRange? = null
@@ -1245,7 +1202,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
                 for (track in lowBitrateMatchedTracks) {
                     bitRateValue = track.bitrate
-                    if (isBitrateInRange(bitRateValue, bitRateRange!!.low, bitRateRange.high)) {
+                    if (isBitrateInRange(bitRateValue, bitRateRange.low, bitRateRange.high)) {
                         uniqueTrackId = track.uniqueId
                         break
                     }
@@ -1258,7 +1215,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
                 for (track in medBitratesMatchedTracks) {
                     bitRateValue = track.bitrate
-                    if (isBitrateInRange(bitRateValue, bitRateRange!!.low, bitRateRange.high)) {
+                    if (isBitrateInRange(bitRateValue, bitRateRange.low, bitRateRange.high)) {
                         uniqueTrackId = track.uniqueId
                         break
                     }
@@ -1269,7 +1226,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
                 Collections.sort(videoTrackInfo, bitratesComperator())
                 for (entry in videoTrackInfo) {
                     bitRateValue = entry.bitrate
-                    if (bitRateValue >= bitRateRange!!.low) {
+                    if (bitRateValue >= bitRateRange.low) {
                         uniqueTrackId = entry.uniqueId
                         break
                     }
@@ -1291,7 +1248,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
         //null protection
         if (uniqueTrackId == null && tracksInfo != null) {
-            tracksInfo!!.defaultVideoTrackIndex
+            tracksInfo?.defaultVideoTrackIndex
         }
         return uniqueTrackId
     }
@@ -1327,10 +1284,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
     }
 
     //Example for Custom Licens Adapter
-    internal class DRMAdapter : PKRequestParams.Adapter {
+    class DRMAdapter : PKRequestParams.Adapter {
         var customData: String? = null
         override fun adapt(requestParams: PKRequestParams): PKRequestParams {
-            requestParams.headers["customData"] = customData!!
+            requestParams.headers["customData"] = customData
             return requestParams
         }
 
@@ -1345,7 +1302,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
     private fun changeBasicMediaOptions(pkMediaEntry: PKMediaEntry?) {
         if (pkMediaEntry != null) {
-            player!!.setMedia(pkMediaEntry, START_POSITION)
+            player?.setMedia(pkMediaEntry, START_POSITION)
         } else {
             log.d("PKMediaEntry is null")
         }
