@@ -70,11 +70,11 @@ open class MainActivity: BaseActivity(), TestCaseConfigurationAdapter.OnJsonSele
 
         mFirestore?.collection("users")?.document(currentUser!!.uid)?.addSnapshotListener(EventListener { documentSnapshot, e ->
             if (documentSnapshot == null) {
-                Log.e(TAG, "ZZZ documentSnapshot = null")
+                Log.e(TAG, "documentSnapshot = null")
                 return@EventListener
             }
             val name = documentSnapshot.getString("name")
-            Log.d(TAG, "ZZZ " + name!!)
+            Log.d(TAG, "name = " + name!!)
 
             val ref = documentSnapshot.reference.collection("configurations")
         })

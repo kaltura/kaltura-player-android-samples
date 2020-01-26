@@ -14,6 +14,7 @@ import android.view.ViewTreeObserver
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.SearchView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -400,6 +401,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.isUseApiCaptions ?: false
                     ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
                     ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
+                    ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.isAutoContinue ?: true
                     player!!.loadPlaylistById(ovpPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
                         if (error != null) {
                             Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -418,6 +420,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     ovpPlaylistOptions.ovpMediaOptionsList = mediaList
                     ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
                     ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
+                    ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.isAutoContinue ?: true
                     player!!.loadPlaylist(ovpPlaylistOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
                         if (error != null) {
                             Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -474,6 +477,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 ottPlaylistIdOptions.ottMediaOptionsList = mediaList
                 ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
                 ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
+                ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.isAutoContinue ?: true
                 player!!.loadPlaylist(ottPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
                     if (error != null) {
                         Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -491,15 +495,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
             } else {
                 //PLAYLIST
-                var mediaList = appPlayerInitConfig.playlistConfig?.playlistPKMediaEntryList
+                var mediaList = appPlayerInitConfig.playlistConfig?.basicMediaOptionsList
 
                 val basicPlaylistIdOptions = BasicPlaylistOptions()
                 basicPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
                 basicPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?:PlaylistMetadata().setName("TestOTTPlayList").setId("1")
                 basicPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
-                basicPlaylistIdOptions.playlistPKMediaEntryList = mediaList
+                basicPlaylistIdOptions.basicMediaOptionsList = mediaList
                 basicPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
                 basicPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
+                basicPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.isAutoContinue ?: true
 
                 player!!.loadPlaylist(basicPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
                     if (error != null) {
@@ -535,7 +540,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
                 playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
             } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.basic) {
-                listSize = appPlayerInitConfig.playlistConfig!!.playlistPKMediaEntryList?.size ?: 0
+                listSize = appPlayerInitConfig.playlistConfig!!.basicMediaOptionsList?.size ?: 0
                 //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
                 playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
             }
@@ -759,6 +764,42 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             }
         }
+
+        player?.addListener(this, PlaylistEvent.playListEnded) { event ->
+            log.d("PLAYLIST playListEnded")
+            var loopEnabld = player?.playlistController?.isLoopEnabled ?: false
+            if (!loopEnabld) {
+                playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.replay)
+                progressBar?.setVisibility(View.GONE)
+                playbackControlsManager?.showControls(View.VISIBLE)
+
+            }
+        }
+
+        player?.addListener(this, PlaylistEvent.playListError) { event ->
+            log.d("PLAYLIST playListError")
+            Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
+        }
+
+        player?.addListener(this, PlaylistEvent.playListMediaError) { event ->
+            log.d("PLAYLIST PlaylistMediaError")
+            Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
+            if (event.mediaIndex == 0) {
+                playNext()
+            }
+        }
+
+        player?.addListener(this, PlaylistEvent.countDownStart) { event ->
+            log.d("PLAYLIST countDownStart")
+            var message = "$event.currentPlayingIndex durationMS  $event.countDownOptions.durationMS"
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
+
+        player?.addListener(this, PlaylistEvent.countDownEnd) { event ->
+            log.d("PLAYLIST countDownEnd")
+            Toast.makeText(this, event.currentPlayingIndex, Toast.LENGTH_SHORT).show()
+        }
+
 
         player?.addListener(this, PlayerEvent.textTrackChanged) { event ->
             log.d("PLAYER textTrackChanged")
