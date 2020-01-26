@@ -398,10 +398,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     ovpPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
                     ovpPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
                     ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
-                    ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.isUseApiCaptions ?: false
-                    ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
-                    ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
-                    ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.isAutoContinue ?: true
+                    ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.useApiCaptions ?: false
+                    ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
+                    ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+                    ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
                     player!!.loadPlaylistById(ovpPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
                         if (error != null) {
                             Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -418,9 +418,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     ovpPlaylistOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
                     ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
                     ovpPlaylistOptions.ovpMediaOptionsList = mediaList
-                    ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
-                    ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
-                    ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.isAutoContinue ?: true
+                    ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
+                    ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+                    ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
                     player!!.loadPlaylist(ovpPlaylistOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
                         if (error != null) {
                             Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -429,6 +429,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
+            
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -475,9 +476,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 ottPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
                 ottPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
                 ottPlaylistIdOptions.ottMediaOptionsList = mediaList
-                ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
-                ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
-                ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.isAutoContinue ?: true
+                ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
+                ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+                ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
                 player!!.loadPlaylist(ottPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
                     if (error != null) {
                         Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -502,9 +503,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 basicPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?:PlaylistMetadata().setName("TestOTTPlayList").setId("1")
                 basicPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
                 basicPlaylistIdOptions.basicMediaOptionsList = mediaList
-                basicPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.isLoopEnabled ?: false
-                basicPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.isShuffleEnabled ?: false
-                basicPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.isAutoContinue ?: true
+                basicPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
+                basicPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+                basicPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
 
                 player!!.loadPlaylist(basicPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
                     if (error != null) {
@@ -790,21 +791,21 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlaylistEvent.countDownStart) { event ->
-            log.d("PLAYLIST countDownStart")
-            var message = "$event.currentPlayingIndex durationMS  $event.countDownOptions.durationMS"
+            var message = "countDownStart index = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}"
+            log.d("PLAYLIST $message")
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
 
         player?.addListener(this, PlaylistEvent.countDownEnd) { event ->
-            log.d("PLAYLIST countDownEnd")
-            Toast.makeText(this, event.currentPlayingIndex, Toast.LENGTH_SHORT).show()
+            var message = "countDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}"
+            log.d("PLAYLIST $message" )
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
-
 
         player?.addListener(this, PlayerEvent.textTrackChanged) { event ->
             log.d("PLAYER textTrackChanged")
             if (tracksSelectionController != null && tracksSelectionController?.tracks != null) {
-                for (i in 0..tracksSelectionController?.tracks!!.textTracks.size - 1) {
+                for (i in 0 .. tracksSelectionController?.tracks!!.textTracks.size - 1) {
                     log.d(tracksSelectionController?.tracks!!.textTracks.size.toString() + ", PLAYER textTrackChanged " + tracksSelectionController?.tracks!!.textTracks[i].uniqueId + "/" + event.newTrack.getUniqueId())
                     if (event.newTrack.getUniqueId() == tracksSelectionController?.tracks!!.textTracks[i].uniqueId) {
                         if (tracksSelectionController != null) {

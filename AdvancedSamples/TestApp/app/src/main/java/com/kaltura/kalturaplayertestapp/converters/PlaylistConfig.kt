@@ -7,13 +7,13 @@ import com.kaltura.tvplayer.playlist.CountDownOptions
 import com.kaltura.tvplayer.playlist.BasicMediaOptions
 
 class PlaylistConfig {
-    val isLoopEnabled = false
-    val isShuffleEnabled = false
-    val isAutoContinue = true;
+    val loopEnabled = false
+    val shuffleEnabled = false
+    val autoContinue = true;
     val startIndex = 0
     val countDownOptions: CountDownOptions? = null
     val ks: String? = null
-    val isUseApiCaptions = false
+    val useApiCaptions = false
     val playlistId: String? = null
     val playlistMetadata: PlaylistMetadata? = null
     val ovpMediaOptionsList: List<OVPMediaOptions>? = null
