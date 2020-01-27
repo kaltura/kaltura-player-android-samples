@@ -760,7 +760,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName()) ||
                     FBInstreamPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())
             ) {
-                if (player?.playlistController == null) {
+                if (player?.playlistController == null || !(player?.playlistController?.isAutoContinueEnabled ?: true)) {
                     playbackControlsManager?.showControls(View.VISIBLE)
                 }
             }
