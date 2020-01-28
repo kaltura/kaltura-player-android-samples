@@ -390,43 +390,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             } else {
                 // PLAYLIST
-                if (appPlayerInitConfig.playlistConfig?.playlistId != null) {
-                    var mediaList = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList
-
-                    val ovpPlaylistIdOptions = OVPPlaylistIdOptions()
-                    ovpPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
-                    ovpPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
-                    ovpPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
-                    ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
-                    ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.useApiCaptions ?: false
-                    ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
-                    ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
-                    ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
-                    player!!.loadPlaylistById(ovpPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
-                        if (error != null) {
-                            Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
-                        } else {
-                            playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
-                        }
-                    })
-                } else {
-                    var mediaList = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList
-
-                    val ovpPlaylistOptions = OVPPlaylistOptions()
-                    ovpPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
-                    ovpPlaylistOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
-                    ovpPlaylistOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
-                    ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
-                    ovpPlaylistOptions.ovpMediaOptionsList = mediaList
-                    ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
-                    ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
-                    ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
-                    player!!.loadPlaylist(ovpPlaylistOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
-                        if (error != null) {
-                            Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
-                        }
-                    })
-                }
+                handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
             
@@ -468,22 +432,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             } else {
                 // PLAYLIST
-                var mediaList = appPlayerInitConfig.playlistConfig?.ottMediaOptionsList
-
-                val ottPlaylistIdOptions = OTTPlaylistOptions()
-                ottPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
-                ottPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
-                ottPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
-                ottPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
-                ottPlaylistIdOptions.ottMediaOptionsList = mediaList
-                ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
-                ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
-                ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
-                player!!.loadPlaylist(ottPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
-                    if (error != null) {
-                        Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
-                    }
-                })
+                handleOttPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.basic == playerType) {
             player = KalturaBasicPlayer.create(this@PlayerActivity, initOptions)
@@ -495,26 +444,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
                 player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
             } else {
-                //PLAYLIST
-                var mediaList = appPlayerInitConfig.playlistConfig?.basicMediaOptionsList
-
-                val basicPlaylistIdOptions = BasicPlaylistOptions()
-                basicPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
-                basicPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata ?:PlaylistMetadata().setName("TestOTTPlayList").setId("1")
-                basicPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions ?: CountDownOptions()
-                basicPlaylistIdOptions.basicMediaOptionsList = mediaList
-                basicPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
-                basicPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
-                basicPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
-
-                player!!.loadPlaylist(basicPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
-                    if (error != null) {
-                        Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
-                    } else {
-                        log.d("BasicPlaylist OnPlaylistLoadListener  entry = " +  basicPlaylistIdOptions.playlistMetadata.name)
-                        val handler = Handler(Looper.getMainLooper())
-                    }
-                })
+                // PLAYLIST
+                handleBasicPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else {
             log.e("Failed to initialize player...")
@@ -558,6 +489,107 @@ class PlayerActivity: AppCompatActivity(), Observer {
             //playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, appPlayerInitConfig.mediaList!!.size)
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, appPlayerInitConfig.mediaList!!.size)
         }
+    }
+
+    private fun handleOvpPlayerPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaOvpPlayer?) {
+        if (appPlayerInitConfig.playlistConfig?.playlistId != null) {
+            var mediaList = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList
+
+            val ovpPlaylistIdOptions = OVPPlaylistIdOptions()
+            ovpPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
+            ovpPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
+            ovpPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
+                    ?: CountDownOptions()
+            ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
+            ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.useApiCaptions
+                    ?: false
+            ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled
+                    ?: false
+            ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled
+                    ?: false
+            ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue
+                    ?: true
+            player!!.loadPlaylistById(ovpPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+                if (error != null) {
+                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                } else {
+                    playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                }
+            })
+        } else {
+            var mediaList = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList
+
+            val ovpPlaylistOptions = OVPPlaylistOptions()
+            ovpPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
+            ovpPlaylistOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
+            ovpPlaylistOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
+                    ?: CountDownOptions()
+            ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
+                    ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+            ovpPlaylistOptions.ovpMediaOptionsList = mediaList
+            ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled
+                    ?: false
+            ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled
+                    ?: false
+            ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue
+                    ?: true
+            player!!.loadPlaylist(ovpPlaylistOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+                if (error != null) {
+                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                }
+            })
+        }
+    }
+
+    private fun handleOttPlayerPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaOttPlayer?) {
+
+        var mediaList = appPlayerInitConfig.playlistConfig?.ottMediaOptionsList
+
+        val ottPlaylistIdOptions = OTTPlaylistOptions()
+        ottPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
+        ottPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
+        ottPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
+                ?: CountDownOptions()
+        ottPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
+                ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+        ottPlaylistIdOptions.ottMediaOptionsList = mediaList
+        ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
+        ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled
+                ?: false
+        ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
+        player!!.loadPlaylist(ottPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+            if (error != null) {
+                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+            }
+        })
+    }
+
+    private fun handleBasicPlayerPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaBasicPlayer?) {
+
+        var mediaList = appPlayerInitConfig.playlistConfig?.basicMediaOptionsList
+
+        val basicPlaylistIdOptions = BasicPlaylistOptions()
+        basicPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
+        basicPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
+                ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+        basicPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
+                ?: CountDownOptions()
+        basicPlaylistIdOptions.basicMediaOptionsList = mediaList
+        basicPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled
+                ?: false
+        basicPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled
+                ?: false
+        basicPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue
+                ?: true
+
+        player!!.loadPlaylist(basicPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+            if (error != null) {
+                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+            } else {
+                log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistIdOptions.playlistMetadata.name)
+                val handler = Handler(Looper.getMainLooper())
+            }
+        })
     }
 
     private fun buildOttMediaOptions(startPosition: Long?, playListMediaIndex: Int): OTTMediaOptions? {
