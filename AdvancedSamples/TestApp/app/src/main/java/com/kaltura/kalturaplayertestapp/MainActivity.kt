@@ -2,10 +2,8 @@ package com.kaltura.kalturaplayertestapp
 
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.Menu
@@ -16,10 +14,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.common.api.CommonStatusCodes
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.android.gms.tasks.Task
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -83,7 +77,6 @@ open class MainActivity: BaseActivity(), TestCaseConfigurationAdapter.OnJsonSele
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         defaultItemsLoaded = getPreferences(Context.MODE_PRIVATE).getBoolean(ADD_DEFAULT_ITEMS, false)
         mAuth = FirebaseAuth.getInstance()
         currentUser = mAuth?.currentUser
@@ -306,7 +299,7 @@ open class MainActivity: BaseActivity(), TestCaseConfigurationAdapter.OnJsonSele
 
     private fun loadTestsFromUrl(testUrl: String) {
         showProgressDialog()
-        var jsonTests = ""
+        var jsonTests :String? = ""
         try {
             jsonTests = DownloadFileFromURL().execute(testUrl).get()
         } catch (e: InterruptedException) {
@@ -314,7 +307,10 @@ open class MainActivity: BaseActivity(), TestCaseConfigurationAdapter.OnJsonSele
         } catch (e: ExecutionException) {
             e.printStackTrace()
         }
-
+        if (TextUtils.isEmpty(jsonTests)) {
+            Log.e(TAG, "Error, " + testUrl + " is empty")
+            return;
+        }
         if (testUrl.contains("/Tests/")) { // single test
             val testDescriptorArrayList = ArrayList<TestDescriptor>()
             val testDescriptor = TestDescriptor()
