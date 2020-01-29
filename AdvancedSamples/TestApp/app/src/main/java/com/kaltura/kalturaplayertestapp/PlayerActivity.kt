@@ -393,7 +393,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-            
+
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -899,8 +899,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("PLAYER ERROR")
             if (event.error.isFatal()) {
                 showMessage(getFullPlayerError(event))
-                progressBar?.setVisibility(View.GONE)
-                playbackControlsManager?.showControls(View.VISIBLE)
+                if (!(player?.playlistController?.isAutoContinueEnabled ?: true)) {
+                    progressBar?.setVisibility(View.GONE)
+                    playbackControlsManager?.showControls(View.VISIBLE)
+                }
             }
         }
 
