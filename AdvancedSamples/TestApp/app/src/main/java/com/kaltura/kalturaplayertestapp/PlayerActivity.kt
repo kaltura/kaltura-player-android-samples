@@ -509,13 +509,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     ?: false
             ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue
                     ?: true
-            player!!.loadPlaylistById(ovpPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+            player!!.loadPlaylistById(ovpPlaylistIdOptions) { playlistController, error ->
                 if (error != null) {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
                 } else {
                     playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
                 }
-            })
+            }
         } else {
             var mediaList = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList
 
@@ -533,11 +533,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     ?: false
             ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue
                     ?: true
-            player!!.loadPlaylist(ovpPlaylistOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+            player!!.loadPlaylist(ovpPlaylistOptions) { playlistController, error ->
                 if (error != null) {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
                 }
-            })
+            }
         }
     }
 
@@ -557,11 +557,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
         ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled
                 ?: false
         ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
-        player!!.loadPlaylist(ottPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+        player!!.loadPlaylist(ottPlaylistIdOptions) { playlistController, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             }
-        })
+        }
     }
 
     private fun handleBasicPlayerPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaBasicPlayer?) {
@@ -582,14 +582,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
         basicPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue
                 ?: true
 
-        player!!.loadPlaylist(basicPlaylistIdOptions, KalturaPlayer.OnPlaylistControllerListener() { playlistController, error ->
+        player!!.loadPlaylist(basicPlaylistIdOptions) { playlistController, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
                 log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistIdOptions.playlistMetadata.name)
                 val handler = Handler(Looper.getMainLooper())
             }
-        })
+        }
     }
 
     private fun buildOttMediaOptions(startPosition: Long?, playListMediaIndex: Int): OTTMediaOptions? {
@@ -899,6 +899,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("PLAYER ERROR")
             if (event.error.isFatal()) {
                 showMessage(getFullPlayerError(event))
+                progressBar?.setVisibility(View.GONE)
+                playbackControlsManager?.showControls(View.VISIBLE)
             }
         }
 
@@ -926,6 +928,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         playbackControlsView?.getPlayPauseToggle()!!.setBackgroundResource(R.drawable.pause)
                     }
                 }
+            }
+
+            if (!(player?.playlistController?.isAutoContinueEnabled ?: true)) {
+                playbackControlsManager?.showControls(View.VISIBLE)
             }
 
             updateEventsLogsList("player:\n" + event.eventType().name)
