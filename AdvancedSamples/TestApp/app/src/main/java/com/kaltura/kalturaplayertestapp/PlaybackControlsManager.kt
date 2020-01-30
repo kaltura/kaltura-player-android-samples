@@ -117,8 +117,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             //nextBtn.visibility = View.INVISIBLE
             //prevBtn.visibility = View.INVISIBLE
 
-            nextImgBtn.visibility = View.INVISIBLE
-            prevImgBtn.visibility = View.INVISIBLE
+            nextImgBtn.visibility = View.VISIBLE
+            prevImgBtn.visibility = View.VISIBLE
 
             videoTracksBtn.visibility = View.INVISIBLE
             audioTracksBtn.visibility = View.INVISIBLE
