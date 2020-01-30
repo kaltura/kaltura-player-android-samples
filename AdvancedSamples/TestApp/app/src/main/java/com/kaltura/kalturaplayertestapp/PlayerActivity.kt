@@ -907,6 +907,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 showMessage(getFullPlayerError(event))
                 if (!(player?.playlistController?.isAutoContinueEnabled ?: true)) {
                     progressBar?.setVisibility(View.GONE)
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
                     playbackControlsManager?.showControls(View.VISIBLE)
                 }
             }
