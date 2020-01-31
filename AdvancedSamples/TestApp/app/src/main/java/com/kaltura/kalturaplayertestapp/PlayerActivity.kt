@@ -806,6 +806,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
+        player?.addListener(this, PlaylistEvent.playListStarted) { event ->
+            playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, event.playlist.mediaListSize)
+        }
+
         player?.addListener(this, PlaylistEvent.playListEnded) { event ->
             log.d("PLAYLIST playListEnded")
             var loopEnabld = player?.playlistController?.isLoopEnabled ?: false
