@@ -42,7 +42,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
 
     private val hideButtonsHandler = Handler(Looper.getMainLooper())
     private val hideButtonsRunnable = Runnable {
-        if (playerState === PlayerEvent.Type.PLAYING || adPlayerState === AdEvent.Type.STARTED || adPlayerState === AdEvent.Type.RESUMED || adPlayerState === AdEvent.Type.COMPLETED) {
+        if (playerState == null || playerState == PlayerEvent.Type.PLAYING || adPlayerState == AdEvent.Type.STARTED || adPlayerState == AdEvent.Type.RESUMED || adPlayerState == AdEvent.Type.COMPLETED) {
             showControls(View.INVISIBLE)
         }
     }
@@ -127,6 +127,9 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             return
         }
 
+        nextImgBtn.visibility = visibility
+        prevImgBtn.visibility = visibility
+
         if (tracksSelectionController == null || tracksSelectionController!!.tracks == null) {
             return
         }
@@ -134,8 +137,6 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         //nextBtn.visibility = visibility
         //prevBtn.visibility = visibility
 
-        nextImgBtn.visibility = visibility
-        prevImgBtn.visibility = visibility
 
         if (tracksSelectionController!!.tracks!!.videoTracks.size > 1) {
             videoTracksBtn.visibility = visibility
@@ -171,10 +172,16 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     }
 
     override fun setAdPlayerState(playerState: Enum<*>?) {
+        if (playerState == null) {
+            isAdDisplayed = false
+            adPlayerState = null
+            return
+        }
+
         this.adPlayerState = playerState
-        if (adPlayerState === AdEvent.Type.STARTED || adPlayerState === AdEvent.Type.CONTENT_PAUSE_REQUESTED || adPlayerState === AdEvent.Type.TAPPED) {
+        if (adPlayerState == AdEvent.Type.STARTED || adPlayerState == AdEvent.Type.CONTENT_PAUSE_REQUESTED || adPlayerState == AdEvent.Type.TAPPED) {
             isAdDisplayed = true
-        } else if (adPlayerState === AdEvent.Type.CONTENT_RESUME_REQUESTED || adPlayerState === AdEvent.Type.ALL_ADS_COMPLETED) {
+        } else if (adPlayerState == AdEvent.Type.CONTENT_RESUME_REQUESTED || adPlayerState == AdEvent.Type.ALL_ADS_COMPLETED) {
             isAdDisplayed = false
         }
     }

@@ -66,7 +66,7 @@ import java.util.*
 class PlayerActivity: AppCompatActivity(), Observer {
 
     private val log = PKLog.get("PlayerActivity")
-    private val REMOVE_CONTROLS_TIMEOUT = 3000
+
     companion object {
         const val PLAYER_CONFIG_JSON_KEY = "player_config_json_key"
         const val PLAYER_CONFIG_TITLE_KEY = "player_config_title_key"
@@ -149,26 +149,42 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     fun playNext() {
+        playbackControlsManager?.setAdPlayerState(null)
+        playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
-            player?.stop()
+           // player?.stop()
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playNext()
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                     ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+
+            player?.playlistController?.isAutoContinueEnabled?.let {
+                if (!it) {
+                    playbackControlsManager?.handleContainerClick()
+                }
+            }
         }
+
     }
 
     fun playPrev() {
+        playbackControlsManager?.setAdPlayerState(null)
+        playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
-            player?.stop()
+           // player?.stop()
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playPrev()
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                     ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+        }
+        player?.playlistController?.isAutoContinueEnabled?.let {
+            if (!it) {
+                playbackControlsManager?.handleContainerClick()
+            }
         }
     }
 
@@ -375,7 +391,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             //                tvPlayerParams.serviceUrl = "http://httpbin.org/status/401?";
             //                initOptions.tvPlayerParams = tvPlayerParams;
             //            }
-
 
             player = KalturaOvpPlayer.create(this@PlayerActivity, initOptions)
             setPlayer(player)
@@ -701,6 +716,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             }
 
+
+
+            playbackControlsManager?.showControls(View.INVISIBLE)
             progressBar?.setVisibility(View.INVISIBLE)
         }
 
@@ -780,9 +798,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlayerEvent.stopped) { event ->
-            log.d("PLAYER PLAYING")
+            log.d("PLAYER STOPPED")
             updateEventsLogsList("player:\n" + event.eventType().name)
-            playbackControlsManager?.showControls(View.INVISIBLE)
+            if (player?.playlistController == null || (player?.playlistController?.isAutoContinueEnabled ?: true)) {
+                playbackControlsManager?.showControls(View.INVISIBLE)
+            }
+            playbackControlsManager?.setContentPlayerState(event.eventType())
         }
 
         player?.addListener(this, PlayerEvent.ended) { event ->
@@ -943,9 +964,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             }
 
-            if (!(player?.playlistController?.isAutoContinueEnabled ?: true)) {
-                playbackControlsManager?.showControls(View.VISIBLE)
-            }
+//            if (!(player?.playlistController?.isAutoContinueEnabled ?: true)) {
+//                playbackControlsManager?.showControls(View.VISIBLE)
+//            }
 
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
