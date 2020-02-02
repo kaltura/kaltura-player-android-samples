@@ -162,6 +162,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             player?.playlistController?.isAutoContinueEnabled?.let {
                 if (!it) {
+                    playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
                     playbackControlsManager?.handleContainerClick()
                 }
             }
@@ -183,6 +184,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         player?.playlistController?.isAutoContinueEnabled?.let {
             if (!it) {
+                playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
                 playbackControlsManager?.handleContainerClick()
             }
         }
@@ -708,6 +710,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD STARTED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.STARTED)
+            playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
             allAdsCompeted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
             adCuePoints?.let {
@@ -780,6 +783,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlayerEvent.playing) { event ->
             log.d("Player Event PLAYING")
+            playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
             if (player?.playlistController != null) {
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                         ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)

@@ -280,7 +280,9 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         }
     }
 
-
+    fun setSeekBarVisibiliy(visibility :Int) {
+        playbackControlsView?.setSeekBarVisibility(visibility)
+    }
 //    fun addChangeMediaButtonsListener(mediaListSize: Int) {
 //        prevBtn.setOnClickListener { view ->
 //            playbackControlsView!!.playPauseToggle.setBackgroundResource(R.drawable.play)
