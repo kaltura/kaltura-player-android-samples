@@ -593,7 +593,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val basicPlaylistIdOptions = BasicPlaylistOptions()
         basicPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
         basicPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
-                ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+                ?: PlaylistMetadata().setName("TestBasicPlayList").setId("1")
         basicPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
                 ?: CountDownOptions()
         basicPlaylistIdOptions.basicMediaOptionsList = mediaList
@@ -859,14 +859,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-        player?.addListener(this, PlaylistEvent.countDownStart) { event ->
-            var message = "countDownStart index = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}"
+        player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
+            var message = "playlistCountDownStart index = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}"
             log.d("PLAYLIST $message")
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
 
-        player?.addListener(this, PlaylistEvent.countDownEnd) { event ->
-            var message = "countDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}"
+        player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
+            var message = "playlistCountDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}"
             log.d("PLAYLIST $message" )
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
