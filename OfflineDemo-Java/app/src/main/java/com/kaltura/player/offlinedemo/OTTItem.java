@@ -15,10 +15,13 @@ public class OTTItem extends KalturaItem {
 
     public OTTItem(int partnerId, String ottAssetId, String serverUrl, String format, OfflineManager.SelectionPrefs prefs, String title) {
         super(partnerId, serverUrl, prefs, title);
+
         this.ottAssetId = ottAssetId;
         this.partnerId = partnerId;
         this.serverUrl = serverUrl;
         this.format = format;
+        this.prefs = prefs;
+        this.title = title;
     }
 
     @Override

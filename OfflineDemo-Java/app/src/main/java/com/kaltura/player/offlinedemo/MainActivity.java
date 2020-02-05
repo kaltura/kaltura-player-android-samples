@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
     private OfflineManager manager;
     private HashMap<String, Item> itemMap = new HashMap<>();
 
-    Long startTime = 0L;
+    private Long startTime = 0L;
 
-    ListView assetListView;
+    private ListView assetListView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -152,11 +152,11 @@ public class MainActivity extends AppCompatActivity {
             showActionsDialog((Item)parent.getItemAtPosition(position));
         });
 
-        /*try {
+        try {
             manager.start(() -> {
                 log.d("manager started");
                 for (Map.Entry<String, Item> stringItemEntry : itemMap.entrySet()) {
-                    Item itemEntry = (Item) stringItemEntry;
+                    Item itemEntry = stringItemEntry.getValue();
                     itemEntry.setAssetInfo(manager.getAssetInfo(itemEntry.id()));
                 }
 
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             log.e("IOException in Offline Manager start");
             e.printStackTrace();
-        }*/
+        }
     }
 
     private void updateItemStatus(String assetId) {

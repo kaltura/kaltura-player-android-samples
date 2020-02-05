@@ -3,6 +3,8 @@ package com.kaltura.player.offlinedemo;
 import com.kaltura.playkit.PKMediaEntry;
 import com.kaltura.tvplayer.OfflineManager;
 
+import java.util.Locale;
+
 public abstract class Item {
 
     private PKMediaEntry entry;
@@ -79,7 +81,7 @@ public abstract class Item {
             return "--";
         }
 
-        return String.format("%.3f%", (sizeBytes.floatValue() / (1000*1000))) + "mb";
+        return String.format(Locale.ROOT, "%3f", (Float.valueOf(sizeBytes) / (1000*1000))) + "mb";
     }
 
     @Override
@@ -93,7 +95,7 @@ public abstract class Item {
 
         if (state == OfflineManager.AssetDownloadState.started) {
             if (percentDownloaded != null){
-                string += String.format("%.1f", percentDownloaded) + "% / ";
+                string += String.format(Locale.ROOT, "%1f", percentDownloaded) + "% / ";
             } else {
                 string += "--";
             }

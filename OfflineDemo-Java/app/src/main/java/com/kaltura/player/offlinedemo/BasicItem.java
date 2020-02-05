@@ -19,6 +19,8 @@ public class BasicItem extends Item {
     public BasicItem(String id, String url, OfflineManager.SelectionPrefs prefs, String title) {
         super(prefs, title);
 
+        this.prefs = prefs;
+        this.title = title;
         this.id = id;
         this.url = url;
 

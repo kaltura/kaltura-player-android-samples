@@ -19,6 +19,7 @@ public abstract class KalturaItem extends Item {
 
     public KalturaItem(int partnerId, String serverUrl, OfflineManager.SelectionPrefs prefs, String title) {
         super(prefs, title);
+
         this.partnerId = partnerId;
         this.serverUrl = serverUrl;
         this.prefs = prefs;

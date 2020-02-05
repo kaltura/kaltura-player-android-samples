@@ -14,6 +14,7 @@ public class OVPItem extends KalturaItem {
 
     public OVPItem(int partnerId, String entryId, String serverUrl, OfflineManager.SelectionPrefs prefs, String title) {
         super(partnerId, serverUrl != null ? serverUrl: "https://cdnapisec.kaltura.com", prefs, title);
+
         this.entryId = entryId;
         this.partnerId = partnerId;
         this.serverUrl = serverUrl != null ? serverUrl: "https://cdnapisec.kaltura.com";
