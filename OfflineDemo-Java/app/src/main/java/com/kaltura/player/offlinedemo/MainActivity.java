@@ -33,17 +33,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
     private PKLog log = PKLog.get("MainActivity");
-
-    private ArrayAdapter<Item> itemArrayAdapter;
     private OfflineManager manager;
     private HashMap<String, Item> itemMap = new HashMap<>();
-
     private Long startTime = 0L;
-
     private ListView assetListView;
 
     @Override
@@ -126,8 +123,8 @@ public class MainActivity extends AppCompatActivity {
             log.d("[progress] " + assetId +": " + (bytesDownloaded / 1000) + "/" + (totalBytesEstimated / 1000));
 
             if (itemMap != null && itemMap.get(assetId) != null) {
-                itemMap.get(assetId).setBytesDownloaded(bytesDownloaded);
-                itemMap.get(assetId).setPercentDownloaded(percentDownloaded);
+                Objects.requireNonNull(itemMap.get(assetId)).setBytesDownloaded(bytesDownloaded);
+                Objects.requireNonNull(itemMap.get(assetId)).setPercentDownloaded(percentDownloaded);
             } else {
                 return;
             }
@@ -137,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
             });
         });
 
-        itemArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1);
+        ArrayAdapter<Item> itemArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1);
 
         for (Item item : testItems) {
             if (item != null) {
@@ -172,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateItemStatus(String assetId) {
         if (itemMap != null && itemMap.get(assetId) != null) {
-            updateItemStatus(itemMap.get(assetId));
+            updateItemStatus(Objects.requireNonNull(itemMap.get(assetId)));
         }
     }
 
@@ -292,9 +289,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPrepared(@NonNull String assetId, @NonNull OfflineManager.AssetInfo assetInfo, @Nullable Map<OfflineManager.TrackType, List<OfflineManager.Track>> selected) {
                 item.setAssetInfo(assetInfo);
                 runOnUiThread(() -> {
-                    Snackbar.make(assetListView, "Prepared", Snackbar.LENGTH_LONG).setDuration(5000).setAction("Start", v -> {
-                        doStart(item);
-                    }).show();
+                    Snackbar.make(assetListView, "Prepared", Snackbar.LENGTH_LONG).setDuration(5000).setAction("Start", v -> doStart(item)).show();
                     assetListView.invalidateViews();
                 });
             }

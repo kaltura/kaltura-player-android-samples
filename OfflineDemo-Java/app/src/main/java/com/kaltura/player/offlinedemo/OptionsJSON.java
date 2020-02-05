@@ -4,7 +4,6 @@ import com.kaltura.tvplayer.OfflineManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -127,7 +126,7 @@ public class OptionsJSON {
         opts.videoCodecs = new ArrayList<>();
         if (videoCodecs != null) {
             for (String tag: videoCodecs) {
-                 opts.videoCodecs.add(tagToCodec(tag));
+                opts.videoCodecs.add(tagToCodec(tag));
             }
         }
 

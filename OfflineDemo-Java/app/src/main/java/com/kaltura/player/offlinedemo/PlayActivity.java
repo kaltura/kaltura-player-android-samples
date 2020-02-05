@@ -3,7 +3,6 @@ package com.kaltura.player.offlinedemo;
 import android.app.AlertDialog;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -76,29 +75,17 @@ public class PlayActivity extends AppCompatActivity {
 
         }
 
-        findViewById(R.id.fab_playpause).setOnClickListener(v -> {
-            togglePlayPause();
-        });
+        findViewById(R.id.fab_playpause).setOnClickListener(v -> togglePlayPause());
 
-        findViewById(R.id.fab_replay).setOnClickListener(v -> {
-            player.replay();
-        });
+        findViewById(R.id.fab_replay).setOnClickListener(v -> player.replay());
 
-        findViewById(R.id.fab_replay_10).setOnClickListener(v -> {
-            player.seekTo(player.getCurrentPosition() - 10000);
-        });
+        findViewById(R.id.fab_replay_10).setOnClickListener(v -> player.seekTo(player.getCurrentPosition() - 10000));
 
-        findViewById(R.id.fab_forward_10).setOnClickListener(v -> {
-            player.seekTo(player.getCurrentPosition() + 10000);
-        });
+        findViewById(R.id.fab_forward_10).setOnClickListener(v -> player.seekTo(player.getCurrentPosition() + 10000));
 
-        findViewById(R.id.fab_audio_track).setOnClickListener(v -> {
-            selectPlayerTrack(true);
-        });
+        findViewById(R.id.fab_audio_track).setOnClickListener(v -> selectPlayerTrack(true));
 
-        findViewById(R.id.fab_text_track).setOnClickListener(v -> {
-            selectPlayerTrack(false);
-        });
+        findViewById(R.id.fab_text_track).setOnClickListener(v -> selectPlayerTrack(false));
 
         addPlayerEventListeners();
     }
@@ -166,9 +153,7 @@ public class PlayActivity extends AppCompatActivity {
 
         new AlertDialog.Builder(PlayActivity.this)
                 .setTitle("Select track")
-                .setSingleChoiceItems((CharSequence[]) trackTitles.toArray(), selected.get(0), (dialog, which) -> {
-                    selected.add(which);
-                })
+                .setSingleChoiceItems((CharSequence[]) trackTitles.toArray(), selected.get(0), (dialog, which) -> selected.add(which))
                 .setPositiveButton("OK", (dialog, which) -> {
                     if (selected.get(0) >= 0) {
                         player.changeTrack(trackIds.get(selected.get(0)));
@@ -179,9 +164,7 @@ public class PlayActivity extends AppCompatActivity {
 
     private void addPlayerEventListeners() {
 
-        player.addListener(this, PlayerEvent.playing, event -> {
-            updatePlayPauseButton(true);
-        });
+        player.addListener(this, PlayerEvent.playing, event -> updatePlayPauseButton(true));
 
         player.addListener(this, PlayerEvent.tracksAvailable, event -> {
             PKTracks tracksInfo = event.tracksInfo;
