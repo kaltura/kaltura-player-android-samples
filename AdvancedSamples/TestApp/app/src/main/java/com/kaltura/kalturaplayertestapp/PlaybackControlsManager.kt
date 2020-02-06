@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
@@ -153,23 +154,21 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
 
         if (player?.playlistController != null) {
             if (player?.playlistController.isLoopEnabled) {
-                loopBtn.visibility = View.VISIBLE
                 player?.playlistController?.isLoopEnabled?.let {
                     if (it) {
                         loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
                     } else {
-                        loopBtn.setBackgroundColor(Color.RED)
+                        loopBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
                     }
                 }
 
             }
             if (player?.playlistController.isShuffleEnabled) {
-                shuffleBtn.visibility = View.VISIBLE
                 player?.playlistController?.isShuffleEnabled?.let {
                     if (it) {
                         shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
                     } else {
-                        shuffleBtn.setBackgroundColor(Color.RED)
+                        shuffleBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
                     }
                 }
             }
@@ -318,7 +317,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             player?.playlistController?.let {
                 if (it.isLoopEnabled) {
                     player?.playlistController?.loop(false)
-                    loopBtn.setBackgroundColor(Color.RED)
+                    loopBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
                 } else {
                     player?.playlistController?.loop(true)
                     loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
@@ -330,7 +329,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             player?.playlistController?.let {
                 if (it.isShuffleEnabled) {
                     player?.playlistController?.shuffle(false)
-                    shuffleBtn.setBackgroundColor(Color.RED)
+                    shuffleBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
                 } else {
                     player?.playlistController?.shuffle(true)
                     shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
