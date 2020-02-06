@@ -25,8 +25,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     private val audioTracksBtn: Button
     private val textTracksBtn: Button
 
-    //private val prevBtn: Button
-    //private val nextBtn: Button
+    private val loopBtn: Button
+    private val shuffleBtn: Button
 
     private val prevImgBtn: ImageView
     private val nextImgBtn: ImageView
@@ -57,8 +57,9 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         this.audioTracksBtn = playerActivity.findViewById(R.id.audio_tracks)
         addTracksButtonsListener()
 
-        //this.prevBtn = playerActivity.findViewById(R.id.prev_btn)
-        //this.nextBtn = playerActivity.findViewById(R.id.next_btn)
+        this.loopBtn = playerActivity.findViewById(R.id.loop_btn)
+        this.shuffleBtn = playerActivity.findViewById(R.id.shuffle_btn)
+
 
         this.prevImgBtn = playerActivity.findViewById(R.id.icon_play_prev)
         this.nextImgBtn = playerActivity.findViewById(R.id.icon_play_next)
@@ -114,8 +115,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         }
 
         if (isAdDisplayed) {
-            //nextBtn.visibility = View.INVISIBLE
-            //prevBtn.visibility = View.INVISIBLE
+            loopBtn.visibility = View.INVISIBLE
+            shuffleBtn.visibility = View.INVISIBLE
 
             nextImgBtn.visibility = View.VISIBLE
             prevImgBtn.visibility = View.VISIBLE
@@ -134,8 +135,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             return
         }
 
-        //nextBtn.visibility = visibility
-        //prevBtn.visibility = visibility
+        loopBtn.visibility = visibility
+        shuffleBtn.visibility = visibility
 
 
         if (tracksSelectionController!!.tracks!!.videoTracks.size > 1) {
@@ -148,6 +149,30 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             }
         } else {
             videoTracksBtn.visibility = View.INVISIBLE
+        }
+
+        if (player?.playlistController != null) {
+            if (player?.playlistController.isLoopEnabled) {
+                loopBtn.visibility = View.VISIBLE
+                player?.playlistController?.isLoopEnabled?.let {
+                    if (it) {
+                        loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                    } else {
+                        loopBtn.setBackgroundColor(Color.RED)
+                    }
+                }
+
+            }
+            if (player?.playlistController.isShuffleEnabled) {
+                shuffleBtn.visibility = View.VISIBLE
+                player?.playlistController?.isShuffleEnabled?.let {
+                    if (it) {
+                        shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                    } else {
+                        shuffleBtn.setBackgroundColor(Color.RED)
+                    }
+                }
+            }
         }
 
         if (tracksSelectionController!!.tracks?.audioTracks!!.size > 1) {
@@ -283,40 +308,36 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     fun setSeekBarVisibiliy(visibility :Int) {
         playbackControlsView?.setSeekBarVisibility(visibility)
     }
-//    fun addChangeMediaButtonsListener(mediaListSize: Int) {
-//        prevBtn.setOnClickListener { view ->
-//            playbackControlsView!!.playPauseToggle.setBackgroundResource(R.drawable.play)
-//            playerActivity.setCurrentPlayedMediaIndex(playerActivity.getCurrentPlayedMediaIndex() - 1)
-//            if (mediaListSize <= 1) {
-//                return@setOnClickListener
-//            }
-//            updatePrevNextBtnFunctionality(playerActivity.getCurrentPlayedMediaIndex(), mediaListSize)
-//            playerActivity.clearLogView()
-//            player?.stop()
-//            if (player?.playlistController != null) {
-//                playerActivity.playPrev()
-//            } else {
-//                playerActivity.changeMedia()
-//            }
-//        }
-//
-//        nextBtn.setOnClickListener{ view ->
-//            playbackControlsView!!.playPauseToggle.setBackgroundResource(R.drawable.play)
-//            playerActivity.setCurrentPlayedMediaIndex(playerActivity.getCurrentPlayedMediaIndex() + 1)
-//
-//            if (mediaListSize <= 1) {
-//                return@setOnClickListener
-//            }
-//            updatePrevNextBtnFunctionality(playerActivity.getCurrentPlayedMediaIndex(), mediaListSize)
-//            playerActivity.clearLogView()
-//            player?.stop()
-//            if (player?.playlistController != null) {
-//                playerActivity.playNext()
-//            } else {
-//                playerActivity.changeMedia()
-//            }
-//        }
-//    }
+
+    fun addPlaylistButtonsListener() {
+        if (player?.playlistController == null) {
+            return
+        }
+
+        loopBtn.setOnClickListener { view ->
+            player?.playlistController?.let {
+                if (it.isLoopEnabled) {
+                    player?.playlistController?.loop(false)
+                    loopBtn.setBackgroundColor(Color.RED)
+                } else {
+                    player?.playlistController?.loop(true)
+                    loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                }
+            }
+        }
+
+        shuffleBtn.setOnClickListener{ view ->
+            player?.playlistController?.let {
+                if (it.isShuffleEnabled) {
+                    player?.playlistController?.shuffle(false)
+                    shuffleBtn.setBackgroundColor(Color.RED)
+                } else {
+                    player?.playlistController?.shuffle(true)
+                    shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                }
+            }
+        }
+    }
 
     fun addChangeMediaImgButtonsListener(mediaListSize: Int) {
         prevImgBtn.setOnClickListener { view ->

@@ -85,8 +85,8 @@
                 android:background="@color/cardview_dark_background"/>
 
             <Button
-                android:text="Prev"
-                android:id="@+id/prev_btn"
+                android:text="Loop"
+                android:id="@+id/loop_btn"
                 android:clickable="false"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -96,8 +96,8 @@
                 android:background="@color/cardview_dark_background"/>
 
             <Button
-                android:text="Next"
-                android:id="@+id/next_btn"
+                android:text="SHFL"
+                android:id="@+id/shuffle_btn"
                 android:clickable="false"
                 android:layout_width="0dp"
                 android:layout_weight="1"

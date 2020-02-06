@@ -10,6 +10,7 @@ class PlaylistConfig {
     val loopEnabled = false
     val shuffleEnabled = false
     val autoContinue = true;
+    val recoverOnError = false;
     val startIndex = 0
     val countDownOptions: CountDownOptions? = null
     val ks: String? = null

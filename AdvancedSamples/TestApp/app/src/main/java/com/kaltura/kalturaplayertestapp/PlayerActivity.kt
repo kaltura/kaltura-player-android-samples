@@ -153,7 +153,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
-           // player?.stop()
+            // player?.stop()
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playNext()
@@ -175,7 +175,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
-           // player?.stop()
+            // player?.stop()
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playPrev()
@@ -415,7 +415,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-
+            
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -503,12 +503,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         } else {
             appPlayerInitConfig.mediaList?.let {
-                    if (it.size > 1) {
-                        //playbackControlsManager?.addChangeMediaButtonsListener(it.size)
-                        playbackControlsManager?.addChangeMediaImgButtonsListener(it.size)
-                    }
-                    //playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, it.size)
-                    playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
+                if (it.size > 1) {
+                    //playbackControlsManager?.addChangeMediaButtonsListener(it.size)
+                    playbackControlsManager?.addChangeMediaImgButtonsListener(it.size)
+                }
+                //playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, it.size)
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
             }
         }
     }
@@ -523,14 +523,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ovpPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
                     ?: CountDownOptions()
             ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
-            ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.useApiCaptions
-                    ?: false
-            ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled
-                    ?: false
-            ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled
-                    ?: false
-            ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue
-                    ?: true
+            ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.useApiCaptions ?: false
+            ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
+            ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+            ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
+            ovpPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
             player?.loadPlaylistById(ovpPlaylistIdOptions) { playlistController, error ->
                 if (error != null) {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -549,12 +547,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                     ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
             ovpPlaylistOptions.ovpMediaOptionsList = mediaList
-            ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled
-                    ?: false
-            ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled
-                    ?: false
-            ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue
-                    ?: true
+            ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
+            ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+            ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
+            ovpPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
             player?.loadPlaylist(ovpPlaylistOptions) { playlistController, error ->
                 if (error != null) {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -576,9 +573,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
         ottPlaylistIdOptions.ottMediaOptionsList = mediaList
         ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
-        ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled
-                ?: false
+        ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
+        ottPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
         player?.loadPlaylist(ottPlaylistIdOptions) { playlistController, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -590,25 +588,23 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         var mediaList = appPlayerInitConfig.playlistConfig?.basicMediaOptionsList
 
-        val basicPlaylistIdOptions = BasicPlaylistOptions()
-        basicPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
-        basicPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
+        val basicPlaylistOptions = BasicPlaylistOptions()
+        basicPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
+        basicPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                 ?: PlaylistMetadata().setName("TestBasicPlayList").setId("1")
-        basicPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
+        basicPlaylistOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
                 ?: CountDownOptions()
-        basicPlaylistIdOptions.basicMediaOptionsList = mediaList
-        basicPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled
-                ?: false
-        basicPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled
-                ?: false
-        basicPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue
-                ?: true
+        basicPlaylistOptions.basicMediaOptionsList = mediaList
+        basicPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
+        basicPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+        basicPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
+        basicPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
-        player?.loadPlaylist(basicPlaylistIdOptions) { playlistController, error ->
+        player?.loadPlaylist(basicPlaylistOptions) { playlistController, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
-                log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistIdOptions.playlistMetadata.name)
+                log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistOptions.playlistMetadata.name)
                 val handler = Handler(Looper.getMainLooper())
             }
         }
@@ -833,6 +829,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlaylistEvent.playListStarted) { event ->
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, event.playlist.mediaListSize)
+            playbackControlsManager?.addPlaylistButtonsListener()
         }
 
         player?.addListener(this, PlaylistEvent.playListEnded) { event ->
@@ -854,9 +851,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, PlaylistEvent.playListMediaError) { event ->
             log.d("PLAYLIST PlaylistMediaError")
             Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
-            if (event.mediaIndex == 0) {
-                playNext()
-            }
+            //if (event.mediaIndex == 0) {
+                //playNext()
+            //}
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
