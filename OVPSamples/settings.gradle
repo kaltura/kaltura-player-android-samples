@@ -1,29 +1,29 @@
-//include ':tvplayer'
-//project(':tvplayer').projectDir = new File('../../kaltura-player-android/tvplayer')
-//
-//include ':playkit'
-//project(':playkit').projectDir = new File(settingsDir, '../../playkit-android/playkit')
-//
-//include ':providers'
-//project(':providers').projectDir = new File('../../playkit-android-providers/mediaproviders')
-//
-//include ':kava'
-//project(':kava').projectDir = new File('../../playkit-android-kava/kavaplugin')
-//
-//include ':ima'
-//project(':ima').projectDir = new File('../../playkit-android-ima/imaplugin')
-//include ':youbora'
-//project(':youbora').projectDir = new File('../../playkit-android-youbora/youboraplugin')
-//include ':googlecast'
-//project(':googlecast').projectDir = new File(settingsDir,'../../playkit-android-googlecast/googlecast')
-//include ':MD360'
-//project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
-//include ':playkitvr'
-//project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr')
-//include ':dtglib'
-//project(':dtglib').projectDir = new File('../../playkit-dtg-android/dtglib')
-//include ':fbads'
-//project(':fbads').projectDir = new File('../../playkit-android-fb-ads/fbadsplugin')
+include ':tvplayer'
+project(':tvplayer').projectDir = new File('../../kaltura-player-android/tvplayer')
+
+include ':playkit'
+project(':playkit').projectDir = new File(settingsDir, '../../playkit-android/playkit')
+
+include ':providers'
+project(':providers').projectDir = new File('../../playkit-android-providers/mediaproviders')
+
+include ':kava'
+project(':kava').projectDir = new File('../../playkit-android-kava/kavaplugin')
+
+include ':ima'
+project(':ima').projectDir = new File('../../playkit-android-ima/imaplugin')
+include ':youbora'
+project(':youbora').projectDir = new File('../../playkit-android-youbora/youboraplugin')
+include ':googlecast'
+project(':googlecast').projectDir = new File(settingsDir,'../../playkit-android-googlecast/googlecast')
+include ':MD360'
+project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
+include ':playkitvr'
+project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr')
+include ':dtglib'
+project(':dtglib').projectDir = new File('../../playkit-dtg-android/dtglib')
+include ':fbads'
+project(':fbads').projectDir = new File('../../playkit-android-fb-ads/fbadsplugin')
 
 
 // Sample apps
@@ -32,7 +32,8 @@ def samples = [
         'BasicSetup',
         'ChangeMedia',
         'SubtitleSideloading',
-        'AudioOnlyBasicSetup'
+        'AudioOnlyBasicSetup',
+        'Playlist'
 ]
 
 samples.each {
