@@ -160,9 +160,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                     ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
 
+            val playerDuration =  player?.duration ?: 0
             player?.playlistController?.isAutoContinueEnabled?.let {
-                if (!it) {
+                if (!it || playerDuration <= 0) {
                     playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
+                    playbackControlsView?.getPlayPauseToggle()?.visibility = View.VISIBLE
                     playbackControlsManager?.handleContainerClick()
                 }
             }
@@ -182,9 +184,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                     ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
         }
+        val playerDuration =  player?.duration ?: 0
         player?.playlistController?.isAutoContinueEnabled?.let {
-            if (!it) {
+            if (!it || playerDuration <= 0) {
                 playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
+                playbackControlsView?.getPlayPauseToggle()?.visibility = View.VISIBLE
                 playbackControlsManager?.handleContainerClick()
             }
         }
@@ -937,6 +941,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     playbackControlsManager?.showControls(View.VISIBLE)
                 }
                 progressBar?.setVisibility(View.INVISIBLE)
+                playbackControlsView?.getPlayPauseToggle()?.visibility = View.INVISIBLE
+                playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
             }
         }
 
