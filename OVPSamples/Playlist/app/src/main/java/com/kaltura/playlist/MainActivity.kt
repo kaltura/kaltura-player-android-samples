@@ -2,40 +2,58 @@ package com.kaltura.playlist
 
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.FrameLayout
-
 import androidx.appcompat.app.AppCompatActivity
-
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.plugins.ads.AdEvent
+import com.kaltura.playkit.providers.PlaylistMetadata
 import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
+import com.kaltura.tvplayer.playlist.CountDownOptions
+import com.kaltura.tvplayer.playlist.OVPPlaylistIdOptions
+import com.kaltura.tvplayer.playlist.OVPPlaylistOptions
+import com.kaltura.tvplayer.playlist.PlaylistEvent
+import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        val PARTNER_ID = 2068231
+        val SERVER_URL = "https://cdnapisec.kaltura.com"
+    }
+
     private val log = PKLog.get("MainActivity")
     private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
 
-    private val ENTRY_ID = "1_w9zx2eti"
+    private val ENTRY_ID_1 = "1_jnlsx5nv"
+    private val ENTRY_ID_2 = "0_w0hpzdni"
+    private val ENTRY_ID_3 = "1_j9v8qs8h"
     private var isFullScreen: Boolean = false
-    private var playerState: PlayerState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        loadPlaykitPlayer()
+        val ovpPlaylistOptions1 = buildOvpMediaOptions(ENTRY_ID_1)
+        val ovpPlaylistOptions2 = buildOvpMediaOptions(ENTRY_ID_2)
+        val ovpPlaylistOptions3 = buildOvpMediaOptions(ENTRY_ID_3)
 
-        addPlayPauseButton()
+        val mediaList = listOf(ovpPlaylistOptions1, ovpPlaylistOptions2, ovpPlaylistOptions3)
+
+        loadKalturaPlaylist(mediaList)
+
         showSystemUI()
 
         findViewById<View>(R.id.activity_main).setOnClickListener { v ->
@@ -46,6 +64,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
+
+        btn_shuffle.setOnClickListener {
+            player?.let {
+                it.playlistController.shuffle(!it.playlistController.isShuffleEnabled)
+                btn_shuffle.text = "Shuffle : ${it.playlistController.isShuffleEnabled}"
+            }
+        }
     }
 
     private fun hideSystemUI() {
@@ -74,86 +100,108 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addPlayerStateListener() {
-        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
-            log.d("State changed from " + event.oldState + " to " + event.newState)
-            playerState = event.newState
-        }
-    }
 
-    /**
-     * Just add a simple button which will start/pause playback.
-     */
-    private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById(R.id.play_pause_button)
-        //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
-            if (player != null) {
-                if (player!!.isPlaying) {
-                    //If player is playing, change text of the button and pause.
-                    playPauseButton!!.setText(R.string.play_text)
-                    player!!.pause()
-                } else {
-                    //If player is not playing, change text of the button and play.
-                    playPauseButton!!.setText(R.string.pause_text)
-                    player!!.play()
-                }
-            }
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
+            log.d("State changed from ${event.oldState} to ${event.newState}")
+            playerControls.setPlayerState(event.newState)
+        }
+
+        player?.addListener(this, AdEvent.contentResumeRequested) { event ->
+            log.d("CONTENT_RESUME_REQUESTED")
+            playerControls.setPlayerState(PlayerState.READY)
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
+            log.d("playlistCountDownStart currentPlayingIndex = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}");
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
+            log.d("playlistCountDownEnd currentPlayingIndex = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}");
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (player != null && playerState != null) {
-            if (playPauseButton != null) {
-                playPauseButton!!.setText(R.string.pause_text)
-            }
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let {
+            it.onApplicationResumed()
+            it.play()
         }
+
+        playerControls.resume();
     }
 
     override fun onPause() {
         super.onPause()
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
+        playerControls.release()
     }
 
-    fun loadPlaykitPlayer() {
+    /**
+     * To load a playlist by entryId list, use [OVPMediaOptions] & [OVPPlaylistOptions] when calling loadPlaylist method.
+     */
 
+    fun loadKalturaPlaylist(ovpPlaylistIdOptions: List<OVPMediaOptions>) {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-
+        playerInitOptions.setReferrer("app://testing.app.com")
         player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
 
-        player!!.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
+        container.addView(player?.playerView)
 
-        val ovpMediaOptions = buildOvpMediaOptions()
-        player!!.loadMedia(ovpMediaOptions) { entry, loadError ->
-            if (loadError != null) {
-                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
+        val ovpPlaylistOptions = OVPPlaylistOptions()
+        ovpPlaylistOptions.playlistMetadata = PlaylistMetadata().setName("TestOVPPlayList").setId("2")
+        ovpPlaylistOptions.ovpMediaOptionsList = ovpPlaylistIdOptions
+        ovpPlaylistOptions.countDownOptions = CountDownOptions()
+
+        player?.loadPlaylist(ovpPlaylistOptions) { _, error ->
+            if (error != null) {
+                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
-                log.d("OVPMedia onEntryLoadComplete  entry = " + entry.id)
+                log.d("OVPPlaylist OnPlaylistLoadListener  entry = " +  ovpPlaylistOptions.playlistMetadata.name)
             }
         }
 
         addPlayerStateListener()
     }
 
-    private fun buildOvpMediaOptions(): OVPMediaOptions {
+    /**
+     * To load a playlist by ID, use [OVPPlaylistIdOptions] when calling loadPlaylistById method.
+     */
+    private fun loadKalturaPlaylistById() {
+        val playerInitOptions = PlayerInitOptions(PARTNER_ID)
+        playerInitOptions.setAutoPlay(true)
+        playerInitOptions.setReferrer("app://testing.app.com")
+        player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
+
+        player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        val container = findViewById<ViewGroup>(R.id.player_root)
+        container.addView(player?.playerView)
+
+        val ovpPlaylistIdOptions = OVPPlaylistIdOptions()
+        ovpPlaylistIdOptions.playlistId = "0_w0hpzdni"
+        ovpPlaylistIdOptions.loopEnabled = true
+        ovpPlaylistIdOptions.shuffleEnabled = false
+
+        player?.loadPlaylistById(ovpPlaylistIdOptions) { _, error ->
+            if (error != null) {
+                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+            } else {
+                log.d("OVPPlaylist OnPlaylistLoadListener  entry = " +  ovpPlaylistIdOptions.playlistId)
+            }
+        }
+
+        addPlayerStateListener()
+    }
+
+    private fun buildOvpMediaOptions(ENTRY_ID: String): OVPMediaOptions {
         val ovpMediaOptions = OVPMediaOptions()
         ovpMediaOptions.entryId = ENTRY_ID
         ovpMediaOptions.ks = null
         ovpMediaOptions.startPosition = START_POSITION
+        ovpMediaOptions.countDownOptions = CountDownOptions();
 
         return ovpMediaOptions
-    }
-
-    companion object {
-        val PARTNER_ID = 2215841
-        val SERVER_URL = "https://cdnapisec.kaltura.com"
     }
 }
