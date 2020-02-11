@@ -147,11 +147,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     fun playNext() {
-        playbackControlsManager?.setAdPlayerState(null)
-        playbackControlsManager?.setContentPlayerState(null)
+        //playbackControlsManager?.setAdPlayerState(null)
+        //playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
-            // player?.stop()
+            player?.stop()
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playNext()
@@ -162,7 +162,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             player?.playlistController?.isAutoContinueEnabled?.let {
                 if (!it || playerDuration <= 0) {
                     playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
-                    playbackControlsView?.getPlayPauseToggle()?.visibility = View.VISIBLE
                     playbackControlsManager?.handleContainerClick()
                 }
             }
@@ -171,11 +170,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     fun playPrev() {
-        playbackControlsManager?.setAdPlayerState(null)
-        playbackControlsManager?.setContentPlayerState(null)
+        //playbackControlsManager?.setAdPlayerState(null)
+        //playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
-            // player?.stop()
+            player?.stop()
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playPrev()
@@ -186,7 +185,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.playlistController?.isAutoContinueEnabled?.let {
             if (!it || playerDuration <= 0) {
                 playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
-                playbackControlsView?.getPlayPauseToggle()?.visibility = View.VISIBLE
                 playbackControlsManager?.handleContainerClick()
             }
         }
@@ -940,9 +938,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     playbackControlsManager?.showControls(View.VISIBLE)
                 }
                 progressBar?.setVisibility(View.INVISIBLE)
-                playbackControlsView?.getPlayPauseToggle()?.visibility = View.INVISIBLE
-                playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
+                //playbackControlsView?.getPlayPauseToggle()?.visibility = View.INVISIBLE
             }
+            //playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
         }
 
         player?.addListener(this, PlayerEvent.sourceSelected) { event ->
