@@ -411,7 +411,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-
+            
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -828,9 +828,26 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
+        player?.addListener(this, PlaylistEvent.playListLoaded) { event ->
+            log.d("PLAYLIST playListLoaded")
+        }
+
         player?.addListener(this, PlaylistEvent.playListStarted) { event ->
+            log.d("PLAYLIST playListStarted")
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, event.playlist.mediaListSize)
             playbackControlsManager?.addPlaylistButtonsListener()
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
+            log.d("PLAYLIST playlistShuffleStateChanged " + event.mode)
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
+            log.d("PLAYLIST playlistLoopStateChanged " + event.mode)
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistAutoContinueStateChanged) { event ->
+            log.d("PLAYLIST playlistLoopStateChanged " + event.mode)
         }
 
         player?.addListener(this, PlaylistEvent.playListEnded) { event ->
@@ -849,12 +866,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
             Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
         }
 
-        player?.addListener(this, PlaylistEvent.playListMediaError) { event ->
-            log.d("PLAYLIST PlaylistMediaError")
+        player?.addListener(this, PlaylistEvent.playListLoadMediaError) { event ->
+            log.d("PLAYLIST PlaylistLoadMediaError")
             Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
-            //if (event.mediaIndex == 0) {
-                //playNext()
-            //}
+            if (playbackControlsManager != null) {
+                playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
+                playbackControlsManager?.handleContainerClick()
+            }
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
