@@ -132,25 +132,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         nextImgBtn.visibility = visibility
         prevImgBtn.visibility = visibility
 
-        if (tracksSelectionController == null || tracksSelectionController!!.tracks == null) {
-            return
-        }
-
         loopBtn.visibility = visibility
         shuffleBtn.visibility = visibility
-
-
-        if (tracksSelectionController!!.tracks!!.videoTracks.size > 1) {
-            videoTracksBtn.visibility = visibility
-            if (player != null) {
-                val vrController = player.getController(VRController::class.java)
-                if (vrController != null) {
-                    vrToggle.visibility = visibility
-                }
-            }
-        } else {
-            videoTracksBtn.visibility = View.INVISIBLE
-        }
 
         if (player?.playlistController != null) {
             if (player?.playlistController.isLoopEnabled) {
@@ -172,6 +155,22 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
                     }
                 }
             }
+        }
+
+        if (tracksSelectionController == null || tracksSelectionController!!.tracks == null) {
+            return
+        }
+
+        if (tracksSelectionController!!.tracks!!.videoTracks.size > 1) {
+            videoTracksBtn.visibility = visibility
+            if (player != null) {
+                val vrController = player.getController(VRController::class.java)
+                if (vrController != null) {
+                    vrToggle.visibility = visibility
+                }
+            }
+        } else {
+            videoTracksBtn.visibility = View.INVISIBLE
         }
 
         if (tracksSelectionController!!.tracks?.audioTracks!!.size > 1) {
@@ -323,6 +322,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
                     loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
                 }
             }
+            updatePrevNextImgBtnFunctionality(player?.playlistController.currentMediaIndex, player?.playlistController.playlist?.mediaList?.size ?: 0)
+
         }
 
         shuffleBtn.setOnClickListener{ view ->

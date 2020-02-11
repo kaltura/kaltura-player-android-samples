@@ -4,8 +4,6 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.View
@@ -160,9 +158,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                     ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
 
+            val playerDuration =  player?.duration ?: 0
             player?.playlistController?.isAutoContinueEnabled?.let {
-                if (!it) {
+                if (!it || playerDuration <= 0) {
                     playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
+                    playbackControlsView?.getPlayPauseToggle()?.visibility = View.VISIBLE
                     playbackControlsManager?.handleContainerClick()
                 }
             }
@@ -182,9 +182,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                     ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
         }
+        val playerDuration =  player?.duration ?: 0
         player?.playlistController?.isAutoContinueEnabled?.let {
-            if (!it) {
+            if (!it || playerDuration <= 0) {
                 playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
+                playbackControlsView?.getPlayPauseToggle()?.visibility = View.VISIBLE
                 playbackControlsManager?.handleContainerClick()
             }
         }
@@ -302,10 +304,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         this.currentPlayedMediaIndex = currentPlayedMediaIndex
     }
 
-    fun playNextItem(currentPlayedMediaIndex: Int) {
-        this.currentPlayedMediaIndex = currentPlayedMediaIndex
-    }
-
     private fun addSearchListener() {
         searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
 
@@ -415,7 +413,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-            
+
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -484,30 +482,22 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ovp) {
                 if (appPlayerInitConfig.playlistConfig?.playlistId == null) {
                     listSize = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList?.size ?: 0
-                    //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
-                    playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
                 }
             } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ott) {
                 listSize = appPlayerInitConfig.playlistConfig?.ottMediaOptionsList?.size ?: 0
-                //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
-                playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
             } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.basic) {
                 listSize = appPlayerInitConfig.playlistConfig?.basicMediaOptionsList?.size ?: 0
-                //playbackControlsManager?.addChangeMediaButtonsListener(listSize)
-                playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
             }
 
-            if (listSize != null) {
-                //playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, listSize)
+            if (listSize != null && listSize > 0) {
+                playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, listSize)
             }
         } else {
             appPlayerInitConfig.mediaList?.let {
                 if (it.size > 1) {
-                    //playbackControlsManager?.addChangeMediaButtonsListener(it.size)
                     playbackControlsManager?.addChangeMediaImgButtonsListener(it.size)
                 }
-                //playbackControlsManager?.updatePrevNextBtnFunctionality(currentPlayedMediaIndex, it.size)
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
             }
         }
@@ -533,7 +523,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (error != null) {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
                 } else {
+                    setCurrentPlayedMediaIndex(ovpPlaylistIdOptions.startIndex)
                     playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                    playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
                 }
             }
         } else {
@@ -555,6 +547,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             player?.loadPlaylist(ovpPlaylistOptions) { playlistController, error ->
                 if (error != null) {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                } else {
+                    setCurrentPlayedMediaIndex(ovpPlaylistOptions.startIndex)
+                    //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                    //playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistOptions.startIndex, playlistController.playlist.mediaListSize)
                 }
             }
         }
@@ -580,6 +576,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.loadPlaylist(ottPlaylistIdOptions) { playlistController, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+            } else {
+                setCurrentPlayedMediaIndex(ottPlaylistIdOptions.startIndex)
+                //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                //playbackControlsManager?.updatePrevNextImgBtnFunctionality(ottPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
             }
         }
     }
@@ -605,7 +605,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
                 log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistOptions.playlistMetadata.name)
-                val handler = Handler(Looper.getMainLooper())
+                setCurrentPlayedMediaIndex(basicPlaylistOptions.startIndex)
+                //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                //playbackControlsManager?.updatePrevNextImgBtnFunctionality(basicPlaylistOptions.startIndex, playlistController.playlist.mediaListSize)
+
             }
         }
     }
@@ -936,6 +939,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
                     playbackControlsManager?.showControls(View.VISIBLE)
                 }
+                progressBar?.setVisibility(View.INVISIBLE)
+                playbackControlsView?.getPlayPauseToggle()?.visibility = View.INVISIBLE
+                playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
             }
         }
 
