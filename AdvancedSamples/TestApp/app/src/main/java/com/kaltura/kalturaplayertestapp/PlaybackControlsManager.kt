@@ -322,6 +322,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
                     loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
                 }
             }
+            updatePrevNextImgBtnFunctionality(player?.playlistController.currentMediaIndex, player?.playlistController.playlist?.mediaList?.size ?: 0)
+
         }
 
         shuffleBtn.setOnClickListener{ view ->

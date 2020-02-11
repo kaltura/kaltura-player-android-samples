@@ -4,8 +4,6 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.View
@@ -551,8 +549,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
                 } else {
                     setCurrentPlayedMediaIndex(ovpPlaylistOptions.startIndex)
-                    playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
-                    playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistOptions.startIndex, playlistController.playlist.mediaListSize)
+                    //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                    //playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistOptions.startIndex, playlistController.playlist.mediaListSize)
                 }
             }
         }
@@ -580,8 +578,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
                 setCurrentPlayedMediaIndex(ottPlaylistIdOptions.startIndex)
-                playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
-                playbackControlsManager?.updatePrevNextImgBtnFunctionality(ottPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
+                //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                //playbackControlsManager?.updatePrevNextImgBtnFunctionality(ottPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
             }
         }
     }
@@ -608,8 +606,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             } else {
                 log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistOptions.playlistMetadata.name)
                 setCurrentPlayedMediaIndex(basicPlaylistOptions.startIndex)
-                playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
-                playbackControlsManager?.updatePrevNextImgBtnFunctionality(basicPlaylistOptions.startIndex, playlistController.playlist.mediaListSize)
+                //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                //playbackControlsManager?.updatePrevNextImgBtnFunctionality(basicPlaylistOptions.startIndex, playlistController.playlist.mediaListSize)
 
             }
         }
