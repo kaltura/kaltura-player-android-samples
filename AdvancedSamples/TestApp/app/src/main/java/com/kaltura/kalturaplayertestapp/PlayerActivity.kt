@@ -147,11 +147,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     fun playNext() {
-        playbackControlsManager?.setAdPlayerState(null)
-        playbackControlsManager?.setContentPlayerState(null)
+        //playbackControlsManager?.setAdPlayerState(null)
+        //playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
-            // player?.stop()
+            player?.stop()
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playNext()
@@ -162,7 +162,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             player?.playlistController?.isAutoContinueEnabled?.let {
                 if (!it || playerDuration <= 0) {
                     playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
-                    playbackControlsView?.getPlayPauseToggle()?.visibility = View.VISIBLE
                     playbackControlsManager?.handleContainerClick()
                 }
             }
@@ -171,11 +170,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     fun playPrev() {
-        playbackControlsManager?.setAdPlayerState(null)
-        playbackControlsManager?.setContentPlayerState(null)
+        //playbackControlsManager?.setAdPlayerState(null)
+        //playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
-            // player?.stop()
+            player?.stop()
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playPrev()
@@ -186,7 +185,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.playlistController?.isAutoContinueEnabled?.let {
             if (!it || playerDuration <= 0) {
                 playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
-                playbackControlsView?.getPlayPauseToggle()?.visibility = View.VISIBLE
                 playbackControlsManager?.handleContainerClick()
             }
         }
@@ -413,7 +411,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-
+            
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -830,9 +828,26 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
+        player?.addListener(this, PlaylistEvent.playListLoaded) { event ->
+            log.d("PLAYLIST playListLoaded")
+        }
+
         player?.addListener(this, PlaylistEvent.playListStarted) { event ->
+            log.d("PLAYLIST playListStarted")
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, event.playlist.mediaListSize)
             playbackControlsManager?.addPlaylistButtonsListener()
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
+            log.d("PLAYLIST playlistShuffleStateChanged " + event.mode)
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
+            log.d("PLAYLIST playlistLoopStateChanged " + event.mode)
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistAutoContinueStateChanged) { event ->
+            log.d("PLAYLIST playlistLoopStateChanged " + event.mode)
         }
 
         player?.addListener(this, PlaylistEvent.playListEnded) { event ->
@@ -851,12 +866,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
             Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
         }
 
-        player?.addListener(this, PlaylistEvent.playListMediaError) { event ->
-            log.d("PLAYLIST PlaylistMediaError")
+        player?.addListener(this, PlaylistEvent.playListLoadMediaError) { event ->
+            log.d("PLAYLIST PlaylistLoadMediaError")
             Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
-            //if (event.mediaIndex == 0) {
-                //playNext()
-            //}
+            if (playbackControlsManager != null) {
+                playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
+                playbackControlsManager?.handleContainerClick()
+            }
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
@@ -940,9 +956,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     playbackControlsManager?.showControls(View.VISIBLE)
                 }
                 progressBar?.setVisibility(View.INVISIBLE)
-                playbackControlsView?.getPlayPauseToggle()?.visibility = View.INVISIBLE
-                playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
+                //playbackControlsView?.getPlayPauseToggle()?.visibility = View.INVISIBLE
             }
+            //playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
         }
 
         player?.addListener(this, PlayerEvent.sourceSelected) { event ->
