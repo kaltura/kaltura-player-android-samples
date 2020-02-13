@@ -411,7 +411,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-            
+
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -1157,6 +1157,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             player?.destroy()
             player = null
             eventsList.clear()
+        }
+
+        playbackControlsView?.let {
+            it.destroy()
+            playbackControlsView = null
         }
         networkChangeReceiver = null
     }
