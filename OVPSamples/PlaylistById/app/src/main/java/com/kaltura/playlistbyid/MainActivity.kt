@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -175,7 +174,7 @@ class MainActivity : AppCompatActivity() {
         player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
 
         player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
-        val container = findViewById<ViewGroup>(R.id.player_root)
+        val container = player_root
         container.addView(player?.playerView)
 
         playerControls.setPlayer(player)

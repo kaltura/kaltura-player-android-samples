@@ -110,11 +110,11 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         if (!dragging && position != Consts.POSITION_UNSET.toLong() && duration != Consts.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
             tvCurTime.text = stringForTime(position!!)
-            seekBar.setPosition(progressBarValue(position!!).toLong())
-            seekBar.setDuration(progressBarValue(duration!!).toLong())
+            seekBar.setPosition(progressBarValue(position).toLong())
+            seekBar.setDuration(progressBarValue(duration).toLong())
         }
 
-        seekBar.setBufferedPosition(progressBarValue(bufferedPosition!!).toLong())
+        seekBar.setBufferedPosition(progressBarValue(bufferedPosition).toLong())
         // Remove scheduled updates.
         removeCallbacks(updateProgressAction)
         // Schedule an update if necessary.
@@ -162,11 +162,13 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         override fun onClick(view: View) {}
     }
 
-    private fun progressBarValue(position: Long): Int {
+    private fun progressBarValue(position: Long?): Int {
         var progressValue = 0
         player?.let {
             if (it.duration > 0) {
-                progressValue = (position * PROGRESS_BAR_MAX / it.duration).toInt()
+                if (position != null) {
+                    progressValue = (position * PROGRESS_BAR_MAX / it.duration).toInt()
+                }
             }
         }
 

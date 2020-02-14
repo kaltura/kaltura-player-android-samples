@@ -3,9 +3,7 @@ package com.kaltura.playkit.samples.basicsample
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.kaltura.playkit.PKDrmParams
@@ -15,6 +13,7 @@ import com.kaltura.playkit.PKMediaSource
 import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -26,7 +25,6 @@ class MainActivity : AppCompatActivity() {
     private val LICENSE_URL: String? = null
 
     private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
     private var isFullScreen: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         showSystemUI()
 
-        findViewById<View>(R.id.activity_main).setOnClickListener { v ->
+        activity_main.setOnClickListener { v ->
             if (isFullScreen) {
                 showSystemUI()
             } else {
@@ -139,30 +137,28 @@ class MainActivity : AppCompatActivity() {
      * Just add a simple button which will start/pause playback.
      */
     private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById(R.id.play_pause_button)
         //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
-            if (player!!.isPlaying) {
-                //If player is playing, change text of the button and pause.
-                playPauseButton!!.setText(R.string.play_text)
-                player!!.pause()
-            } else {
-                //If player is not playing, change text of the button and play.
-                playPauseButton!!.setText(R.string.pause_text)
-                player!!.play()
+        play_pause_button.setOnClickListener { v ->
+            player?.let {
+                if (it.isPlaying) {
+                    //If player is playing, change text of the button and pause.
+                    play_pause_button.setText(R.string.play_text)
+                    it.pause()
+                } else {
+                    //If player is not playing, change text of the button and play.
+                    play_pause_button.setText(R.string.pause_text)
+                    it.play()
+                }
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (player != null) {
-            if (playPauseButton != null) {
-                playPauseButton!!.setText(R.string.pause_text)
-            }
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let {
+            play_pause_button.setText(R.string.pause_text)
+            player?.onApplicationResumed()
+            player?.play()
         }
     }
 
@@ -173,19 +169,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
     }
 
     fun loadPlaykitPlayer(pkMediaEntry: PKMediaEntry) {
         val playerInitOptions = PlayerInitOptions()
 
         player = KalturaBasicPlayer.create(this@MainActivity, playerInitOptions)
-        player!!.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
 
-        val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
-        player!!.setMedia(pkMediaEntry, START_POSITION)
+        val container = player_root
+        container.addView(player?.playerView)
+        player?.setMedia(pkMediaEntry, START_POSITION)
     }
 }

@@ -200,7 +200,6 @@ class MainActivity : AppCompatActivity() {
         addPlayerListeners()
     }
 
-    @SuppressLint("SetTextI18n")
     private fun addPlayerListeners() {
         player?.addListener(this, PlaylistEvent.playListLoaded) { event ->
             log.d("PLAYLIST playListLoaded")

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 import com.kaltura.playkit.PKLog
 import com.kaltura.tvplayer.KalturaPlayer
+import kotlinx.android.synthetic.main.activity_player.*
 
 import org.greenrobot.eventbus.EventBus
 
@@ -23,28 +24,24 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        if (player != null) {
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let {
+            it.onApplicationResumed()
+            it.play()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (player != null) {
-            val container = findViewById<ViewGroup>(R.id.player_container)
-            container.removeAllViews()
-
-            player!!.stop()
-            player!!.destroy()
+        player?.let {
+            player_container.removeAllViews()
+            it.stop()
+            it.destroy()
             player = null
         }
     }
