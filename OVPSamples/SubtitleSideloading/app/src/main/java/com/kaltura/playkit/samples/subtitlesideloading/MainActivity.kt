@@ -439,6 +439,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy();
+    }
+
     override fun onResume() {
         Log.d(TAG, "onResume")
         super.onResume()

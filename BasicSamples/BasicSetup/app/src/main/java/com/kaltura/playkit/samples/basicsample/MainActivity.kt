@@ -166,6 +166,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy();
+    }
+
     override fun onPause() {
         super.onPause()
         if (player != null) {

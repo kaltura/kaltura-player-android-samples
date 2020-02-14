@@ -1,4 +1,4 @@
-package com.kaltura.playlist
+package com.kaltura.playlistbyid
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -14,48 +14,37 @@ import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.plugins.ads.AdEvent
-import com.kaltura.playkit.providers.PlaylistMetadata
-import com.kaltura.playkit.providers.api.phoenix.APIDefines
-import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
-import com.kaltura.tvplayer.KalturaOttPlayer
+import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
-import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-import com.kaltura.tvplayer.playlist.OTTPlaylistOptions
+import com.kaltura.tvplayer.playlist.OVPPlaylistIdOptions
 import com.kaltura.tvplayer.playlist.PlaylistEvent
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
-        val PARTNER_ID = 3009
+        val PARTNER_ID = 2068231
+        val SERVER_URL = "https://cdnapisec.kaltura.com"
     }
 
     private val log = PKLog.get("MainActivity")
-    private val ASSET_ID_1 = "548579"
-    private val ASSET_ID_2 = "548571"
-    private val ASSET_ID_3 = "548577"
-
     private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
+
+    private val ENTRY_ID_BY_ID = "1_j9v8qs8h"
     private var isFullScreen: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val OTTMediaOptions1 = buildOttMediaOptions(ASSET_ID_1)
-        val OTTMediaOptions2 = buildOttMediaOptions(ASSET_ID_2)
-        val OTTMediaOptions3 = buildOttMediaOptions(ASSET_ID_3)
-
-        val mediaList = listOf(OTTMediaOptions1, OTTMediaOptions2, OTTMediaOptions3)
-
-        loadKalturaPlaylist(mediaList)
+        loadKalturaPlaylistById()
 
         showSystemUI()
 
-        findViewById<View>(R.id.activity_main).setOnClickListener { v ->
+        activity_main.setOnClickListener { v ->
             if (isFullScreen) {
                 showSystemUI()
             } else {
@@ -176,48 +165,34 @@ class MainActivity : AppCompatActivity() {
         playerControls.release()
     }
 
-    private fun loadKalturaPlaylist(mediaList: List<OTTMediaOptions>) {
-
+    /**
+     * To load a playlist by ID, use [OVPPlaylistIdOptions] when calling loadPlaylistById method.
+     */
+    private fun loadKalturaPlaylistById() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
         playerInitOptions.setReferrer("app://testing.app.com")
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
 
-        player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
-        player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         val container = findViewById<ViewGroup>(R.id.player_root)
         container.addView(player?.playerView)
 
         playerControls.setPlayer(player)
 
-        val ottPlaylistIdOptions = OTTPlaylistOptions()
-        ottPlaylistIdOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
-        ottPlaylistIdOptions.ottMediaOptionsList = mediaList
+        val ovpPlaylistIdOptions = OVPPlaylistIdOptions()
+        ovpPlaylistIdOptions.playlistId = ENTRY_ID_BY_ID
+        ovpPlaylistIdOptions.loopEnabled = true
+        ovpPlaylistIdOptions.shuffleEnabled = false
 
-        player?.loadPlaylist(ottPlaylistIdOptions) { _, error ->
+        player?.loadPlaylistById(ovpPlaylistIdOptions) { _, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
-                log.d("OTTPlaylist OnPlaylistLoadListener  entry = " +  ottPlaylistIdOptions.playlistMetadata.name)
+                log.d("OVPPlaylist OnPlaylistLoadListener  entry = " +  ovpPlaylistIdOptions.playlistId)
             }
         }
 
         addPlayerListeners()
     }
-
-    private fun buildOttMediaOptions(ASSET_ID: String): OTTMediaOptions {
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = ASSET_ID
-        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
-        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
-        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https
-        ottMediaOptions.ks = null
-        ottMediaOptions.referrer = "app://MyTestApp";
-        ottMediaOptions.startPosition = START_POSITION
-        ottMediaOptions.formats = arrayOf("Mobile_Main")
-
-        return ottMediaOptions
-    }
 }
-

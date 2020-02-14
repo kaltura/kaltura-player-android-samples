@@ -1,10 +1,12 @@
 package com.kaltura.playlist
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.*
@@ -27,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private val SOURCE0_ENTRY_ID = "0_uka1msg4" // 915014
     private val SOURCE_URL0 = "http://cdnapi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_uka1msg4/flavorIds/1_vqhfu6uy,1_80sohj7p/format/applehttp/protocol/http/a.m3u8"
     private val SOURCE1_ENTRY_ID = "0_uka1msg4" // 915014
-    private val SOURCE_URL1 = "http://cdnapi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_uka1msg4/flavorIds/1_vqhfu6uy,1_80sohj7p/format/applehttp/protocol/http/a.m3u8"
+    private val SOURCE_URL1 = "https://playertest.longtailvideo.com/adaptive/eleph-audio/playlist.m3u8"
     private val SOURCE2_ENTRY_ID = "0_uka1msg4" // 915014
     private val SOURCE_URL2 = "http://cdnapi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_uka1msg4/flavorIds/1_vqhfu6uy,1_80sohj7p/format/applehttp/protocol/http/a.m3u8"
 
@@ -58,7 +60,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
+        btn_shuffle.visibility = View.GONE;
 
         btn_shuffle.setOnClickListener {
             player?.let {
@@ -167,6 +169,11 @@ class MainActivity : AppCompatActivity() {
         playerControls.release()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy();
+    }
+
     private fun loadPlaylistToPlayer(basicMediaOptionsList: List<BasicMediaOptions>) {
         val playerInitOptions = PlayerInitOptions()
 
@@ -193,17 +200,42 @@ class MainActivity : AppCompatActivity() {
         addPlayerListeners()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun addPlayerListeners() {
-
-        player?.addListener(this, PlayerEvent.stateChanged) { event ->
-            log.d("State changed from ${event.oldState} to ${event.newState}")
-            playerControls.setPlayerState(event.newState)
-
+        player?.addListener(this, PlaylistEvent.playListLoaded) { event ->
+            log.d("PLAYLIST playListLoaded")
+            btn_shuffle.visibility = View.VISIBLE
+            btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
         }
 
-        player?.addListener(this, AdEvent.contentResumeRequested) { event ->
-            log.d("CONTENT_RESUME_REQUESTED")
-            playerControls.setPlayerState(PlayerState.READY)
+        player?.addListener(this, PlaylistEvent.playListStarted) { event ->
+            log.d("PLAYLIST playListStarted")
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
+            log.d("PLAYLIST playlistShuffleStateChanged ${event.mode}")
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
+            log.d("PLAYLIST playlistLoopStateChanged ${event.mode}")
+        }
+
+        player?.addListener(this, PlaylistEvent.playlistAutoContinueStateChanged) { event ->
+            log.d("PLAYLIST playlistLoopStateChanged ${event.mode}")
+        }
+
+        player?.addListener(this, PlaylistEvent.playListEnded) { event ->
+            log.d("PLAYLIST playListEnded")
+        }
+
+        player?.addListener(this, PlaylistEvent.playListError) { event ->
+            log.d("PLAYLIST playListError")
+            Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
+        }
+
+        player?.addListener(this, PlaylistEvent.playListLoadMediaError) { event ->
+            log.d("PLAYLIST PlaylistLoadMediaError")
+            Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
@@ -214,5 +246,14 @@ class MainActivity : AppCompatActivity() {
             log.d("playlistCountDownEnd currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.countDownOptions.durationMS);
         }
 
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
+            log.d("State changed from ${event.oldState} to ${event.newState}")
+            playerControls.setPlayerState(event.newState)
+        }
+
+        player?.addListener(this, AdEvent.contentResumeRequested) { event ->
+            log.d("CONTENT_RESUME_REQUESTED")
+            playerControls.setPlayerState(PlayerState.READY)
+        }
     }
 }

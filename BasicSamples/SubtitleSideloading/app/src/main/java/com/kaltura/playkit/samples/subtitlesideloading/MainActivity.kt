@@ -496,6 +496,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         userIsInteracting = true
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy();
+    }
 
     override fun onPause() {
         Log.d(TAG, "onPause")

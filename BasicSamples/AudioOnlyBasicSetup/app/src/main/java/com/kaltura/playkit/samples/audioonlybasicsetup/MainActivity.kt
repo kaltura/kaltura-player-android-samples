@@ -24,6 +24,7 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
+import kotlinx.android.synthetic.main.activity_main.*
 
 import java.util.ArrayList
 
@@ -42,7 +43,6 @@ class MainActivity : AppCompatActivity() {
     private val LICENSE_URL: String? = null
 
     private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
     private var artworkView: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,11 +59,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addAdEvents() {
-        player!!.addListener(this, AdEvent.contentPauseRequested) { event -> showArtworkForAudioContent(View.GONE) }
+        player?.addListener(this, AdEvent.contentPauseRequested) { event -> showArtworkForAudioContent(View.GONE) }
 
-        player!!.addListener(this, AdEvent.contentResumeRequested) { event -> showArtworkForAudioContent(View.VISIBLE) }
+        player?.addListener(this, AdEvent.contentResumeRequested) { event -> showArtworkForAudioContent(View.VISIBLE) }
 
-        player!!.addListener(this, AdEvent.error) { event -> showArtworkForAudioContent(View.VISIBLE) }
+        player?.addListener(this, AdEvent.error) { event -> showArtworkForAudioContent(View.VISIBLE) }
     }
 
     private fun setExternalSubtitles(mediaEntry: PKMediaEntry) {
@@ -152,17 +152,15 @@ class MainActivity : AppCompatActivity() {
      * Just add a simple button which will start/pause playback.
      */
     private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById(R.id.play_pause_button)
         //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
+        play_pause_button.setOnClickListener { v ->
             if (player!!.isPlaying) {
                 //If player is playing, change text of the button and pause.
-                playPauseButton!!.setText(R.string.play_text)
+                play_pause_button.setText(R.string.play_text)
                 player!!.pause()
             } else {
                 //If player is not playing, change text of the button and play.
-                playPauseButton!!.setText(R.string.pause_text)
+                play_pause_button!!.setText(R.string.pause_text)
                 player!!.play()
             }
         }
@@ -181,6 +179,11 @@ class MainActivity : AppCompatActivity() {
             player!!.onApplicationResumed()
             player!!.play()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy();
     }
 
     override fun onPause() {

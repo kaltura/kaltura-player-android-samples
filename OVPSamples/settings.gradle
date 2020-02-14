@@ -33,7 +33,8 @@ def samples = [
         'ChangeMedia',
         'SubtitleSideloading',
         'AudioOnlyBasicSetup',
-        'Playlist'
+        'Playlist',
+        'PlaylistById'
 ]
 
 samples.each {
