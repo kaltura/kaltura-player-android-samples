@@ -847,7 +847,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlaylistEvent.playlistAutoContinueStateChanged) { event ->
-            log.d("PLAYLIST playlistLoopStateChanged " + event.mode)
+            log.d("PLAYLIST playlistAutoContinueStateChanged " + event.mode)
         }
 
         player?.addListener(this, PlaylistEvent.playListEnded) { event ->
@@ -1254,6 +1254,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (it.isPlaying()) {
                 isPlayingOnPause = true
             }
+            it.removeListeners(this)
             it.onApplicationPaused()
         }
 
