@@ -2,7 +2,6 @@ package com.kaltura.playkit.samples.fulldemo
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -12,21 +11,10 @@ import android.widget.AdapterView
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.ProgressBar
-
 import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.AsyncTaskLoader
 import androidx.loader.content.Loader
-
-import com.kaltura.playkit.samples.fulldemo.utilities.NetworkUtils
-
-import org.json.JSONException
-import org.json.JSONObject
-
-import java.io.IOException
-import java.net.URL
-import java.util.ArrayList
-
 import com.kaltura.playkit.samples.fulldemo.Consts.ADS_JSON_FILE_URL
 import com.kaltura.playkit.samples.fulldemo.Consts.AD_LOAD_TIMEOUT
 import com.kaltura.playkit.samples.fulldemo.Consts.AUTO_PLAY
@@ -38,9 +26,13 @@ import com.kaltura.playkit.samples.fulldemo.Consts.MIN_AD_DURATION_FOR_SKIP_BUTT
 import com.kaltura.playkit.samples.fulldemo.Consts.PREFERRED_BITRATE
 import com.kaltura.playkit.samples.fulldemo.Consts.SOURCE_URL1
 import com.kaltura.playkit.samples.fulldemo.Consts.START_FROM
-import com.kaltura.playkit.samples.fulldemo.R.id.customTag
-import com.kaltura.playkit.samples.fulldemo.R.id.mediaLic
-import com.kaltura.playkit.samples.fulldemo.R.id.mediaUrl
+import com.kaltura.playkit.samples.fulldemo.R.id.*
+import com.kaltura.playkit.samples.fulldemo.utilities.NetworkUtils
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
+import java.net.URL
+import java.util.*
 
 
 class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
@@ -86,14 +78,14 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
         try {
             mSelectedCallback = activity as OnVideoSelectedListener?
         } catch (e: ClassCastException) {
-            throw ClassCastException(activity!!.toString()
+            throw ClassCastException(activity?.toString()
                     + " must implement " + OnVideoSelectedListener::class.java.name)
         }
 
         try {
             mResumeCallback = activity as OnVideoListFragmentResumedListener?
         } catch (e: ClassCastException) {
-            throw ClassCastException(activity!!.toString()
+            throw ClassCastException(activity?.toString()
                     + " must implement " + OnVideoListFragmentResumedListener::class.java.name)
         }
 
@@ -104,26 +96,29 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
         mInflater = inflater
         mContainer = container
 
-        isAutoPlay = arguments!!.getBoolean(AUTO_PLAY)
-        startPosition = arguments!!.getLong(START_FROM)
-        minAdDurationForSkipButton = arguments!!.getInt(MIN_AD_DURATION_FOR_SKIP_BUTTON)
-        adLoadTimeOut = arguments!!.getInt(AD_LOAD_TIMEOUT)
-        videoMimeType = arguments!!.getString(MIME_TYPE)
-        videoBitrate = arguments!!.getInt(PREFERRED_BITRATE)
-        companionAdWidth = arguments!!.getInt(COMPANION_AD_WIDTH)
-        companionAdHeight = arguments!!.getInt(COMPANION_AD_HEIGHT)
+        arguments?.let {
+            isAutoPlay = it.getBoolean(AUTO_PLAY)
+            startPosition = it.getLong(START_FROM)
+            minAdDurationForSkipButton = it.getInt(MIN_AD_DURATION_FOR_SKIP_BUTTON)
+            adLoadTimeOut = it.getInt(AD_LOAD_TIMEOUT)
+            videoMimeType = it.getString(MIME_TYPE)
+            videoBitrate = it.getInt(PREFERRED_BITRATE)
+            companionAdWidth = it.getInt(COMPANION_AD_WIDTH)
+            companionAdHeight = it.getInt(COMPANION_AD_HEIGHT)
+        }
+
 
         rootView = inflater.inflate(R.layout.fragment_video_list, container, false)
-        listView = rootView!!.findViewById(R.id.videoListView)
-        loadingIndicator = rootView!!.findViewById(R.id.pb_loading_indicator)
+        listView = rootView?.findViewById(R.id.videoListView)
+        loadingIndicator = rootView?.findViewById(R.id.pb_loading_indicator)
 
-        activity!!.supportLoaderManager.initLoader(ADS_LOADER, null, this)
+        activity?.supportLoaderManager?.initLoader(ADS_LOADER, null, this)
 
-        val loaderManager = activity!!.supportLoaderManager
-        val adsLoader = loaderManager.getLoader<String>(ADS_LOADER)
+        val loaderManager = activity?.supportLoaderManager
+        val adsLoader = loaderManager?.getLoader<String>(ADS_LOADER)
         val ads = Bundle()
         if (adsLoader == null) {
-            loaderManager.initLoader(ADS_LOADER, ads, this)
+            loaderManager?.initLoader(ADS_LOADER, ads, this)
         } else {
             loaderManager.restartLoader(ADS_LOADER, ads, this)
         }
@@ -162,7 +157,7 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
                     val customAdTagVideoItem = VideoItem(originalVideoItem.title, customMediaUrl, customMediaLicUrl, customAdTagUrl, originalVideoItem.imageResource)
 
                     if (mSelectedCallback != null) {
-                        mSelectedCallback!!.onVideoSelected(customAdTagVideoItem)
+                        mSelectedCallback?.onVideoSelected(customAdTagVideoItem)
                     }
                 }
                 .setNegativeButton("Cancel") { dialog, whichButton -> }
@@ -172,7 +167,7 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
     override fun onResume() {
         super.onResume()
         if (mResumeCallback != null) {
-            mResumeCallback!!.onVideoListFragmentResumed()
+            mResumeCallback?.onVideoListFragmentResumed()
         }
     }
 
@@ -186,7 +181,7 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
                 //                }
 
 
-                loadingIndicator!!.visibility = View.VISIBLE
+                loadingIndicator?.visibility = View.VISIBLE
                 forceLoad()
             }
 
@@ -204,22 +199,22 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
     }
 
     override fun onLoadFinished(loader: Loader<String>, data: String?) {
-        loadingIndicator!!.visibility = View.INVISIBLE
+        loadingIndicator?.visibility = View.INVISIBLE
         if (null == data) {
-            val videoItemAdapter = VideoItemAdapter(rootView!!.context,
+            val videoItemAdapter = VideoItemAdapter(rootView?.context!!,
                     R.layout.video_item, VideoMetadata.defaultVideoList)
-            listView!!.adapter = videoItemAdapter
+            listView?.adapter = videoItemAdapter
 
-            listView!!.onItemClickListener = AdapterView.OnItemClickListener { parent, v, position, id ->
+            listView?.onItemClickListener = AdapterView.OnItemClickListener { parent, v, position, id ->
                 if (mSelectedCallback != null) {
-                    val selectedVideo = listView!!.getItemAtPosition(position) as VideoItem
+                    val selectedVideo = listView?.getItemAtPosition(position) as VideoItem
 
                     // If applicable, prompt the user to input a custom ad tag.
                     if (selectedVideo.adTagUrl == getString(
                                     R.string.custom_ad_tag_value)) {
                         getCustomAdTag(selectedVideo)
                     } else {
-                        mSelectedCallback!!.onVideoSelected(selectedVideo)
+                        mSelectedCallback?.onVideoSelected(selectedVideo)
                     }
                 }
             }
@@ -251,20 +246,20 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
                     }
                     val sampleGroup = SampleGroup(title, samples)
 
-                    val videoItemAdapter = VideoItemAdapter(rootView!!.context,
+                    val videoItemAdapter = VideoItemAdapter(rootView?.context!!,
                             R.layout.video_item, sampleGroup.samples)
-                    listView!!.adapter = videoItemAdapter
+                    listView?.adapter = videoItemAdapter
 
-                    listView!!.onItemClickListener = AdapterView.OnItemClickListener { parent, v, position, id ->
+                    listView?.onItemClickListener = AdapterView.OnItemClickListener { parent, v, position, id ->
                         if (mSelectedCallback != null) {
-                            val selectedVideo = listView!!.getItemAtPosition(position) as VideoItem
+                            val selectedVideo = listView?.getItemAtPosition(position) as VideoItem
 
                             // If applicable, prompt the user to input a custom ad tag.
                             if (selectedVideo.adTagUrl == getString(
                                             R.string.custom_ad_tag_value)) {
                                 getCustomAdTag(selectedVideo)
                             } else {
-                                mSelectedCallback!!.onVideoSelected(selectedVideo)
+                                mSelectedCallback?.onVideoSelected(selectedVideo)
                             }
                         }
                     }

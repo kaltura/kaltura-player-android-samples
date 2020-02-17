@@ -8,16 +8,10 @@ import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import androidx.preference.PreferenceManager
-
 import com.kaltura.playkit.samples.fulldemo.Consts.AD_LOAD_TIMEOUT
 import com.kaltura.playkit.samples.fulldemo.Consts.AUTO_PLAY
 import com.kaltura.playkit.samples.fulldemo.Consts.COMPANION_AD_HEIGHT
@@ -28,32 +22,32 @@ import com.kaltura.playkit.samples.fulldemo.Consts.PREFERRED_BITRATE
 import com.kaltura.playkit.samples.fulldemo.Consts.START_FROM
 import com.kaltura.playkit.samples.fulldemo.Consts.VIDEO_EXAMPLE_FRAGMENT_TAG
 import com.kaltura.playkit.samples.fulldemo.Consts.VIDEO_PLAYLIST_FRAGMENT_TAG
-import com.kaltura.playkit.samples.fulldemo.VideoListFragment.*
+import com.kaltura.playkit.samples.fulldemo.VideoListFragment.OnVideoListFragmentResumedListener
+import com.kaltura.playkit.samples.fulldemo.VideoListFragment.OnVideoSelectedListener
 
 class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener, OnVideoListFragmentResumedListener, VideoFragment.OnVideoFragmentViewCreatedListener, OrientationManager.OrientationListener {
 
-    private var mOrientationManager: OrientationManager? = null
+    private lateinit var mOrientationManager: OrientationManager
     private var minAdDurationForSkipButton: Int = 0
     private var isAutoPlay: Boolean = false
-    private var startPosition: Long? = 0L
+    private var startPosition: Long = 0L
     private var adLoadTimeOut: Int = 0
     private var videoMimeType: String? = null
     private var videoBitrate: Int = 0
     private var companionAdWidth: Int = 0
     private var companionAdHeight: Int = 0
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mOrientationManager = OrientationManager(this, SensorManager.SENSOR_DELAY_NORMAL, this)
-        mOrientationManager!!.enable()
+        mOrientationManager.enable()
         val fragmentManager = supportFragmentManager
         if (fragmentManager.findFragmentByTag(VIDEO_PLAYLIST_FRAGMENT_TAG) == null) {
             val videoListFragment = VideoListFragment()
             val bundle = Bundle()
             bundle.putBoolean(AUTO_PLAY, isAutoPlay)
-            bundle.putLong(START_FROM, startPosition!!)
+            bundle.putLong(START_FROM, startPosition)
             bundle.putInt(MIN_AD_DURATION_FOR_SKIP_BUTTON, minAdDurationForSkipButton)
             bundle.putInt(AD_LOAD_TIMEOUT, adLoadTimeOut)
             bundle.putString(MIME_TYPE, videoMimeType)
@@ -77,10 +71,9 @@ class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPrefere
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
         val companionAdDimentions = sharedPreferences.getString(getString(R.string.pref_companion_key), "0x0")
-        val dimentions = companionAdDimentions!!.split("x".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        companionAdWidth = Integer.valueOf(dimentions[0])
+        val dimentions = companionAdDimentions?.split("x".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()
+        companionAdWidth = Integer.valueOf(dimentions!![0])
         companionAdHeight = Integer.valueOf(dimentions[1])
-
 
         minAdDurationForSkipButton = 1000 * Integer.valueOf(sharedPreferences.getString(getString(R.string.pref_min_ad_duration_for_skip_button_key),
                 "" + Integer.valueOf(getString(R.string.pref_min_ad_duration_for_skip_button_default)))!!)
@@ -90,6 +83,7 @@ class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPrefere
 
         videoBitrate = Integer.valueOf(sharedPreferences.getString(getString(R.string.pref_bitrate_key),
                 "" + Integer.valueOf(getString(R.string.pref_bitrate_value)))!!)
+
         var currentStartPosition = sharedPreferences.getString(getString(R.string.pref_start_from_key),
                 "" + Integer.valueOf(getString(R.string.pref_start_from_default)))
 
@@ -129,7 +123,7 @@ class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPrefere
                 }
                 fragmentTransaction.commit()
             }
-            videoFragment!!.makeFullscreen(isLandscape)
+            videoFragment.makeFullscreen(isLandscape)
             if (isLandscape) {
                 hideStatusBar()
             } else {
@@ -154,12 +148,12 @@ class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPrefere
         if (videoFragment == null) {
             val videoListFragment = supportFragmentManager
                     .findFragmentByTag(VIDEO_PLAYLIST_FRAGMENT_TAG) as VideoListFragment?
-            val videoPlaylistFragmentId = videoListFragment!!.getId()
+            val videoPlaylistFragmentId = videoListFragment?.id
 
             videoFragment = VideoFragment()
             val bundle = Bundle()
             bundle.putBoolean(AUTO_PLAY, isAutoPlay)
-            bundle.putLong(START_FROM, startPosition!!)
+            bundle.putLong(START_FROM, startPosition)
             bundle.putInt(MIN_AD_DURATION_FOR_SKIP_BUTTON, minAdDurationForSkipButton)
             bundle.putInt(AD_LOAD_TIMEOUT, adLoadTimeOut)
             bundle.putString(MIME_TYPE, videoMimeType)
@@ -167,14 +161,14 @@ class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPrefere
             bundle.putInt(COMPANION_AD_WIDTH, companionAdWidth)
             bundle.putInt(COMPANION_AD_HEIGHT, companionAdHeight)
 
-            videoFragment!!.setArguments(bundle)
+            videoFragment.arguments = bundle
             supportFragmentManager
                     .beginTransaction()
-                    .replace(videoPlaylistFragmentId, videoFragment!!, VIDEO_EXAMPLE_FRAGMENT_TAG)
+                    .replace(videoPlaylistFragmentId!!, videoFragment, VIDEO_EXAMPLE_FRAGMENT_TAG)
                     .addToBackStack(null)
                     .commit()
         }
-        videoFragment!!.loadVideo(videoItem)
+        videoFragment.loadVideo(videoItem)
         invalidateOptionsMenu()
         orientAppUi()
     }
@@ -188,14 +182,14 @@ class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPrefere
     private fun hideStatusBar() {
         if (Build.VERSION.SDK_INT >= 16) {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
-            supportActionBar!!.hide()
+            supportActionBar?.hide()
         }
     }
 
     private fun showStatusBar() {
         if (Build.VERSION.SDK_INT >= 16) {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            supportActionBar!!.show()
+            supportActionBar?.show()
         }
     }
 
@@ -247,16 +241,16 @@ class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPrefere
         } else if (key == getString(R.string.pref_auto_play_key)) {
             isAutoPlay = sharedPreferences.getBoolean(getString(R.string.pref_auto_play_key), resources.getBoolean(R.bool.pref_auto_play_default))
         } else if (key == getString(R.string.pref_start_from_key)) {
-            var startFrom: String? = "0"
+            var startFrom: String = "0"
             if ("" != sharedPreferences.getString(getString(R.string.pref_start_from_key), getString(R.string.pref_start_from_default))) {
                 startFrom = sharedPreferences.getString(getString(R.string.pref_start_from_key), getString(R.string.pref_start_from_default))
             }
-            startPosition = java.lang.Long.valueOf(startFrom!!)
+            startPosition = java.lang.Long.valueOf(startFrom)
         } else if (key == getString(R.string.pref_bitrate_key)) {
-            videoBitrate = Integer.valueOf(sharedPreferences.getString(getString(R.string.pref_bitrate_key), getString(R.string.pref_bitrate_value))!!)
+            videoBitrate = Integer.valueOf(sharedPreferences.getString(getString(R.string.pref_bitrate_key), getString(R.string.pref_bitrate_value)))
         } else if (key == getString(R.string.pref_companion_key)) {
             val companionAdDimentions = sharedPreferences.getString(getString(R.string.pref_companion_key), "0x0")
-            val dimentions = companionAdDimentions!!.split("x".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val dimentions = companionAdDimentions.split("x".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             companionAdWidth = Integer.valueOf(dimentions[0])
             companionAdHeight = Integer.valueOf(dimentions[1])
         } else if (key == getString(R.string.pref_mime_type_key)) {

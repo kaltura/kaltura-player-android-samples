@@ -3,13 +3,9 @@ package com.kaltura.playkit.samples.changemedia
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.FrameLayout
-
 import androidx.appcompat.app.AppCompatActivity
-
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
@@ -20,6 +16,7 @@ import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,7 +27,6 @@ class MainActivity : AppCompatActivity() {
     private val SECOND_ASSET_ID = "548577"
     private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
 
@@ -48,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
         showSystemUI()
 
-        findViewById<View>(R.id.activity_main).setOnClickListener { v ->
+        activity_main.setOnClickListener { v ->
             if (isFullScreen) {
                 showSystemUI()
             } else {
@@ -89,17 +85,15 @@ class MainActivity : AppCompatActivity() {
      * Initialize the changeMedia button. On click it will change media.
      */
     private fun initChangeMediaButton() {
-        //Get reference to the button.
-        val changeMediaButton = this.findViewById<View>(R.id.change_media_button) as Button
         //Set click listener.
-        changeMediaButton.setOnClickListener { v ->
+        change_media_button.setOnClickListener { v ->
             //Change media.
             changeMedia()
         }
     }
 
     private fun addPlayerStateListener() {
-        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
@@ -112,7 +106,7 @@ class MainActivity : AppCompatActivity() {
     private fun changeMedia() {
 
         //Check if id of the media entry that is set in mediaConfig.
-        if (player!!.mediaEntry.id == FIRST_ASSET_ID) {
+        if (player?.mediaEntry?.id == FIRST_ASSET_ID) {
             //If first one is active, prepare second one.
             prepareSecondEntry()
         } else {
@@ -136,8 +130,7 @@ class MainActivity : AppCompatActivity() {
         ottMediaOptions.ks = null
         ottMediaOptions.startPosition = START_POSITION
 
-
-        player!!.loadMedia(ottMediaOptions) { entry, error ->
+        player?.loadMedia(ottMediaOptions) { entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -159,7 +152,7 @@ class MainActivity : AppCompatActivity() {
         ottMediaOptions.ks = null
         ottMediaOptions.startPosition = START_POSITION
 
-        player!!.loadMedia(ottMediaOptions) { entry, error ->
+        player?.loadMedia(ottMediaOptions) { entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -172,19 +165,17 @@ class MainActivity : AppCompatActivity() {
      * Just add a simple button which will start/pause playback.
      */
     private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById<View>(R.id.play_pause_button) as Button
         //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
-            if (player != null) {
-                if (player!!.isPlaying) {
+        play_pause_button.setOnClickListener { v ->
+            player?.let {
+                if (it.isPlaying) {
                     //If player is playing, change text of the button and pause.
                     resetPlayPauseButtonToPlayText()
-                    player!!.pause()
+                    it.pause()
                 } else {
                     //If player is not playing, change text of the button and play.
                     resetPlayPauseButtonToPauseText()
-                    player!!.play()
+                    it.play()
                 }
             }
         }
@@ -194,29 +185,30 @@ class MainActivity : AppCompatActivity() {
      * Just reset the play/pause button text to "Play".
      */
     private fun resetPlayPauseButtonToPlayText() {
-        playPauseButton!!.setText(R.string.play_text)
+        play_pause_button.setText(R.string.play_text)
     }
 
     private fun resetPlayPauseButtonToPauseText() {
-        playPauseButton!!.setText(R.string.pause_text)
+        play_pause_button.setText(R.string.pause_text)
     }
 
     override fun onResume() {
         super.onResume()
-        if (player != null && playerState != null) {
-            if (playPauseButton != null) {
-                resetPlayPauseButtonToPauseText()
-            }
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let {
+            resetPlayPauseButtonToPauseText()
+            it.onApplicationResumed()
+            it.play()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy();
     }
 
     override fun onPause() {
         super.onPause()
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
     }
 
     fun loadPlaykitPlayer() {
@@ -225,9 +217,9 @@ class MainActivity : AppCompatActivity() {
         playerInitOptions.setAllowCrossProtocolEnabled(true)
 
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
-        player!!.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
-        val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
+        player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        val container = player_root
+        container.addView(player?.playerView)
 
         //Prepare the first entry.
         prepareFirstEntry()

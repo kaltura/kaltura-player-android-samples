@@ -64,32 +64,42 @@ class BasicDemoActivity : BaseDemoActivity() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun playerActivityLoaded(playerActivity: PlayerActivity) {
         val updatedInitOptions = PlayerInitOptions()
-        updatedInitOptions.setLicenseRequestAdapter(initOptions!!.licenseRequestAdapter)
-        updatedInitOptions.setContentRequestAdapter(initOptions!!.contentRequestAdapter)
-        updatedInitOptions.setVrPlayerEnabled(initOptions!!.vrPlayerEnabled)
-        updatedInitOptions.setVRSettings(initOptions!!.vrSettings)
-        updatedInitOptions.setAdAutoPlayOnResume(initOptions!!.adAutoPlayOnResume)
-        updatedInitOptions.setSubtitleStyle(initOptions!!.setSubtitleStyle)
-        updatedInitOptions.setLoadControlBuffers(initOptions!!.loadControlBuffers)
-        updatedInitOptions.setAbrSettings(initOptions!!.abrSettings)
-        updatedInitOptions.setAspectRatioResizeMode(initOptions!!.aspectRatioResizeMode)
-        updatedInitOptions.setPreferredMediaFormat(if (initOptions!!.preferredMediaFormat != null) initOptions!!.preferredMediaFormat else null)
-        updatedInitOptions.setAllowClearLead(initOptions!!.allowClearLead)
-        updatedInitOptions.setAllowCrossProtocolEnabled(initOptions!!.allowCrossProtocolEnabled)
-        updatedInitOptions.setSecureSurface(initOptions!!.secureSurface)
-        updatedInitOptions.setKs(initOptions!!.ks)
-        updatedInitOptions.setAutoPlay(initOptions!!.autoplay)
-        updatedInitOptions.setReferrer(initOptions!!.referrer)
-        updatedInitOptions.forceSinglePlayerEngine(initOptions!!.forceSinglePlayerEngine)
-        if (initOptions!!.audioLanguage != null && initOptions!!.audioLanguageMode != null) {
-            updatedInitOptions.setAudioLanguage(initOptions!!.audioLanguage, initOptions!!.audioLanguageMode)
+        updatedInitOptions.setLicenseRequestAdapter(initOptions?.licenseRequestAdapter)
+        updatedInitOptions.setContentRequestAdapter(initOptions?.contentRequestAdapter)
+        updatedInitOptions.setVrPlayerEnabled(initOptions?.vrPlayerEnabled)
+        updatedInitOptions.setVRSettings(initOptions?.vrSettings)
+        updatedInitOptions.setAdAutoPlayOnResume(initOptions?.adAutoPlayOnResume)
+        updatedInitOptions.setSubtitleStyle(initOptions?.setSubtitleStyle)
+        updatedInitOptions.setLoadControlBuffers(initOptions?.loadControlBuffers)
+        updatedInitOptions.setAbrSettings(initOptions?.abrSettings)
+        updatedInitOptions.setAspectRatioResizeMode(initOptions?.aspectRatioResizeMode)
+        updatedInitOptions.setPreferredMediaFormat(initOptions?.preferredMediaFormat)
+        updatedInitOptions.setAllowClearLead(initOptions?.allowClearLead)
+        updatedInitOptions.setAllowCrossProtocolEnabled(initOptions?.allowCrossProtocolEnabled)
+        updatedInitOptions.setSecureSurface(initOptions?.secureSurface)
+        updatedInitOptions.setKs(initOptions?.ks)
+        updatedInitOptions.setAutoPlay(initOptions?.autoplay)
+        updatedInitOptions.setReferrer(initOptions?.referrer)
+        updatedInitOptions.forceSinglePlayerEngine(initOptions?.forceSinglePlayerEngine)
+
+        initOptions?.let {
+            it.audioLanguage?.let { audioLanguage ->
+                it.audioLanguageMode?.let { audioLanguageMode ->
+                    updatedInitOptions.setAudioLanguage(audioLanguage, audioLanguageMode)
+                }
+            }
         }
-        if (initOptions!!.textLanguage != null && initOptions!!.textLanguageMode != null) {
-            updatedInitOptions.setTextLanguage(initOptions!!.textLanguage, initOptions!!.textLanguageMode)
+
+        initOptions?.let {
+            it.textLanguage?.let { textLanguage ->
+                it.textLanguageMode?.let { textLanguageMode ->
+                    updatedInitOptions.setAudioLanguage(textLanguage, textLanguageMode)
+                }
+            }
         }
 
         val player = KalturaBasicPlayer.create(playerActivity, updatedInitOptions)
-        player.setMedia(currentItem!!.pkMediaEntry, 0L)
+        player.setMedia(currentItem?.pkMediaEntry, 0L)
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, 600)
 
         playerActivity.setPlayer(player)

@@ -17,6 +17,7 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
+import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 
@@ -36,7 +37,6 @@ class MainActivity : AppCompatActivity() {
     private val SECOND_MEDIA_SOURCE_ID = "source_id_2"
 
     private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
     private var isFullScreen: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
         showSystemUI()
 
-        findViewById<View>(R.id.activity_main).setOnClickListener { v ->
+        activity_main.setOnClickListener { v ->
             if (isFullScreen) {
                 showSystemUI()
             } else {
@@ -96,10 +96,8 @@ class MainActivity : AppCompatActivity() {
      * Initialize the changeMedia button. On click it will change media.
      */
     private fun initChangeMediaButton() {
-        //Get reference to the button.
-        val changeMediaButton = this.findViewById<View>(R.id.change_media_button) as Button
         //Set click listener.
-        changeMediaButton.setOnClickListener { v ->
+        change_media_button.setOnClickListener { v ->
             //Change media.
             changeMedia()
         }
@@ -112,7 +110,7 @@ class MainActivity : AppCompatActivity() {
     private fun changeMedia() {
 
         //Check if id of the media entry that is set in mediaConfig.
-        if (player!!.mediaEntry.id == FIRST_ENTRY_ID) {
+        if (player?.mediaEntry?.id == FIRST_ENTRY_ID) {
             //If first one is active, prepare second one.
             prepareSecondEntry()
         } else {
@@ -133,7 +131,7 @@ class MainActivity : AppCompatActivity() {
         val mediaEntry = createFirstMediaEntry()
 
         //Prepare player with media configuration.
-        player!!.setMedia(mediaEntry, 0L)
+        player?.setMedia(mediaEntry, 0L)
     }
 
     /**
@@ -144,7 +142,7 @@ class MainActivity : AppCompatActivity() {
         val mediaEntry = createSecondMediaEntry()
 
         //Prepare player with media configuration.
-        player!!.setMedia(mediaEntry, 0L)
+        player?.setMedia(mediaEntry, 0L)
     }
 
     /**
@@ -265,18 +263,17 @@ class MainActivity : AppCompatActivity() {
      * Just add a simple button which will start/pause playback.
      */
     private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById<View>(R.id.play_pause_button) as Button
         //Add clickListener.
-        playPauseButton!!.setOnClickListener {
-            if (player!!.isPlaying) {
-                //If player is playing, change text of the button and pause.
-                resetPlayPauseButtonToPlayText()
-                player!!.pause()
-            } else {
-                //If player is not playing, change text of the button and play.
-                resetPlayPauseButtonToPauseText()
-                player!!.play()
+        play_pause_button.setOnClickListener {
+            player?.let {
+                if (it.isPlaying) {
+                    //If player is playing, change text of the button and pause.
+                    resetPlayPauseButtonToPlayText()
+                    it.pause()
+                } else {
+                    resetPlayPauseButtonToPauseText()
+                    it.play()
+                }
             }
         }
     }
@@ -301,29 +298,30 @@ class MainActivity : AppCompatActivity() {
      * Just reset the play/pause button text to "Play".
      */
     private fun resetPlayPauseButtonToPlayText() {
-        playPauseButton!!.setText(R.string.play_text)
+        play_pause_button.setText(R.string.play_text)
     }
 
     private fun resetPlayPauseButtonToPauseText() {
-        playPauseButton!!.setText(R.string.pause_text)
+        play_pause_button.setText(R.string.pause_text)
     }
 
     override fun onResume() {
         super.onResume()
-        if (player != null) {
-            if (playPauseButton != null) {
-                resetPlayPauseButtonToPauseText()
-            }
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let {
+            resetPlayPauseButtonToPauseText()
+            it.onApplicationResumed()
+            it.play()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy()
     }
 
     override fun onPause() {
         super.onPause()
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
     }
 
     fun loadPlaykitPlayer() {
@@ -332,8 +330,8 @@ class MainActivity : AppCompatActivity() {
         playerInitOptions.setAutoPlay(true)
 
         player = KalturaBasicPlayer.create(this@MainActivity, playerInitOptions)
-        player!!.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
-        val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
+        player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        val container = player_root
+        container.addView(player?.playerView)
     }
 }
