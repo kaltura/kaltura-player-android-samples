@@ -136,7 +136,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         prevImgBtn.visibility = visibility
 
         loopBtn.visibility = visibility
-        shuffleBtn.visibility = visibility
+        shuffleBtn.visibility = View.INVISIBLE
         recoverOnErrorBtn.visibility = visibility
 
         if (player?.playlistController != null) {
@@ -150,15 +150,17 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
                 }
 
             }
-            if (player?.playlistController.isShuffleEnabled) {
-                player?.playlistController?.isShuffleEnabled?.let {
-                    if (it) {
-                        shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
-                    } else {
-                        shuffleBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
-                    }
-                }
-            }
+
+//            if (player?.playlistController.isShuffleEnabled) {
+//                player?.playlistController?.isShuffleEnabled?.let {
+//                    if (it) {
+//                        shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+//                    } else {
+//                        shuffleBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
+//                    }
+//                }
+//            }
+
             if (player?.playlistController.isRecoverOnError) {
                 player?.playlistController?.isRecoverOnError?.let {
                     if (it) {
@@ -339,17 +341,17 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
 
         }
 
-        shuffleBtn.setOnClickListener{ view ->
-            player?.playlistController?.let {
-                if (it.isShuffleEnabled) {
-                    player?.playlistController?.shuffle(false)
-                    shuffleBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
-                } else {
-                    player?.playlistController?.shuffle(true)
-                    shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
-                }
-            }
-        }
+//        shuffleBtn.setOnClickListener{ view ->
+//            player?.playlistController?.let {
+//                if (it.isShuffleEnabled) {
+//                    player?.playlistController?.shuffle(false)
+//                    shuffleBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
+//                } else {
+//                    player?.playlistController?.shuffle(true)
+//                    shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+//                }
+//            }
+//        }
 
         recoverOnErrorBtn.setOnClickListener{ view ->
             player?.playlistController?.let {

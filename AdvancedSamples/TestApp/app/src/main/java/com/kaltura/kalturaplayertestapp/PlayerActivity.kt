@@ -411,7 +411,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -513,7 +512,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
             ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.useApiCaptions ?: false
             ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
-            ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+            //ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
             ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
             ovpPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
@@ -538,7 +537,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
             ovpPlaylistOptions.ovpMediaOptionsList = mediaList
             ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
-            ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+            //ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
             ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
             ovpPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
@@ -567,7 +566,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
         ottPlaylistIdOptions.ottMediaOptionsList = mediaList
         ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
-        ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+        //ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
         ottPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
@@ -594,7 +593,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 ?: CountDownOptions()
         basicPlaylistOptions.basicMediaOptionsList = mediaList
         basicPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
-        basicPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
+        //basicPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         basicPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
         basicPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
