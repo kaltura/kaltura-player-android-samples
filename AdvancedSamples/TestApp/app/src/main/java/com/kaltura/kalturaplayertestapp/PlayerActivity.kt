@@ -411,6 +411,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
+
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -768,17 +769,17 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
 
         player?.addListener(this, PlayerEvent.loadedMetadata) { event ->
-            log.d("Player Event LoadedMetadata")
+            log.d("PLAYER LoadedMetadata")
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
 
         player?.addListener(this, PlayerEvent.durationChanged) { event ->
-            log.d("Player Event DurationChanged")
+            log.d("PLAYER DurationChanged")
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
 
         player?.addListener(this, PlayerEvent.playing) { event ->
-            log.d("Player Event PLAYING")
+            log.d("PLAYER PLAYING")
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
             if (player?.playlistController != null) {
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
@@ -793,7 +794,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlayerEvent.pause) { event ->
-            log.d("Player Event PAUSE")
+            log.d("PLAYER PAUSE")
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
 
