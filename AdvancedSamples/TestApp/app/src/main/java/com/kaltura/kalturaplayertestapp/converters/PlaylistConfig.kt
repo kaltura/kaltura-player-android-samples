@@ -1,5 +1,6 @@
 package com.kaltura.kalturaplayertestapp.converters
 
+import AppOVPMediaOptions
 import com.kaltura.playkit.providers.PlaylistMetadata
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -17,7 +18,7 @@ class PlaylistConfig {
     val useApiCaptions = false
     val playlistId: String? = null
     val playlistMetadata: PlaylistMetadata? = null
-    val ovpMediaOptionsList: List<OVPMediaOptions>? = null
-    val ottMediaOptionsList: List<OTTMediaOptions>? = null
+    val ovpMediaOptionsList: List<AppOVPMediaOptions>? = null
+    val ottMediaOptionsList: List<AppOTTMediaOptions>? = null
     val basicMediaOptionsList: List<BasicMediaOptions>? = null
 }

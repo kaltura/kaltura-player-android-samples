@@ -1,5 +1,6 @@
 package com.kaltura.kalturaplayertestapp
 
+import AppOVPMediaOptions
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.net.ConnectivityManager
@@ -22,6 +23,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.kaltura.android.exoplayer2.upstream.HttpDataSource
 import com.kaltura.dtg.exoparser.C.TRACK_TYPE_AUDIO
+import com.kaltura.kalturaplayertestapp.converters.AppOTTMediaOptions
 import com.kaltura.kalturaplayertestapp.converters.Media
 import com.kaltura.kalturaplayertestapp.converters.PlayerConfig
 import com.kaltura.kalturaplayertestapp.converters.PluginDescriptor
@@ -50,6 +52,8 @@ import com.kaltura.playkit.plugins.youbora.YouboraEvent
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin
 import com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig
 import com.kaltura.playkit.providers.PlaylistMetadata
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.playkit.utils.Consts.TRACK_TYPE_TEXT
 import com.kaltura.playkit.utils.Consts.TRACK_TYPE_VIDEO
 import com.kaltura.playkitvr.VRController
@@ -411,7 +415,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-
+            
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -536,7 +540,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     ?: CountDownOptions()
             ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                     ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
-            ovpPlaylistOptions.ovpMediaOptionsList = mediaList
+            ovpPlaylistOptions.ovpMediaOptionsList = convertToOvpMediaOptions(mediaList)
             ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
             //ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
             ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
@@ -554,6 +558,25 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
+    private fun convertToOvpMediaOptions(mediaList: List<AppOVPMediaOptions>?): MutableList<OVPMediaOptions>? {
+        val ovpMediasOptions = mutableListOf<OVPMediaOptions>()
+        if (mediaList == null) {
+            return ovpMediasOptions;
+        }
+
+        mediaList.forEach {
+            var ovpMediaAsset = OVPMediaAsset()
+            ovpMediaAsset.entryId = it.entryId
+            ovpMediaAsset.ks = it.ks
+            ovpMediaAsset.referrer = it.referrer
+
+            var ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
+
+            ovpMediasOptions.add(ovpMediaOptions)
+        }
+        return ovpMediasOptions
+    }
+
     private fun handleOttPlayerPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaOttPlayer?) {
 
         var mediaList = appPlayerInitConfig.playlistConfig?.ottMediaOptionsList
@@ -565,7 +588,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 ?: CountDownOptions()
         ottPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                 ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
-        ottPlaylistIdOptions.ottMediaOptionsList = mediaList
+        ottPlaylistIdOptions.ottMediaOptionsList = convertToOttMediaOptions(mediaList)
         ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
         //ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
@@ -580,6 +603,54 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 //playbackControlsManager?.updatePrevNextImgBtnFunctionality(ottPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
             }
         }
+    }
+
+    private fun convertToOttMediaOptions(mediaList: List<AppOTTMediaOptions>?): MutableList<OTTMediaOptions>? {
+        val ottMediasOptions = mutableListOf<OTTMediaOptions>()
+        if (mediaList == null) {
+            return ottMediasOptions;
+        }
+
+        mediaList.forEach {
+            var ottMediaAsset = OTTMediaAsset()
+            ottMediaAsset.assetId = it.assetId
+            ottMediaAsset.urlType = it.urlType
+            ottMediaAsset.assetReferenceType = it.assetReferenceType
+            ottMediaAsset.protocol = it.protocol
+            ottMediaAsset.contextType = it.contextType
+            ottMediaAsset.assetType = it.assetType
+
+            var mediaFilesList = mutableListOf<String>()
+            it.fileIds.let {
+                if (it != null) {
+                    for (fileId in it) {
+                        mediaFilesList.add(fileId)
+
+                    }
+                }
+            }
+            if (!mediaFilesList.isEmpty()) {
+                ottMediaAsset.mediaFileIds = mediaFilesList
+            }
+
+            var mediaFormatsList = mutableListOf<String>()
+            it.formats.let {
+                if (it != null) {
+                    for (format in it) {
+                        mediaFormatsList.add(format)
+                    }
+                }
+            }
+
+            if (!mediaFormatsList.isEmpty()) {
+                ottMediaAsset.formats =  mediaFormatsList
+            }
+
+            var ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+
+            ottMediasOptions.add(ottMediaOptions)
+        }
+        return ottMediasOptions
     }
 
     private fun handleBasicPlayerPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaBasicPlayer?) {
@@ -613,25 +684,34 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
     private fun buildOttMediaOptions(startPosition: Long?, playListMediaIndex: Int): OTTMediaOptions? {
         val ottMedia = mediaList?.get(playListMediaIndex) ?: return null
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = ottMedia.assetId
-        ottMediaOptions.assetType = ottMedia.getAssetType()
-        ottMediaOptions.contextType = ottMedia.getPlaybackContextType()
-        ottMediaOptions.assetReferenceType = ottMedia.getAssetReferenceType()
-        ottMediaOptions.protocol = ottMedia.protocol
-        ottMediaOptions.ks = ottMedia.ks
+
+        var ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = ottMedia.assetId
+        ottMediaAsset.assetType = ottMedia.getAssetType()
+        ottMediaAsset.contextType = ottMedia.getPlaybackContextType()
+        ottMediaAsset.assetReferenceType = ottMedia.getAssetReferenceType()
+        ottMediaAsset.protocol = ottMedia.protocol
+        ottMediaAsset.ks = ottMedia.ks
+        ottMediaAsset.urlType = ottMedia.getUrlType()
+        ottMediaAsset.setFormats(listOf(ottMedia.format))
+        ottMediaAsset.setMediaFileIds(listOf(ottMedia.fileId))
+
+
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = startPosition
         ottMediaOptions.externalSubtitles = ottMedia.externalSubtitles
-        ottMediaOptions.formats = ottMedia.format?.let { arrayOf<String>(it) }
-        ottMediaOptions.fileIds = ottMedia.fileId?.let { arrayOf<String>(it.toString()) }
+
         return ottMediaOptions
     }
 
     private fun buildOvpMediaOptions(startPosition: Long?, playListMediaIndex: Int): OVPMediaOptions? {
         val ovpMedia = mediaList?.get(playListMediaIndex) ?: return null
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = ovpMedia.entryId
-        ovpMediaOptions.ks = ovpMedia.ks
+
+        var ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.setEntryId(ovpMedia.entryId)
+        ovpMediaAsset.setKs(ovpMedia.ks)
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
+
         ovpMediaOptions.startPosition = startPosition
         ovpMediaOptions.externalSubtitles = ovpMedia.externalSubtitles
 
