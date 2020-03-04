@@ -3,7 +3,6 @@ package com.kaltura.kalturaplayertestapp.converters
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 
-
 class AppOTTMediaOptions : AppMediaOptions() {
     var assetId: String? = null
     var assetType: APIDefines.KalturaAssetType? = null

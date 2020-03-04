@@ -415,7 +415,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-            
+
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -540,7 +540,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     ?: CountDownOptions()
             ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                     ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
-            ovpPlaylistOptions.ovpMediaOptionsList = convertToOvpMediaOptions(mediaList)
+            ovpPlaylistOptions.ovpMediaOptionsList = convertToOvpMediaOptionsList(mediaList)
             ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
             //ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
             ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
@@ -558,7 +558,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
-    private fun convertToOvpMediaOptions(mediaList: List<AppOVPMediaOptions>?): MutableList<OVPMediaOptions>? {
+    private fun convertToOvpMediaOptionsList(mediaList: List<AppOVPMediaOptions>?): MutableList<OVPMediaOptions>? {
         val ovpMediasOptions = mutableListOf<OVPMediaOptions>()
         if (mediaList == null) {
             return ovpMediasOptions;
@@ -571,7 +571,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ovpMediaAsset.referrer = it.referrer
 
             var ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
-
+            ovpMediaOptions.setUseApiCaptions(it.useApiCaptions)
             ovpMediasOptions.add(ovpMediaOptions)
         }
         return ovpMediasOptions
@@ -588,7 +588,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 ?: CountDownOptions()
         ottPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                 ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
-        ottPlaylistIdOptions.ottMediaOptionsList = convertToOttMediaOptions(mediaList)
+        ottPlaylistIdOptions.ottMediaOptionsList = convertToOttMediaOptionsList(mediaList)
         ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
         //ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
@@ -605,7 +605,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
-    private fun convertToOttMediaOptions(mediaList: List<AppOTTMediaOptions>?): MutableList<OTTMediaOptions>? {
+    private fun convertToOttMediaOptionsList(mediaList: List<AppOTTMediaOptions>?): MutableList<OTTMediaOptions>? {
         val ottMediasOptions = mutableListOf<OTTMediaOptions>()
         if (mediaList == null) {
             return ottMediasOptions;
@@ -693,8 +693,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         ottMediaAsset.protocol = ottMedia.protocol
         ottMediaAsset.ks = ottMedia.ks
         ottMediaAsset.urlType = ottMedia.getUrlType()
-        ottMediaAsset.setFormats(listOf(ottMedia.format))
-        ottMediaAsset.setMediaFileIds(listOf(ottMedia.fileId))
+        if (ottMedia.format != null) {
+            ottMediaAsset.setFormats(listOf(ottMedia.format))
+        }
+        if (ottMedia.fileId != null) {
+            ottMediaAsset.setMediaFileIds(listOf(ottMedia.fileId))
+        }
 
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
