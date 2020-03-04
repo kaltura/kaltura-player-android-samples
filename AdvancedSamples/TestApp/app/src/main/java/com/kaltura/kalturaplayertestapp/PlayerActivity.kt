@@ -415,7 +415,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-
+            
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -619,6 +619,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ottMediaAsset.protocol = it.protocol
             ottMediaAsset.contextType = it.contextType
             ottMediaAsset.assetType = it.assetType
+            ottMediaAsset.ks = it.ks
+            ottMediaAsset.referrer = it.referrer
 
             var mediaFilesList = mutableListOf<String>()
             it.fileIds.let {
