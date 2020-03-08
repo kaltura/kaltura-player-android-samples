@@ -14,6 +14,7 @@ import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.providers.PlaylistMetadata
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
     private val ENTRY_ID_1 = "1_jnlsx5nv"
     private val ENTRY_ID_2 = "0_w0hpzdni"
-    private val ENTRY_ID_3 = "1_j9v8qs8h"
+    private val ENTRY_ID_3 = "1_bdyhd6cp"
     private var isFullScreen: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,12 +65,12 @@ class MainActivity : AppCompatActivity() {
 
         btn_shuffle.visibility = View.GONE
 
-        btn_shuffle.setOnClickListener {
-            player?.let {
-                it.playlistController.shuffle(!it.playlistController.isShuffleEnabled)
-                btn_shuffle.text = "Shuffle : ${it.playlistController.isShuffleEnabled}"
-            }
-        }
+//        btn_shuffle.setOnClickListener {
+//            player?.let {
+//                it.playlistController.shuffle(!it.playlistController.isShuffleEnabled)
+//                btn_shuffle.text = "Shuffle : ${it.playlistController.isShuffleEnabled}"
+//            }
+//        }
     }
 
     private fun hideSystemUI() {
@@ -101,17 +102,17 @@ class MainActivity : AppCompatActivity() {
     private fun addPlayerListeners() {
         player?.addListener(this, PlaylistEvent.playListLoaded) { event ->
             log.d("PLAYLIST playListLoaded")
-            btn_shuffle.visibility = View.VISIBLE
-            btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
+            btn_shuffle.visibility = View.INVISIBLE
+            //btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
         }
 
         player?.addListener(this, PlaylistEvent.playListStarted) { event ->
             log.d("PLAYLIST playListStarted")
         }
 
-        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
-            log.d("PLAYLIST playlistShuffleStateChanged ${event.mode}")
-        }
+//        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
+//            log.d("PLAYLIST playlistShuffleStateChanged ${event.mode}")
+//        }
 
         player?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
             log.d("PLAYLIST playlistLoopStateChanged ${event.mode}")
@@ -122,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         player?.addListener(this, PlaylistEvent.playListEnded) { event ->
-            log.d("PLAYLIST playListEnded")
+            log.d("PLAYLIST playListEnded " + event.playlist.id)
         }
 
         player?.addListener(this, PlaylistEvent.playListError) { event ->
@@ -136,11 +137,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
-            log.d("playlistCountDownStart currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.countDownOptions.durationMS);
+            log.d("playlistCountDownStart currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.playlistCountDownOptions?.durationMS);
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
-            log.d("playlistCountDownEnd currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.countDownOptions.durationMS);
+            log.d("playlistCountDownEnd currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.playlistCountDownOptions?.durationMS);
         }
 
         player?.addListener(this, PlayerEvent.stateChanged) { event ->
@@ -193,7 +194,7 @@ class MainActivity : AppCompatActivity() {
         val ovpPlaylistOptions = OVPPlaylistOptions()
         ovpPlaylistOptions.playlistMetadata = PlaylistMetadata().setName("TestOVPPlayList").setId("2")
         ovpPlaylistOptions.ovpMediaOptionsList = ovpPlaylistIdOptions
-        ovpPlaylistOptions.countDownOptions = CountDownOptions()
+        ovpPlaylistOptions.playlistCountDownOptions = CountDownOptions()
 
         player?.loadPlaylist(ovpPlaylistOptions) { _, error ->
             if (error != null) {
@@ -207,12 +208,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildOvpMediaOptions(ENTRY_ID: String): OVPMediaOptions {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = ENTRY_ID
-        ovpMediaOptions.ks = null
-        ovpMediaOptions.startPosition = START_POSITION
-        ovpMediaOptions.countDownOptions = CountDownOptions();
+        var ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = ENTRY_ID
+        ovpMediaAsset.ks = null
 
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
+        ovpMediaOptions.playlistCountDownOptions = CountDownOptions();
+        ovpMediaOptions.startPosition = START_POSITION
         return ovpMediaOptions
     }
 }

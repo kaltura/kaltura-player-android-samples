@@ -16,6 +16,7 @@ import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.providers.PlaylistMetadata
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
@@ -33,9 +34,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val log = PKLog.get("MainActivity")
-    private val ASSET_ID_1 = "548579"
+    private val ASSET_ID_1 = "548572"
     private val ASSET_ID_2 = "548571"
-    private val ASSET_ID_3 = "548577"
+    private val ASSET_ID_3 = "548579"
 
     private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
@@ -65,12 +66,12 @@ class MainActivity : AppCompatActivity() {
 
         btn_shuffle.visibility = View.GONE
 
-        btn_shuffle.setOnClickListener {
-            player?.let {
-                it.playlistController.shuffle(!it.playlistController.isShuffleEnabled)
-                btn_shuffle.text = "Shuffle : ${it.playlistController.isShuffleEnabled}"
-            }
-        }
+//        btn_shuffle.setOnClickListener {
+//            player?.let {
+//                it.playlistController.shuffle(!it.playlistController.isShuffleEnabled)
+//                btn_shuffle.text = "Shuffle : ${it.playlistController.isShuffleEnabled}"
+//            }
+//        }
     }
 
     private fun hideSystemUI() {
@@ -102,17 +103,17 @@ class MainActivity : AppCompatActivity() {
     private fun addPlayerListeners() {
         player?.addListener(this, PlaylistEvent.playListLoaded) { event ->
             log.d("PLAYLIST playListLoaded")
-            btn_shuffle.visibility = View.VISIBLE
-            btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
+            btn_shuffle.visibility = View.INVISIBLE
+            //btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
         }
 
         player?.addListener(this, PlaylistEvent.playListStarted) { event ->
             log.d("PLAYLIST playListStarted")
         }
 
-        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
-            log.d("PLAYLIST playlistShuffleStateChanged ${event.mode}")
-        }
+//        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
+//            log.d("PLAYLIST playlistShuffleStateChanged ${event.mode}")
+//        }
 
         player?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
             log.d("PLAYLIST playlistLoopStateChanged ${event.mode}")
@@ -137,11 +138,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
-            log.d("playlistCountDownStart currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.countDownOptions.durationMS);
+            log.d("playlistCountDownStart currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.playlistCountDownOptions?.durationMS);
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
-            log.d("playlistCountDownEnd currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.countDownOptions.durationMS);
+            log.d("playlistCountDownEnd currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.playlistCountDownOptions?.durationMS);
         }
 
         player?.addListener(this, PlayerEvent.stateChanged) { event ->
@@ -206,17 +207,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildOttMediaOptions(ASSET_ID: String): OTTMediaOptions {
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = ASSET_ID
-        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
-        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
-        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Https
-        ottMediaOptions.ks = null
-        ottMediaOptions.referrer = "app://MyTestApp";
+        val ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = ASSET_ID
+        ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
+        ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
+        ottMediaAsset.ks = null
+        ottMediaAsset.referrer = "app://MyTestApp";
+        ottMediaAsset.formats = listOf("Mobile_Main")
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
-        ottMediaOptions.formats = arrayOf("Mobile_Main")
-
         return ottMediaOptions
     }
 }

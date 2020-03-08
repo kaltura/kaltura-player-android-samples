@@ -28,10 +28,10 @@ class MainActivity : AppCompatActivity() {
     private val MEDIA_FORMAT = PKMediaFormat.hls
     private val SOURCE0_ENTRY_ID = "0_uka1msg4" // 915014
     private val SOURCE_URL0 = "http://cdnapi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_uka1msg4/flavorIds/1_vqhfu6uy,1_80sohj7p/format/applehttp/protocol/http/a.m3u8"
-    private val SOURCE1_ENTRY_ID = "0_uka1msg4" // 915014
-    private val SOURCE_URL1 = "https://playertest.longtailvideo.com/adaptive/eleph-audio/playlist.m3u8"
-    private val SOURCE2_ENTRY_ID = "0_uka1msg4" // 915014
-    private val SOURCE_URL2 = "http://cdnapi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_uka1msg4/flavorIds/1_vqhfu6uy,1_80sohj7p/format/applehttp/protocol/http/a.m3u8"
+    private val SOURCE1_ENTRY_ID = "0_wu32qrt3" // 915014
+    private val SOURCE_URL1 = "http://cdntesting.qa.mkaltura.com/p/1091/sp/109100/playManifest/entryId/0_wu32qrt3/protocol/http/format/applehttp/flavorIds/0_m4f9cdk9,0_mhx8cxa3,0_1t0yf94g,0_av8gbt6s/a.m3u8"
+    private val SOURCE2_ENTRY_ID = "0_aulfs5wq" // 915014
+    private val SOURCE_URL2 = "http://cdntesting.qa.mkaltura.com/p/1091/sp/109100/playManifest/entryId/0_aulfs5wq/protocol/http/format/applehttp/flavorIds/0_ua2hes50,0_2lp0vd2v,0_p1tcunbj,0_yvkrcuzq/a.m3u8"
 
     private val LICENSE_URL: String? = null
 
@@ -42,9 +42,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val basicMediaOptions0 = createMediaEntry(0, SOURCE0_ENTRY_ID, SOURCE_URL0)
-        val basicMediaOptions1 =  createMediaEntry(1, SOURCE1_ENTRY_ID, SOURCE_URL1)
-        val basicMediaOptions2 = createMediaEntry(2, SOURCE2_ENTRY_ID, SOURCE_URL2)
+        val basicMediaOptions0 = createMediaEntry(SOURCE0_ENTRY_ID, SOURCE_URL0)
+        val basicMediaOptions1 =  createMediaEntry(SOURCE1_ENTRY_ID, SOURCE_URL1)
+        val basicMediaOptions2 = createMediaEntry(SOURCE2_ENTRY_ID, SOURCE_URL2)
 
         val mediaList = listOf(basicMediaOptions0, basicMediaOptions1, basicMediaOptions2)
 
@@ -61,13 +61,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         btn_shuffle.visibility = View.GONE;
-
-        btn_shuffle.setOnClickListener {
-            player?.let {
-                it.playlistController.shuffle(!it.playlistController.isShuffleEnabled)
-                btn_shuffle.text = "Shuffle : ${it.playlistController.isShuffleEnabled}"
-            }
-        }
+//        btn_shuffle.setOnClickListener {
+//            player?.let {
+//                it.playlistController.shuffle(!it.playlistController.isShuffleEnabled)
+//                btn_shuffle.text = "Shuffle : ${it.playlistController.isShuffleEnabled}"
+//            }
+//        }
 
     }
 
@@ -101,7 +100,7 @@ class MainActivity : AppCompatActivity() {
      *
      * @return - the [PKMediaEntry] object.
      */
-    private fun createMediaEntry(index: Int, id: String, url : String): BasicMediaOptions {
+    private fun createMediaEntry(id: String, url : String): BasicMediaOptions {
         //Create media entry.
         val mediaEntry = PKMediaEntry()
 
@@ -123,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         //Set media sources to the entry.
         mediaEntry.sources = mediaSources
 
-        return BasicMediaOptions(index, mediaEntry, CountDownOptions(5000, true))
+        return BasicMediaOptions(mediaEntry, CountDownOptions(5000, true))
     }
 
     /**
@@ -203,17 +202,17 @@ class MainActivity : AppCompatActivity() {
     private fun addPlayerListeners() {
         player?.addListener(this, PlaylistEvent.playListLoaded) { event ->
             log.d("PLAYLIST playListLoaded")
-            btn_shuffle.visibility = View.VISIBLE
-            btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
+            btn_shuffle.visibility = View.INVISIBLE
+            //btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
         }
 
         player?.addListener(this, PlaylistEvent.playListStarted) { event ->
             log.d("PLAYLIST playListStarted")
         }
 
-        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
-            log.d("PLAYLIST playlistShuffleStateChanged ${event.mode}")
-        }
+//        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
+//            log.d("PLAYLIST playlistShuffleStateChanged ${event.mode}")
+//        }
 
         player?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
             log.d("PLAYLIST playlistLoopStateChanged ${event.mode}")
@@ -238,11 +237,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
-            log.d("playlistCountDownStart currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.countDownOptions.durationMS);
+            log.d("playlistCountDownStart currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.playlistCountDownOptions?.durationMS);
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
-            log.d("playlistCountDownEnd currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.countDownOptions.durationMS);
+            log.d("playlistCountDownEnd currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.playlistCountDownOptions?.durationMS);
         }
 
         player?.addListener(this, PlayerEvent.stateChanged) { event ->
