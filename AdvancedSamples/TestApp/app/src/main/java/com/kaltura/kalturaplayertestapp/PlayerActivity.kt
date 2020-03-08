@@ -512,7 +512,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             val ovpPlaylistIdOptions = OVPPlaylistIdOptions()
             ovpPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
             ovpPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
-            ovpPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
+            ovpPlaylistIdOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
                     ?: CountDownOptions()
             ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
             ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.useApiCaptions ?: false
@@ -536,7 +536,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             val ovpPlaylistOptions = OVPPlaylistOptions()
             ovpPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
             ovpPlaylistOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
-            ovpPlaylistOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
+            ovpPlaylistOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
                     ?: CountDownOptions()
             ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                     ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
@@ -584,7 +584,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val ottPlaylistIdOptions = OTTPlaylistOptions()
         ottPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
         ottPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
-        ottPlaylistIdOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
+        ottPlaylistIdOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
                 ?: CountDownOptions()
         ottPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                 ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
@@ -663,7 +663,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         basicPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
         basicPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                 ?: PlaylistMetadata().setName("TestBasicPlayList").setId("1")
-        basicPlaylistOptions.countDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
+        basicPlaylistOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
                 ?: CountDownOptions()
         basicPlaylistOptions.basicMediaOptionsList = mediaList
         basicPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
@@ -924,10 +924,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.addPlaylistButtonsListener()
         }
 
-        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
-            log.d("PLAYLIST playlistShuffleStateChanged " + event.mode)
-        }
-
         player?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
             log.d("PLAYLIST playlistLoopStateChanged " + event.mode)
         }
@@ -962,13 +958,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
-            var message = "playlistCountDownStart index = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}"
+            var message = "playlistCountDownStart index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
             log.d("PLAYLIST $message")
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
-            var message = "playlistCountDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.countDownOptions.durationMS}"
+            var message = "playlistCountDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
             log.d("PLAYLIST $message" )
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
@@ -1072,11 +1068,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     }
                 }
             }
-
-//            if (!(player?.playlistController?.isAutoContinueEnabled ?: true)) {
-//                playbackControlsManager?.showControls(View.VISIBLE)
-//            }
-
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
 
@@ -1132,7 +1123,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (PlayerEvent.Type.PLAYHEAD_UPDATED.name != reportedEventName) {
                 updateEventsLogsList("phoenix:\n$reportedEventName")
             }
-
         }
     }
 
@@ -1352,7 +1342,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 return;
             }
         }
-
 
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager?.showControls(View.VISIBLE)

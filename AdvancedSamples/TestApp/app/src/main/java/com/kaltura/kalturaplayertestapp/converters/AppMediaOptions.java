@@ -1,5 +1,7 @@
 package com.kaltura.kalturaplayertestapp.converters;
 
+import androidx.annotation.Nullable;
+
 import com.kaltura.playkit.player.PKExternalSubtitle;
 import com.kaltura.tvplayer.playlist.CountDownOptions;
 
@@ -10,5 +12,5 @@ public abstract class AppMediaOptions {
     public Long startPosition;
     public String referrer;
     public List<PKExternalSubtitle> externalSubtitles;
-    public CountDownOptions countDownOptions;
+    @Nullable public CountDownOptions playlistCountDownOptions;
 }

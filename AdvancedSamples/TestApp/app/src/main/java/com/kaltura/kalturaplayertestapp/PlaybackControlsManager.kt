@@ -330,10 +330,10 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         loopBtn.setOnClickListener { view ->
             player?.playlistController?.let {
                 if (it.isLoopEnabled) {
-                    player?.playlistController?.loop(false)
+                    player?.playlistController?.setLoop(false)
                     loopBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
                 } else {
-                    player?.playlistController?.loop(true)
+                    player?.playlistController?.setLoop(true)
                     loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
                 }
             }
@@ -356,10 +356,10 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         recoverOnErrorBtn.setOnClickListener{ view ->
             player?.playlistController?.let {
                 if (it.isRecoverOnError) {
-                    player?.playlistController?.recoverOnError(false)
+                    player?.playlistController?.setRecoverOnError(false)
                     recoverOnErrorBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
                 } else {
-                    player?.playlistController?.recoverOnError(true)
+                    player?.playlistController?.setRecoverOnError(true)
                     recoverOnErrorBtn.setBackgroundColor(Color.rgb(66, 165, 245))
                 }
             }
