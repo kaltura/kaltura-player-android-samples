@@ -10,7 +10,7 @@ class Media {
     var ks: String? = null        // ovp or ott
     var assetId: String? = null   // ott
     var format: String? = null    // ott
-    var fileId: Int? = null   // ott
+    var fileId: String? = null   // ott
 
     @get:JvmName("getAssetType")
     var assetType: String? = null // ott
@@ -20,6 +20,7 @@ class Media {
     var protocol: String? = null // ott
     var pkMediaEntry: PKMediaEntry? = null // player without provider
     var mediaAdTag: String? = null
+    var urlType: String? = null
     var externalSubtitles: List<PKExternalSubtitle>? = null
 
     fun getAssetType(): APIDefines.KalturaAssetType? {
@@ -96,6 +97,18 @@ class Media {
             return PhoenixMediaProvider.HttpProtocol.Http
         } else if (PhoenixMediaProvider.HttpProtocol.Https.toLowerCase() == protocol?.toLowerCase()) {
             return PhoenixMediaProvider.HttpProtocol.Https
+        }
+        return null
+    }
+
+    fun getUrlType(): APIDefines.KalturaUrlType? {
+        if (urlType == null) {
+            return null
+        }
+        if (APIDefines.KalturaUrlType.Direct.value.toLowerCase() == urlType?.toLowerCase()) {
+            return APIDefines.KalturaUrlType.Direct
+        } else if (APIDefines.KalturaUrlType.PlayManifest.value.toLowerCase() == urlType?.toLowerCase()) {
+            return APIDefines.KalturaUrlType.PlayManifest
         }
         return null
     }

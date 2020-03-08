@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Playlist</string>
+    <string name="play_text">Play</string>
+    <string name="pause_text">Pause</string>
+    <string name="shuffle">Shuffle</string>
+</resources>
