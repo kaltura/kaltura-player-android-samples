@@ -20,7 +20,6 @@ import com.kaltura.tvplayer.playlist.OVPPlaylistIdOptions
 import com.kaltura.tvplayer.playlist.PlaylistEvent
 import kotlinx.android.synthetic.main.activity_main.*
 
-
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -52,13 +51,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         btn_shuffle.visibility = View.GONE
-
-        btn_shuffle.setOnClickListener {
-            player?.let {
-                it.playlistController.shuffle(!it.playlistController.isShuffleEnabled)
-                btn_shuffle.text = "Shuffle : ${it.playlistController.isShuffleEnabled}"
-            }
-        }
+//        btn_shuffle.setOnClickListener {
+//            player?.let {
+//                it.playlistController.shuffle(!it.playlistController.isShuffleEnabled)
+//                btn_shuffle.text = "Shuffle : ${it.playlistController.isShuffleEnabled}"
+//            }
+//        }
     }
 
     private fun hideSystemUI() {
@@ -90,17 +88,17 @@ class MainActivity : AppCompatActivity() {
     private fun addPlayerListeners() {
         player?.addListener(this, PlaylistEvent.playListLoaded) { event ->
             log.d("PLAYLIST playListLoaded")
-            btn_shuffle.visibility = View.VISIBLE
-            btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
+            btn_shuffle.visibility = View.INVISIBLE
+            //btn_shuffle.text = "Shuffle : ${player?.playlistController?.isShuffleEnabled}"
         }
 
         player?.addListener(this, PlaylistEvent.playListStarted) { event ->
             log.d("PLAYLIST playListStarted")
         }
 
-        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
-            log.d("PLAYLIST playlistShuffleStateChanged ${event.mode}")
-        }
+//        player?.addListener(this, PlaylistEvent.playlistShuffleStateChanged) { event ->
+//            log.d("PLAYLIST playlistShuffleStateChanged ${event.mode}")
+//        }
 
         player?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
             log.d("PLAYLIST playlistLoopStateChanged ${event.mode}")
@@ -125,11 +123,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
-            log.d("playlistCountDownStart currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.countDownOptions.durationMS);
+            log.d("playlistCountDownStart currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.playlistCountDownOptions?.durationMS);
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
-            log.d("playlistCountDownEnd currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.countDownOptions.durationMS);
+            log.d("playlistCountDownEnd currentPlayingIndex = " + event.currentPlayingIndex + " durationMS = " + event.playlistCountDownOptions?.durationMS);
         }
 
         player?.addListener(this, PlayerEvent.stateChanged) { event ->
@@ -182,7 +180,7 @@ class MainActivity : AppCompatActivity() {
         val ovpPlaylistIdOptions = OVPPlaylistIdOptions()
         ovpPlaylistIdOptions.playlistId = ENTRY_ID_BY_ID
         ovpPlaylistIdOptions.loopEnabled = true
-        ovpPlaylistIdOptions.shuffleEnabled = false
+        //ovpPlaylistIdOptions.shuffleEnabled = false
 
         player?.loadPlaylistById(ovpPlaylistIdOptions) { _, error ->
             if (error != null) {
