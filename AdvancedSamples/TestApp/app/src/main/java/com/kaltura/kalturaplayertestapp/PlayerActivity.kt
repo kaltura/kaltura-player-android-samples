@@ -714,11 +714,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val ovpMedia = mediaList?.get(playListMediaIndex) ?: return null
 
         var ovpMediaAsset = OVPMediaAsset()
-        ovpMediaAsset.setEntryId(ovpMedia.entryId)
-        ovpMediaAsset.setKs(ovpMedia.ks)
+        ovpMediaAsset.entryId = ovpMedia.entryId
+        ovpMediaAsset.ks = ovpMedia.ks
         val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
 
         ovpMediaOptions.startPosition = startPosition
+        ovpMediaOptions.isUseApiCaptions = ovpMedia.useApiCaptions
         ovpMediaOptions.externalSubtitles = ovpMedia.externalSubtitles
 
         return ovpMediaOptions

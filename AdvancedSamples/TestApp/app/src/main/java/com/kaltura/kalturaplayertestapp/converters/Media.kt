@@ -20,6 +20,7 @@ class Media {
     var protocol: String? = null // ott
     var pkMediaEntry: PKMediaEntry? = null // player without provider
     var mediaAdTag: String? = null
+    var useApiCaptions: Boolean = false
     var urlType: String? = null
     var externalSubtitles: List<PKExternalSubtitle>? = null
 
