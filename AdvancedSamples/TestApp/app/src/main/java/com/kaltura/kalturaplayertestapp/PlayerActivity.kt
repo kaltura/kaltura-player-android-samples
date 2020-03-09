@@ -421,7 +421,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
                 phoenixTVPlayerParams.ovpPartnerId = 1774581
                 phoenixTVPlayerParams.partnerId = 198
-                phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_1_0/"
+                phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_2_8/"
                 phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
                 initOptions?.tvPlayerParams = phoenixTVPlayerParams
             }
