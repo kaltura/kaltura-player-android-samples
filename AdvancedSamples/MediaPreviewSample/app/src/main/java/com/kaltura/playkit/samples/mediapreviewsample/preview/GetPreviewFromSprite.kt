@@ -17,7 +17,7 @@ open class GetPreviewFromSprite(var spriteSliceWidth: Int,
                                 var spriteSliceHeight: Int, var spriteSlicesCount: Int, var mediaEntryId: String) {
 
     private val log = PKLog.get("GetPreviewFromSprite")
-    private var imageSpriteUrl = "http://cdnapi.kaltura.com/p/1982551/sp/198255100/thumbnail/entry_id/${mediaEntryId}/height/${spriteSliceHeight}/width/${spriteSliceWidth}/vid_slices/${spriteSlicesCount}"
+    private var imageSpriteUrl = "http://cdnapi.kaltura.com/p/2254732/sp/198255100/thumbnail/entry_id/${mediaEntryId}/height/${spriteSliceHeight}/width/${spriteSliceWidth}/vid_slices/${spriteSlicesCount}"
 
     private val connectionReadTimeOut: Int = 120000
     private val connectionTimeOut: Int = 120000
