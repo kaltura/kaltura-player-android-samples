@@ -3,20 +3,9 @@ package com.kaltura.playkit.samples.audioonlybasicsetup
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.ImageView
-
 import androidx.appcompat.app.AppCompatActivity
-
-import com.kaltura.playkit.PKDrmParams
-import com.kaltura.playkit.PKLog
-import com.kaltura.playkit.PKMediaEntry
-import com.kaltura.playkit.PKMediaFormat
-import com.kaltura.playkit.PKMediaSource
-import com.kaltura.playkit.PKPluginConfigs
-import com.kaltura.playkit.PKSubtitleFormat
-import com.kaltura.playkit.PlayerEvent
+import com.kaltura.playkit.*
 import com.kaltura.playkit.player.PKExternalSubtitle
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
@@ -24,8 +13,8 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
-
-import java.util.ArrayList
+import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,16 +29,11 @@ class MainActivity : AppCompatActivity() {
     private val AD_TAG_URL_PRE = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator="
 
     private val LICENSE_URL: String? = null
-
     private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
-    private var artworkView: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        artworkView = findViewById(R.id.artwork_view)
 
         val mediaEntry = createMediaEntry()
 
@@ -59,11 +43,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addAdEvents() {
-        player!!.addListener(this, AdEvent.contentPauseRequested) { event -> showArtworkForAudioContent(View.GONE) }
+        player?.addListener(this, AdEvent.contentPauseRequested) { event -> showArtworkForAudioContent(View.GONE) }
 
-        player!!.addListener(this, AdEvent.contentResumeRequested) { event -> showArtworkForAudioContent(View.VISIBLE) }
+        player?.addListener(this, AdEvent.contentResumeRequested) { event -> showArtworkForAudioContent(View.VISIBLE) }
 
-        player!!.addListener(this, AdEvent.error) { event -> showArtworkForAudioContent(View.VISIBLE) }
+        player?.addListener(this, AdEvent.error) { event -> showArtworkForAudioContent(View.VISIBLE) }
     }
 
     private fun setExternalSubtitles(mediaEntry: PKMediaEntry) {
@@ -152,42 +136,44 @@ class MainActivity : AppCompatActivity() {
      * Just add a simple button which will start/pause playback.
      */
     private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById(R.id.play_pause_button)
         //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
-            if (player!!.isPlaying) {
-                //If player is playing, change text of the button and pause.
-                playPauseButton!!.setText(R.string.play_text)
-                player!!.pause()
-            } else {
-                //If player is not playing, change text of the button and play.
-                playPauseButton!!.setText(R.string.pause_text)
-                player!!.play()
+        play_pause_button.setOnClickListener { _ ->
+
+            player?.let {
+                if (it.isPlaying) {
+                    //If player is playing, change text of the button and pause.
+                    play_pause_button.setText(R.string.play_text)
+                    it.pause()
+                } else {
+                    //If player is not playing, change text of the button and play.
+                    play_pause_button?.setText(R.string.pause_text)
+                    it.play()
+                }
             }
         }
     }
 
     private fun showArtworkForAudioContent(visibility: Int) {
-        artworkView!!.visibility = visibility
+        artwork_view.visibility = visibility
     }
 
     override fun onResume() {
         super.onResume()
-        if (player != null) {
-            if (playPauseButton != null) {
-                playPauseButton!!.setText(R.string.pause_text)
-            }
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let {
+            play_pause_button.setText(R.string.pause_text)
+            it.onApplicationResumed()
+            it.play()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy();
     }
 
     override fun onPause() {
         super.onPause()
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
     }
 
     fun loadPlaykitPlayer(pkMediaEntry: PKMediaEntry) {
@@ -210,10 +196,10 @@ class MainActivity : AppCompatActivity() {
 
         showArtworkForAudioContent(View.VISIBLE)
 
-        player!!.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT)
-        val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
-        player!!.setMedia(pkMediaEntry, START_POSITION)
+        player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        val container = player_root
+        container.addView(player?.playerView)
+        player?.setMedia(pkMediaEntry, START_POSITION)
     }
 
     private fun getAdsConfig(adTagUrl: String): IMAConfig {
@@ -225,7 +211,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun subscribeToTracksAvailableEvent() {
-        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             log.d("Event TRACKS_AVAILABLE")
 
@@ -242,7 +228,7 @@ class MainActivity : AppCompatActivity() {
             if (tracks.textTracks.size > 0) {
                 log.d("Default Text langae = " + tracks.textTracks[defaultTextTrackIndex].label)
                 if (tracks.textTracks.size > 2) {
-                    player!!.changeTrack(tracks.textTracks[2].uniqueId)
+                    player?.changeTrack(tracks.textTracks[2].uniqueId)
                 }
             }
             if (tracks.videoTracks.size > 0) {

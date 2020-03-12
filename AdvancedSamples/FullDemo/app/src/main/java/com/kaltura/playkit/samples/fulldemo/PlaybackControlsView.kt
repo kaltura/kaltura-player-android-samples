@@ -8,15 +8,12 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
-
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.utils.Consts
 import com.kaltura.tvplayer.KalturaPlayer
-
-import java.util.Formatter
-import java.util.Locale
+import java.util.*
 
 class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
@@ -28,15 +25,15 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
     private val formatter: Formatter
     private val formatBuilder: StringBuilder
 
-    private var seekBar: SeekBar? = null
-    private var tvCurTime: TextView? = null
-    private var tvTime: TextView? = null
-    private var btnPlay: ImageButton? = null
-    private var btnPause: ImageButton? = null
-    private var btnFastForward: ImageButton? = null
-    private var btnRewind: ImageButton? = null
-    private var btnNext: ImageButton? = null
-    private var btnPrevious: ImageButton? = null
+    private lateinit var seekBar: SeekBar
+    private lateinit var tvCurTime: TextView
+    private lateinit var tvTime: TextView
+    private lateinit var btnPlay: ImageButton
+    private lateinit var btnPause: ImageButton
+    private lateinit var btnFastForward: ImageButton
+    private lateinit var btnRewind: ImageButton
+    private lateinit var btnNext: ImageButton
+    private lateinit var btnPrevious: ImageButton
 
     private var dragging = false
 
@@ -58,56 +55,57 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         btnNext = this.findViewById(R.id.next)
         btnPrevious = this.findViewById(R.id.prev)
 
-        btnPlay!!.setOnClickListener(this)
-        btnPause!!.setOnClickListener(this)
-        btnFastForward!!.setOnClickListener(this)
-        btnRewind!!.setOnClickListener(this)
-        btnNext!!.setOnClickListener(this)
-        btnPrevious!!.setOnClickListener(this)
+        btnPlay.setOnClickListener(this)
+        btnPause.setOnClickListener(this)
+        btnFastForward.setOnClickListener(this)
+        btnRewind.setOnClickListener(this)
+        btnNext.setOnClickListener(this)
+        btnPrevious.setOnClickListener(this)
 
         seekBar = this.findViewById(R.id.mediacontroller_progress)
-        seekBar!!.setOnSeekBarChangeListener(this)
+        seekBar.setOnSeekBarChangeListener(this)
 
         tvCurTime = this.findViewById(R.id.time_current)
         tvTime = this.findViewById(R.id.time)
     }
 
     private fun updateProgress() {
-        var duration = Consts.TIME_UNSET
-        var position = Consts.POSITION_UNSET.toLong()
-        var bufferedPosition: Long = 0
+        var duration: Long? = Consts.TIME_UNSET
+        var position: Long? = Consts.POSITION_UNSET.toLong()
+        var bufferedPosition: Long? = 0
         if (player != null) {
-            val adController = player!!.getController(AdController::class.java)
+            val adController = player?.getController(AdController::class.java)
             if (adController != null && adController.isAdDisplayed) {
                 duration = adController.adDuration
                 position = adController.adCurrentPosition
                 //log.d("XXX adController Duration:" + duration);
                 //log.d("XXX adController Position:" + position);
             } else {
-                duration = player!!.duration
-                position = player!!.currentPosition
+                duration = player?.duration
+                position = player?.currentPosition
                 //log.d("XXX Duration:" + duration);
                 //log.d("XXX Position:" + position);
-                bufferedPosition = player!!.bufferedPosition
+                bufferedPosition = player?.bufferedPosition
             }
         }
 
         if (duration != Consts.TIME_UNSET) {
             //log.d("updateProgress Set Duration:" + duration);
-            tvTime!!.text = stringForTime(duration)
+            tvTime.text = stringForTime(duration!!)
         }
 
         if (!dragging && position != Consts.POSITION_UNSET.toLong() && duration != Consts.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
-            tvCurTime!!.text = stringForTime(position)
-            seekBar!!.progress = progressBarValue(position)
+            tvCurTime.text = stringForTime(position!!)
+            seekBar.progress = progressBarValue(position)
         }
 
-        seekBar!!.secondaryProgress = progressBarValue(bufferedPosition)
+        seekBar.secondaryProgress = progressBarValue(bufferedPosition!!)
         // Remove scheduled updates.
         removeCallbacks(updateProgressAction)
         // Schedule an update if necessary.
-        if (playerState != PlayerState.IDLE || player!!.getController(AdController::class.java) != null && player!!.getController(AdController::class.java).adCurrentPosition >= 0) {
+        val adController = player?.getController(AdController::class.java)
+        if (playerState != PlayerState.IDLE && adController != null && adController.adCurrentPosition >= 0) {
             val delayMs: Long = 1000
             postDelayed(updateProgressAction, delayMs)
         }
@@ -115,13 +113,13 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     private fun progressBarValue(position: Long): Int {
         var progressValue = 0
-        if (player != null) {
-            var duration = player!!.duration
-            val adController = player!!.getController(AdController::class.java)
+        player?.let {
+            var duration: Long? = it.duration
+            val adController = it.getController(AdController::class.java)
             if (adController != null && adController.isAdDisplayed) {
                 duration = adController.adDuration
             }
-            if (duration > 0) {
+            if (duration!! > 0) {
                 progressValue = (position * PROGRESS_BAR_MAX / duration).toInt()
             }
         }
@@ -131,9 +129,9 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     private fun positionValue(progress: Int): Long {
         var positionValue: Long = 0
-        if (player != null) {
-            var duration = player!!.duration
-            val adController = player!!.getController(AdController::class.java)
+        player?.let {
+            var duration = it.duration
+            val adController = it.getController(AdController::class.java)
             if (adController != null && adController.isAdDisplayed) {
                 duration = adController.adDuration
             }
@@ -156,7 +154,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
             formatter.format("%02d:%02d", minutes, seconds).toString()
     }
 
-    fun setPlayer(player: KalturaPlayer) {
+    fun setPlayer(player: KalturaPlayer?) {
         this.player = player
     }
 
@@ -165,14 +163,16 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         updateProgress()
     }
 
+    fun setSeekBarStateForAd(isAdPlaying: Boolean) {
+        seekBar.isEnabled = !isAdPlaying
+    }
+
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.play -> if (player != null) {
-                player!!.play()
-            }
-            R.id.pause -> if (player != null) {
-                player!!.pause()
-            }
+            R.id.play ->
+                player?.play()
+            R.id.pause ->
+                player?.pause()
             R.id.ffwd -> {
                 //Do nothing for now
             }
@@ -190,7 +190,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         if (fromUser) {
-            tvCurTime!!.text = stringForTime(positionValue(progress))
+            tvCurTime.text = stringForTime(positionValue(progress))
         }
     }
 
@@ -201,7 +201,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onStopTrackingTouch(seekBar: SeekBar) {
         dragging = false
-        player!!.seekTo(positionValue(seekBar.progress))
+        player?.seekTo(positionValue(seekBar.progress))
     }
 
     fun release() {

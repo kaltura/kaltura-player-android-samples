@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
@@ -24,8 +25,14 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     private val videoTracksBtn: Button
     private val audioTracksBtn: Button
     private val textTracksBtn: Button
-    private val prevBtn: Button
-    private val nextBtn: Button
+
+    private val loopBtn: Button
+    private val shuffleBtn: Button
+    private val recoverOnErrorBtn: Button
+
+    private val prevImgBtn: ImageView
+    private val nextImgBtn: ImageView
+
     private val vrToggle: ImageView
     private var adPluginName: String? = null
 
@@ -37,7 +44,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
 
     private val hideButtonsHandler = Handler(Looper.getMainLooper())
     private val hideButtonsRunnable = Runnable {
-        if (playerState === PlayerEvent.Type.PLAYING || adPlayerState === AdEvent.Type.STARTED || adPlayerState === AdEvent.Type.RESUMED || adPlayerState === AdEvent.Type.COMPLETED) {
+        if (playerState == null || playerState == PlayerEvent.Type.PLAYING || adPlayerState == AdEvent.Type.STARTED || adPlayerState == AdEvent.Type.RESUMED || adPlayerState == AdEvent.Type.COMPLETED) {
             showControls(View.INVISIBLE)
         }
     }
@@ -51,8 +58,15 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         this.textTracksBtn = playerActivity.findViewById(R.id.text_tracks)
         this.audioTracksBtn = playerActivity.findViewById(R.id.audio_tracks)
         addTracksButtonsListener()
-        this.prevBtn = playerActivity.findViewById(R.id.prev_btn)
-        this.nextBtn = playerActivity.findViewById(R.id.next_btn)
+
+        this.loopBtn = playerActivity.findViewById(R.id.loop_btn)
+        this.shuffleBtn = playerActivity.findViewById(R.id.shuffle_btn)
+        this.recoverOnErrorBtn = playerActivity.findViewById(R.id.recover_btn)
+
+
+        this.prevImgBtn = playerActivity.findViewById(R.id.icon_play_prev)
+        this.nextImgBtn = playerActivity.findViewById(R.id.icon_play_next)
+
         this.vrToggle = playerActivity.findViewById(R.id.vrtoggleButton)
         vrToggle.setOnClickListener { togglVRClick() }
         showControls(View.INVISIBLE)
@@ -104,8 +118,13 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         }
 
         if (isAdDisplayed) {
-            nextBtn.visibility = View.INVISIBLE
-            prevBtn.visibility = View.INVISIBLE
+            loopBtn.visibility = View.INVISIBLE
+            shuffleBtn.visibility = View.INVISIBLE
+            recoverOnErrorBtn.visibility = View.INVISIBLE
+
+            nextImgBtn.visibility = View.VISIBLE
+            prevImgBtn.visibility = View.VISIBLE
+
             videoTracksBtn.visibility = View.INVISIBLE
             audioTracksBtn.visibility = View.INVISIBLE
             textTracksBtn.visibility = View.INVISIBLE
@@ -113,12 +132,49 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             return
         }
 
+        nextImgBtn.visibility = visibility
+        prevImgBtn.visibility = visibility
+
+        loopBtn.visibility = visibility
+        shuffleBtn.visibility = View.INVISIBLE
+        recoverOnErrorBtn.visibility = visibility
+
+        if (player?.playlistController != null) {
+            if (player?.playlistController.isLoopEnabled) {
+                player?.playlistController?.isLoopEnabled?.let {
+                    if (it) {
+                        loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                    } else {
+                        loopBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
+                    }
+                }
+
+            }
+
+//            if (player?.playlistController.isShuffleEnabled) {
+//                player?.playlistController?.isShuffleEnabled?.let {
+//                    if (it) {
+//                        shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+//                    } else {
+//                        shuffleBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
+//                    }
+//                }
+//            }
+
+            if (player?.playlistController.isRecoverOnError) {
+                player?.playlistController?.isRecoverOnError?.let {
+                    if (it) {
+                        recoverOnErrorBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                    } else {
+                        recoverOnErrorBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
+                    }
+                }
+            }
+        }
+
         if (tracksSelectionController == null || tracksSelectionController!!.tracks == null) {
             return
         }
-
-        nextBtn.visibility = visibility
-        prevBtn.visibility = visibility
 
         if (tracksSelectionController!!.tracks!!.videoTracks.size > 1) {
             videoTracksBtn.visibility = visibility
@@ -154,10 +210,16 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     }
 
     override fun setAdPlayerState(playerState: Enum<*>?) {
+        if (playerState == null) {
+            isAdDisplayed = false
+            adPlayerState = null
+            return
+        }
+
         this.adPlayerState = playerState
-        if (adPlayerState === AdEvent.Type.STARTED || adPlayerState === AdEvent.Type.CONTENT_PAUSE_REQUESTED || adPlayerState === AdEvent.Type.TAPPED) {
+        if (adPlayerState == AdEvent.Type.STARTED || adPlayerState == AdEvent.Type.CONTENT_PAUSE_REQUESTED || adPlayerState == AdEvent.Type.TAPPED) {
             isAdDisplayed = true
-        } else if (adPlayerState === AdEvent.Type.CONTENT_RESUME_REQUESTED || adPlayerState === AdEvent.Type.ALL_ADS_COMPLETED) {
+        } else if (adPlayerState == AdEvent.Type.CONTENT_RESUME_REQUESTED || adPlayerState == AdEvent.Type.ALL_ADS_COMPLETED) {
             isAdDisplayed = false
         }
     }
@@ -182,61 +244,160 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         }
     }
 
-    fun updatePrevNextBtnFunctionality(currentPlayedMediaIndex: Int, mediaListSize: Int) {
+//    fun updatePrevNextBtnFunctionality(currentPlayedMediaIndex: Int, mediaListSize: Int) {
+//        var isPlaylistLoopEnabled = player?.playlistController?.isLoopEnabled() ?: false
+//        if (mediaListSize > 1) {
+//            if (currentPlayedMediaIndex == 0) {
+//                nextBtn.isClickable = true
+//                nextBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+//                if (isPlaylistLoopEnabled) {
+//                    prevBtn.isClickable = true
+//                    prevBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+//                } else {
+//                    prevBtn.isClickable = false
+//                    prevBtn.setBackgroundColor(Color.RED)
+//                }
+//            } else if (currentPlayedMediaIndex == mediaListSize - 1 && !isPlaylistLoopEnabled) {
+//                nextBtn.isClickable = false
+//                nextBtn.setBackgroundColor(Color.RED)
+//                prevBtn.isClickable = true
+//                prevBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+//            } else if (currentPlayedMediaIndex > 0 && currentPlayedMediaIndex < mediaListSize - 1 || isPlaylistLoopEnabled) {
+//                nextBtn.isClickable = true
+//                nextBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+//                prevBtn.isClickable = true
+//                prevBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+//            } else {
+//                nextBtn.isClickable = false
+//                nextBtn.setBackgroundColor(Color.RED)
+//                prevBtn.isClickable = false
+//                prevBtn.setBackgroundColor(Color.RED)
+//            }
+//        } else {
+//            nextBtn.isClickable = false
+//            nextBtn.setBackgroundColor(Color.RED)
+//            prevBtn.isClickable = false
+//            prevBtn.setBackgroundColor(Color.RED)
+//        }
+//    }
+
+    fun updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex: Int, mediaListSize: Int) {
+        var isPlaylistLoopEnabled = player?.playlistController?.isLoopEnabled() ?: false
         if (mediaListSize > 1) {
             if (currentPlayedMediaIndex == 0) {
-                nextBtn.isClickable = true
-                nextBtn.setBackgroundColor(Color.rgb(66, 165, 245))
-                prevBtn.isClickable = false
-                prevBtn.setBackgroundColor(Color.RED)
-            } else if (currentPlayedMediaIndex == mediaListSize - 1) {
-                nextBtn.isClickable = false
-                nextBtn.setBackgroundColor(Color.RED)
-                prevBtn.isClickable = true
-                prevBtn.setBackgroundColor(Color.rgb(66, 165, 245))
-            } else if (currentPlayedMediaIndex > 0 && currentPlayedMediaIndex < mediaListSize - 1) {
-                nextBtn.isClickable = true
-                nextBtn.setBackgroundColor(Color.rgb(66, 165, 245))
-                prevBtn.isClickable = true
-                prevBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                nextImgBtn.isClickable = true
+                nextImgBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                if (isPlaylistLoopEnabled) {
+                    prevImgBtn.isClickable = true
+                    prevImgBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                } else {
+                    prevImgBtn.isClickable = false
+                    prevImgBtn.setBackgroundColor(Color.RED)
+                }
+            } else if (currentPlayedMediaIndex == mediaListSize - 1 && !isPlaylistLoopEnabled) {
+                nextImgBtn.isClickable = false
+                nextImgBtn.setBackgroundColor(Color.RED)
+                prevImgBtn.isClickable = true
+                prevImgBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+            } else if (currentPlayedMediaIndex > 0 && currentPlayedMediaIndex < mediaListSize - 1 || isPlaylistLoopEnabled) {
+                nextImgBtn.isClickable = true
+                nextImgBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                prevImgBtn.isClickable = true
+                prevImgBtn.setBackgroundColor(Color.rgb(66, 165, 245))
             } else {
-                nextBtn.isClickable = false
-                nextBtn.setBackgroundColor(Color.RED)
-                prevBtn.isClickable = false
-                prevBtn.setBackgroundColor(Color.RED)
+                nextImgBtn.isClickable = false
+                nextImgBtn.setBackgroundColor(Color.RED)
+                prevImgBtn.isClickable = false
+                prevImgBtn.setBackgroundColor(Color.RED)
             }
         } else {
-            nextBtn.isClickable = false
-            nextBtn.setBackgroundColor(Color.RED)
-            prevBtn.isClickable = false
-            prevBtn.setBackgroundColor(Color.RED)
+            nextImgBtn.isClickable = false
+            nextImgBtn.setBackgroundColor(Color.RED)
+            prevImgBtn.isClickable = false
+            prevImgBtn.setBackgroundColor(Color.RED)
         }
     }
 
-    fun addChangeMediaButtonsListener(mediaListSize: Int) {
-        prevBtn.setOnClickListener { view ->
+    fun setSeekBarVisibiliy(visibility :Int) {
+        playbackControlsView?.setSeekBarVisibility(visibility)
+    }
+
+    fun addPlaylistButtonsListener() {
+        if (player?.playlistController == null) {
+            return
+        }
+
+        loopBtn.setOnClickListener { view ->
+            player?.playlistController?.let {
+                if (it.isLoopEnabled) {
+                    player?.playlistController?.setLoop(false)
+                    loopBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
+                } else {
+                    player?.playlistController?.setLoop(true)
+                    loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                }
+            }
+            updatePrevNextImgBtnFunctionality(player?.playlistController.currentMediaIndex, player?.playlistController.playlist?.mediaList?.size ?: 0)
+
+        }
+
+//        shuffleBtn.setOnClickListener{ view ->
+//            player?.playlistController?.let {
+//                if (it.isShuffleEnabled) {
+//                    player?.playlistController?.shuffle(false)
+//                    shuffleBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
+//                } else {
+//                    player?.playlistController?.shuffle(true)
+//                    shuffleBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+//                }
+//            }
+//        }
+
+        recoverOnErrorBtn.setOnClickListener{ view ->
+            player?.playlistController?.let {
+                if (it.isRecoverOnError) {
+                    player?.playlistController?.setRecoverOnError(false)
+                    recoverOnErrorBtn.setBackgroundColor(ContextCompat.getColor(playerActivity, R.color.cardview_dark_background))
+                } else {
+                    player?.playlistController?.setRecoverOnError(true)
+                    recoverOnErrorBtn.setBackgroundColor(Color.rgb(66, 165, 245))
+                }
+            }
+        }
+    }
+
+    fun addChangeMediaImgButtonsListener(mediaListSize: Int) {
+        prevImgBtn.setOnClickListener { view ->
             playbackControlsView!!.playPauseToggle.setBackgroundResource(R.drawable.play)
             playerActivity.setCurrentPlayedMediaIndex(playerActivity.getCurrentPlayedMediaIndex() - 1)
             if (mediaListSize <= 1) {
                 return@setOnClickListener
             }
-            updatePrevNextBtnFunctionality(playerActivity.getCurrentPlayedMediaIndex(), mediaListSize)
+            updatePrevNextImgBtnFunctionality(playerActivity.getCurrentPlayedMediaIndex(), mediaListSize)
             playerActivity.clearLogView()
             player?.stop()
-            playerActivity.changeMedia()
+            if (player?.playlistController != null) {
+                playerActivity.playPrev()
+            } else {
+                playerActivity.changeMedia()
+            }
         }
 
-        nextBtn.setOnClickListener{ view ->
+        nextImgBtn.setOnClickListener{ view ->
             playbackControlsView!!.playPauseToggle.setBackgroundResource(R.drawable.play)
             playerActivity.setCurrentPlayedMediaIndex(playerActivity.getCurrentPlayedMediaIndex() + 1)
 
             if (mediaListSize <= 1) {
                 return@setOnClickListener
             }
-            updatePrevNextBtnFunctionality(playerActivity.getCurrentPlayedMediaIndex(), mediaListSize)
+            updatePrevNextImgBtnFunctionality(playerActivity.getCurrentPlayedMediaIndex(), mediaListSize)
             playerActivity.clearLogView()
             player?.stop()
-            playerActivity.changeMedia()
+            if (player?.playlistController != null) {
+                playerActivity.playNext()
+            } else {
+                playerActivity.changeMedia()
+            }
         }
     }
 
@@ -248,7 +409,4 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         private val log = PKLog.get("PlaybackControlsManager")
         private val REMOVE_CONTROLS_TIMEOUT = 3000 //3250
     }
-
-
-
 }

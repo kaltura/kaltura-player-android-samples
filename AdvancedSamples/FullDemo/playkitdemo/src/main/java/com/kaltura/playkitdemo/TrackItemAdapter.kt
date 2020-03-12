@@ -13,7 +13,7 @@ class TrackItemAdapter(context: Context, textViewResourceId: Int, private val tr
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val label = TextView(context)
         label.setTextColor(Color.BLACK)
-        label.text = trackItems[position]!!.trackName
+        label.text = trackItems[position]?.trackName
         return label
     }
 
@@ -21,7 +21,7 @@ class TrackItemAdapter(context: Context, textViewResourceId: Int, private val tr
                                  parent: ViewGroup): View {
         val label = TextView(context)
         label.setTextColor(Color.BLACK)
-        label.text = trackItems[position]!!.trackName
+        label.text = trackItems[position]?.trackName
         return label
     }
 

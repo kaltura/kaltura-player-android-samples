@@ -3,20 +3,18 @@ package com.example.gettingstarted
 
 import android.os.Bundle
 import android.os.Handler
-
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PlayerEvent
-import kotlinx.android.synthetic.main.activity_fullscreen.*
-
 import com.kaltura.playkit.PlayerState
 import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
+import kotlinx.android.synthetic.main.activity_fullscreen.*
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -37,12 +35,12 @@ class FullscreenActivity : AppCompatActivity() {
         // and API 19 (KitKat). It is safe to use them, as they are inlined
         // at compile-time and do nothing on earlier devices.
         fullscreen_content.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_LOW_PROFILE or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                View.SYSTEM_UI_FLAG_LOW_PROFILE or
+                        View.SYSTEM_UI_FLAG_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
     }
     private val mShowPart2Runnable = Runnable {
         // Delayed display of UI elements
@@ -71,16 +69,16 @@ class FullscreenActivity : AppCompatActivity() {
      */
     private fun addPlayPauseButton() {
         //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
-            if (player != null) {
-                if (player!!.isPlaying) {
+        playPauseButton.setOnClickListener { v ->
+            player?.let {
+                if (it.isPlaying) {
                     //If player is playing, change text of the button and pause.
-                    player!!.pause()
-                    playPauseButton!!.setImageResource(R.drawable.exo_controls_play)
+                    it.pause()
+                    playPauseButton.setImageResource(R.drawable.exo_controls_play)
                 } else {
                     //If player is not playing, change text of the button and play.
-                    player!!.play()
-                    playPauseButton!!.setImageResource(R.drawable.exo_controls_pause)
+                    it.play()
+                    playPauseButton.setImageResource(R.drawable.exo_controls_pause)
                 }
             }
         }
@@ -117,8 +115,8 @@ class FullscreenActivity : AppCompatActivity() {
     private fun show() {
         // Show the system bar
         fullscreen_content.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         mVisible = true
 
         // Schedule a runnable to display UI elements after a delay
@@ -161,14 +159,14 @@ class FullscreenActivity : AppCompatActivity() {
     }
 
     private fun addPlayerStateListener() {
-        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
             Log.d(TAG, "State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
     }
 
     private fun addPlayerEventsListener() {
-        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             Log.d(TAG, "TracksAvailable event")
             val trackInfo = event.tracksInfo
             for(videoTrack in trackInfo.videoTracks) {
@@ -176,15 +174,15 @@ class FullscreenActivity : AppCompatActivity() {
             }
         }
 
-        player!!.addListener(this,  PlayerEvent.canPlay) { event ->
+        player?.addListener(this,  PlayerEvent.canPlay) { event ->
             Log.d(TAG, "PlayerEvent " + event.eventType())
         }
 
-        player!!.addListener(this,  PlayerEvent.playing) { event ->
+        player?.addListener(this,  PlayerEvent.playing) { event ->
             Log.d(TAG, "PlayerEvent " + event.eventType())
         }
 
-        player!!.addListener(this,  PlayerEvent.error) { event ->
+        player?.addListener(this,  PlayerEvent.error) { event ->
             Log.d(TAG, "Error PlayerEvent " + event.error.message + " isFatal = " + event.error.isFatal)
         }
     }
@@ -209,26 +207,22 @@ class FullscreenActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (player != null && playerState != null) {
-            if (playPauseButton != null) {
-                playPauseButton!!.setImageResource(R.drawable.exo_controls_pause)
-            }
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let {
+            playPauseButton.setImageResource(R.drawable.exo_controls_pause)
+            it.onApplicationResumed()
+            it.play()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
     }
 
     public override fun onDestroy() {
-        if (player != null) {
-            player!!.removeListeners(this)
-            player!!.destroy()
+        player?.let {
+            it.removeListeners(this)
+            it.destroy()
             player = null
         }
         super.onDestroy()
