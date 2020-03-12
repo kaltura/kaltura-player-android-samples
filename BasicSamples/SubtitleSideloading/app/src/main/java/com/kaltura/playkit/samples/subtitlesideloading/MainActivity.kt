@@ -32,6 +32,8 @@ import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter
 import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.tracks_selection_menu_layout.*
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -50,14 +52,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     //   private static final String SOURCE_URL = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
 
     private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
 
-    //Android Spinner view, that will actually hold and manipulate tracks selection.
-    private var videoSpinner: Spinner? = null
-    private var audioSpinner: Spinner? = null
-    private var textSpinner: Spinner? = null
-    private var ccStyleSpinner: Spinner? = null
-    private var tvSpinnerTitle: TextView? = null
     private var userIsInteracting: Boolean = false
     private var isFullScreen: Boolean = false
     private var tracksSelectionMenu: View? = null
@@ -104,10 +99,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         findViewById<View>(R.id.activity_main).setOnClickListener { v ->
             if (isFullScreen) {
-                tracksSelectionMenu!!.animate().translationY(0f)
+                tracksSelectionMenu?.animate()?.translationY(0f)
                 isFullScreen = false
             } else {
-                tracksSelectionMenu!!.animate().translationY(-200f)
+                tracksSelectionMenu?.animate()?.translationY(-200f)
                 isFullScreen = true
             }
         }
@@ -144,18 +139,18 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * Just add a simple button which will start/pause playback.
      */
     private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById<View>(R.id.play_pause_button) as Button
         //Add clickListener.
-        playPauseButton!!.setOnClickListener {
-            if (player!!.isPlaying) {
-                //If player is playing, change text of the button and pause.
-                playPauseButton!!.setText(R.string.play_text)
-                player!!.pause()
-            } else {
-                //If player is not playing, change text of the button and play.
-                playPauseButton!!.setText(R.string.pause_text)
-                player!!.play()
+        play_pause_button.setOnClickListener {
+            player?.let {
+                if (it.isPlaying) {
+                    //If player is playing, change text of the button and pause.
+                    play_pause_button.setText(R.string.play_text)
+                    it.pause()
+                } else {
+                    //If player is not playing, change text of the button and play.
+                    play_pause_button.setText(R.string.pause_text)
+                    it.play()
+                }
             }
         }
     }
@@ -165,37 +160,31 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * and set OnItemSelectedListener.
      */
     private fun initializeTrackSpinners() {
-        tracksSelectionMenu = this.findViewById(R.id.tracks_selection_menu) as View
-        videoSpinner = this.findViewById<View>(R.id.videoSpinner) as Spinner
-        audioSpinner = this.findViewById<View>(R.id.audioSpinner) as Spinner
-        textSpinner = this.findViewById<View>(R.id.textSpinner) as Spinner
-        ccStyleSpinner = this.findViewById<View>(R.id.ccStyleSpinner) as Spinner
-        tvSpinnerTitle = this.findViewById<View>(R.id.tvSpinnerTitle) as TextView
-        tvSpinnerTitle!!.visibility = View.INVISIBLE
-        ccStyleSpinner!!.visibility = View.INVISIBLE
+        tvSpinnerTitle.visibility = View.INVISIBLE
+        ccStyleSpinner.visibility = View.INVISIBLE
 
-        textSpinner!!.onItemSelectedListener = this
-        audioSpinner!!.onItemSelectedListener = this
-        videoSpinner!!.onItemSelectedListener = this
+        textSpinner.onItemSelectedListener = this
+        audioSpinner.onItemSelectedListener = this
+        videoSpinner.onItemSelectedListener = this
 
         val stylesStrings = ArrayList<String>()
         stylesStrings.add(defaultPositionDefault.styleName)
         stylesStrings.add(styleForPositionOne.styleName)
         stylesStrings.add(styleForPositionTwo.styleName)
         val ccStyleAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, stylesStrings)
-        ccStyleSpinner!!.adapter = ccStyleAdapter
-        ccStyleSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        ccStyleSpinner.adapter = ccStyleAdapter
+        ccStyleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 if (!userIsInteracting) {
                     return
                 }
 
                 if (position == 0) {
-                    player!!.updateSubtitleStyle(defaultPositionDefault)
+                    player?.updateSubtitleStyle(defaultPositionDefault)
                 } else if (position == 1) {
-                    player!!.updateSubtitleStyle(styleForPositionOne)
+                    player?.updateSubtitleStyle(styleForPositionOne)
                 } else {
-                    player!!.updateSubtitleStyle(styleForPositionTwo)
+                    player?.updateSubtitleStyle(styleForPositionTwo)
                 }
             }
 
@@ -211,7 +200,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * by the player.
      */
     private fun subscribeToTracksAvailableEvent() {
-        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             //When the track data available, this event occurs. It brings the info object with it.
             Log.d(TAG, "Event TRACKS_AVAILABLE")
 
@@ -223,14 +212,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             val defaultAudioTrackIndex = tracks.defaultAudioTrackIndex
             val defaultTextTrackIndex = tracks.defaultTextTrackIndex
             if (tracks.audioTracks.size > 0) {
-                Log.d(TAG, "Default Audio langae = " + tracks.audioTracks[defaultAudioTrackIndex].label!!)
+                Log.d(TAG, "Default Audio langae = " + tracks.audioTracks[defaultAudioTrackIndex].label)
             }
             if (tracks.textTracks.size > 0) {
-                Log.d(TAG, "Default Text langae = " + tracks.textTracks[defaultTextTrackIndex].label!!)
-                if (tvSpinnerTitle != null && ccStyleSpinner != null) {
-                    tvSpinnerTitle!!.visibility = View.VISIBLE
-                    ccStyleSpinner!!.visibility = View.VISIBLE
-                }
+                Log.d(TAG, "Default Text langae = " + tracks.textTracks[defaultTextTrackIndex].label)
+                tvSpinnerTitle.visibility = View.VISIBLE
+                ccStyleSpinner.visibility = View.VISIBLE
             }
             if (tracks.videoTracks.size > 0) {
                 Log.d(TAG, "Default video isAdaptive = " + tracks.videoTracks[tracks.defaultAudioTrackIndex].isAdaptive + " bitrate = " + tracks.videoTracks[tracks.defaultAudioTrackIndex].bitrate)
@@ -240,13 +227,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             populateSpinnersWithTrackInfo(tracks)
         }
 
-        player!!.addListener(this, PlayerEvent.videoTrackChanged) { event -> Log.d(TAG, "Event VideoTrackChanged " + (event as PlayerEvent.VideoTrackChanged).newTrack.bitrate) }
+        player?.addListener(this, PlayerEvent.videoTrackChanged) { event -> Log.d(TAG, "Event VideoTrackChanged " + (event as PlayerEvent.VideoTrackChanged).newTrack.bitrate) }
 
-        player!!.addListener(this, PlayerEvent.audioTrackChanged) { event -> Log.d(TAG, "Event AudioTrackChanged " + (event as PlayerEvent.AudioTrackChanged).newTrack.language!!) }
+        player?.addListener(this, PlayerEvent.audioTrackChanged) { event -> Log.d(TAG, "Event AudioTrackChanged " + (event as PlayerEvent.AudioTrackChanged).newTrack.language) }
 
-        player!!.addListener(this, PlayerEvent.textTrackChanged) { event -> Log.d(TAG, "Event TextTrackChanged " + (event as PlayerEvent.TextTrackChanged).newTrack.language!!) }
+        player?.addListener(this, PlayerEvent.textTrackChanged) { event -> Log.d(TAG, "Event TextTrackChanged " + (event as PlayerEvent.TextTrackChanged).newTrack.language) }
 
-        player!!.addListener(this, PlayerEvent.subtitlesStyleChanged) { event -> Log.d(TAG, "Event SubtitlesStyleChanged " + (event as PlayerEvent.SubtitlesStyleChanged).styleName) }
+        player?.addListener(this, PlayerEvent.subtitlesStyleChanged) { event -> Log.d(TAG, "Event SubtitlesStyleChanged " + (event as PlayerEvent.SubtitlesStyleChanged).styleName) }
     }
 
     /**
@@ -260,17 +247,17 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         //Build track items that are based on videoTrack data.
         val videoTrackItems = buildVideoTrackItems(tracks.videoTracks)
         //populate spinner with this info.
-        applyAdapterOnSpinner(videoSpinner!!, videoTrackItems, tracks.defaultVideoTrackIndex)
+        applyAdapterOnSpinner(videoSpinner, videoTrackItems, tracks.defaultVideoTrackIndex)
 
         //Build track items that are based on audioTrack data.
         val audioTrackItems = buildAudioTrackItems(tracks.audioTracks)
         //populate spinner with this info.
-        applyAdapterOnSpinner(audioSpinner!!, audioTrackItems, tracks.defaultAudioTrackIndex)
+        applyAdapterOnSpinner(audioSpinner, audioTrackItems, tracks.defaultAudioTrackIndex)
 
         //Build track items that are based on textTrack data.
         val textTrackItems = buildTextTrackItems(tracks.textTracks)
         //populate spinner with this info.
-        applyAdapterOnSpinner(textSpinner!!, textTrackItems, tracks.defaultTextTrackIndex)
+        applyAdapterOnSpinner(textSpinner, textTrackItems, tracks.defaultTextTrackIndex)
     }
 
     /**
@@ -330,14 +317,14 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val channelMap = HashMap<Int, AtomicInteger>()
         for (i in audioTracks.indices) {
             if (channelMap.containsKey(audioTracks[i].channelCount)) {
-                channelMap[audioTracks[i].channelCount]!!.incrementAndGet()
+                channelMap[audioTracks[i].channelCount]?.incrementAndGet()
             } else {
                 channelMap[audioTracks[i].channelCount] = AtomicInteger(1)
             }
         }
         var addChannel = false
 
-        if (channelMap.keys.size > 0 && AtomicInteger(audioTracks.size).toString() != channelMap[audioTracks[0].channelCount]!!.toString()) {
+        if (channelMap.keys.size > 0 && AtomicInteger(audioTracks.size).toString() != channelMap[audioTracks[0].channelCount].toString()) {
             addChannel = true
         }
 
@@ -395,7 +382,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
             //Name TrackItem based on the text track label.
             val name = textTrackInfo.label
-            trackItems[i] = TrackItem(name!!, textTrackInfo.uniqueId)
+            trackItems[i] = TrackItem(name, textTrackInfo.uniqueId)
         }
         return trackItems
     }
@@ -484,7 +471,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val (_, uniqueId) = parent.getItemAtPosition(position) as TrackItem
 
         //Important! This will actually do the switch between tracks.
-        player!!.changeTrack(uniqueId)
+        player?.changeTrack(uniqueId)
     }
 
     override fun onNothingSelected(parent: AdapterView<*>) {
@@ -496,25 +483,25 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         userIsInteracting = true
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy();
+    }
 
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
     }
 
     override fun onResume() {
         Log.d(TAG, "onResume")
         super.onResume()
 
-        if (player != null) {
-            if (playPauseButton != null) {
-                playPauseButton!!.setText(R.string.pause_text)
-            }
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let {
+            play_pause_button.setText(R.string.pause_text)
+            player?.onApplicationResumed()
+            player?.play()
         }
     }
 
@@ -524,11 +511,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         playerInitOptions.setAutoPlay(true)
 
         player = KalturaBasicPlayer.create(this@MainActivity, playerInitOptions)
-        player!!.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
 
-        val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
-        player!!.setMedia(pkMediaEntry, START_POSITION)
+        val container = player_root
+        container.addView(player?.playerView)
+        player?.setMedia(pkMediaEntry, START_POSITION)
 
     }
 }

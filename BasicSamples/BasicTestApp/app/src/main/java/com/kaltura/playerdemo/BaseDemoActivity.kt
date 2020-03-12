@@ -44,6 +44,9 @@ import org.json.JSONObject
 import java.util.ArrayList
 
 import com.kaltura.playkit.PKMediaEntry.MediaEntryType.Unknown
+import com.kaltura.tvplayer.config.TVPlayerParams
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, KalturaPlayer.OnEntryLoadListener {
 
@@ -54,7 +57,6 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
     var ks: String? = ""
     var items: Array<DemoItem>? = null
     private var contentContainer: ViewGroup? = null
-    private var navigationView: NavigationView? = null
     private var itemListView: ListView? = null
 
     protected abstract fun items(): Array<DemoItem>
@@ -75,18 +77,16 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
         drawer.addDrawerListener(toggle)
         toggle.syncState()
 
-        navigationView = findViewById(R.id.nav_view)
-        navigationView!!.setNavigationItemSelectedListener(this)
+        nav_view.setNavigationItemSelectedListener(this)
 
-        contentContainer = findViewById(R.id.content_container)
-        contentContainer!!.addView(getItemListView())
-        navigationView!!.setCheckedItem(R.id.nav_gallery)
+        content_container.addView(getItemListView())
+        nav_view.setCheckedItem(R.id.nav_gallery)
     }
 
     protected fun parseInitOptions(json: JsonObject?) {
-        val partnerId = safeInteger(json!!, PARTNER_ID)
+        val partnerId = safeInteger(json, PARTNER_ID)
                 ?: throw IllegalArgumentException("partnerId must not be null")
-        if (json.has(PLAYER_CONFIG)) {
+        if (json?.has(PLAYER_CONFIG)!!) {
             val playerConfigJasonObject = safeObject(json, PLAYER_CONFIG)
             val options = PlayerInitOptions(partnerId)
             if (initOptions == null) {
@@ -113,8 +113,8 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
         return configs
     }
 
-    protected fun safeObject(json: JsonObject, key: String): JsonObject? {
-        val jsonElement = json.get(key)
+    protected fun safeObject(json: JsonObject?, key: String): JsonObject? {
+        val jsonElement = json?.get(key)
         return if (jsonElement != null && jsonElement.isJsonObject) {
             jsonElement.asJsonObject
         } else null
@@ -134,8 +134,8 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
         } else null
     }
 
-    protected fun safeInteger(json: JsonObject, key: String): Int? {
-        val jsonElement = json.get(key)
+    protected fun safeInteger(json: JsonObject?, key: String): Int? {
+        val jsonElement = json?.get(key)
         return if (jsonElement != null && jsonElement.isJsonPrimitive) {
             jsonElement.asInt
         } else null
@@ -161,9 +161,8 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
     protected fun parseCommonOptions(json: JsonObject) {
         parseInitOptions(safeObject(json, "initOptions"))
 
-        if (initOptions != null) {
-            ks = initOptions!!.ks
-        }
+        ks = initOptions?.ks
+
         val jsonItems = json.get("items").asJsonArray
         val itemList = ArrayList<DemoItem>(jsonItems.size())
         for (item in jsonItems) {
@@ -177,9 +176,8 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
     protected fun parseBasicCommonOptions(json: JsonObject) {
         parseInitOptions(safeObject(json, "initOptions"))
 
-        if (initOptions != null) {
-            ks = initOptions!!.ks
-        }
+        ks = initOptions?.ks
+
         val jsonItems = json.get("items").asJsonArray
         val itemList = ArrayList<DemoItem>(jsonItems.size())
         for (item in jsonItems) {
@@ -228,9 +226,12 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
     protected abstract fun parseItem(`object`: JsonObject): DemoItem
 
     protected fun partnerId(): Int {
-        return if (initOptions == null || initOptions!!.tvPlayerParams == null) {
-            0
-        } else initOptions!!.tvPlayerParams.partnerId
+        initOptions?.let {
+            it.tvPlayerParams?.let { tvPlayerParam ->
+                return tvPlayerParam.partnerId
+            }
+        }
+        return 0
     }
 
     protected abstract fun loadItem(item: DemoItem)
@@ -270,10 +271,10 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
-        contentContainer!!.removeAllViews()
+        contentContainer?.removeAllViews()
 
         when (item.itemId) {
-            R.id.nav_gallery -> contentContainer!!.addView(getItemListView())
+            R.id.nav_gallery -> contentContainer?.addView(getItemListView())
             R.id.nav_downloads, R.id.nav_plugins -> {
             }
         }// TODO
@@ -284,19 +285,18 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
     }
 
     private fun getItemListView(): ListView {
-        if (itemListView != null) {
-            return itemListView!!
+        itemListView?.let {
+            return it
         }
 
         val itemArrayAdapter = ArrayAdapter<DemoItem>(this, android.R.layout.simple_list_item_1)
         itemArrayAdapter.addAll(*items())
 
-
         itemListView = ListView(this)
 
-        itemListView!!.adapter = itemArrayAdapter
+        itemListView?.adapter = itemArrayAdapter
 
-        itemListView!!.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+        itemListView?.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
             AlertDialog.Builder(context)
                     .setTitle(getString(R.string.select_action))
                     .setItems(arrayOf(getString(R.string.play_stream))) { dialog, which ->

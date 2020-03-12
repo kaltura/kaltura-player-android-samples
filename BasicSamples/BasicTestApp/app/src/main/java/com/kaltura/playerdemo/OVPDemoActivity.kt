@@ -41,7 +41,7 @@ class OVPDemoActivity : BaseDemoActivity() {
             jsonString = Utils.readAssetToString(this, "ovp/main.json")
         }
 
-        val json = GsonParser.toJson(jsonString!!).asJsonObject
+        val json = GsonParser.toJson(jsonString).asJsonObject
 
         parseCommonOptions(json)
     }
@@ -67,34 +67,44 @@ class OVPDemoActivity : BaseDemoActivity() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun playerActivityLoaded(playerActivity: PlayerActivity) {
 
-        val updatedInitOptions = PlayerInitOptions(initOptions!!.partnerId)
-        updatedInitOptions.setLicenseRequestAdapter(initOptions!!.licenseRequestAdapter)
-        updatedInitOptions.setContentRequestAdapter(initOptions!!.contentRequestAdapter)
-        updatedInitOptions.setVrPlayerEnabled(initOptions!!.vrPlayerEnabled)
-        updatedInitOptions.setVRSettings(initOptions!!.vrSettings)
-        updatedInitOptions.setAdAutoPlayOnResume(initOptions!!.adAutoPlayOnResume)
-        updatedInitOptions.setSubtitleStyle(initOptions!!.setSubtitleStyle)
-        updatedInitOptions.setLoadControlBuffers(initOptions!!.loadControlBuffers)
-        updatedInitOptions.setAbrSettings(initOptions!!.abrSettings)
-        updatedInitOptions.setAspectRatioResizeMode(initOptions!!.aspectRatioResizeMode)
-        updatedInitOptions.setPreferredMediaFormat(if (initOptions!!.preferredMediaFormat != null) initOptions!!.preferredMediaFormat else null)
-        updatedInitOptions.setAllowClearLead(initOptions!!.allowClearLead)
-        updatedInitOptions.setAllowCrossProtocolEnabled(initOptions!!.allowCrossProtocolEnabled)
-        updatedInitOptions.setSecureSurface(initOptions!!.secureSurface)
-        updatedInitOptions.setKs(initOptions!!.ks)
-        updatedInitOptions.setAutoPlay(initOptions!!.autoplay)
-        updatedInitOptions.setReferrer(initOptions!!.referrer)
-        updatedInitOptions.forceSinglePlayerEngine(initOptions!!.forceSinglePlayerEngine)
-        if (initOptions!!.audioLanguage != null && initOptions!!.audioLanguageMode != null) {
-            updatedInitOptions.setAudioLanguage(initOptions!!.audioLanguage, initOptions!!.audioLanguageMode)
+        val updatedInitOptions = PlayerInitOptions(initOptions?.partnerId)
+        updatedInitOptions.setLicenseRequestAdapter(initOptions?.licenseRequestAdapter)
+        updatedInitOptions.setContentRequestAdapter(initOptions?.contentRequestAdapter)
+        updatedInitOptions.setVrPlayerEnabled(initOptions?.vrPlayerEnabled)
+        updatedInitOptions.setVRSettings(initOptions?.vrSettings)
+        updatedInitOptions.setAdAutoPlayOnResume(initOptions?.adAutoPlayOnResume)
+        updatedInitOptions.setSubtitleStyle(initOptions?.setSubtitleStyle)
+        updatedInitOptions.setLoadControlBuffers(initOptions?.loadControlBuffers)
+        updatedInitOptions.setAbrSettings(initOptions?.abrSettings)
+        updatedInitOptions.setAspectRatioResizeMode(initOptions?.aspectRatioResizeMode)
+        updatedInitOptions.setPreferredMediaFormat(initOptions?.preferredMediaFormat)
+        updatedInitOptions.setAllowClearLead(initOptions?.allowClearLead)
+        updatedInitOptions.setAllowCrossProtocolEnabled(initOptions?.allowCrossProtocolEnabled)
+        updatedInitOptions.setSecureSurface(initOptions?.secureSurface)
+        updatedInitOptions.setKs(initOptions?.ks)
+        updatedInitOptions.setAutoPlay(initOptions?.autoplay)
+        updatedInitOptions.setReferrer(initOptions?.referrer)
+        updatedInitOptions.forceSinglePlayerEngine(initOptions?.forceSinglePlayerEngine)
+
+        initOptions?.let {
+            it.audioLanguage?.let { audioLanguage ->
+                it.audioLanguageMode?.let { audioLanguageMode ->
+                    updatedInitOptions.setAudioLanguage(audioLanguage, audioLanguageMode)
+                }
+            }
         }
-        if (initOptions!!.textLanguage != null && initOptions!!.textLanguageMode != null) {
-            updatedInitOptions.setTextLanguage(initOptions!!.textLanguage, initOptions!!.textLanguageMode)
+
+        initOptions?.let {
+            it.textLanguage?.let { textLanguage ->
+                it.textLanguageMode?.let { textLanguageMode ->
+                    updatedInitOptions.setAudioLanguage(textLanguage, textLanguageMode)
+                }
+            }
         }
 
         val player = KalturaOvpPlayer.create(playerActivity, updatedInitOptions)
         val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = currentItem!!.id
+        ovpMediaOptions.entryId = currentItem?.id
         player.loadMedia(ovpMediaOptions) { entry, loadError -> log.d("onEntryLoadComplete; $entry; $loadError") }
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, 600)
         playerActivity.setPlayer(player)
