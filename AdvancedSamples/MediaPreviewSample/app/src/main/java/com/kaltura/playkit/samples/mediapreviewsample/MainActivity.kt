@@ -184,6 +184,12 @@ class MainActivity : AppCompatActivity() {
 
     fun loadPlaykitPlayer() {
 
+        previewImageWidth = 90
+        previewImageHeight = 50
+        slicesCount = 100
+
+        downloadPreviewImage(previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100, "1_8imv40i1")
+
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
         playerInitOptions.setAllowCrossProtocolEnabled(true)
@@ -205,12 +211,6 @@ class MainActivity : AppCompatActivity() {
         container.addView(player?.playerView)
 
         controlsView?.setPlayer(player)
-
-        previewImageWidth = 90
-        previewImageHeight = 50
-        slicesCount = 100
-
-        downloadPreviewImage(previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100, "1_8imv40i1")
 
         buildFirstOttMediaOptions()
 
