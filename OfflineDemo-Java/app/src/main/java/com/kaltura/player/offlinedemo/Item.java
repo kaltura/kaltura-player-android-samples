@@ -81,7 +81,7 @@ public abstract class Item {
             return "--";
         }
 
-        return String.format(Locale.ROOT, "%3f", (Float.valueOf(sizeBytes) / (1000*1000))) + "mb";
+        return String.format(Locale.ROOT, "%.3f", (Float.valueOf(sizeBytes) / (1000*1000))) + "mb";
     }
 
     @Override
@@ -95,7 +95,7 @@ public abstract class Item {
 
         if (state == OfflineManager.AssetDownloadState.started) {
             if (percentDownloaded != null){
-                string += String.format(Locale.ROOT, "%1f", percentDownloaded) + "% / ";
+                string += String.format(Locale.ROOT, "%.1f", percentDownloaded) + "% / ";
             } else {
                 string += "--";
             }
