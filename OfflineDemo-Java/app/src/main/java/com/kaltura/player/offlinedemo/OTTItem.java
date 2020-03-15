@@ -1,8 +1,11 @@
 package com.kaltura.player.offlinedemo;
 
+import com.kaltura.playkit.providers.ott.OTTMediaAsset;
 import com.kaltura.tvplayer.MediaOptions;
 import com.kaltura.tvplayer.OTTMediaOptions;
 import com.kaltura.tvplayer.OfflineManager;
+
+import java.util.Collections;
 
 public class OTTItem extends KalturaItem {
 
@@ -26,9 +29,10 @@ public class OTTItem extends KalturaItem {
 
     @Override
     MediaOptions mediaOptions() {
-        OTTMediaOptions ottMediaOptions = new OTTMediaOptions();
-        ottMediaOptions.assetId = ottAssetId;
-        ottMediaOptions.formats = new String[]{format};
+        OTTMediaAsset ottMediaAsset = new OTTMediaAsset();
+        ottMediaAsset.setAssetId(ottAssetId);
+        ottMediaAsset.setFormats(Collections.singletonList(format));
+        OTTMediaOptions ottMediaOptions = new OTTMediaOptions(ottMediaAsset);
 
         return ottMediaOptions;
     }

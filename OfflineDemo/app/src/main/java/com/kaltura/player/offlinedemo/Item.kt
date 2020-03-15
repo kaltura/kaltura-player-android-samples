@@ -3,6 +3,7 @@ package com.kaltura.player.offlinedemo
 import android.util.Log
 import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaSource
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -101,8 +102,14 @@ class OTTItem(
 
     override fun id() = assetInfo?.assetId ?: ottAssetId
 
-    override fun mediaOptions() = OTTMediaOptions().apply {
-        assetId = ottAssetId
-        formats = arrayOf(format)
+    override fun mediaOptions() : OTTMediaOptions {
+        val ottMediaAsset = OTTMediaAsset()
+
+        ottMediaAsset.assetId = ottAssetId
+        ottMediaAsset.formats = listOf(format)
+
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+        ottMediaOptions.startPosition = 0L
+        return ottMediaOptions
     }
 }
