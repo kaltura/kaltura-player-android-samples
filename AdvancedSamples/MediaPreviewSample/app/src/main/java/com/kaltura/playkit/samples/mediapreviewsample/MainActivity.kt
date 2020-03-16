@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -13,19 +12,20 @@ import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
-
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.playkit.samples.mediapreviewsample.preview.GetPreviewFromSprite
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -33,7 +33,6 @@ import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
-
     companion object {
         //Media entry configuration constants.
         val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
@@ -53,7 +52,6 @@ class MainActivity : AppCompatActivity() {
     private var preMidPostAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpodbumper&cmsid=496&vid=short_onecue&correlator="
 
     private var player: KalturaPlayer? = null
-    private var controlsView: PlaybackControlsView? = null
 
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
@@ -65,11 +63,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        controlsView = findViewById(R.id.playerControls);
-
         loadPlaykitPlayer()
 
-        findViewById<View>(R.id.activity_main).setOnClickListener { v ->
+        activity_main.setOnClickListener { v ->
             if (isFullScreen) {
                 showSystemUI()
             } else {
@@ -77,7 +73,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<View>(R.id.btnChangeMedia).setOnClickListener{v ->
+        btnChangeMedia.setOnClickListener{v ->
 
             player?.let { it ->
                 it.mediaEntry?.let {
@@ -139,12 +135,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun downloadPreviewImage(imageWidth: Int, imageHeight: Int, noOfSlices: Int, mediaEntryId: String) {
+        previewDownloadStatus.text = getString(R.string.downloading)
         // Start download image coroutine on Main Thread
         GlobalScope.launch(Dispatchers.Main) {
             val getPreviewImage = GetPreviewFromSprite(imageWidth, imageHeight, noOfSlices, mediaEntryId)
             // Clear the preview hashmap everytime when it tries downloading another image
             previewImageHashMap?.clear()
             previewImageHashMap = getPreviewImage.downloadSpriteCoroutine()
+            previewDownloadStatus.text = getString(R.string.donwload_complete)
         }
     }
 
@@ -161,8 +159,8 @@ class MainActivity : AppCompatActivity() {
         log.d("onPause")
         super.onPause()
 
-        if (controlsView != null) {
-            controlsView?.release()
+        if (playerControls != null) {
+            playerControls?.release()
         }
 
         player?.onApplicationPaused()
@@ -172,8 +170,8 @@ class MainActivity : AppCompatActivity() {
         log.d("onResume")
         super.onResume()
 
-        if (controlsView != null) {
-            controlsView?.resume()
+        if (playerControls != null) {
+            playerControls?.resume()
         }
 
         if (player != null && playerState != null) {
@@ -188,7 +186,7 @@ class MainActivity : AppCompatActivity() {
         previewImageHeight = 50
         slicesCount = 100
 
-        downloadPreviewImage(previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100, "1_8imv40i1")
+        downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, "1_8imv40i1")
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
@@ -207,10 +205,10 @@ class MainActivity : AppCompatActivity() {
 
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         subscribeToAdEvents()
-        val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player?.playerView)
 
-        controlsView?.setPlayer(player)
+        player_root.addView(player?.playerView)
+
+        playerControls?.setPlayer(player)
 
         buildFirstOttMediaOptions()
 
@@ -220,13 +218,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildFirstOttMediaOptions() {
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = FIRST_ASSET_ID
-        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
-        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
-        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaOptions.ks = null
+        val ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = FIRST_ASSET_ID
+        ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
+        ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
+        ottMediaAsset.ks = null
+
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
 
         player?.loadMedia(ottMediaOptions) { entry, loadError ->
@@ -240,13 +240,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildSecondOttMediaOptions() {
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = SECOND_ASSET_ID
-        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
-        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
-        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaOptions.ks = null
+        val ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = SECOND_ASSET_ID
+        ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
+        ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
+        ottMediaAsset.ks = null
+
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
 
         player?.loadMedia(ottMediaOptions) { entry, loadError ->
@@ -285,14 +287,14 @@ class MainActivity : AppCompatActivity() {
 
         player?.addListener(this, AdEvent.contentResumeRequested) {
             event -> log.d("ADS_PLAYBACK_ENDED")
-            controlsView?.setSeekBarStateForAd(false)
-            controlsView?.setPlayerState(PlayerState.READY)
+            playerControls?.setSeekBarStateForAd(false)
+            playerControls?.setPlayerState(PlayerState.READY)
         }
 
         player?.addListener(this, AdEvent.contentPauseRequested) { event ->
             log.d("AD_CONTENT_PAUSE_REQUESTED")
-            controlsView?.setSeekBarStateForAd(true)
-            controlsView?.setPlayerState(PlayerState.READY)
+            playerControls?.setSeekBarStateForAd(true)
+            playerControls?.setPlayerState(PlayerState.READY)
         }
 
         player?.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
@@ -338,7 +340,7 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, AdEvent.allAdsCompleted) {
             event -> log.d("AD_ALL_ADS_COMPLETED")
             if (adCuePoints != null && adCuePoints?.hasPostRoll()!!) {
-                controlsView?.setPlayerState(PlayerState.IDLE)
+                playerControls?.setPlayerState(PlayerState.IDLE)
             }
         }
 
@@ -373,7 +375,7 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, AdEvent.error) { event ->
             log.d("AD_ERROR : " + event.error.errorType.name)
             if (event != null && event.error != null) {
-                controlsView?.setSeekBarStateForAd(false)
+                playerControls?.setSeekBarStateForAd(false)
                 log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
             }
         }

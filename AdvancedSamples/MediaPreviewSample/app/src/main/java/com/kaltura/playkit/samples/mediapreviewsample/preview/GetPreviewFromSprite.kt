@@ -17,7 +17,7 @@ open class GetPreviewFromSprite(var spriteSliceWidth: Int,
                                 var spriteSliceHeight: Int, var spriteSlicesCount: Int, var mediaEntryId: String) {
 
     private val log = PKLog.get("GetPreviewFromSprite")
-    private var imageSpriteUrl = "http://cdnapi.kaltura.com/p/2254732/sp/198255100/thumbnail/entry_id/${mediaEntryId}/height/${spriteSliceHeight}/width/${spriteSliceWidth}/vid_slices/${spriteSlicesCount}"
+    private var imageSpriteUrl = "http://cdnapi.kaltura.com/p/2254732/sp/198255100/thumbnail/entry_id/${mediaEntryId}/width/${spriteSliceWidth}/vid_slices/${spriteSlicesCount}"
 
     private val connectionReadTimeOut: Int = 120000
     private val connectionTimeOut: Int = 120000
@@ -69,10 +69,11 @@ open class GetPreviewFromSprite(var spriteSliceWidth: Int,
     private fun framesFromImageStream(inputStream: InputStream?, columns: Int): HashMap<String, Bitmap>? {
         val previewImagesHashMap: HashMap<String, Bitmap>? = HashMap()
         val options = BitmapFactory.Options()
+        options.inPreferredConfig = Bitmap.Config.RGB_565
         val bitmapRegionDecoder: BitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
 
-        for (previewImageSize: Int in 0..columns) {
-            val cropRect = Rect(previewImageSize * (spriteSliceWidth - 2), 0, (previewImageSize + 1) * (spriteSliceWidth - 2), spriteSliceHeight)
+        for (previewImageIndex: Int in 0 until columns) {
+            val cropRect = Rect((previewImageIndex * spriteSliceWidth), 0, (previewImageIndex * spriteSliceWidth + spriteSliceWidth), spriteSliceHeight)
             val extractedImageBitmap: Bitmap = try {
                 bitmapRegionDecoder.decodeRegion(cropRect, options)
             } catch (e: IllegalArgumentException) {
@@ -81,7 +82,7 @@ open class GetPreviewFromSprite(var spriteSliceWidth: Int,
                 bitmapRegionDecoder.recycle()
                 return null
             }
-            previewImagesHashMap?.put("" + previewImageSize, extractedImageBitmap)
+            previewImagesHashMap?.put("" + previewImageIndex, extractedImageBitmap)
         }
 
         bitmapRegionDecoder.recycle()
@@ -90,3 +91,4 @@ open class GetPreviewFromSprite(var spriteSliceWidth: Int,
     }
 
 }
+

@@ -1,6 +1,7 @@
 package com.kaltura.playkit.samples.mediapreviewsample
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import com.kaltura.android.exoplayer2.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
+import com.kaltura.playkit.samples.mediapreviewsample.MainActivity.Companion.previewImageHashMap
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
 
@@ -154,7 +156,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         }
 
         override fun onScrubMove(timeBar: TimeBar, position: Long) {
-            previewImage.visibility = View.VISIBLE
+            previewImage.visibility = View.GONE
 
             // position.toFloat() - Gives seek percent
             // seekBar?.width - Seekbar width which changes based on device width
@@ -167,10 +169,12 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
                 previewImage.translationX = leftMargin
             }
 
-            if (!MainActivity.previewImageHashMap.isNullOrEmpty()) {
-                previewImage.setImageBitmap(MainActivity.previewImageHashMap?.get(position.toString()))
-            } else {
-                previewImage.visibility = View.GONE
+            if (!previewImageHashMap.isNullOrEmpty()) {
+                val previewBitmap: Bitmap? = previewImageHashMap?.get(position.toString())
+                previewBitmap?.let {
+                    previewImage.visibility = View.VISIBLE
+                    previewImage.setImageBitmap(it)
+                }
             }
 
             player?.let {
