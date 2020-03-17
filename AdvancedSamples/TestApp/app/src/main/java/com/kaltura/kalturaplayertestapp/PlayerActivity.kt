@@ -795,6 +795,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("AD STARTED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.STARTED)
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
+            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
             allAdsCompeted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
             adCuePoints?.let {
