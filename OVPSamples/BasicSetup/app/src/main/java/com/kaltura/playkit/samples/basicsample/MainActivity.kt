@@ -10,6 +10,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -138,9 +139,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildOvpMediaOptions(): OVPMediaOptions {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = ENTRY_ID
-        ovpMediaOptions.ks = null
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = ENTRY_ID
+        ovpMediaAsset.ks = null
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
         ovpMediaOptions.startPosition = START_POSITION
 
         return ovpMediaOptions

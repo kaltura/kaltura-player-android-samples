@@ -421,7 +421,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
                 phoenixTVPlayerParams.ovpPartnerId = 1774581
                 phoenixTVPlayerParams.partnerId = 198
-                phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_1_0/"
+                phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_2_8/"
                 phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
                 initOptions?.tvPlayerParams = phoenixTVPlayerParams
             }
@@ -714,11 +714,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val ovpMedia = mediaList?.get(playListMediaIndex) ?: return null
 
         var ovpMediaAsset = OVPMediaAsset()
-        ovpMediaAsset.setEntryId(ovpMedia.entryId)
-        ovpMediaAsset.setKs(ovpMedia.ks)
+        ovpMediaAsset.entryId = ovpMedia.entryId
+        ovpMediaAsset.ks = ovpMedia.ks
         val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
 
         ovpMediaOptions.startPosition = startPosition
+        ovpMediaOptions.isUseApiCaptions = ovpMedia.useApiCaptions
         ovpMediaOptions.externalSubtitles = ovpMedia.externalSubtitles
 
         return ovpMediaOptions
@@ -794,6 +795,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("AD STARTED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.STARTED)
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
+            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
             allAdsCompeted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
             adCuePoints?.let {

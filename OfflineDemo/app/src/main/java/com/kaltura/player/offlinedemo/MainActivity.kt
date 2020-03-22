@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
 
         val msg = when {
             drmStatus.isValid -> "Valid; will expire in " + drmStatus.currentRemainingTime + " seconds"
-            else -> "Expired"
+            else -> "Expired or Error"
         }
 
         snackbar(msg, "Renew") {

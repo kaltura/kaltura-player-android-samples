@@ -16,6 +16,7 @@ import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.player.vr.VRInteractionMode
 import com.kaltura.playkit.player.vr.VRSettings
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.playkitvr.VRController
 import com.kaltura.playkitvr.VRUtil
 import com.kaltura.tvplayer.KalturaOvpPlayer
@@ -80,7 +81,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun addPlayerStateListener() {
-        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
@@ -93,16 +94,16 @@ class MainActivity: AppCompatActivity() {
         //Get reference to the play/pause button.
         playPauseButton = this.findViewById(R.id.play_pause_button)
         //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
+        playPauseButton?.setOnClickListener { v ->
             if (player != null) {
                 if (player!!.isPlaying) {
                     //If player is playing, change text of the button and pause.
-                    playPauseButton!!.setText(R.string.play_text)
-                    player!!.pause()
+                    playPauseButton?.setText(R.string.play_text)
+                    player?.pause()
                 } else {
                     //If player is not playing, change text of the button and play.
-                    playPauseButton!!.setText(R.string.pause_text)
-                    player!!.play()
+                    playPauseButton?.setText(R.string.pause_text)
+                    player?.play()
                 }
             }
         }
@@ -115,7 +116,7 @@ class MainActivity: AppCompatActivity() {
         //Get reference to the play/pause button.
         vrButton = this.findViewById(R.id.vr_button)
         //Add clickListener.
-        vrButton!!.setOnClickListener { v ->
+        vrButton?.setOnClickListener { v ->
             if (player != null) {
                 if (player!!.isPlaying) {
                     switchVRMode()
@@ -141,10 +142,10 @@ class MainActivity: AppCompatActivity() {
 
     private fun switchVRMode() {
         if (player != null) {
-            val vrController = player!!.getController(VRController::class.java)
+            val vrController = player?.getController(VRController::class.java)
             if (vrController != null) {
                 val currentState = vrController.isVRModeEnabled
-                vrButton!!.text = if (currentState) getString(R.string.vr_mode_on) else getString(R.string.vr_mode_off)
+                vrButton?.text = if (currentState) getString(R.string.vr_mode_on) else getString(R.string.vr_mode_off)
                 vrController.enableVRMode(!currentState)
             }
         }
@@ -154,17 +155,17 @@ class MainActivity: AppCompatActivity() {
         super.onResume()
         if (player != null && playerState != null) {
             if (playPauseButton != null) {
-                playPauseButton!!.setText(R.string.pause_text)
+                playPauseButton?.setText(R.string.pause_text)
             }
-            player!!.onApplicationResumed()
-            player!!.play()
+            player?.onApplicationResumed()
+            player?.play()
         }
     }
 
     override fun onPause() {
         super.onPause()
         if (player != null) {
-            player!!.onApplicationPaused()
+            player?.onApplicationPaused()
         }
     }
 
@@ -178,12 +179,12 @@ class MainActivity: AppCompatActivity() {
 
         player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
 
-        player!!.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
+        container.addView(player?.playerView)
 
         val ovpMediaOptions = buildOvpMediaOptions()
-        player!!.loadMedia(ovpMediaOptions) { entry, loadError ->
+        player?.loadMedia(ovpMediaOptions) { entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -195,9 +196,10 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun buildOvpMediaOptions(): OVPMediaOptions {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = ENTRY_ID
-        ovpMediaOptions.ks = null
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = ENTRY_ID
+        ovpMediaAsset.ks = null
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
         ovpMediaOptions.startPosition = START_POSITION
 
         return ovpMediaOptions

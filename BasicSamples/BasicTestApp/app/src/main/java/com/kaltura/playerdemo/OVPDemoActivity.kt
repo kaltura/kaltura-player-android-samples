@@ -9,6 +9,7 @@ import com.google.gson.JsonObject
 import com.kaltura.netkit.utils.GsonParser
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.Utils
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -103,8 +104,10 @@ class OVPDemoActivity : BaseDemoActivity() {
         }
 
         val player = KalturaOvpPlayer.create(playerActivity, updatedInitOptions)
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = currentItem?.id
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = currentItem?.id
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
+
         player.loadMedia(ovpMediaOptions) { entry, loadError -> log.d("onEntryLoadComplete; $entry; $loadError") }
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, 600)
         playerActivity.setPlayer(player)

@@ -9,6 +9,7 @@ import com.google.gson.JsonObject
 import com.kaltura.netkit.utils.GsonParser
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.Utils
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
@@ -100,12 +101,13 @@ class OTTDemoActivity : BaseDemoActivity() {
 
         val player = KalturaOttPlayer.create(playerActivity, updatedInitOptions)
 
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = currentItem?.id
-        ottMediaOptions.protocol = currentItem?.protocol
+        val ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = currentItem?.id
+        ottMediaAsset.protocol = currentItem?.protocol
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+
         player.loadMedia(ottMediaOptions) { entry, loadError -> log.d("onEntryLoadComplete; $entry; $loadError") }
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, 600)
-
         playerActivity.setPlayer(player)
     }
 

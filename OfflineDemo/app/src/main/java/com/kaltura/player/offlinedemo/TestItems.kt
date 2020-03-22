@@ -24,7 +24,6 @@ data class ItemJSON(
 fun ItemJSON.toItem() : Item {
 
     return if (partnerId != null) {
-
         // Kaltura Item
 
         if (this.ott) {
@@ -35,7 +34,6 @@ fun ItemJSON.toItem() : Item {
             OVPItem(partnerId, id, env, options?.toPrefs(), title)
         }
     } else {
-
         BasicItem(id, url!!, options?.toPrefs(), title)
     }
 }
@@ -95,6 +93,7 @@ fun OptionsJSON.toPrefs() : SelectionPrefs {
                 bitrates[codec] = bitrate
             }
         }
+        opts.codecVideoBitrates = bitrates
     }
 
     return opts
