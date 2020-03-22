@@ -11,6 +11,7 @@ import com.kaltura.playkit.player.PKExternalSubtitle
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -166,9 +167,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildOvpMediaOptions(): OVPMediaOptions {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = ENTRY_ID
-        ovpMediaOptions.ks = null
+        var ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = ENTRY_ID
+        ovpMediaAsset.ks = null
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
         ovpMediaOptions.startPosition = START_POSITION
         ovpMediaOptions.externalSubtitles = externalSubtitles
 

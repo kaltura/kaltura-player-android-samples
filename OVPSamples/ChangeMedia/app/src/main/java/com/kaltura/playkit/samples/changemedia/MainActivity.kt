@@ -10,6 +10,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -116,9 +117,11 @@ class MainActivity : AppCompatActivity() {
      * Prepare the first entry.
      */
     private fun prepareFirstEntry() {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = FIRST_ENTRY_ID
-        ovpMediaOptions.ks = null
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = FIRST_ENTRY_ID
+        ovpMediaAsset.ks = null
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
+
         ovpMediaOptions.startPosition = START_POSITION
 
         player?.loadMedia(ovpMediaOptions) { entry, error ->
@@ -134,9 +137,10 @@ class MainActivity : AppCompatActivity() {
      * Prepare the second entry.
      */
     private fun prepareSecondEntry() {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = SECOND_ENTRY_ID
-        ovpMediaOptions.ks = null
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = SECOND_ENTRY_ID
+        ovpMediaAsset.ks = null
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
         ovpMediaOptions.startPosition = START_POSITION
 
         player?.loadMedia(ovpMediaOptions) { entry, error ->

@@ -17,7 +17,7 @@ object MockParams {
     val BASIC_LICENSE_URL: String? = null
 
     /*Ott Mock params: */
-    var PhoenixBaseUrl = "http://api-preprod.ott.kaltura.com/v4_4/api_v3/"
+    var PhoenixBaseUrl = "http://api-preprod.ott.kaltura.com/v5_2_8/api_v3/"
     var OttPartnerId = 198
 
     //result of login with : [username: albert@gmail.com, pass: 123456]

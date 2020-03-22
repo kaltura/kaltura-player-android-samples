@@ -12,6 +12,7 @@ import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
@@ -173,14 +174,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildOttMediaOptions(): OTTMediaOptions {
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = ASSET_ID
-        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
-        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
-        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaOptions.formats = arrayOf("Mobile_Main")
-        ottMediaOptions.ks = null
+        val ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = ASSET_ID
+        ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
+        ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
+        ottMediaAsset.formats = listOf("Mobile_Main")
+        ottMediaAsset.ks = null
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
         ottMediaOptions.externalSubtitles = externalSubtitles
 
