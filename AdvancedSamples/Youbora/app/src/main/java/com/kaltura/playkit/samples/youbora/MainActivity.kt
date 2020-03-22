@@ -18,6 +18,7 @@ import com.kaltura.playkit.plugins.youbora.YouboraEvent
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin
 import com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.*
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
@@ -229,15 +230,18 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun buildOttMediaOptions(): OTTMediaOptions {
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = ASSET_ID
-        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
-        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
-        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaOptions.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaOptions.ks = null
+        val ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = ASSET_ID
+        ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
+        ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
+        ottMediaAsset.ks = null
+        ottMediaAsset.formats = listOf("Mobile_Main")
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+
         ottMediaOptions.startPosition = START_POSITION
-        ottMediaOptions.formats = arrayOf("Mobile_Main")
+
 
         return ottMediaOptions
     }

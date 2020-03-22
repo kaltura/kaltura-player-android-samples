@@ -16,6 +16,7 @@ import com.kaltura.playkit.PKSubtitleFormat
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.player.*
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItem
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter
 import com.kaltura.tvplayer.KalturaOvpPlayer
@@ -456,12 +457,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun buildOvpMediaOptions(): OVPMediaOptions {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = ENTRY_ID
-        ovpMediaOptions.ks = null
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = ENTRY_ID
+        ovpMediaAsset.ks = null
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
         ovpMediaOptions.startPosition = START_POSITION
         ovpMediaOptions.externalSubtitles = externalSubtitles
-
         return ovpMediaOptions
     }
 

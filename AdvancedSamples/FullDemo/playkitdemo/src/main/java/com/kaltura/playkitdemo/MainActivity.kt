@@ -39,7 +39,9 @@ import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsEvent
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.playkit.utils.Consts
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_CLEAR
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_DRM
@@ -296,7 +298,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
                 if (mediaPartnerId == 225) {
                     phoenixTVPlayerParams.serviceUrl = "https://rest-as.ott.kaltura.com/v5_0_3/"
                 } else {
-                    phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_1_0/"
+                    phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_2_8/"
                 }
                 phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
                 playerInitOptions?.tvPlayerParams = phoenixTVPlayerParams
@@ -362,17 +364,20 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
 
     private fun buildOttMediaOptions(assetId: String, ks: String?, protocol: String, format: String?) {
-        val ottMediaOptions = OTTMediaOptions()
-        ottMediaOptions.assetId = assetId
-        ottMediaOptions.assetType = APIDefines.KalturaAssetType.Media
-        ottMediaOptions.contextType = APIDefines.PlaybackContextType.Playback
-        ottMediaOptions.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaOptions.protocol = protocol //PhoenixMediaProvider.HttpProtocol.Http/s
-        ottMediaOptions.ks = ks
-        ottMediaOptions.startPosition = START_POSITION
+        val ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = assetId
+        ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
+        ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
+        ottMediaAsset.protocol = protocol //PhoenixMediaProvider.HttpProtocol.Http/s
+        ottMediaAsset.ks = ks
+
         if (format != null) {
-            ottMediaOptions.formats = arrayOf(format)
+            ottMediaAsset.formats = listOf(format)
         }
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+        ottMediaOptions.startPosition = START_POSITION
+
 
         player?.loadMedia(ottMediaOptions) { entry, error ->
             if (error != null) {
@@ -384,9 +389,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
     }
 
     private fun buildOvpMediaOptions(entryId: String, ks: String?) {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = entryId
-        ovpMediaOptions.ks = ks
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = entryId
+        ovpMediaAsset.ks = ks
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
+
         ovpMediaOptions.startPosition = START_POSITION
 
         player?.loadMedia(ovpMediaOptions) { entry, error ->
@@ -753,7 +760,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
     private fun addPhoenixAnalyticsPluginConfig(config: PKPluginConfigs) {
         val ks = "djJ8MTk4fHFftqeAPxdlLVzZBk0Et03Vb8on1wLsKp7cbOwzNwfOvpgmOGnEI_KZDhRWTS-76jEY7pDONjKTvbWyIJb5RsP4NL4Ng5xuw6L__BeMfLGAktkVliaGNZq9SXF5n2cMYX-sqsXLSmWXF9XN89io7-k="
-        val phoenixAnalyticsConfig = PhoenixAnalyticsConfig(198, "http://api-preprod.ott.kaltura.com/v4_2/api_v3/", ks, 30)
+        val phoenixAnalyticsConfig = PhoenixAnalyticsConfig(198, "http://api-preprod.ott.kaltura.com/v5_2_8/api_v3/", ks, 30)
         config.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
     }
 
