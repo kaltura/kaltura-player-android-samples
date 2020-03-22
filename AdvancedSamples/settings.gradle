@@ -33,7 +33,8 @@ def samples = [
         'ErHandling',
         'EventsRegistration',
         'VRBasicSetup',
-        'VRBasicSubtitles'
+        'VRBasicSubtitles',
+	    'MediaPreviewSample'
 ]
 
 samples.each {
