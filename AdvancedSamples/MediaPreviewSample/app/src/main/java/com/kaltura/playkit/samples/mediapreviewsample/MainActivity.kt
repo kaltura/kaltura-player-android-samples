@@ -88,7 +88,6 @@ class MainActivity : AppCompatActivity() {
                         previewImageHeight = 84
                         slicesCount = 100
 
-                        downloadPreviewImage( previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, "1_gjebvbr3")
                         buildSecondOttMediaOptions()
                     } else {
                         if (isAdEnabled) {
@@ -100,7 +99,6 @@ class MainActivity : AppCompatActivity() {
                         previewImageHeight = 50
                         slicesCount = 100
 
-                        downloadPreviewImage( previewImageWidth ?: 90, previewImageHeight ?: 50, slicesCount ?: 100, "1_8imv40i1")
                         buildFirstOttMediaOptions()
                     }
                 }
@@ -187,7 +185,6 @@ class MainActivity : AppCompatActivity() {
         previewImageHeight = 50
         slicesCount = 100
 
-        downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, "1_8imv40i1")
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
@@ -245,6 +242,7 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
+                entry?.metadata?.get("entryId")?.let { downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, it) }
             }
         }
 
@@ -267,6 +265,7 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
+                entry?.metadata?.get("entryId")?.let { downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, it) }
             }
         }
     }
