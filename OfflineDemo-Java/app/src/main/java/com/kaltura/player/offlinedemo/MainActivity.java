@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
             if (drmStatus.isValid()) {
                 msg = "Valid; will expire in " + drmStatus.currentRemainingTime + " seconds";
             } else {
-                msg = "Expired";
+                msg = "Expired or Error";
             }
 
             Snackbar.make(assetListView, msg, Snackbar.LENGTH_LONG).setDuration(5000).setAction("Renew", v -> {
