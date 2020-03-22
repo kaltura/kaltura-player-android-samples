@@ -103,10 +103,13 @@ class OTTItem(
     override fun id() = assetInfo?.assetId ?: ottAssetId
 
     override fun mediaOptions() : OTTMediaOptions {
-        var ottMediaAsset = OTTMediaAsset()
+        val ottMediaAsset = OTTMediaAsset()
 
         ottMediaAsset.assetId = ottAssetId
         ottMediaAsset.formats = listOf(format)
-        return OTTMediaOptions(ottMediaAsset)
+
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+        ottMediaOptions.startPosition = 0L
+        return ottMediaOptions
     }
 }
