@@ -415,7 +415,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
-            
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -903,7 +902,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             if (adCuePoints == null || adCuePoints != null && !adCuePoints!!.hasPostRoll() || IMADAIPlugin.factory.name == adCuePoints!!.getAdPluginName()) {
-                playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.replay)
+                val isAutoContinueEnabled = player?.playlistController?.isAutoContinueEnabled ?: false
+                if (!isAutoContinueEnabled) {
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.replay)
+                    playbackControlsManager?.showControls(View.VISIBLE)
+                }
             }
             progressBar?.setVisibility(View.GONE)
             if (!isPostrollAvailableInAdCuePoint() ||
@@ -1096,7 +1099,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlayerEvent.seeking) { event ->
             log.d("PLAYER SEEKING $event")
-
+            val playerDuration = player?.duration ?: -1L
+            val isPlayerPlaying = player?.isPlaying ?: false
+            if (event.targetPosition < playerDuration)
+                if (isPlayerPlaying) {
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+                } else {
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                    playbackControlsManager?.showControls(View.VISIBLE)
+                }
             this@PlayerActivity.updateEventsLogsList("player:\n" + event.eventType().name)
         }
 
