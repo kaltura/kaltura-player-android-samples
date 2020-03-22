@@ -25,6 +25,7 @@ import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
+import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -201,6 +202,16 @@ class MainActivity : AppCompatActivity() {
             playerInitOptions.setPluginConfigs(pkPluginConfigs)
         }
 
+        if (PARTNER_ID == 198) {
+            val phoenixTVPlayerParams = PhoenixTVPlayerParams()
+            phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
+            phoenixTVPlayerParams.ovpPartnerId = 1774581
+            phoenixTVPlayerParams.partnerId = 198
+            phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_2_8/"
+            phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
+            playerInitOptions?.tvPlayerParams = phoenixTVPlayerParams
+        }
+        
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
 
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
