@@ -49,20 +49,20 @@
         }
     },
     {
-        "title": "DRM: QA 1",
-        "id": "0_4s6xvtx3",
-        "partnerId": 4171,
-        "env": "http://cdntesting.qa.mkaltura.com",
+        "title": "DRM: Prod 1",
+        "id": "1_f93tepsn",
+        "partnerId": 2222401,
+        "env": "http://cdnapisec.kaltura.com",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
         }
     },
     {
-        "title": "DRM: Prod 1",
-        "id": "1_f93tepsn",
-        "partnerId": 2222401,
-        "env": "http://cdnapisec.kaltura.com",
+        "title": "DRM: QA 1",
+        "id": "0_4s6xvtx3",
+        "partnerId": 4171,
+        "env": "http://cdntesting.qa.mkaltura.com",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
