@@ -59,6 +59,16 @@
         }
     },
     {
+        "title": "DRM: Prod 1",
+        "id": "1_f93tepsn",
+        "partnerId": 2222401,
+        "env": "http://cdnapisec.kaltura.com",
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        }
+    },
+    {
         "title": "DRM: QA 2",
         "id": "0_7o8zceol",
         "partnerId": 4171,
