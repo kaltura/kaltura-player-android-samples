@@ -20,5 +20,5 @@ class PlaylistConfig {
     val playlistMetadata: PlaylistMetadata? = null
     val ovpMediaOptionsList: List<AppOVPMediaOptions>? = null
     val ottMediaOptionsList: List<AppOTTMediaOptions>? = null
-    val basicMediaOptionsList: List<BasicMediaOptions>? = null
+    val basicMediaOptionsList: List<AppBasicMediaOptions>? = null
 }

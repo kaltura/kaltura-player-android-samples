@@ -12,5 +12,5 @@ public abstract class AppMediaOptions {
     public Long startPosition;
     public String referrer;
     public List<PKExternalSubtitle> externalSubtitles;
-    @Nullable public CountDownOptions playlistCountDownOptions;
+    @Nullable public CountDownOptions countDownOptions;
 }

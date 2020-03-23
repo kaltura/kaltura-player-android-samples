@@ -23,10 +23,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.kaltura.android.exoplayer2.upstream.HttpDataSource
 import com.kaltura.dtg.exoparser.C.TRACK_TYPE_AUDIO
-import com.kaltura.kalturaplayertestapp.converters.AppOTTMediaOptions
-import com.kaltura.kalturaplayertestapp.converters.Media
-import com.kaltura.kalturaplayertestapp.converters.PlayerConfig
-import com.kaltura.kalturaplayertestapp.converters.PluginDescriptor
+import com.kaltura.kalturaplayertestapp.converters.*
 import com.kaltura.kalturaplayertestapp.models.ima.UiConfFormatIMAConfig
 import com.kaltura.kalturaplayertestapp.models.ima.UiConfFormatIMADAIConfig
 import com.kaltura.kalturaplayertestapp.network.NetworkChangeReceiver
@@ -571,6 +568,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             var ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
             ovpMediaOptions.setUseApiCaptions(it.useApiCaptions)
+            ovpMediaOptions.playlistCountDownOptions = it.countDownOptions
+            ovpMediaOptions.startPosition = it.startPosition
             ovpMediasOptions.add(ovpMediaOptions)
         }
         return ovpMediasOptions
@@ -648,7 +647,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             var ottMediaOptions = OTTMediaOptions(ottMediaAsset)
-
+            ottMediaOptions.playlistCountDownOptions = it.countDownOptions
+            ottMediaOptions.startPosition = it.startPosition
             ottMediasOptions.add(ottMediaOptions)
         }
         return ottMediasOptions
@@ -664,7 +664,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 ?: PlaylistMetadata().setName("TestBasicPlayList").setId("1")
         basicPlaylistOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
                 ?: CountDownOptions()
-        basicPlaylistOptions.basicMediaOptionsList = mediaList
+        basicPlaylistOptions.basicMediaOptionsList = convertToBasicMediaOptionsList(mediaList)
         basicPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
         //basicPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         basicPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
@@ -678,10 +678,24 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 setCurrentPlayedMediaIndex(basicPlaylistOptions.startIndex)
                 //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
                 //playbackControlsManager?.updatePrevNextImgBtnFunctionality(basicPlaylistOptions.startIndex, playlistController.playlist.mediaListSize)
-
             }
         }
     }
+
+    private fun convertToBasicMediaOptionsList(mediaList: List<AppBasicMediaOptions>?): MutableList<BasicMediaOptions>? {
+        val basicMediasOptionsList = mutableListOf<BasicMediaOptions>()
+        if (mediaList == null) {
+            return basicMediasOptionsList;
+        }
+        mediaList.forEach {
+            var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, it.countDownOptions)
+
+
+            basicMediasOptionsList.add(basicMediaOptions)
+        }
+        return basicMediasOptionsList
+    }
+
 
     private fun buildOttMediaOptions(startPosition: Long?, playListMediaIndex: Int): OTTMediaOptions? {
         val ottMedia = mediaList?.get(playListMediaIndex) ?: return null
@@ -965,13 +979,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
             var message = "playlistCountDownStart index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
             log.d("PLAYLIST $message")
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            showMessage(message)
+            //Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
             var message = "playlistCountDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
             log.d("PLAYLIST $message" )
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            showMessage(message)
+            //Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
 
         player?.addListener(this, PlayerEvent.textTrackChanged) { event ->
