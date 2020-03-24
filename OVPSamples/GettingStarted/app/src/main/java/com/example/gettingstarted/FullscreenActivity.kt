@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -189,10 +190,10 @@ class FullscreenActivity : AppCompatActivity() {
 
 
     private fun buildOvpMediaOptions(): OVPMediaOptions {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = entryId
-        ovpMediaOptions.ks = null
-
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = entryId
+        ovpMediaAsset.ks = null
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
         return ovpMediaOptions
     }
 
