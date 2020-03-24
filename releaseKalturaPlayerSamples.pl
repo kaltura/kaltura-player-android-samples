@@ -26,7 +26,7 @@ foreach my $file(@files) {
    
    my @updatedFileLines = ();
    foreach my $line(@data) {
-      if ($line =~ /implementation 'com.kaltura.playkit/) {
+      if ($line =~ /implementation 'com.kaltura.playkit/ || $line =~ /implementation 'com.kaltura.player/) {
            $line =~ s/$oldVer/$newVer/;
       }
       push(@updatedFileLines, $line);
