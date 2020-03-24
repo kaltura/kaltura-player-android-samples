@@ -25,6 +25,7 @@ import com.kaltura.playkit.player.SubtitleStyleSettings
 import com.kaltura.playkit.player.TextTrack
 import com.kaltura.playkit.player.VideoTrack
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.playkit.samples.tracksselection.tracks.TrackItem
 import com.kaltura.playkit.samples.tracksselection.tracks.TrackItemAdapter
