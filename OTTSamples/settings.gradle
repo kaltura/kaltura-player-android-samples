@@ -24,6 +24,8 @@ include ':dtglib'
 project(':dtglib').projectDir = new File('../../playkit-dtg-android/dtglib')
 include ':fbads'
 project(':fbads').projectDir = new File('../../playkit-android-fb-ads/fbadsplugin')
+include ':netkit'
+project(':netkit').projectDir = new File('../../netkit-android/netkit')
 
 
 // Sample apps

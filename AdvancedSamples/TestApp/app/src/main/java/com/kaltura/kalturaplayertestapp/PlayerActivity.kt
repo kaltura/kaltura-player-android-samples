@@ -808,7 +808,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("AD STARTED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.STARTED)
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
-            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+
             allAdsCompeted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
             adCuePoints?.let {
@@ -817,8 +817,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             }
 
-
-
+            if (adCuePoints?.adPluginName != IMADAIPlugin.factory.name) {
+                playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+            }
             playbackControlsManager?.showControls(View.INVISIBLE)
             progressBar?.setVisibility(View.INVISIBLE)
         }
@@ -1221,8 +1222,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     val imaPluginConfig = gson.fromJson(pluginDescriptor.params, UiConfFormatIMAConfig::class.java)
                     pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, imaPluginConfig.toJson())
                 } else if (IMADAIPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
-                    val imaPluginConfig = gson.fromJson(pluginDescriptor.params, UiConfFormatIMADAIConfig::class.java)
-                    pkPluginConfigs.setPluginConfig(IMADAIPlugin.factory.name, imaPluginConfig.toJson())
+                    val imaDaiPluginConfig = gson.fromJson(pluginDescriptor.params, UiConfFormatIMADAIConfig::class.java)
+                    pkPluginConfigs.setPluginConfig(IMADAIPlugin.factory.name, imaDaiPluginConfig.toJson())
                 } else if (PhoenixAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     val phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params, PhoenixAnalyticsConfig::class.java)
                     pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig.toJson())

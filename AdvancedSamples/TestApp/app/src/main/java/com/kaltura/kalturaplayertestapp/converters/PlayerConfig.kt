@@ -16,13 +16,13 @@ import com.kaltura.tvplayer.KalturaPlayer
 class PlayerConfig {
     var playerType: KalturaPlayer.Type? = null
     var playlistConfig : PlaylistConfig? = null
-    var baseUrl: String? = null
-    var partnerId: String? = null
+    val baseUrl: String? = null
+    val partnerId: String? = null
     var ks: String? = null
     var startPosition: Long? = null
     var autoPlay: Boolean? = null
     var preload: Boolean? = null
-    var allowCrossProtocolEnabled: Boolean? = null
+    val allowCrossProtocolEnabled: Boolean? = null
     var preferredFormat: PKMediaFormat? = null
     var allowClearLead: Boolean? = null
     var enableDecoderFallback: Boolean? = null

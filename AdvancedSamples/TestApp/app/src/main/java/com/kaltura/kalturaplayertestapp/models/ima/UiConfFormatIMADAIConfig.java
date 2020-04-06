@@ -2,9 +2,15 @@
 package com.kaltura.kalturaplayertestapp.models.ima;
 
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class UiConfFormatIMADAIConfig {
     public static final int DEFAULT_AD_LOAD_TIMEOUT = 5;
@@ -28,6 +34,9 @@ public class UiConfFormatIMADAIConfig {
     public static final String AD_LOAD_TIMEOUT          = "adLoadTimeOut";
     public static final String AD_ENABLE_DEBUG_MODE     = "enableDebugMode";
     public static final String AD_ALWAYES_START_WITH_PREROLL = "alwaysStartWithPreroll";
+    public static final String AD_ADTAG_PARAMS = "adTagParams";
+    public static final String AD_STREAM_ACTIVITY_MONITOR_ID = "streamActivityMonitorId";
+    public static final String AD_AUTH_TOKEN = "authToken";
 
     private String assetTitle;
     private String assetKey;  // null for VOD
@@ -40,6 +49,10 @@ public class UiConfFormatIMADAIConfig {
 
     private AdsRenderingSettings adsRenderingSettings;
     private SdkSettings sdkSettings;
+
+    private Map<String, String> adTagParams;
+    private String streamActivityMonitorId;
+    private String authToken;
 
     public String getAssetTitle() {
         return assetTitle;
@@ -71,6 +84,18 @@ public class UiConfFormatIMADAIConfig {
 
     public boolean isAlwaysStartWithPreroll() {
         return alwaysStartWithPreroll;
+    }
+
+    public Map<String, String> getAdTagParams() {
+        return adTagParams;
+    }
+
+    public String getStreamActivityMonitorId() {
+        return streamActivityMonitorId;
+    }
+
+    public String getAuthToken() {
+        return authToken;
     }
 
     public AdsRenderingSettings getAdsRenderingSettings() {
@@ -105,6 +130,17 @@ public class UiConfFormatIMADAIConfig {
         jsonObject.addProperty(AD_LOAD_TIMEOUT, getAdsRenderingSettings().getLoadVideoTimeout());
         jsonObject.addProperty(AD_ENABLE_DEBUG_MODE, getSdkSettings().getDebugMode());
         jsonObject.addProperty(AD_ALWAYES_START_WITH_PREROLL , alwaysStartWithPreroll);
+
+        if (adTagParams != null) {
+            Gson gson = new Gson();
+            String json = gson.toJson(adTagParams, Map.class);
+            JsonParser parser = new JsonParser();
+            JsonElement jsonElement = parser.parse(json);
+            jsonObject.add(AD_ADTAG_PARAMS, jsonElement);
+        }
+
+        jsonObject.addProperty(AD_STREAM_ACTIVITY_MONITOR_ID, streamActivityMonitorId);
+        jsonObject.addProperty(AD_AUTH_TOKEN , authToken);
 
         JsonArray jArray = new JsonArray();
         if (adsRenderingSettings.getMimeTypes() != null) {
