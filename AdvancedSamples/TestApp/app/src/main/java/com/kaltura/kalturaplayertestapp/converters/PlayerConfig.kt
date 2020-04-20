@@ -5,10 +5,7 @@ import com.google.gson.JsonObject
 import com.kaltura.netkit.connect.request.RequestConfiguration
 import com.kaltura.playkit.PKMediaFormat
 import com.kaltura.playkit.PKRequestParams
-import com.kaltura.playkit.player.ABRSettings
-import com.kaltura.playkit.player.LoadControlBuffers
-import com.kaltura.playkit.player.PKAspectRatioResizeMode
-import com.kaltura.playkit.player.SubtitleStyleSettings
+import com.kaltura.playkit.player.*
 import com.kaltura.playkit.player.vr.VRSettings
 import com.kaltura.tvplayer.KalturaPlayer
 
@@ -32,6 +29,13 @@ class PlayerConfig {
     var isTunneledAudioPlayback: Boolean? = null
     var vrSettings: VRSettings? = null
     var isVideoViewHidden: Boolean? = null
+    var maxAudioBitrate: Int? = null
+    var maxAudioChannelCount: Int? = null
+    var maxVideoBitrate: Int? = null
+    var maxVideoSize: PKMaxVideoSize? = null
+    var handleAudioBecomingNoisyEnabled: Boolean? = null
+
+
     var setSubtitleStyle: SubtitleStyleSettings? = null
     var aspectRatioResizeMode: PKAspectRatioResizeMode? = null
     var contentRequestAdapter: PKRequestParams.Adapter? = null

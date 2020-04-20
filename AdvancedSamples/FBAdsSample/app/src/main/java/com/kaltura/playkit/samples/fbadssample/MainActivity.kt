@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity() {
         playerInitOptions.setAllowCrossProtocolEnabled(true)
 
 
-        // IMA Configuration
+        // FBAds Configuration
         val pkPluginConfigs = PKPluginConfigs()
         val setPlugins = createFBInStreamPlugin(pkPluginConfigs)
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
