@@ -365,6 +365,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
                 .forceSinglePlayerEngine(appPlayerInitConfig.forceSinglePlayerEngine)
                 .setTunneledAudioPlayback(appPlayerInitConfig.isTunneledAudioPlayback)
+                .setMaxAudioBitrate(appPlayerInitConfig.maxAudioBitrate)
+                .setMaxAudioChannelCount(appPlayerInitConfig.maxAudioChannelCount)
+                .setMaxVideoBitrate(appPlayerInitConfig.maxVideoBitrate)
+                .setMaxVideoSize(appPlayerInitConfig.maxVideoSize)
+                .setHandleAudioBecomingNoisy(appPlayerInitConfig.handleAudioBecomingNoisyEnabled)
+
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject))
 
         appPlayerInitConfig.trackSelection?.let {
@@ -396,7 +402,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             val ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ovpMediaOptions != null) {
-
                 player?.loadMedia(ovpMediaOptions) { entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error Extra = " + error.getExtra())
@@ -412,6 +417,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
+
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -419,7 +425,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 phoenixTVPlayerParams.partnerId = 198
                 phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_2_8/"
                 phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
-                initOptions?.tvPlayerParams = phoenixTVPlayerParams
+                initOptions.tvPlayerParams = phoenixTVPlayerParams
             }
 
             if (partnerId == 3079) {
