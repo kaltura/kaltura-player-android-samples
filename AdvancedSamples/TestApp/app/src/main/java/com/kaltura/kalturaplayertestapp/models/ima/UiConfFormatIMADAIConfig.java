@@ -37,6 +37,9 @@ public class UiConfFormatIMADAIConfig {
     public static final String AD_ADTAG_PARAMS = "adTagParams";
     public static final String AD_STREAM_ACTIVITY_MONITOR_ID = "streamActivityMonitorId";
     public static final String AD_AUTH_TOKEN = "authToken";
+    public static final String AD_PLAYER_TYPE = "playerType";
+    public static final String AD_PLAER_VERSION = "playerVersion";
+    private static final String AD_ENABLE_FOCUS_SKIP_BUTTON   = "enableFocusSkipButton";
 
     private String assetTitle;
     private String assetKey;  // null for VOD
@@ -139,8 +142,12 @@ public class UiConfFormatIMADAIConfig {
             jsonObject.add(AD_ADTAG_PARAMS, jsonElement);
         }
 
+
+        jsonObject.addProperty(AD_ENABLE_FOCUS_SKIP_BUTTON, getAdsRenderingSettings().getEnableFocusSkipButton());
         jsonObject.addProperty(AD_STREAM_ACTIVITY_MONITOR_ID, streamActivityMonitorId);
-        jsonObject.addProperty(AD_AUTH_TOKEN , authToken);
+        jsonObject.addProperty(AD_AUTH_TOKEN, authToken);
+        jsonObject.addProperty(AD_PLAER_VERSION, getSdkSettings().getPlayerVersion());
+        jsonObject.addProperty(AD_PLAYER_TYPE, getSdkSettings().getPlayerType());
 
         JsonArray jArray = new JsonArray();
         if (adsRenderingSettings.getMimeTypes() != null) {
