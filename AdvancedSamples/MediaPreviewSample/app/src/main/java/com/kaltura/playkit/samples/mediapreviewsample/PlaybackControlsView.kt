@@ -199,7 +199,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
             updateProgress()
         }
 
-        override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, @Player.TimelineChangeReason reason: Int) {
+        override fun onTimelineChanged(timeline: Timeline, manifest: Any?, reason: Int) {
             updateProgress()
         }
 
