@@ -463,7 +463,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             setPlayer(player)
             val mediaEntry = appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex)?.pkMediaEntry
             if (appPlayerInitConfig.mediaList != null && appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex) != null) {
-                mediaEntry?.setIsVRMediaType(true)
+                if (initOptions.vrSettings != null) {
+                    mediaEntry?.setIsVRMediaType(true)
+                }
                 player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
             } else {
                 // PLAYLIST
