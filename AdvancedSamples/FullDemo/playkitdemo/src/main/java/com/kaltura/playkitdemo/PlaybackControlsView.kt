@@ -161,7 +161,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
             updateProgress()
         }
 
-        override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, @Player.TimelineChangeReason reason: Int) {
+        override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
             updateProgress()
         }
 
