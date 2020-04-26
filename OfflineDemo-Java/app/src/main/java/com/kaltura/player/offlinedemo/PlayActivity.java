@@ -26,6 +26,7 @@ import com.kaltura.tvplayer.PlayerInitOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -102,11 +103,11 @@ public class PlayActivity extends AppCompatActivity {
             return;
         }
 
-        if (audioTracks != null) {
+        if (audio && audioTracks != null) {
             for (AudioTrack track : audioTracks) {
                 String language = null;
 
-                if (audio && track != null) {
+                if (track != null) {
                     language = track.getLanguage();
                 }
 
@@ -117,11 +118,11 @@ public class PlayActivity extends AppCompatActivity {
             }
         }
 
-        if (textTracks != null) {
+        if (!audio && textTracks != null) {
             for (TextTrack track : textTracks) {
                 String language = null;
 
-                if (audio && track != null) {
+                if (track != null) {
                     language = track.getLanguage();
                 }
 
@@ -149,11 +150,16 @@ public class PlayActivity extends AppCompatActivity {
             return;
         }
 
-        List<Integer> selected = new ArrayList<>(currentIndex);
+        List<Integer> selected = new ArrayList<>(Collections.singletonList(currentIndex));
 
+        ArrayList<CharSequence> charSequenceArrayList = new ArrayList<>();
+        for (String title : trackTitles) {
+            charSequenceArrayList.add(title);
+        }
+        CharSequence [] charSequenceArray = charSequenceArrayList.toArray(new CharSequence[0]);
         new AlertDialog.Builder(PlayActivity.this)
                 .setTitle("Select track")
-                .setSingleChoiceItems((CharSequence[]) trackTitles.toArray(), selected.get(0), (dialog, which) -> selected.add(which))
+                .setSingleChoiceItems(charSequenceArray, selected.get(0), (dialog, which) -> selected.add(0,which))
                 .setPositiveButton("OK", (dialog, which) -> {
                     if (selected.get(0) >= 0) {
                         player.changeTrack(trackIds.get(selected.get(0)));
@@ -173,7 +179,7 @@ public class PlayActivity extends AppCompatActivity {
             if (currentAudioTrack == null && !audioTracks.isEmpty()) {
                 currentAudioTrack = audioTracks.get(tracksInfo.getDefaultAudioTrackIndex());
             }
-            if (currentTextTrack != null && !textTracks.isEmpty()) {
+            if (currentTextTrack == null && !textTracks.isEmpty()) {
                 currentTextTrack = textTracks.get(tracksInfo.getDefaultTextTrackIndex());
             }
         });

@@ -365,6 +365,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
                 .forceSinglePlayerEngine(appPlayerInitConfig.forceSinglePlayerEngine)
                 .setTunneledAudioPlayback(appPlayerInitConfig.isTunneledAudioPlayback)
+                .setMaxAudioBitrate(appPlayerInitConfig.maxAudioBitrate)
+                .setMaxAudioChannelCount(appPlayerInitConfig.maxAudioChannelCount)
+                .setMaxVideoBitrate(appPlayerInitConfig.maxVideoBitrate)
+                .setMaxVideoSize(appPlayerInitConfig.maxVideoSize)
+                .setHandleAudioBecomingNoisy(appPlayerInitConfig.handleAudioBecomingNoisyEnabled)
+
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject))
 
         appPlayerInitConfig.trackSelection?.let {
@@ -396,7 +402,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             val ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ovpMediaOptions != null) {
-
                 player?.loadMedia(ovpMediaOptions) { entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error Extra = " + error.getExtra())
@@ -412,6 +417,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 handleOvpPlayerPlaylist(appPlayerInitConfig, player)
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
+
             if (partnerId == 198) {
                 val phoenixTVPlayerParams = PhoenixTVPlayerParams()
                 phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
@@ -419,7 +425,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 phoenixTVPlayerParams.partnerId = 198
                 phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_2_8/"
                 phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
-                initOptions?.tvPlayerParams = phoenixTVPlayerParams
+                initOptions.tvPlayerParams = phoenixTVPlayerParams
             }
 
             if (partnerId == 3079) {
@@ -457,7 +463,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             setPlayer(player)
             val mediaEntry = appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex)?.pkMediaEntry
             if (appPlayerInitConfig.mediaList != null && appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex) != null) {
-                mediaEntry?.setIsVRMediaType(true)
+                if (initOptions.vrSettings != null) {
+                    mediaEntry?.setIsVRMediaType(true)
+                }
                 player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
             } else {
                 // PLAYLIST
@@ -808,7 +816,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("AD STARTED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.STARTED)
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
-            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+
             allAdsCompeted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
             adCuePoints?.let {
@@ -817,8 +825,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             }
 
-
-
+            if (adCuePoints?.adPluginName != IMADAIPlugin.factory.name) {
+                playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+            }
             playbackControlsManager?.showControls(View.INVISIBLE)
             progressBar?.setVisibility(View.INVISIBLE)
         }
@@ -1221,8 +1230,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     val imaPluginConfig = gson.fromJson(pluginDescriptor.params, UiConfFormatIMAConfig::class.java)
                     pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, imaPluginConfig.toJson())
                 } else if (IMADAIPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
-                    val imaPluginConfig = gson.fromJson(pluginDescriptor.params, UiConfFormatIMADAIConfig::class.java)
-                    pkPluginConfigs.setPluginConfig(IMADAIPlugin.factory.name, imaPluginConfig.toJson())
+                    val imaDaiPluginConfig = gson.fromJson(pluginDescriptor.params, UiConfFormatIMADAIConfig::class.java)
+                    pkPluginConfigs.setPluginConfig(IMADAIPlugin.factory.name, imaDaiPluginConfig.toJson())
                 } else if (PhoenixAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     val phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params, PhoenixAnalyticsConfig::class.java)
                     pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig.toJson())

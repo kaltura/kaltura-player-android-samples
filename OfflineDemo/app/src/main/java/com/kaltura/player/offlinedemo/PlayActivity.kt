@@ -110,7 +110,6 @@ class PlayActivity : AppCompatActivity() {
 
         val currentTrack = if (audio) currentAudioTrack else currentTextTrack
         val currentIndex = if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
-
         val selected = intArrayOf(currentIndex)
         Builder(this)
             .setTitle("Select track")
@@ -138,7 +137,7 @@ class PlayActivity : AppCompatActivity() {
             if (currentAudioTrack == null && audioTracks!!.isNotEmpty()) {
                 currentAudioTrack = audioTracks!![tracksInfo.defaultAudioTrackIndex]
             }
-            if (currentTextTrack != null && textTracks!!.isNotEmpty()) {
+            if (currentTextTrack == null && textTracks!!.isNotEmpty()) {
                 currentTextTrack = textTracks!![tracksInfo.defaultTextTrackIndex]
             }
         }

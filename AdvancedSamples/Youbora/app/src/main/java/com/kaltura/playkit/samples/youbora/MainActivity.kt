@@ -45,6 +45,9 @@ import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_TYPE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ENABLED
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USERNAME
 
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_NAME
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_RELEASE_VERSION
+
 class MainActivity: AppCompatActivity() {
 
     //Tag for logging.
@@ -259,6 +262,8 @@ class MainActivity: AppCompatActivity() {
         youboraConfigJson.addProperty("haltOnError", true)
         youboraConfigJson.addProperty("enableAnalytics", true)
         youboraConfigJson.addProperty("enableSmartAds", ENABLE_SMART_ADS)
+        youboraConfigJson.addProperty("appName", "TestApp")
+        youboraConfigJson.addProperty("appReleaseVersion", "v1.0")
 
 
         //Media entry json.
@@ -323,6 +328,8 @@ class MainActivity: AppCompatActivity() {
         optBundle.putString(KEY_ACCOUNT_CODE, ACCOUNT_CODE)
         optBundle.putString(KEY_USERNAME, UNIQUE_USER_NAME)
         optBundle.putBoolean(KEY_ENABLED, true)
+        optBundle.putString(KEY_APP_NAME, "TestApp");
+        optBundle.putString(KEY_APP_RELEASE_VERSION, "v1.0");
 
         //Media entry bundle.
         optBundle.putString(KEY_CONTENT_TITLE, MEDIA_TITLE)

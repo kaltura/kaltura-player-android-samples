@@ -1,9 +1,10 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     flavorDimensions "default"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -12,7 +13,7 @@ android {
     defaultConfig {
         applicationId "com.kaltura.playkit.samples.chromecastsample"
         minSdkVersion 17
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         multiDexEnabled  true
@@ -80,6 +81,9 @@ configurations.all {
 
 repositories {
     google()
+    maven {
+        url "https://maven.google.com" // Google's Maven repository
+    }
     jcenter()
     maven { url 'https://jitpack.io' }
 }
