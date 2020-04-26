@@ -1,5 +1,6 @@
 package com.kaltura.playkit.samples.fulldemo
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
@@ -202,6 +203,7 @@ class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPrefere
         orientAppUi()
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onOrientationChange(screenOrientation: OrientationManager.ScreenOrientation) {
         when (screenOrientation) {
             OrientationManager.ScreenOrientation.PORTRAIT -> requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -243,16 +245,16 @@ class MainActivity : AppCompatActivity(), OnVideoSelectedListener, SharedPrefere
         } else if (key == getString(R.string.pref_start_from_key)) {
             var startFrom: String = "0"
             if ("" != sharedPreferences.getString(getString(R.string.pref_start_from_key), getString(R.string.pref_start_from_default))) {
-                startFrom = sharedPreferences.getString(getString(R.string.pref_start_from_key), getString(R.string.pref_start_from_default))
+                startFrom = sharedPreferences.getString(getString(R.string.pref_start_from_key), getString(R.string.pref_start_from_default)) ?: "0"
             }
             startPosition = java.lang.Long.valueOf(startFrom)
         } else if (key == getString(R.string.pref_bitrate_key)) {
-            videoBitrate = Integer.valueOf(sharedPreferences.getString(getString(R.string.pref_bitrate_key), getString(R.string.pref_bitrate_value)))
+            videoBitrate = Integer.valueOf(sharedPreferences.getString(getString(R.string.pref_bitrate_key), getString(R.string.pref_bitrate_value)) ?: "0")
         } else if (key == getString(R.string.pref_companion_key)) {
             val companionAdDimentions = sharedPreferences.getString(getString(R.string.pref_companion_key), "0x0")
-            val dimentions = companionAdDimentions.split("x".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            companionAdWidth = Integer.valueOf(dimentions[0])
-            companionAdHeight = Integer.valueOf(dimentions[1])
+            val dimentions = companionAdDimentions?.split("x".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()
+            companionAdWidth = Integer.valueOf(dimentions?.get(0) ?: "0")
+            companionAdHeight = Integer.valueOf(dimentions?.get(1) ?: "0")
         } else if (key == getString(R.string.pref_mime_type_key)) {
             videoMimeType = sharedPreferences.getString(getString(R.string.pref_mime_type_key), getString(R.string.pref_mime_type_value))
         }

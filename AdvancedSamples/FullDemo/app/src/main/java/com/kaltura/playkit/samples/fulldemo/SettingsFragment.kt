@@ -45,7 +45,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             // they are already set up in xml using summaryOff and summary On
             if (p !is CheckBoxPreference) {
                 val value = sharedPreferences.getString(p.key, "")
-                setPreferenceSummary(p, value)
+                value?.let { setPreferenceSummary(p, it) }
             }
         }
 
@@ -58,7 +58,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             // Updates the summary for the preference
             if (preference !is CheckBoxPreference) {
                 val value = sharedPreferences.getString(preference.key, "")
-                setPreferenceSummary(preference, value)
+                value?.let { setPreferenceSummary(preference, it) }
             }
         }
     }
