@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.kaltura.android.exoplayer2.upstream.HttpDataSource
 import com.kaltura.dtg.exoparser.C.TRACK_TYPE_AUDIO
@@ -61,6 +62,7 @@ import com.kaltura.tvplayer.playlist.*
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class PlayerActivity: AppCompatActivity(), Observer {
 
@@ -197,7 +199,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             player?.stop()
         }
         mediaList?.let {
-            updatePluginsConfig(it.get(currentPlayedMediaIndex))
+            convertPluginsJsonArrayToPKPlugins(appPlayerInitConfig?.plugins, false)
 
             if (KalturaPlayer.Type.ovp == appPlayerInitConfig?.playerType) {
                 val ovpMediaOptions = buildOvpMediaOptions(0L, currentPlayedMediaIndex) ?: return
@@ -236,41 +238,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-    }
-
-    fun updatePluginsConfig(media: Media) {
-        if(initOptions.pluginConfigs.hasConfig(IMAPlugin.factory.name)) run {
-            val imaJson = initOptions.pluginConfigs.getPluginConfig(IMAPlugin.factory.name) as JsonObject
-            if (media.mediaAdTag != null) {
-                imaJson.addProperty("adTagUrl", media.mediaAdTag)
-            }
-            //IMAConfig imaPluginConfig = gson.fromJson(imaJson, IMAConfig.class);
-            //Example to update the AdTag
-            //imaPluginConfig.setAdTagUrl("http://externaltests.dev.kaltura.com/playKitApp/adManager/customAdTags/vmap/inline/ima_pre_mid_post_bumber2.xml");
-            initOptions.pluginConfigs.setPluginConfig(IMAPlugin.factory.name, imaJson)
-        } else if (initOptions.pluginConfigs.hasConfig(IMADAIPlugin.factory.getName()))
-        {
-            val imadaiJson = initOptions.pluginConfigs.getPluginConfig(IMADAIPlugin.factory.name) as JsonObject
-            //IMADAIConfig imaPluginConfig = gson.fromJson(imadaiJson, IMADAIConfig.class);
-            initOptions.pluginConfigs.setPluginConfig(IMAPlugin.factory.name, imadaiJson)
-        } else if (initOptions.pluginConfigs.hasConfig(FBInstreamPlugin.factory.getName())) {
-            val fbAds =  initOptions.pluginConfigs.getPluginConfig(FBInstreamPlugin.factory.getName());
-            initOptions.pluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbAds);
-        }
-
-//        //EXAMPLE if there are no auto replacers in this format ->  {{key}}
-//        if (initOptions.pluginConfigs.hasConfig(YouboraPlugin.factory.getName())) {
-//            JsonObject youboraJson = (JsonObject) initOptions.pluginConfigs.getPluginConfig(YouboraPlugin.factory.getName());
-//            YouboraConfig youboraPluginConfig = gson.fromJson(youboraJson, YouboraConfig.class);
-//            Properties properties = new Properties();
-//            properties.setGenre("AAAA");
-//            properties.setOwner("SONY");
-//            properties.setQuality("HD");
-//            properties.setPrice("122");
-//            properties.setYear("2018");
-//            youboraPluginConfig.setProperties(properties);
-//            initOptions.pluginConfigs.setPluginConfig(YouboraPlugin.factory.getName(), youboraPluginConfig.toJson());
-//        }
     }
 
     private fun handleOnEntryLoadComplete(error: ErrorElement?) {
@@ -371,7 +338,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setMaxVideoSize(appPlayerInitConfig.maxVideoSize)
                 .setHandleAudioBecomingNoisy(appPlayerInitConfig.handleAudioBecomingNoisyEnabled)
 
-                .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject))
+                .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject, true))
 
         appPlayerInitConfig.trackSelection?.let {
             it.audioSelectionMode?.let { selectionModeAudio ->
@@ -1213,7 +1180,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
-    private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray?): PKPluginConfigs {
+    private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray?, setPlugin: Boolean): PKPluginConfigs {
         val pkPluginConfigs = PKPluginConfigs()
         val pluginDescriptors = gson.fromJson(pluginConfigs, Array<PluginDescriptor>::class.java)
 
@@ -1221,23 +1188,131 @@ class PlayerActivity: AppCompatActivity(), Observer {
             for (pluginDescriptor in pluginDescriptors) {
                 val pluginName = pluginDescriptor.pluginName
                 if (YouboraPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
-                    val youboraPlugin = gson.fromJson(pluginDescriptor.params?.get("options"), YouboraConfig::class.java)
-                    pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, youboraPlugin.toJson())
+                    if (pluginDescriptor.params != null) {
+                        var youboraPluginConfig: YouboraConfig? = null
+                        when (pluginDescriptor.params) {
+                            is JsonObject -> {
+                                youboraPluginConfig = gson.fromJson((pluginDescriptor.params as JsonObject).get("options"), YouboraConfig::class.java)
+                            }
+
+                            is JsonArray-> {
+                                var config: JsonElement? = null
+                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
+                                pluginValue?.let {
+                                    if (pluginValue.size() > 0) {
+                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config").asJsonObject.get("options")
+                                    }
+                                }
+
+                                config?.let {
+                                    youboraPluginConfig = gson.fromJson(config, YouboraConfig::class.java)
+                                }
+                            }
+                        }
+                        youboraPluginConfig?.let {
+                            if (setPlugin) {
+                                pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, it.toJson())
+                            } else {
+                                player?.updatePluginConfig(YouboraPlugin.factory.name, it.toJson())
+                            }
+                        }
+                    }
                 } else if (KavaAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     val kavaPluginConfig = gson.fromJson(pluginDescriptor.params, KavaAnalyticsConfig::class.java)
                     pkPluginConfigs.setPluginConfig(KavaAnalyticsPlugin.factory.name, kavaPluginConfig.toJson())
                 } else if (IMAPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
-                    val imaPluginConfig = gson.fromJson(pluginDescriptor.params, UiConfFormatIMAConfig::class.java)
-                    pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, imaPluginConfig.toJson())
+                    if (pluginDescriptor.params != null) {
+                        var imaPluginConfig: UiConfFormatIMAConfig? = null
+                        when (pluginDescriptor.params) {
+                            is JsonObject -> {
+                                imaPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMAConfig::class.java)
+                            }
+
+                            is JsonArray-> {
+                                var config: JsonElement? = null
+                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
+                                pluginValue?.let {
+                                    if (pluginValue.size() > 0) {
+                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
+                                    }
+                                }
+
+                                config?.let {
+                                    imaPluginConfig = gson.fromJson(config, UiConfFormatIMAConfig::class.java)
+                                }
+                            }
+                        }
+                        imaPluginConfig?.let {
+                            if (setPlugin) {
+                                pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, it.toJson())
+                            } else {
+                                player?.updatePluginConfig(IMAPlugin.factory.name, it.toJson())
+                            }
+                        }
+                    }
                 } else if (IMADAIPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
-                    val imaDaiPluginConfig = gson.fromJson(pluginDescriptor.params, UiConfFormatIMADAIConfig::class.java)
-                    pkPluginConfigs.setPluginConfig(IMADAIPlugin.factory.name, imaDaiPluginConfig.toJson())
+                    if (pluginDescriptor.params != null) {
+                        var imaDaiPluginConfig: UiConfFormatIMADAIConfig? = null
+                        when (pluginDescriptor.params) {
+                            is JsonObject -> {
+                                imaDaiPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMADAIConfig::class.java)
+                            }
+
+                            is JsonArray-> {
+                                var config: JsonElement? = null
+                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
+                                pluginValue?.let {
+                                    if (pluginValue.size() > 0) {
+                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
+                                    }
+                                }
+
+                                config?.let {
+                                    imaDaiPluginConfig = gson.fromJson(config, UiConfFormatIMADAIConfig::class.java)
+                                }
+                            }
+                        }
+                        imaDaiPluginConfig?.let {
+                            if (setPlugin) {
+                                pkPluginConfigs.setPluginConfig(IMADAIPlugin.factory.name, it.toJson())
+                            } else {
+                                player?.updatePluginConfig(IMADAIPlugin.factory.name, it.toJson())
+                            }
+                        }
+                    }
                 } else if (PhoenixAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     val phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params, PhoenixAnalyticsConfig::class.java)
                     pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig.toJson())
                 } else if (FBInstreamPlugin.factory.name.equals(pluginName)) {
-                    val fbInstreamConfig = gson.fromJson(pluginDescriptor.params, FBInstreamConfig::class.java);
-                    pkPluginConfigs.setPluginConfig(FBInstreamPlugin.factory.getName(), fbInstreamConfig);
+                    if (pluginDescriptor.params != null) {
+                        var fbInstreamPluginConfig: FBInstreamConfig? = null
+                        when (pluginDescriptor.params) {
+                            is JsonObject -> {
+                                fbInstreamPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, FBInstreamConfig::class.java)
+                            }
+
+                            is JsonArray-> {
+                                var config: JsonElement? = null
+                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
+                                pluginValue?.let {
+                                    if (pluginValue.size() > 0) {
+                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
+                                    }
+                                }
+
+                                config?.let {
+                                    fbInstreamPluginConfig = gson.fromJson(config, FBInstreamConfig::class.java)
+                                }
+                            }
+                        }
+                        fbInstreamPluginConfig?.let {
+                            if (setPlugin) {
+                                pkPluginConfigs.setPluginConfig(FBInstreamPlugin.factory.name, it)
+                            } else {
+                                player?.updatePluginConfig(FBInstreamPlugin.factory.name, it)
+                            }
+                        }
+                    }
                 }
             }
         }
