@@ -1,8 +1,9 @@
 package com.kaltura.kalturaplayertestapp.converters
 
-import com.google.gson.JsonObject
+import com.google.gson.JsonElement
+
 
 class PluginDescriptor {
     var pluginName: String? = null
-    var params: JsonObject? = null
+    var params: JsonElement? = null
 }
