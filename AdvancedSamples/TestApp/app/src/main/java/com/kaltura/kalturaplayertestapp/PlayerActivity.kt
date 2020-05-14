@@ -3,8 +3,10 @@ package com.kaltura.kalturaplayertestapp
 import AppOVPMediaOptions
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.text.Layout
 import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.View
@@ -34,6 +36,8 @@ import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
+import com.kaltura.playkit.player.PKSubtitlePosition
+import com.kaltura.playkit.player.SubtitleStyleSettings
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig
@@ -198,6 +202,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
             tracksSelectionController = null
             player?.stop()
         }
+
+        appPlayerInitConfig?.trackSelection?.let {
+            it.subtitleStyling?.let { subtitleStyle ->
+                var subtitleStyleSettings: SubtitleStyleSettings? = getSubtitleStyleSettings(subtitleStyle, getCurrentPlayedMediaIndex())
+                subtitleStyleSettings?.let { styleSetting ->
+                    player?.updateSubtitleStyle(styleSetting)
+                }
+            }
+        }
+
         mediaList?.let {
             convertPluginsJsonArrayToPKPlugins(appPlayerInitConfig?.plugins, false)
 
@@ -321,7 +335,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode)
                 .setAbrSettings(appPlayerInitConfig.abrSettings)
                 .setLoadControlBuffers(appPlayerInitConfig.loadControlBuffers)
-                .setSubtitleStyle(appPlayerInitConfig.setSubtitleStyle)
                 .setAllowClearLead(appPlayerInitConfig.allowClearLead)
                 .setEnableDecoderFallback(appPlayerInitConfig.enableDecoderFallback)
                 .setAdAutoPlayOnResume(appPlayerInitConfig.adAutoPlayOnResume)
@@ -349,6 +362,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 initOptions.setTextLanguage(it.textSelectionLanguage, PKTrackConfig.Mode.valueOf(selectionModeText))
             }
 
+        }
+
+        appPlayerInitConfig.trackSelection?.let {
+            it.subtitleStyling?.let { subtitleStyle ->
+                var subtitleStyleSettings: SubtitleStyleSettings? = getSubtitleStyleSettings(subtitleStyle, getCurrentPlayedMediaIndex())
+                subtitleStyleSettings?.let { styleSetting ->
+                    initOptions.setSubtitleStyle(styleSetting)
+                }
+            }
         }
 
 
@@ -451,7 +473,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         if (appPlayerInitConfig.playlistConfig != null) {
-            var listSize : Int? =  null
+            var listSize: Int? = null
             if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ovp) {
                 if (appPlayerInitConfig.playlistConfig?.playlistId == null) {
                     listSize = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList?.size ?: 0
@@ -474,6 +496,56 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
             }
         }
+    }
+
+    private fun getSubtitleStyleSettings(subtitleStyle: JsonElement, subtitlePosition: Int): SubtitleStyleSettings? {
+        var subtitleName: String
+        var subtitleStyleSettings: SubtitleStyleSettings? = null
+        when(subtitleStyle) {
+            is JsonObject -> {
+                subtitleName = subtitleStyle.get("styleName").asString
+                var config: JsonElement = subtitleStyle.get("config")
+                subtitleStyleSettings = SubtitleStyleSettings(subtitleName)
+                        .setBackgroundColor(Color.parseColor(config.asJsonObject.get("subtitleBackgroundColor").asString))
+                        .setTextColor(Color.parseColor(config.asJsonObject.get("subtitleTextColor").asString))
+                        .setWindowColor(Color.parseColor(config.asJsonObject.get("subtitleWindowColor").asString))
+                        .setEdgeColor(Color.parseColor(config.asJsonObject.get("subtitleEdgeColor").asString))
+                        .setTextSizeFraction(SubtitleStyleSettings.SubtitleTextSizeFraction.valueOf(config.asJsonObject.get("subtitleTextSizeFraction").asString))
+                        .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.valueOf(config.asJsonObject.get("subtitleStyleTypeface").asString))
+                        .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.valueOf(config.asJsonObject.get("subtitleEdgeType").asString))
+
+                var pkSubtitlePosition = PKSubtitlePosition(config.asJsonObject.get("overrideInlineCueConfig").asBoolean)
+                pkSubtitlePosition.setPosition(config.asJsonObject.get("horizontalPositionPercentage").asInt,
+                        config.asJsonObject.get("verticalPositionPercentage").asInt,
+                        Layout.Alignment.valueOf(config.asJsonObject.get("horizontalAlignment").asString))
+                subtitleStyleSettings.subtitlePosition = pkSubtitlePosition
+            }
+
+            is JsonArray -> {
+                if (subtitleStyle.size() > 0 && subtitleStyle.size() > subtitlePosition) {
+                    subtitleName = subtitleStyle.get(subtitlePosition).asJsonObject.get("styleName").asString
+                    var config: JsonElement = subtitleStyle.get(subtitlePosition).asJsonObject.get("config")
+                    subtitleStyleSettings = SubtitleStyleSettings(subtitleName)
+                            .setBackgroundColor(Color.parseColor(config.asJsonObject.get("subtitleBackgroundColor").asString))
+                            .setTextColor(Color.parseColor(config.asJsonObject.get("subtitleTextColor").asString))
+                            .setWindowColor(Color.parseColor(config.asJsonObject.get("subtitleWindowColor").asString))
+                            .setEdgeColor(Color.parseColor(config.asJsonObject.get("subtitleEdgeColor").asString))
+                            .setTextSizeFraction(SubtitleStyleSettings.SubtitleTextSizeFraction.valueOf(config.asJsonObject.get("subtitleTextSizeFraction").asString))
+                            .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.valueOf(config.asJsonObject.get("subtitleStyleTypeface").asString))
+                            .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.valueOf(config.asJsonObject.get("subtitleEdgeType").asString))
+                    var pkSubtitlePosition = PKSubtitlePosition(config.asJsonObject.get("overrideInlineCueConfig").asBoolean)
+                    pkSubtitlePosition.setPosition(config.asJsonObject.get("horizontalPositionPercentage").asInt,
+                            config.asJsonObject.get("verticalPositionPercentage").asInt,
+                            Layout.Alignment.valueOf(config.asJsonObject.get("horizontalAlignment").asString))
+                    subtitleStyleSettings.subtitlePosition = pkSubtitlePosition
+                } else {
+                    subtitleStyleSettings = null
+                    log.e("Requested media position is greater then the update subtitle style settings json size.")
+                }
+            }
+        }
+
+        return subtitleStyleSettings
     }
 
     private fun handleOvpPlayerPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaOvpPlayer?) {
@@ -1183,6 +1255,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray?, setPlugin: Boolean): PKPluginConfigs {
         val pkPluginConfigs = PKPluginConfigs()
         val pluginDescriptors = gson.fromJson(pluginConfigs, Array<PluginDescriptor>::class.java)
+        val errorMessage = "plugin list size is less then the requested played media index."
 
         if (pluginDescriptors != null) {
             for (pluginDescriptor in pluginDescriptors) {
@@ -1199,8 +1272,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
-                                    if (pluginValue.size() > 0) {
+                                    if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
                                         config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config").asJsonObject.get("options")
+                                    } else {
+                                        config = null
+                                        log.e("$pluginName  $errorMessage")
                                     }
                                 }
 
@@ -1232,8 +1308,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
-                                    if (pluginValue.size() > 0) {
+                                    if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
                                         config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
+                                    } else {
+                                        config = null
+                                        log.e("$pluginName  $errorMessage")
                                     }
                                 }
 
@@ -1262,8 +1341,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
-                                    if (pluginValue.size() > 0) {
+                                    if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
                                         config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
+                                    } else {
+                                        config = null
+                                        log.e("$pluginName  $errorMessage")
                                     }
                                 }
 
@@ -1295,8 +1377,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
-                                    if (pluginValue.size() > 0) {
+                                    if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
                                         config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
+                                    } else {
+                                        config = null
+                                        log.e("$pluginName  $errorMessage")
                                     }
                                 }
 
