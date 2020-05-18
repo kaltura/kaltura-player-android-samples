@@ -200,6 +200,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     fun changeMedia() {
         if (player != null) {
             tracksSelectionController = null
+            playbackControlsManager?.setAdPlayerState(null)
             player?.stop()
         }
 
