@@ -1366,8 +1366,38 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         }
                     }
                 } else if (PhoenixAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
-                    val phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params, PhoenixAnalyticsConfig::class.java)
-                    pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig.toJson())
+                    if (pluginDescriptor.params != null) {
+                        var phoenixAnalyticsConfig: PhoenixAnalyticsConfig? = null
+                        when (pluginDescriptor.params) {
+                            is JsonObject -> {
+                                phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params as JsonObject, PhoenixAnalyticsConfig::class.java)
+                            }
+
+                            is JsonArray-> {
+                                var config: JsonElement? = null
+                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
+                                pluginValue?.let {
+                                    if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
+                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex())
+                                    } else {
+                                        config = null
+                                        log.e("$pluginName  $errorMessage")
+                                    }
+                                }
+
+                                config?.let {
+                                    phoenixAnalyticsConfig = gson.fromJson(config, PhoenixAnalyticsConfig::class.java)
+                                }
+                            }
+                        }
+                        phoenixAnalyticsConfig?.let {
+                            if (setPlugin) {
+                                pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, it.toJson())
+                            } else {
+                                player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, it.toJson())
+                            }
+                        }
+                    }
                 } else if (FBInstreamPlugin.factory.name.equals(pluginName)) {
                     if (pluginDescriptor.params != null) {
                         var fbInstreamPluginConfig: FBInstreamConfig? = null
