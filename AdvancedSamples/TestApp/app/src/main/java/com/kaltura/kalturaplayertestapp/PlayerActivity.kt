@@ -158,6 +158,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
+            playbackControlsManager?.setAdPlayerState(null)
             player?.stop()
         }
         if (player?.playlistController != null) {
@@ -181,6 +182,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //playbackControlsManager?.setContentPlayerState(null)
         if (player != null) {
             tracksSelectionController = null
+            playbackControlsManager?.setAdPlayerState(null)
             player?.stop()
         }
         if (player?.playlistController != null) {
@@ -1428,6 +1430,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         super.onDestroy()
         if (player != null) {
             player?.removeListeners(this)
+            playbackControlsManager?.setAdPlayerState(null)
             player?.stop()
             player?.destroy()
             player = null
