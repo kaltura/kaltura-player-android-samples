@@ -25,7 +25,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.kaltura.android.exoplayer2.upstream.HttpDataSource
-import com.kaltura.android.exoplayer2.upstream.HttpDataSource.*
 import com.kaltura.dtg.exoparser.C.TRACK_TYPE_AUDIO
 import com.kaltura.kalturaplayertestapp.converters.*
 import com.kaltura.kalturaplayertestapp.models.ima.UiConfFormatIMAConfig
