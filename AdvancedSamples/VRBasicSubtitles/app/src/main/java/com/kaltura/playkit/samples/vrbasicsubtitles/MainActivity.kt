@@ -1,21 +1,24 @@
 package com.kaltura.playkit.samples.vrbasicsubtitles
 
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.text.Layout
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.FrameLayout
-
 import androidx.appcompat.app.AppCompatActivity
-
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKSubtitleFormat
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.player.PKExternalSubtitle
+import com.kaltura.playkit.player.PKSubtitlePosition
 import com.kaltura.playkit.player.SubtitleStyleSettings
 import com.kaltura.playkit.player.vr.VRInteractionMode
 import com.kaltura.playkit.player.vr.VRSettings
@@ -26,8 +29,8 @@ import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-
-import java.util.ArrayList
+import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 class MainActivity: AppCompatActivity() {
 
@@ -37,6 +40,7 @@ class MainActivity: AppCompatActivity() {
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
     private var vrButton: Button? = null
+    private var userIsInteracting: Boolean = false
 
     private val ENTRY_ID = "1_afvj3z0u"
     private var isFullScreen: Boolean = false
@@ -69,6 +73,35 @@ class MainActivity: AppCompatActivity() {
             return mList
         }
 
+    private val defaultPositionDefault: SubtitleStyleSettings
+        get() = SubtitleStyleSettings("DefaultStyle")
+                // Set the subtitle position to default. Need to set the other apis to change the values
+                .setSubtitlePosition(PKSubtitlePosition(true))
+
+    private val styleForPositionOne: SubtitleStyleSettings
+        get() = SubtitleStyleSettings("KidsStyle")
+                .setBackgroundColor(Color.BLUE)
+                .setTextColor(Color.WHITE)
+                .setTextSizeFraction(SubtitleStyleSettings.SubtitleTextSizeFraction.SUBTITLE_FRACTION_50)
+                .setWindowColor(Color.YELLOW)
+                .setEdgeColor(Color.BLUE)
+                .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.MONOSPACE)
+                .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.EDGE_TYPE_DROP_SHADOW)
+                // Move subtitle horizontal and vertical together (anywhere on the screen)
+                .setSubtitlePosition(PKSubtitlePosition(true).setPosition( 50, 50, Layout.Alignment. ALIGN_NORMAL))
+
+    private val styleForPositionTwo: SubtitleStyleSettings
+        get() = SubtitleStyleSettings("AdultsStyle")
+                .setBackgroundColor(Color.WHITE)
+                .setTextColor(Color.BLUE)
+                .setTextSizeFraction(SubtitleStyleSettings.SubtitleTextSizeFraction.SUBTITLE_FRACTION_100)
+                .setWindowColor(Color.BLUE)
+                .setEdgeColor(Color.BLUE)
+                .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.SANS_SERIF)
+                .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.EDGE_TYPE_DROP_SHADOW)
+                // Move subtitle vertical up-down
+                .setSubtitlePosition(PKSubtitlePosition(true).setVerticalPosition(30))
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -76,6 +109,12 @@ class MainActivity: AppCompatActivity() {
         loadPlaykitPlayer()
 
         addPlayPauseButton()
+
+        //Initialize Android spinners view.
+        initializeTrackSpinners()
+        //Subscribe to the event which will notify us when track data is available.
+        subscribeToTracksAvailableEvent()
+
         addVRButton()
         showSystemUI()
 
@@ -202,6 +241,80 @@ class MainActivity: AppCompatActivity() {
         super.onPause()
         if (player != null) {
             player?.onApplicationPaused()
+        }
+    }
+
+    /**
+     * Here we are getting access to the Android Spinner views,
+     * and set OnItemSelectedListener.
+     */
+    private fun initializeTrackSpinners() {
+        tvSpinnerTitle.visibility = View.INVISIBLE
+        ccStyleSpinner.visibility = View.INVISIBLE
+
+        val stylesStrings = ArrayList<String>()
+        stylesStrings.add(defaultPositionDefault.styleName)
+        stylesStrings.add(styleForPositionOne.styleName)
+        stylesStrings.add(styleForPositionTwo.styleName)
+        val ccStyleAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, stylesStrings)
+        ccStyleSpinner.adapter = ccStyleAdapter
+        ccStyleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                if (!userIsInteracting) {
+                    return
+                }
+
+                if (position == 0) {
+                    player?.updateSubtitleStyle(defaultPositionDefault)
+                } else if (position == 1) {
+                    player?.updateSubtitleStyle(styleForPositionOne)
+                } else {
+                    player?.updateSubtitleStyle(styleForPositionTwo)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+
+            }
+        }
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        userIsInteracting = true
+    }
+
+    /**
+     * Subscribe to the TRACKS_AVAILABLE event. This event will be sent
+     * every time new source have been loaded and it tracks data is obtained
+     * by the player.
+     */
+    private fun subscribeToTracksAvailableEvent() {
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
+            //When the track data available, this event occurs. It brings the info object with it.
+            log.d("Event TRACKS_AVAILABLE")
+
+            //Cast event to the TracksAvailable object that is actually holding the necessary data.
+            val tracksAvailable = event as PlayerEvent.TracksAvailable
+
+            //Obtain the actual tracks info from it. Default track index values are coming from manifest
+            val tracks = tracksAvailable.tracksInfo
+            val defaultTextTrackIndex = tracks.defaultTextTrackIndex
+
+            if (tracks.textTracks.size > 0) {
+                log.d( "Default Text langae = " + tracks.textTracks[defaultTextTrackIndex].label)
+                tvSpinnerTitle.visibility = View.VISIBLE
+                ccStyleSpinner.visibility = View.VISIBLE
+            }
+        }
+
+        player?.addListener(this, PlayerEvent.textTrackChanged) { event -> log.d( "Event TextTrackChanged " + (event as PlayerEvent.TextTrackChanged).newTrack.language) }
+
+        player?.addListener(this, PlayerEvent.subtitlesStyleChanged) { event -> log.d( "Event SubtitlesStyleChanged " + (event as PlayerEvent.SubtitlesStyleChanged).styleName) }
+
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
+            log.d( "State changed from " + event.oldState + " to " + event.newState)
+            playerState = event.newState
         }
     }
 
