@@ -576,7 +576,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     subtitleStyleSettings.subtitlePosition = pkSubtitlePosition
                 } else {
                     subtitleStyleSettings = null
-                    log.e("Requested media position is greater then the update subtitle style settings json size.")
+                    log.e("Requested media position is greater than the update subtitle style settings json size.")
                 }
             }
         }
@@ -1291,7 +1291,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray?, setPlugin: Boolean): PKPluginConfigs {
         val pkPluginConfigs = PKPluginConfigs()
         val pluginDescriptors = gson.fromJson(pluginConfigs, Array<PluginDescriptor>::class.java)
-        val errorMessage = "plugin list size is less then the requested played media index."
+        val errorMessage = "plugin list size is less than the requested played media index."
 
         if (pluginDescriptors != null) {
             for (pluginDescriptor in pluginDescriptors) {
