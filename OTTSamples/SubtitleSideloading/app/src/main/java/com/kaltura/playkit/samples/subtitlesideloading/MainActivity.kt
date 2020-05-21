@@ -2,6 +2,7 @@ package com.kaltura.playkit.samples.subtitlesideloading
 
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Layout
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
@@ -71,6 +72,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private val defaultPositionDefault: SubtitleStyleSettings
         get() = SubtitleStyleSettings("DefaultStyle")
+                // Set the subtitle position to default. Need to set the other apis to change the values
+                .setSubtitlePosition(PKSubtitlePosition(true))
 
     private val styleForPositionOne: SubtitleStyleSettings
         get() = SubtitleStyleSettings("KidsStyle")
@@ -81,6 +84,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 .setEdgeColor(Color.BLUE)
                 .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.MONOSPACE)
                 .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.EDGE_TYPE_DROP_SHADOW)
+                // Move subtitle horizontal and vertical together (anywhere on the screen)
+                .setSubtitlePosition(PKSubtitlePosition(true).setPosition( 50, 50, Layout.Alignment. ALIGN_NORMAL))
 
     private val styleForPositionTwo: SubtitleStyleSettings
         get() = SubtitleStyleSettings("AdultsStyle")
@@ -91,6 +96,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 .setEdgeColor(Color.BLUE)
                 .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.SANS_SERIF)
                 .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.EDGE_TYPE_DROP_SHADOW)
+                // Move subtitle vertical up-down
+                .setSubtitlePosition(PKSubtitlePosition(true).setVerticalPosition(30))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
