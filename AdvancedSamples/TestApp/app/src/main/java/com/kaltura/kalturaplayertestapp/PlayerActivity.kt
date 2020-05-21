@@ -25,6 +25,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.kaltura.android.exoplayer2.upstream.HttpDataSource
+import com.kaltura.android.exoplayer2.upstream.HttpDataSource.*
 import com.kaltura.dtg.exoparser.C.TRACK_TYPE_AUDIO
 import com.kaltura.kalturaplayertestapp.converters.*
 import com.kaltura.kalturaplayertestapp.models.ima.UiConfFormatIMAConfig
@@ -506,40 +507,73 @@ class PlayerActivity: AppCompatActivity(), Observer {
         var subtitleStyleSettings: SubtitleStyleSettings? = null
         when(subtitleStyle) {
             is JsonObject -> {
-                subtitleName = subtitleStyle.get("styleName").asString
-                var config: JsonElement = subtitleStyle.get("config")
-                subtitleStyleSettings = SubtitleStyleSettings(subtitleName)
-                        .setBackgroundColor(Color.parseColor(config.asJsonObject.get("subtitleBackgroundColor").asString))
-                        .setTextColor(Color.parseColor(config.asJsonObject.get("subtitleTextColor").asString))
-                        .setWindowColor(Color.parseColor(config.asJsonObject.get("subtitleWindowColor").asString))
-                        .setEdgeColor(Color.parseColor(config.asJsonObject.get("subtitleEdgeColor").asString))
-                        .setTextSizeFraction(SubtitleStyleSettings.SubtitleTextSizeFraction.valueOf(config.asJsonObject.get("subtitleTextSizeFraction").asString))
-                        .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.valueOf(config.asJsonObject.get("subtitleStyleTypeface").asString))
-                        .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.valueOf(config.asJsonObject.get("subtitleEdgeType").asString))
+                subtitleName = subtitleStyle.get("subtitleStyleName").asString
+                var config: JsonObject = subtitleStyle.get("config").asJsonObject
 
-                var pkSubtitlePosition = PKSubtitlePosition(config.asJsonObject.get("overrideInlineCueConfig").asBoolean)
-                pkSubtitlePosition.setPosition(config.asJsonObject.get("horizontalPositionPercentage").asInt,
-                        config.asJsonObject.get("verticalPositionPercentage").asInt,
-                        Layout.Alignment.valueOf(config.asJsonObject.get("horizontalAlignment").asString))
+                subtitleStyleSettings = SubtitleStyleSettings(subtitleName)
+                        .setBackgroundColor(Color.parseColor(config.get("subtitleBackgroundColor").asString))
+                        .setTextColor(Color.parseColor(config.get("subtitleTextColor").asString))
+                        .setWindowColor(Color.parseColor(config.get("subtitleWindowColor").asString))
+                        .setEdgeColor(Color.parseColor(config.get("subtitleEdgeColor").asString))
+                        .setTextSizeFraction(SubtitleStyleSettings.SubtitleTextSizeFraction.valueOf(config.get("subtitleTextSizeFraction").asString))
+                        .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.valueOf(config.get("subtitleStyleTypeface").asString))
+                        .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.valueOf(config.get("subtitleEdgeType").asString))
+
+                var pkSubtitlePosition = PKSubtitlePosition(config.get("overrideInlineCueConfig").asBoolean)
+
+                if ((!config.has("horizontalPositionPercentage") || !config.has("horizontalAlignment"))
+                        && (config.has("verticalPositionPercentage") && !config.get("verticalPositionPercentage").isJsonNull)) {
+                    pkSubtitlePosition.setVerticalPosition(config.get("verticalPositionPercentage").asInt)
+                } else if (config.has("horizontalPositionPercentage") && config.has("verticalPositionPercentage")
+                        && !config.get("horizontalPositionPercentage").isJsonNull && !config.get("verticalPositionPercentage").isJsonNull
+                        && config.has("horizontalAlignment") && !config.get("horizontalAlignment").isJsonNull){
+
+                    var alignment = config.get("horizontalAlignment").asString
+                    if (alignment != "ALIGN_NORMAL" && alignment != "ALIGN_OPPOSITE" && alignment != "ALIGN_CENTER") {
+                        alignment = "ALIGN_CENTER"
+                    }
+                    pkSubtitlePosition.setPosition(config.get("horizontalPositionPercentage").asInt,
+                            config.get("verticalPositionPercentage").asInt,
+                            Layout.Alignment.valueOf(alignment))
+                } else {
+                    return subtitleStyleSettings
+                }
+
                 subtitleStyleSettings.subtitlePosition = pkSubtitlePosition
             }
 
             is JsonArray -> {
                 if (subtitleStyle.size() > 0 && subtitleStyle.size() > subtitlePosition) {
-                    subtitleName = subtitleStyle.get(subtitlePosition).asJsonObject.get("styleName").asString
-                    var config: JsonElement = subtitleStyle.get(subtitlePosition).asJsonObject.get("config")
+                    subtitleName = subtitleStyle.get(subtitlePosition).asJsonObject.get("subtitleStyleName").asString
+                    val config = subtitleStyle.get(subtitlePosition).asJsonObject.get("config").asJsonObject
                     subtitleStyleSettings = SubtitleStyleSettings(subtitleName)
-                            .setBackgroundColor(Color.parseColor(config.asJsonObject.get("subtitleBackgroundColor").asString))
-                            .setTextColor(Color.parseColor(config.asJsonObject.get("subtitleTextColor").asString))
-                            .setWindowColor(Color.parseColor(config.asJsonObject.get("subtitleWindowColor").asString))
-                            .setEdgeColor(Color.parseColor(config.asJsonObject.get("subtitleEdgeColor").asString))
-                            .setTextSizeFraction(SubtitleStyleSettings.SubtitleTextSizeFraction.valueOf(config.asJsonObject.get("subtitleTextSizeFraction").asString))
-                            .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.valueOf(config.asJsonObject.get("subtitleStyleTypeface").asString))
-                            .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.valueOf(config.asJsonObject.get("subtitleEdgeType").asString))
-                    var pkSubtitlePosition = PKSubtitlePosition(config.asJsonObject.get("overrideInlineCueConfig").asBoolean)
-                    pkSubtitlePosition.setPosition(config.asJsonObject.get("horizontalPositionPercentage").asInt,
-                            config.asJsonObject.get("verticalPositionPercentage").asInt,
-                            Layout.Alignment.valueOf(config.asJsonObject.get("horizontalAlignment").asString))
+                            .setBackgroundColor(Color.parseColor(config.get("subtitleBackgroundColor").asString))
+                            .setTextColor(Color.parseColor(config.get("subtitleTextColor").asString))
+                            .setWindowColor(Color.parseColor(config.get("subtitleWindowColor").asString))
+                            .setEdgeColor(Color.parseColor(config.get("subtitleEdgeColor").asString))
+                            .setTextSizeFraction(SubtitleStyleSettings.SubtitleTextSizeFraction.valueOf(config.get("subtitleTextSizeFraction").asString))
+                            .setTypeface(SubtitleStyleSettings.SubtitleStyleTypeface.valueOf(config.get("subtitleStyleTypeface").asString))
+                            .setEdgeType(SubtitleStyleSettings.SubtitleStyleEdgeType.valueOf(config.get("subtitleEdgeType").asString))
+                    var pkSubtitlePosition = PKSubtitlePosition(config.get("overrideInlineCueConfig").asBoolean)
+
+                    if ((!config.has("horizontalPositionPercentage") || !config.has("horizontalAlignment"))
+                            && (config.has("verticalPositionPercentage") && !config.get("verticalPositionPercentage").isJsonNull)) {
+                        pkSubtitlePosition.setVerticalPosition(config.get("verticalPositionPercentage").asInt)
+                    } else if (config.has("horizontalPositionPercentage") && config.has("verticalPositionPercentage")
+                            && !config.get("horizontalPositionPercentage").isJsonNull && !config.get("verticalPositionPercentage").isJsonNull
+                            && config.has("horizontalAlignment") && !config.get("horizontalAlignment").isJsonNull){
+
+                        var alignment = config.get("horizontalAlignment").asString
+                        if (alignment != "ALIGN_NORMAL" && alignment != "ALIGN_OPPOSITE" && alignment != "ALIGN_CENTER") {
+                            alignment = "ALIGN_CENTER"
+                        }
+                        pkSubtitlePosition.setPosition(config.get("horizontalPositionPercentage").asInt,
+                                config.get("verticalPositionPercentage").asInt,
+                                Layout.Alignment.valueOf(alignment))
+                    } else {
+                        return subtitleStyleSettings
+                    }
+
                     subtitleStyleSettings.subtitlePosition = pkSubtitlePosition
                 } else {
                     subtitleStyleSettings = null
