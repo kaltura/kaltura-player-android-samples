@@ -44,5 +44,23 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="300dp" />
 
+    <TextView
+        android:id="@+id/tvSpinnerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cc_style"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ccStyleSpinner"/>
+
+    <Spinner
+        android:id="@+id/ccStyleSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/vr_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
