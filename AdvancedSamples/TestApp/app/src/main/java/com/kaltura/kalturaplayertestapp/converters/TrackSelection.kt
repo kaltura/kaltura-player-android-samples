@@ -8,5 +8,5 @@ class TrackSelection {
     var textSelectionLanguage: String? = null
     var audioSelectionMode: String? = null
     var audioSelectionLanguage: String? = null
-    var subtitleStyling: JsonElement? = null
+    var subtitleStyling: List<SubtitleStyling>? = null
 }
