@@ -17,9 +17,6 @@ import com.kaltura.android.exoplayer2.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
-import com.kaltura.playkit.samples.mediaplaybackpreview.MainActivity
-import com.kaltura.playkit.samples.mediaplaybackpreview.MainActivity.Companion.previewImageHashMap
-import com.kaltura.playkit.samples.mediaplaybackpreview.R
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
 
@@ -158,21 +155,21 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
             // position.toFloat() - Gives seek percent
             // seekBar?.width - Seekbar width which changes based on device width
             // leftMargin - Gives the margin from left of the screen
-            val leftMargin: Float = (seekBar.width.times(position.toFloat())).div(MainActivity.slicesCount ?: 100)
-
-
-            // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
-            if (leftMargin < (seekBar.width + (4 * tvCurTime.paddingLeft) - (MainActivity.previewImageWidth ?: 90) - tvCurTime.width)) {
-                previewImage.translationX = leftMargin
-            }
-
-            if (!previewImageHashMap.isNullOrEmpty()) {
-                val previewBitmap: Bitmap? = previewImageHashMap?.get(position.toString())
-                previewBitmap?.let {
-                    previewImage.visibility = View.VISIBLE
-                    previewImage.setImageBitmap(it)
-                }
-            }
+//            val leftMargin: Float = (seekBar.width.times(position.toFloat())).div(MainActivity.slicesCount ?: 100)
+//
+//
+//            // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
+//            if (leftMargin < (seekBar.width + (4 * tvCurTime.paddingLeft) - (MainActivity.previewImageWidth ?: 90) - tvCurTime.width)) {
+//                previewImage.translationX = leftMargin
+//            }
+//
+//            if (!previewImageHashMap.isNullOrEmpty()) {
+//                val previewBitmap: Bitmap? = previewImageHashMap?.get(position.toString())
+//                previewBitmap?.let {
+//                    previewImage.visibility = View.VISIBLE
+//                    previewImage.setImageBitmap(it)
+//                }
+//            }
 
             player?.let {
                 tvCurTime.text = stringForTime(position * it.duration / PROGRESS_BAR_MAX)
