@@ -790,6 +790,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
+        player?.addListener(this, AdEvent.adProgress) { event ->
+            log.d("AD PROGRESS position = " + event.currentAdPosition)
+        }
+
         player?.addListener(this, AdEvent.completed) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD COMPLETED")
