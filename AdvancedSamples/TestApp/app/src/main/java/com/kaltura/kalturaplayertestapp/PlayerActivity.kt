@@ -1063,6 +1063,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
+        player?.addListener(this, PlayerEvent.playheadUpdated) { event ->
+            log.d("PLAYER playheadUpdated pos=" + event.position + " currentProgramTime=" + player?.currentProgramTime)
+        }
+
         player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             log.d("PLAYER tracksAvailable")
             updateEventsLogsList("player:\n" + event.eventType().name)
