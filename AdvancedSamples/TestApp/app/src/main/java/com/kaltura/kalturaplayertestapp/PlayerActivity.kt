@@ -915,6 +915,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
             updateEventsLogsList("player:\n" + event.eventType().name)
         }
 
+        player?.addListener(this, PlayerEvent.playbackInfoUpdated) { event ->
+            log.d("PLAYER playbackInfoUpdated")
+            val playbackInfo = event.playbackInfo
+            if (playbackInfo != null) {
+                updateEventsLogsList("playbackInfoUpdated: audioBitrate:" + playbackInfo.audioBitrate + " videoBitrate:" + playbackInfo.videoBitrate + " videoThroughput:" + playbackInfo.videoThroughput);
+            }
+        }
+
         player?.addListener(this, PlayerEvent.playing) { event ->
             log.d("PLAYER PLAYING")
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
