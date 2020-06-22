@@ -3,36 +3,23 @@ package com.kaltura.playkit.samples.chromecastcafsample
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import androidx.appcompat.app.AppCompatActivity
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
-
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaLoadOptions
-import com.google.android.gms.cast.framework.CastButtonFactory
-import com.google.android.gms.cast.framework.CastContext
-import com.google.android.gms.cast.framework.CastSession
-import com.google.android.gms.cast.framework.CastState
-import com.google.android.gms.cast.framework.CastStateListener
-import com.google.android.gms.cast.framework.IntroductoryOverlay
-import com.google.android.gms.cast.framework.SessionManagerListener
+import com.google.android.gms.cast.framework.*
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.api.PendingResult
-import com.google.android.gms.common.api.ResultCallback
 import com.kaltura.playkit.PKMediaConfig
-import com.kaltura.playkit.plugins.googlecast.caf.CAFCastBuilder
-import com.kaltura.playkit.plugins.googlecast.caf.KalturaCastBuilder
-import com.kaltura.playkit.plugins.googlecast.caf.KalturaPhoenixCastBuilder
-import com.kaltura.playkit.plugins.googlecast.caf.MediaInfoUtils
+import com.kaltura.playkit.plugins.googlecast.caf.*
 import com.kaltura.playkit.plugins.googlecast.caf.adsconfig.AdsConfig
+import com.kaltura.playkit.plugins.googlecast.caf.basic.*
 import com.kaltura.tvplayer.KalturaPlayer
-
-import org.json.JSONObject
-
-import java.util.ArrayList
+import java.util.*
 
 
 class MainActivity: AppCompatActivity() {
@@ -55,6 +42,7 @@ class MainActivity: AppCompatActivity() {
     private val mediaConfig: PKMediaConfig? = null
     private var changeMediaButton: Button? = null
     private var playPauseButton: Button? = null
+    private var basicPlayPauseButton: Button? = null
     private var mCastStateListener: CastStateListener? = null
     private var mSessionManagerListener: SessionManagerListener<CastSession>? = null
     private var mCastContext: CastContext? = null
@@ -88,6 +76,7 @@ class MainActivity: AppCompatActivity() {
 
 
         addCastOvpButton()
+        addCastBasicButton()
         addCastOttButton()
         addChangeMediaButton()
 
@@ -115,6 +104,20 @@ class MainActivity: AppCompatActivity() {
         })
     }
 
+    private fun addCastBasicButton() {
+        //Get reference to the play/pause button.
+        basicPlayPauseButton = this.findViewById(R.id.cast_basic_button)
+        if ("ott" == BuildConfig.FLAVOR) {
+            basicPlayPauseButton!!.visibility = View.INVISIBLE
+        }
+
+        //Add clickListener.
+        basicPlayPauseButton!!.setOnClickListener(View.OnClickListener {
+            loadRemoteMediaBasic(0, true)
+            return@OnClickListener
+        })
+    }
+
     private fun addCastOttButton() {
         //Get reference to the play/pause button.
         playPauseButton = this.findViewById(R.id.cast_ott_button)
@@ -132,29 +135,31 @@ class MainActivity: AppCompatActivity() {
     private fun addChangeMediaButton() {
         //Get reference to the play/pause button.
         changeMediaButton = this.findViewById(R.id.change_media_button)
-        changeMediaButton!!.setOnClickListener {
-            var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
-            val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(0).build()
-            val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 43543
-            if ("ovp" == BuildConfig.FLAVOR) {
-                pendingResult = remoteMediaClient!!.load(getOvpCastMediaInfo("0_b7s02kjl", vastAdTag, CAFCastBuilder.AdTagType.VAST), loadOptions)
-                pendingResult!!.setResultCallback { mediaChannelResult ->
-                    val customData = mediaChannelResult.customData
-                    if (customData != null) {
-                        //log.v("loadMediaInfo. customData = " + customData.toString());
-                    } else {
-                        //log.v("loadMediaInfo. customData == null");
+        if (changeMediaButton != null) {
+            changeMediaButton!!.setOnClickListener {
+                var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
+                val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(0).build()
+                val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 43543
+                if ("ovp" == BuildConfig.FLAVOR) {
+                    pendingResult = remoteMediaClient!!.load(getOvpCastMediaInfo("0_b7s02kjl", vastAdTag, CAFCastBuilder.AdTagType.VAST, null), loadOptions)
+                    pendingResult!!.setResultCallback { mediaChannelResult ->
+                        val customData = mediaChannelResult.customData
+                        if (customData != null) {
+                            //log.v("loadMediaInfo. customData = " + customData.toString());
+                        } else {
+                            //log.v("loadMediaInfo. customData == null");
+                        }
                     }
-                }
-            } else {
-                val protocol = CAFCastBuilder.HttpProtocol.Http /* CAFCastBuilder.HttpProtocol.Https */
-                pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548571", "Web_Main", "", null, protocol), loadOptions)
-                pendingResult!!.setResultCallback { mediaChannelResult ->
-                    val customData = mediaChannelResult.customData
-                    if (customData != null) {
-                        //log.v("loadMediaInfo. customData = " + customData.toString());
-                    } else {
-                        //log.v("loadMediaInfo. customData == null");
+                } else {
+                    val protocol = CAFCastBuilder.HttpProtocol.Http /* CAFCastBuilder.HttpProtocol.Https */
+                    pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548571", "Web_Main", "", null, protocol, null), loadOptions)
+                    pendingResult!!.setResultCallback { mediaChannelResult ->
+                        val customData = mediaChannelResult.customData
+                        if (customData != null) {
+                            //log.v("loadMediaInfo. customData = " + customData.toString());
+                        } else {
+                            //log.v("loadMediaInfo. customData == null");
+                        }
                     }
                 }
             }
@@ -240,6 +245,105 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
+    private fun loadRemoteMediaBasic(position: Int, autoPlay: Boolean) {
+        if (mCastSession == null) {
+            return
+        }
+        remoteMediaClient = mCastSession!!.remoteMediaClient
+        if (remoteMediaClient == null) {
+            return
+        }
+        remoteMediaClient!!.addListener(object: RemoteMediaClient.Listener {
+            override fun onStatusUpdated() {
+                val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
+                startActivity(intent)
+                //remoteMediaClient.removeListener(this);
+            }
+
+            override fun onMetadataUpdated() {}
+
+            override fun onQueueStatusUpdated() {}
+
+            override fun onPreloadStatusUpdated() {}
+
+            override fun onSendingRemoteMediaRequest() {}
+
+            override fun onAdBreakStatusUpdated() {}
+        })
+
+        var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
+        val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position.toLong()).build()
+        val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 311552334242
+
+
+        var playbackParams = PlaybackParams();
+        playbackParams.poster = "https://cfvod.kaltura.com/p/2222401/sp/222240100/thumbnail/entry_id/1_f93tepsn/version/100011"
+        playbackParams.id = "0_2jiaa9tb"
+        playbackParams.duration = 741
+        playbackParams.type = "Vod"
+        playbackParams.dvr = false
+        playbackParams.vr = null
+        playbackParams.dvr = false
+        playbackParams.progressive = listOf<Progressive>()
+        playbackParams.hls = listOf<Hls>()
+
+
+         //playbackParams.setDashSource("0_2jiaa9tb_973",
+         //             "https://cdnapisec.kaltura.com/p/2222401/sp/222240100/playManifest/entryId/1_f93tepsn/protocol/https/format/mpegdash/flavorIds/1_7cgwjy2a,1_xc3jlgr7,1_cn83nztu,1_pgoeohrs/a.mpd",
+         //       "https://udrm.kaltura.com/cenc/widevine/license?custom_data=eyJjYV9zeXN0ZW0iOiJPVlAiLCJ1c2VyX3Rva2VuIjoiZGpKOE1qSXlNalF3TVh6Q1B5ZDRyd0tiUlVRQTA2RktoNFNtMWJyWDE2LW01dnh5ODBLa0JEWTN0ME9yUklCajZ4WTc2SWZWRVJFcmItZkNLN01uN1VJV1VWaU92S0JaV0h6V09paGRkdGVlc211b0lLaGQ3d2VhbkE9PSIsImFjY291bnRfaWQiOjIyMjI0MDEsImNvbnRlbnRfaWQiOiIxX2Y5M3RlcHNuIiwiZmlsZXMiOiIxXzdjZ3dqeTJhLDFfeGMzamxncjcsMV9jbjgzbnp0dSwxX3Bnb2VvaHJzIn0%3D&signature=9tenGJdH1qEVhrI1f1fnKbvNBKA%3D")
+
+
+        playbackParams.setHlsSource("0_2jiaa9tb_971",
+                "https://cdnapisec.kaltura.com/p/1734751/sp/173475100/playManifest/entryId/1_3o1seqnv/protocol/https/format/applehttp/flavorIds/1_l7xu37er,1_9p9dlin6,1_h6cxfg0z,1_fdpeg81m/a.m3u8")
+
+
+        //playbackParams.setProgressivehSource("0_2jiaa9tb_974",
+        //        "http://qa-apache-php7.dev.kaltura.com/p/1091/sp/1091/playManifest/entryId/0_rccv43zr/flavorIds/0_qm8yk6bg,0_5artpfqc,0_ee3vdk7h,0_jkit9w6a,0_8qt13atw,0_rgajlpf4/deliveryProfileId/261/protocol/http/format/url/name/a.mp4")
+
+        val metadata : Metadata = Metadata()
+        metadata.description = ""
+        metadata.name = "Audio Tracks with DRM"
+        metadata.tags = "";
+        playbackParams.metadata = metadata
+        playbackParams.captions =  getExternalVttCaptions()
+
+        //pendingResult = remoteMediaClient!!.load(getBasicCastMediaInfo(playbackParams, vastAdTag, CAFCastBuilder.AdTagType.VAST), loadOptions)
+        pendingResult = remoteMediaClient!!.load(getBasicCastMediaInfo(playbackParams, "", null), loadOptions)
+
+
+        pendingResult!!.setResultCallback { mediaChannelResult ->
+            val customData = mediaChannelResult.customData
+            if (customData != null) {
+                //log.v("loadMediaInfo. customData = " + customData.toString());
+            } else {
+                //log.v("loadMediaInfo. customData == null");
+            }
+        }
+    }
+
+    private fun getExternalVttCaptions(): List<Caption> {
+        val caption1 = Caption()
+        caption1.isDefault = false
+        caption1.type = "srt"
+        caption1.label = "Ger"
+        caption1.language = "nl"
+        caption1.url = "https://qa-nginx-vod.dev.kaltura.com/api_v3/index.php/service/caption_captionasset/action/serveWebVTT/captionAssetId/0_kozg4x1x/version/2/segmentIndex/1.vtt"
+        val caption2 = Caption()
+        caption2.isDefault = false
+        caption2.type = "srt"
+        caption2.label = "Rus"
+        caption2.language = "ru"
+        caption2.url = "https://qa-nginx-vod.dev.kaltura.com/api_v3/index.php/service/caption_captionasset/action/serveWebVTT/captionAssetId/0_njhnv6na/version/2/segmentIndex/1.vtt"
+        val caption3 = Caption()
+        caption3.isDefault = false
+        caption3.type = "srt"
+        caption3.label = "Eng"
+        caption3.language = "en"
+        caption3.url = "https://qa-nginx-vod.dev.kaltura.com/api_v3/index.php/service/caption_captionasset/action/serveWebVTT/captionAssetId/0_kozg4x1x/version/2/segmentIndex/1.vtt"
+        var captions: List<Caption> = mutableListOf(caption1, caption2, caption3)
+        return captions
+    }
+
     private fun loadRemoteMediaOvp(position: Int, autoPlay: Boolean) {
         if (mCastSession == null) {
             return
@@ -268,9 +372,12 @@ class MainActivity: AppCompatActivity() {
 
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
         val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position.toLong()).build()
-        val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 11223
+        val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 31122334242
         //using QA partner 1091
-        pendingResult = remoteMediaClient!!.load(getOvpCastMediaInfo("0_fl4ioobl", vastAdTag, CAFCastBuilder.AdTagType.VAST), loadOptions)
+
+        pendingResult = remoteMediaClient!!.load(getOvpCastMediaInfo("0_fl4ioobl", vastAdTag, CAFCastBuilder.AdTagType.VAST, getExternalVttCaptions()), loadOptions)
+
+
         pendingResult!!.setResultCallback { mediaChannelResult ->
             val customData = mediaChannelResult.customData
             if (customData != null) {
@@ -306,9 +413,11 @@ class MainActivity: AppCompatActivity() {
 
             override fun onAdBreakStatusUpdated() {}
         })
+
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
         val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position.toLong()).build()
-        pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548579","Web_Main", "", null, protocol), loadOptions)
+
+        pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548579","Web_Main", "", null, protocol, getExternalVttCaptions()), loadOptions)
         pendingResult!!.setResultCallback { mediaChannelResult ->
             val customData = mediaChannelResult.customData
             if (customData != null) {
@@ -332,7 +441,22 @@ class MainActivity: AppCompatActivity() {
         return MediaInfoUtils.createAdsConfigVmap(adTagUrl)
     }
 
-    private fun getOttCastMediaInfo(mediaId: String, mediaFormat: String?, adTagUrl: String, adTagType: CAFCastBuilder.AdTagType?, protocol: CAFCastBuilder.HttpProtocol): MediaInfo {
+    private fun getBasicCastMediaInfo(playbackParams: PlaybackParams, adTagUrl: String, adTagType: CAFCastBuilder.AdTagType?): MediaInfo {
+
+        val basicCastBuilder = KalturaBasicCAFCastBuilder(playbackParams)
+                .setStreamType(CAFCastBuilder.StreamType.VOD)
+        if (!TextUtils.isEmpty(adTagUrl)) {
+            if (adTagType == CAFCastBuilder.AdTagType.VAST) {
+                basicCastBuilder.setAdsConfig(createAdsConfigVast(adTagUrl))
+            } else {
+                basicCastBuilder.setAdsConfig(createAdsConfigVmap(adTagUrl))
+            }
+            basicCastBuilder.setDefaultTextLangaugeCode("en")
+        }
+        return basicCastBuilder.build()
+    }
+
+    private fun getOttCastMediaInfo(mediaId: String, mediaFormat: String?, adTagUrl: String, adTagType: CAFCastBuilder.AdTagType?, protocol: CAFCastBuilder.HttpProtocol, vttExternalCaptions : List<Caption>?) : MediaInfo {
 
         var formats: MutableList<String>? = null
         if (mediaFormat != null) {
@@ -350,6 +474,9 @@ class MainActivity: AppCompatActivity() {
                 .setMediaType(CAFCastBuilder.KalturaAssetType.Media)
                 .setProtocol(protocol)
 
+        if (vttExternalCaptions != null) {
+            phoenixCastBuilder.setExternalVttCaptions(vttExternalCaptions)
+        }
         if (!TextUtils.isEmpty(adTagUrl)) {
             if (adTagType == CAFCastBuilder.AdTagType.VAST) {
                 phoenixCastBuilder.setAdsConfig(createAdsConfigVast(adTagUrl))
@@ -362,12 +489,16 @@ class MainActivity: AppCompatActivity() {
     }
 
 
-    private fun getOvpCastMediaInfo(entryId: String, adTagUrl: String, adTagType: CAFCastBuilder.AdTagType): MediaInfo {
+    private fun getOvpCastMediaInfo(entryId: String, adTagUrl: String, adTagType: CAFCastBuilder.AdTagType?, externalVttCaptions: List<Caption>?): MediaInfo {
 
         val ovpV3CastBuilder = KalturaCastBuilder()
                 .setMediaEntryId(entryId)
                 .setKs("")
                 .setStreamType(CAFCastBuilder.StreamType.VOD)
+
+        if (externalVttCaptions != null) {
+            ovpV3CastBuilder.setExternalVttCaptions(externalVttCaptions)
+        }
         if (!TextUtils.isEmpty(adTagUrl)) {
             if (adTagType == CAFCastBuilder.AdTagType.VAST) {
                 ovpV3CastBuilder.setAdsConfig(createAdsConfigVast(adTagUrl))
