@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
+import com.google.ads.interactivemedia.v3.api.FriendlyObstructionPurpose
 
 import com.google.ads.interactivemedia.v3.api.StreamRequest
 import com.kaltura.playkit.PKMediaConfig
@@ -18,6 +19,7 @@ import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.plugins.ads.AdEvent
+import com.kaltura.playkit.plugins.ima.PKFriendlyObstruction
 import com.kaltura.playkit.plugins.imadai.IMADAIConfig
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
@@ -206,7 +208,7 @@ class MainActivity: AppCompatActivity() {
         val pluginConfigs = PKPluginConfigs()
 
         //Initialize + Configure  IMADAIConfig object.
-        val adsConfigVodHls1 = daiConfigVodHls1.enableDebugMode(true).setAlwaysStartWithPreroll(true)
+        val adsConfigVodHls1 = daiConfigVodHls1.enableDebugMode(true).setAlwaysStartWithPreroll(true); //.setFriendlyObstructions(getFriendlyViews())
         val adsConfigVodLive = daiConfigLiveHls.enableDebugMode(true).setAlwaysStartWithPreroll(true)
         val adsConfigVodDash = daiConfigVodDash.enableDebugMode(true).setAlwaysStartWithPreroll(true)
         val adsConfigError = daiConfigError.enableDebugMode(true).setAlwaysStartWithPreroll(true)
@@ -231,6 +233,23 @@ class MainActivity: AppCompatActivity() {
 
         //Return created PluginConfigs object.
         return pluginConfigs
+    }
+
+    private fun getFriendlyViews() : MutableList<PKFriendlyObstruction> {
+        var view1 = View(applicationContext);
+        var view2 = View(applicationContext);
+        var view3 = View(applicationContext);
+
+        val friendlyObstructionView1 = PKFriendlyObstruction(view1, FriendlyObstructionPurpose.VIDEO_CONTROLS, "description1")
+        val friendlyObstructionView2 = PKFriendlyObstruction(view2, FriendlyObstructionPurpose.NOT_VISIBLE, "description2")
+        val friendlyObstructionView3 = PKFriendlyObstruction(view3, FriendlyObstructionPurpose.OTHER, "description3")
+        val pkFriendlyObstructionList: MutableList<PKFriendlyObstruction> = mutableListOf<PKFriendlyObstruction>()
+
+        pkFriendlyObstructionList.add(friendlyObstructionView1)
+        pkFriendlyObstructionList.add(friendlyObstructionView2)
+        pkFriendlyObstructionList.add(friendlyObstructionView3)
+
+        return pkFriendlyObstructionList;
     }
 
 

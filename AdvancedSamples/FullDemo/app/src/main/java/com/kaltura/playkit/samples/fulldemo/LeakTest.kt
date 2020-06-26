@@ -1,6 +1,6 @@
 package com.kaltura.playkit.samples.fulldemo
 
-//class LeakTest : Application() {
+//class LeakTest : MultiDexApplication() {
 //
 //    override fun onCreate() {
 //        super.onCreate()

@@ -1,11 +1,12 @@
 package com.kaltura.playkit.samples.audioonlybasicsetup
 
-import android.app.Application
 import android.content.res.Configuration
+import androidx.multidex.MultiDexApplication
+
 import com.kaltura.playkit.player.PKHttpClientManager
 import com.kaltura.tvplayer.KalturaOvpPlayer
 
-class DemoApplication : Application() {
+class DemoApplication : MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()
