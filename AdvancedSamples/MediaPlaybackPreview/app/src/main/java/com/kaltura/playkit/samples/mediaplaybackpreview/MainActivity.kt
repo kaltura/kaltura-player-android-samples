@@ -95,16 +95,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val mediaId: String = layoutAdapter?.getItemAtPosition(midVisibleItem)!!.mediaId
-        if (previousMediaPosition == -1) {
-            previousMediaPosition = midVisibleItem
-            layoutAdapter?.updateItemAtPosition(previousMediaPosition, false)
-        } else {
-            layoutAdapter?.updateItemAtPosition(previousMediaPosition, true)
-            previousMediaPosition = midVisibleItem
-            layoutAdapter?.updateItemAtPosition(previousMediaPosition, false)
-        }
-        mediaId?.let { buildFirstOttMediaOptions(mediaId) }
-
+        buildFirstOttMediaOptions(mediaId, midVisibleItem)
     }
 
     private fun addPlayerStateListener() {
@@ -165,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         addPlayerStateListener()
     }
 
-    private fun buildFirstOttMediaOptions(mediaId: String) {
+    private fun buildFirstOttMediaOptions(mediaId: String, midVisibleItem: Int) {
         val ottMediaAsset = OTTMediaAsset()
         ottMediaAsset.assetId = mediaId
         ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
@@ -183,6 +174,14 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
+                if (previousMediaPosition == -1) {
+                    previousMediaPosition = midVisibleItem
+                    layoutAdapter?.updateItemAtPosition(previousMediaPosition, false)
+                } else {
+                    layoutAdapter?.updateItemAtPosition(previousMediaPosition, true)
+                    previousMediaPosition = midVisibleItem
+                    layoutAdapter?.updateItemAtPosition(previousMediaPosition, false)
+                }
             }
         }
 
