@@ -253,22 +253,34 @@ class MainActivity: AppCompatActivity() {
         if (remoteMediaClient == null) {
             return
         }
-        remoteMediaClient!!.addListener(object: RemoteMediaClient.Listener {
+
+        remoteMediaClient!!.registerCallback(object : RemoteMediaClient.Callback() {
             override fun onStatusUpdated() {
+                super.onStatusUpdated()
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
                 //remoteMediaClient.removeListener(this);
             }
 
-            override fun onMetadataUpdated() {}
+            override fun onMetadataUpdated() {
+                super.onMetadataUpdated()
+            }
 
-            override fun onQueueStatusUpdated() {}
+            override fun onQueueStatusUpdated() {
+                super.onQueueStatusUpdated()
+            }
 
-            override fun onPreloadStatusUpdated() {}
+            override fun onPreloadStatusUpdated() {
+                super.onPreloadStatusUpdated()
+            }
 
-            override fun onSendingRemoteMediaRequest() {}
+            override fun onSendingRemoteMediaRequest() {
+                super.onSendingRemoteMediaRequest()
+            }
 
-            override fun onAdBreakStatusUpdated() {}
+            override fun onAdBreakStatusUpdated() {
+                super.onAdBreakStatusUpdated()
+            }
         })
 
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
@@ -352,22 +364,34 @@ class MainActivity: AppCompatActivity() {
         if (remoteMediaClient == null) {
             return
         }
-        remoteMediaClient!!.addListener(object: RemoteMediaClient.Listener {
+
+        remoteMediaClient!!.registerCallback(object : RemoteMediaClient.Callback() {
             override fun onStatusUpdated() {
+                super.onStatusUpdated()
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
                 //remoteMediaClient.removeListener(this);
             }
 
-            override fun onMetadataUpdated() {}
+            override fun onMetadataUpdated() {
+                super.onMetadataUpdated()
+            }
 
-            override fun onQueueStatusUpdated() {}
+            override fun onQueueStatusUpdated() {
+                super.onQueueStatusUpdated()
+            }
 
-            override fun onPreloadStatusUpdated() {}
+            override fun onPreloadStatusUpdated() {
+                super.onPreloadStatusUpdated()
+            }
 
-            override fun onSendingRemoteMediaRequest() {}
+            override fun onSendingRemoteMediaRequest() {
+                super.onSendingRemoteMediaRequest()
+            }
 
-            override fun onAdBreakStatusUpdated() {}
+            override fun onAdBreakStatusUpdated() {
+                super.onAdBreakStatusUpdated()
+            }
         })
 
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
@@ -396,22 +420,34 @@ class MainActivity: AppCompatActivity() {
         if (remoteMediaClient == null) {
             return
         }
-        remoteMediaClient!!.addListener(object: RemoteMediaClient.Listener {
+
+        remoteMediaClient!!.registerCallback(object : RemoteMediaClient.Callback() {
             override fun onStatusUpdated() {
+                super.onStatusUpdated()
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
                 //remoteMediaClient.removeListener(this);
             }
 
-            override fun onMetadataUpdated() {}
+            override fun onMetadataUpdated() {
+                super.onMetadataUpdated()
+            }
 
-            override fun onQueueStatusUpdated() {}
+            override fun onQueueStatusUpdated() {
+                super.onQueueStatusUpdated()
+            }
 
-            override fun onPreloadStatusUpdated() {}
+            override fun onPreloadStatusUpdated() {
+                super.onPreloadStatusUpdated()
+            }
 
-            override fun onSendingRemoteMediaRequest() {}
+            override fun onSendingRemoteMediaRequest() {
+                super.onSendingRemoteMediaRequest()
+            }
 
-            override fun onAdBreakStatusUpdated() {}
+            override fun onAdBreakStatusUpdated() {
+                super.onAdBreakStatusUpdated()
+            }
         })
 
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
