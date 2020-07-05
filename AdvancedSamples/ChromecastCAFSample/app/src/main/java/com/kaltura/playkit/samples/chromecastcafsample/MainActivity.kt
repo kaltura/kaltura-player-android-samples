@@ -313,7 +313,7 @@ class MainActivity: AppCompatActivity() {
 
         val metadata : Metadata = Metadata()
         metadata.description = ""
-        metadata.name = "Audio Tracks"
+        metadata.name = "Text Tracks"
         metadata.tags = "";
         playbackParams.metadata = metadata
         playbackParams.captions =  getExternalVttCaptions()
