@@ -499,15 +499,15 @@ class MainActivity: AppCompatActivity() {
         if (externalVttCaptions != null) {
             ovpV3CastBuilder.setExternalVttCaptions(externalVttCaptions)
         }
+
         if (!TextUtils.isEmpty(adTagUrl)) {
             if (adTagType == CAFCastBuilder.AdTagType.VAST) {
                 ovpV3CastBuilder.setAdsConfig(createAdsConfigVast(adTagUrl))
             } else {
                 ovpV3CastBuilder.setAdsConfig(createAdsConfigVmap(adTagUrl))
             }
-            //ovpV3CastBuilder.setDefaultTextLangaugeCode("en")
-
         }
+        //ovpV3CastBuilder.setDefaultTextLangaugeCode("en")
         return returnResult(ovpV3CastBuilder)
     }
 
