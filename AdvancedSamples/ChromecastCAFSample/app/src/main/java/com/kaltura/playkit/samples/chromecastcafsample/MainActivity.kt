@@ -258,7 +258,7 @@ class MainActivity: AppCompatActivity() {
             override fun onStatusUpdated() {
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
-                //remoteMediaClient.removeListener(this);
+                //remoteMediaClient?.unregisterCallback(this)
             }
 
             override fun onMetadataUpdated() {
@@ -368,7 +368,7 @@ class MainActivity: AppCompatActivity() {
             override fun onStatusUpdated() {
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
-                //remoteMediaClient.removeListener(this);
+                //remoteMediaClient?.unregisterCallback(this)
             }
 
             override fun onMetadataUpdated() {
@@ -423,7 +423,7 @@ class MainActivity: AppCompatActivity() {
             override fun onStatusUpdated() {
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
-                //remoteMediaClient.removeListener(this);
+                //remoteMediaClient?.unregisterCallback(this)
             }
 
             override fun onMetadataUpdated() {
