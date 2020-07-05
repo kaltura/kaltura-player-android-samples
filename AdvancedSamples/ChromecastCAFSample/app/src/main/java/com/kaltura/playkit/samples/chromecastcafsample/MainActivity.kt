@@ -256,7 +256,6 @@ class MainActivity: AppCompatActivity() {
 
         remoteMediaClient!!.registerCallback(object : RemoteMediaClient.Callback() {
             override fun onStatusUpdated() {
-                super.onStatusUpdated()
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
                 //remoteMediaClient.removeListener(this);
@@ -367,7 +366,6 @@ class MainActivity: AppCompatActivity() {
 
         remoteMediaClient!!.registerCallback(object : RemoteMediaClient.Callback() {
             override fun onStatusUpdated() {
-                super.onStatusUpdated()
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
                 //remoteMediaClient.removeListener(this);
@@ -423,7 +421,6 @@ class MainActivity: AppCompatActivity() {
 
         remoteMediaClient!!.registerCallback(object : RemoteMediaClient.Callback() {
             override fun onStatusUpdated() {
-                super.onStatusUpdated()
                 val intent = Intent(this@MainActivity, ExpandedControlsActivity::class.java)
                 startActivity(intent)
                 //remoteMediaClient.removeListener(this);
