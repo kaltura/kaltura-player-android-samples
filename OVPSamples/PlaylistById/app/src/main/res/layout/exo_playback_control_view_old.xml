@@ -30,31 +30,31 @@
         android:paddingTop="4dp"
         android:orientation="horizontal">
 
-        <ImageButton android:id="@id/exo_prev"
+        <ImageButton android:id="@id/kexo_prev"
             style="@style/ExoMediaButton.Previous"/>
 
-        <ImageButton android:id="@id/exo_rew"
+        <ImageButton android:id="@id/kexo_rew"
             style="@style/ExoMediaButton.Rewind"/>
 
-        <ImageButton android:id="@id/exo_shuffle"
+        <ImageButton android:id="@id/kexo_shuffle"
             style="@style/ExoMediaButton"/>
 
-        <ImageButton android:id="@id/exo_repeat_toggle"
+        <ImageButton android:id="@id/kexo_repeat_toggle"
             style="@style/ExoMediaButton"/>
 
-        <ImageButton android:id="@id/exo_play"
+        <ImageButton android:id="@id/kexo_play"
             style="@style/ExoMediaButton.Play"/>
 
-        <ImageButton android:id="@id/exo_pause"
+        <ImageButton android:id="@id/kexo_pause"
             style="@style/ExoMediaButton.Pause"/>
 
-        <ImageButton android:id="@id/exo_ffwd"
+        <ImageButton android:id="@id/kexo_ffwd"
             style="@style/ExoMediaButton.FastForward"/>
 
-        <ImageButton android:id="@id/exo_next"
+        <ImageButton android:id="@id/kexo_next"
             style="@style/ExoMediaButton.Next"/>
 
-        <ImageButton android:id="@id/exo_vr"
+        <ImageButton android:id="@id/kexo_vr"
             style="@style/ExoMediaButton.VR"/>
 
     </LinearLayout>
@@ -66,7 +66,7 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <TextView android:id="@id/exo_position"
+        <TextView android:id="@id/kexo_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
@@ -77,12 +77,12 @@
             android:textColor="#FFBEBEBE"/>
 
         <com.kaltura.android.exoplayer2.ui.DefaultTimeBar
-            android:id="@id/exo_progress"
+            android:id="@id/kexo_progress"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="26dp"/>
 
-        <TextView android:id="@id/exo_duration"
+        <TextView android:id="@id/kexo_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"

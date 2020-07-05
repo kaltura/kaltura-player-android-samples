@@ -58,19 +58,19 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     private fun initPlaybackControls() {
 
-        btnPlay = this.findViewById(R.id.exo_play)
-        btnPause = this.findViewById(R.id.exo_pause)
-        btnFastForward = this.findViewById(R.id.exo_ffwd)
+        btnPlay = this.findViewById(R.id.kexo_play)
+        btnPause = this.findViewById(R.id.kexo_pause)
+        btnFastForward = this.findViewById(R.id.kexo_ffwd)
         btnFastForward.visibility = View.GONE
-        btnRewind = this.findViewById(R.id.exo_rew)
+        btnRewind = this.findViewById(R.id.kexo_rew)
         btnRewind.visibility = View.GONE
-        btnNext = this.findViewById(R.id.exo_next)
-        btnPrevious = this.findViewById(R.id.exo_prev)
-        btnRepeatToggle = this.findViewById(R.id.exo_repeat_toggle)
+        btnNext = this.findViewById(R.id.kexo_next)
+        btnPrevious = this.findViewById(R.id.kexo_prev)
+        btnRepeatToggle = this.findViewById(R.id.kexo_repeat_toggle)
         btnRepeatToggle.visibility = View.GONE
-        btnShuffle = this.findViewById(R.id.exo_shuffle)
+        btnShuffle = this.findViewById(R.id.kexo_shuffle)
         btnShuffle.visibility = View.GONE
-        btnVr = this.findViewById(R.id.exo_vr)
+        btnVr = this.findViewById(R.id.kexo_vr)
         btnVr.visibility = View.GONE
 
         btnPlay.setOnClickListener(this)
@@ -80,15 +80,15 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         btnNext.setOnClickListener(this)
         btnPrevious.setOnClickListener(this)
 
-        seekBar = this.findViewById(R.id.exo_progress)
+        seekBar = this.findViewById(R.id.kexo_progress)
         seekBar.setPlayedColor(resources.getColor(R.color.colorAccent))
         seekBar.setBufferedColor(resources.getColor(R.color.grey))
         seekBar.setUnplayedColor(resources.getColor(R.color.black))
         seekBar.setScrubberColor(resources.getColor(R.color.colorAccent))
         seekBar.addListener(componentListener)
 
-        tvCurTime = this.findViewById(R.id.exo_position)
-        tvTime = this.findViewById(R.id.exo_duration)
+        tvCurTime = this.findViewById(R.id.kexo_position)
+        tvTime = this.findViewById(R.id.kexo_duration)
     }
 
 
@@ -230,20 +230,20 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.exo_play -> player?.play()
+            R.id.kexo_play -> player?.play()
 
-            R.id.exo_pause -> player?.pause()
+            R.id.kexo_pause -> player?.pause()
 
-            R.id.exo_ffwd -> {
+            R.id.kexo_ffwd -> {
                 //Do nothing for now
             }
-            R.id.exo_rew -> {
+            R.id.kexo_rew -> {
                 //Do nothing for now
             }
-            R.id.exo_next -> {
+            R.id.kexo_next -> {
                 //Do nothing for now
             }
-            R.id.exo_prev -> {
+            R.id.kexo_prev -> {
                 //Do nothing for now
             }
         }
