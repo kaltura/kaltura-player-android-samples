@@ -302,7 +302,7 @@ class MainActivity: AppCompatActivity() {
 
         val metadata : Metadata = Metadata()
         metadata.description = ""
-        metadata.name = "Audio Tracks with DRM"
+        metadata.name = "Audio Tracks"
         metadata.tags = "";
         playbackParams.metadata = metadata
         playbackParams.captions =  getExternalVttCaptions()
