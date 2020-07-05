@@ -163,6 +163,7 @@ class MainActivity : AppCompatActivity() {
         ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
         ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
         ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
+        //ottMediaAsset.formats = listOf("Mobile_Main")
         ottMediaAsset.ks = null
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
