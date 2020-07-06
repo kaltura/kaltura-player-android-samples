@@ -20,7 +20,7 @@
         android:contentDescription="@string/app_name"
         android:src="@drawable/loading_image"/>
 
-    <com.kaltura.playkit.samples.mediaplaybackpreview.PlaybackControlsView
+    <com.kaltura.playkit.samples.recyclerriewsample.PlaybackControlsView
         android:id="@+id/player_control_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MediaPlaybackPreview</string>
+    <string name="app_name">RecyclerViewSample</string>
     <string name="play_text">Play</string>
     <string name="pause_text">Pause</string>
     <string name="change_media">Change Media</string>

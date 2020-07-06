@@ -1,4 +1,4 @@
-package com.kaltura.playkit.samples.mediaplaybackpreview
+package com.kaltura.playkit.samples.recyclerriewsample
 
 import android.os.Bundle
 import android.widget.FrameLayout

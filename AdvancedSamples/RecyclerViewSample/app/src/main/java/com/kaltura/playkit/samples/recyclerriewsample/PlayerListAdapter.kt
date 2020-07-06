@@ -1,10 +1,9 @@
-package com.kaltura.playkit.samples.mediaplaybackpreview
+package com.kaltura.playkit.samples.recyclerriewsample
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -48,7 +47,7 @@ class PlayerListAdapter(private val mediaList: ArrayList<MediaItem>, var itemCli
 
     fun updateItemAtPosition(position: Int, showMediaImage: Boolean) {
         val updatedMediaItem: MediaItem = this.mediaList.get(position)
-        updatedMediaItem.addMediaImageView = showMediaImage
+        updatedMediaItem.isThumbnailActive = showMediaImage
         this.mediaList[position] = updatedMediaItem
         notifyItemChanged(position);
     }
@@ -61,7 +60,7 @@ class MediaViewHolder(inflater: LayoutInflater, parent: ViewGroup, player: Kaltu
     private var ctx: Context = context
 
     fun bind(mediaItem: MediaItem) {
-        if (mediaItem.addMediaImageView) {
+        if (mediaItem.isThumbnailActive) {
             itemView.media_image.visibility = View.VISIBLE
             itemView.player_root.visibility = View.GONE
             itemView.player_control_view.visibility = View.GONE
@@ -69,7 +68,7 @@ class MediaViewHolder(inflater: LayoutInflater, parent: ViewGroup, player: Kaltu
             itemView.player_control_view.release()
         } else {
             if (holderPlayer?.playerView?.parent != null) {
-                (holderPlayer?.playerView?.parent as ViewGroup).removeAllViews()
+                (holderPlayer?.playerView?.parent as ViewGroup).removeAllViews() // Remove all view in order to remove views attached to the player from previous cell
             }
             itemView.player_root.addView(holderPlayer?.playerView)
             itemView.player_control_view.setPlayer(holderPlayer)
@@ -79,8 +78,9 @@ class MediaViewHolder(inflater: LayoutInflater, parent: ViewGroup, player: Kaltu
             itemView.media_image.visibility = View.GONE
         }
         Glide.with(ctx)
-                .load("http://images-or.ott.kaltura.com/Service.svc/GetImage/p/${MainActivity.PARTNER_ID}/entry_id/${mediaItem.mediaImageView}")
+                .load("http://images-or.ott.kaltura.com/Service.svc/GetImage/p/${MainActivity.PARTNER_ID}/entry_id/${mediaItem.mediaImageView}/width/800/height/1200/quality/100")
                 .into(itemView.media_image)
+
         itemView.player_root.setOnClickListener {
             holderPlayer?.let {
                 if (it.isPlaying) {

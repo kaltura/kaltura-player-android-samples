@@ -36,7 +36,7 @@ def samples = [
         'VRBasicSetup',
         'VRBasicSubtitles',
 	    'MediaPreviewSample',
-        'MediaPlaybackPreview'
+        'RecyclerViewSample'
 ]
 
 samples.each {
