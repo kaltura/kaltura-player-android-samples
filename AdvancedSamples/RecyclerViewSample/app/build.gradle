@@ -9,7 +9,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.kaltura.playkit.samples.mediaplaybackpreview"
+        applicationId "com.kaltura.playkit.samples.recyclerviewsample"
         minSdkVersion 17
         targetSdkVersion 29
         versionCode 1
