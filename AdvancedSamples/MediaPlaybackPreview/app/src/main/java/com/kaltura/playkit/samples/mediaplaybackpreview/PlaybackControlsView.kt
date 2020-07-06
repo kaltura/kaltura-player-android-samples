@@ -48,15 +48,15 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
     }
 
     private fun initPlaybackControls() {
-        seekBar = this.findViewById(R.id.exo_progress)
+        seekBar = this.findViewById(R.id.kexo_progress)
         seekBar.setPlayedColor(resources.getColor(R.color.colorAccent))
         seekBar.setBufferedColor(resources.getColor(R.color.grey))
         seekBar.setUnplayedColor(resources.getColor(R.color.black))
         seekBar.setScrubberColor(resources.getColor(R.color.colorAccent))
         seekBar.addListener(componentListener)
 
-        tvCurTime = this.findViewById(R.id.exo_position)
-        tvTime = this.findViewById(R.id.exo_duration)
+        tvCurTime = this.findViewById(R.id.kexo_position)
+        tvTime = this.findViewById(R.id.kexo_duration)
     }
 
 

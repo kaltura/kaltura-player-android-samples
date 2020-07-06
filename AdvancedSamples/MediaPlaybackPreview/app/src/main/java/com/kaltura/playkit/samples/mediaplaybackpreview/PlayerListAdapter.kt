@@ -4,20 +4,25 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.kaltura.tvplayer.KalturaPlayer
 import kotlinx.android.synthetic.main.item_playback_preview.view.*
 
-class PlayerListAdapter(private val mediaList: ArrayList<MediaItem>) : RecyclerView.Adapter<MediaViewHolder>() {
+class PlayerListAdapter(private val mediaList: ArrayList<MediaItem>, var itemClickListener: UserClickedForMediaPlayback) : RecyclerView.Adapter<MediaViewHolder>() {
 
     private var kalturaPlayer: KalturaPlayer? = null
     private var mediaViewHolder: MediaViewHolder? = null
 
+    interface UserClickedForMediaPlayback {
+        fun onItemClick(position: Int)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        mediaViewHolder = MediaViewHolder(inflater, parent, kalturaPlayer, parent.context)
+        mediaViewHolder = MediaViewHolder(inflater, parent, kalturaPlayer, parent.context, itemClickListener)
         return mediaViewHolder as MediaViewHolder
     }
 
@@ -49,10 +54,11 @@ class PlayerListAdapter(private val mediaList: ArrayList<MediaItem>) : RecyclerV
     }
 }
 
-class MediaViewHolder(inflater: LayoutInflater, parent: ViewGroup, player: KalturaPlayer?, context: Context) :
+class MediaViewHolder(inflater: LayoutInflater, parent: ViewGroup, player: KalturaPlayer?,
+                      context: Context, var itemClickListener: PlayerListAdapter.UserClickedForMediaPlayback) :
         RecyclerView.ViewHolder(inflater.inflate(R.layout.item_playback_preview, parent, false)) {
     private var holderPlayer: KalturaPlayer? = player
-    private var ctx: Context = context;
+    private var ctx: Context = context
 
     fun bind(mediaItem: MediaItem) {
         if (mediaItem.addMediaImageView) {
@@ -82,6 +88,12 @@ class MediaViewHolder(inflater: LayoutInflater, parent: ViewGroup, player: Kaltu
                 } else {
                     it.play()
                 }
+            }
+        }
+
+        if (itemView.media_image.visibility == View.VISIBLE) {
+            itemView.media_image.setOnClickListener {
+                itemClickListener.onItemClick(adapterPosition)
             }
         }
     }

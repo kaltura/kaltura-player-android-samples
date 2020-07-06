@@ -65,7 +65,11 @@ class MainActivity : AppCompatActivity() {
 
         rvPlaybackPreviews.apply {
             linearLayoutManager = LinearLayoutManager(this@MainActivity)
-            layoutAdapter = PlayerListAdapter(mediaList)
+            layoutAdapter = PlayerListAdapter(mediaList, object : PlayerListAdapter.UserClickedForMediaPlayback {
+                override fun onItemClick(position: Int) {
+                    playMediaForOnePosition(position)
+                }
+            })
             layoutAdapter?.setPlayer(player);
         }
 
