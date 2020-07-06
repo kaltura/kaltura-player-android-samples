@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ChromecastCAFSample</string>
     <string name="cast_ovp_text">Cast OVP</string>
+    <string name="cast_basic_text">Cast Basic</string>
     <string name="cast_ott_text">Cast OTT</string>
 
     <!--<string name="receiver_application_id">E4D66C10 6C001865 B202D11C</string>-->
