@@ -1,4 +1,4 @@
-package com.kaltura.playkit.samples.recyclerriewsample
+package com.kaltura.playkit.samples.recyclerviewsample
 
 import android.app.Application
 import android.content.res.Configuration

@@ -1,4 +1,4 @@
-package com.kaltura.playkit.samples.recyclerriewsample
+package com.kaltura.playkit.samples.recyclerviewsample
 
 import android.os.Bundle
 import android.widget.FrameLayout
