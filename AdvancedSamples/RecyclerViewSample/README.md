@@ -2,15 +2,14 @@
 
 ## Purpose
 
-This PlayKit sample shows how to show a media preview when seekbar is being scrubbed.
+This PlayKit sample shows how to use multiple medias in list
 
 ## How to use
 
 1. Open `RecyclerViewSample` project in Android Studio.
 2. Compile.
-3. This sample shows how to use multiple medias in list.
-4. To modify UI of recycler view cell. Use `PlaybackControlsView` class.
-5. To modify any thing in recycler view adapter, use `PlayerListAdapter`.
+3. To modify UI of recycler view cell. Use `PlaybackControlsView` class.
+4. To modify any thing in recycler view adapter, use `PlayerListAdapter`.
 
 ## License
 
