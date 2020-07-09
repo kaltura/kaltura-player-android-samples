@@ -323,6 +323,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        manager?.let {
+            manager.stop()
+        }
+    }
+
     private companion object {
         val log = PKLog.get("MainActivity")
     }
