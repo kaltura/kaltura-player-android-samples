@@ -325,7 +325,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        manager?.let {
+        manager.let {
+            // Removing listeners by setting it to null
+            manager.setAssetStateListener(null)
+            manager.setDownloadProgressListener(null)
             manager.stop()
         }
     }
