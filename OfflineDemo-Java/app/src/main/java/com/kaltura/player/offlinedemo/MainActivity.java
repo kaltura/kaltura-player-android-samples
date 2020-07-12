@@ -368,4 +368,15 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (manager != null) {
+            // Removing listeners by setting it to null
+            manager.setAssetStateListener(null);
+            manager.setDownloadProgressListener(null);
+            manager.stop();
+        }
+    }
 }
