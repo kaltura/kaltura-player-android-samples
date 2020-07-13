@@ -1,15 +1,14 @@
 package com.kaltura.kalturaplayertestapp
 
 import AppOVPMediaOptions
+import android.app.ActionBar
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
-import android.view.KeyEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.util.DisplayMetrics
+import android.view.*
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.SearchView
@@ -1512,8 +1511,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             searchView?.setVisibility(View.GONE)
             eventsListView?.setVisibility(View.GONE)
             //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-
+            val screenHeight = getDeviceHeight()
+            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             //unhide your objects here.
             supportActionBar?.show()
@@ -1524,7 +1523,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun isPlaybackEndedState(): Boolean {
-
         return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompeted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
     }
 
@@ -1618,5 +1616,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val itemView = findViewById<RelativeLayout>(R.id.player_container)
         val snackbar = Snackbar.make(itemView, string ?: "", Snackbar.LENGTH_LONG)
         snackbar.show()
+    }
+
+    private fun getDeviceHeight(): Int {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        return displayMetrics.heightPixels
     }
 }
