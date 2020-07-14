@@ -1,14 +1,16 @@
 package com.kaltura.kalturaplayertestapp
 
 import AppOVPMediaOptions
-import android.app.ActionBar
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.DisplayMetrics
-import android.view.*
+import android.view.KeyEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.SearchView
@@ -1487,10 +1489,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
         container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 container.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                val screenHeight = getDeviceHeight()
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, 600)
+                    supportActionBar?.show()
+                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ((screenHeight / 2) - 300))
                 } else {
-                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    supportActionBar?.hide()
+                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
                 }
                 container.setOnClickListener { view ->
                     if (playbackControlsManager != null) {
@@ -1505,20 +1510,20 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        val screenHeight = getDeviceHeight()
         // Checking the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             supportActionBar?.hide()
             searchView?.setVisibility(View.GONE)
             eventsListView?.setVisibility(View.GONE)
             //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            val screenHeight = getDeviceHeight()
             player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             //unhide your objects here.
             supportActionBar?.show()
             searchView?.setVisibility(View.VISIBLE)
             eventsListView?.setVisibility(View.VISIBLE)
-            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, 600)
+            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ((screenHeight / 2) - 300))
         }
     }
 
