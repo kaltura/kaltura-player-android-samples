@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.DisplayMetrics
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -1488,10 +1489,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
         container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 container.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                val screenHeight = getDeviceHeight()
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, 600)
+                    supportActionBar?.show()
+                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ((screenHeight / 2) - 300))
                 } else {
-                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    supportActionBar?.hide()
+                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
                 }
                 container.setOnClickListener { view ->
                     if (playbackControlsManager != null) {
@@ -1506,25 +1510,24 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        val screenHeight = getDeviceHeight()
         // Checking the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             supportActionBar?.hide()
             searchView?.setVisibility(View.GONE)
             eventsListView?.setVisibility(View.GONE)
             //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-
+            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             //unhide your objects here.
             supportActionBar?.show()
             searchView?.setVisibility(View.VISIBLE)
             eventsListView?.setVisibility(View.VISIBLE)
-            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, 600)
+            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ((screenHeight / 2) - 300))
         }
     }
 
     private fun isPlaybackEndedState(): Boolean {
-
         return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompeted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
     }
 
@@ -1618,5 +1621,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val itemView = findViewById<RelativeLayout>(R.id.player_container)
         val snackbar = Snackbar.make(itemView, string ?: "", Snackbar.LENGTH_LONG)
         snackbar.show()
+    }
+
+    private fun getDeviceHeight(): Int {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        return displayMetrics.heightPixels
     }
 }
