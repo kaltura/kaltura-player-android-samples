@@ -135,30 +135,34 @@ class MainActivity: AppCompatActivity() {
     private fun addChangeMediaButton() {
         //Get reference to the play/pause button.
         changeMediaButton = this.findViewById(R.id.change_media_button)
-        if (changeMediaButton != null) {
+        if (changeMediaButton != null && remoteMediaClient != null) {
             changeMediaButton!!.setOnClickListener {
                 var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
                 val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(0).build()
                 val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 43543
                 if ("ovp" == BuildConfig.FLAVOR) {
                     pendingResult = remoteMediaClient!!.load(getOvpCastMediaInfo("0_b7s02kjl", vastAdTag, CAFCastBuilder.AdTagType.VAST, null), loadOptions)
-                    pendingResult!!.setResultCallback { mediaChannelResult ->
-                        val customData = mediaChannelResult.customData
-                        if (customData != null) {
-                            //log.v("loadMediaInfo. customData = " + customData.toString());
-                        } else {
-                            //log.v("loadMediaInfo. customData == null");
+                    if (pendingResult != null) {
+                        pendingResult!!.setResultCallback { mediaChannelResult ->
+                            val customData = mediaChannelResult.customData
+                            if (customData != null) {
+                                //log.v("loadMediaInfo. customData = " + customData.toString());
+                            } else {
+                                //log.v("loadMediaInfo. customData == null");
+                            }
                         }
                     }
                 } else {
                     val protocol = CAFCastBuilder.HttpProtocol.Http /* CAFCastBuilder.HttpProtocol.Https */
                     pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548571", "Web_Main", "", null, protocol, null), loadOptions)
-                    pendingResult!!.setResultCallback { mediaChannelResult ->
-                        val customData = mediaChannelResult.customData
-                        if (customData != null) {
-                            //log.v("loadMediaInfo. customData = " + customData.toString());
-                        } else {
-                            //log.v("loadMediaInfo. customData == null");
+                    if (pendingResult != null) {
+                        pendingResult!!.setResultCallback { mediaChannelResult ->
+                            val customData = mediaChannelResult.customData
+                            if (customData != null) {
+                                //log.v("loadMediaInfo. customData = " + customData.toString());
+                            } else {
+                                //log.v("loadMediaInfo. customData == null");
+                            }
                         }
                     }
                 }
