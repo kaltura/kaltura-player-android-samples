@@ -344,19 +344,19 @@ class MainActivity: AppCompatActivity() {
         caption1.type = "vtt"
         caption1.label = "Heb"
         caption1.language = "he"
-        caption1.url = "http://externaltests.dev.kaltura.com/player/library_Player_V3/Captions/Caption_files_VTT/hebrew.vtt"
+        caption1.url = "https://externaltests.dev.kaltura.com/player/library_Player_V3/Captions/Caption_files_VTT/hebrew.vtt"
         val caption2 = Caption()
         caption2.isDefault = false
         caption2.type = "vtt"
         caption2.label = "Jap"
         caption2.language = "ja"
-        caption2.url = "http://externaltests.dev.kaltura.com/player/library_Player_V3/Captions/Caption_files_VTT/japanese.vtt"
+        caption2.url = "https://externaltests.dev.kaltura.com/player/library_Player_V3/Captions/Caption_files_VTT/japanese.vtt"
         val caption3 = Caption()
         caption3.isDefault = false
         caption3.type = "vtt"
         caption3.label = "Rus"
         caption3.language = "ru"
-        caption3.url = "http://externaltests.dev.kaltura.com/player/library_Player_V3/Captions/Caption_files_VTT/russian.vtt"
+        caption3.url = "https://externaltests.dev.kaltura.com/player/library_Player_V3/Captions/Caption_files_VTT/russian.vtt"
         var captions: List<Caption> = mutableListOf(caption1, caption2, caption3)
         return captions
     }
