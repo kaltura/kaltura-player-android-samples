@@ -135,33 +135,35 @@ class MainActivity: AppCompatActivity() {
     private fun addChangeMediaButton() {
         //Get reference to the play/pause button.
         changeMediaButton = this.findViewById(R.id.change_media_button)
-        if (changeMediaButton != null && remoteMediaClient != null) {
+        if (changeMediaButton != null) {
             changeMediaButton!!.setOnClickListener {
                 var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
                 val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(0).build()
-                val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 43543
-                if ("ovp" == BuildConfig.FLAVOR) {
-                    pendingResult = remoteMediaClient!!.load(getOvpCastMediaInfo("0_b7s02kjl", vastAdTag, CAFCastBuilder.AdTagType.VAST, null), loadOptions)
-                    if (pendingResult != null) {
-                        pendingResult!!.setResultCallback { mediaChannelResult ->
-                            val customData = mediaChannelResult.customData
-                            if (customData != null) {
-                                //log.v("loadMediaInfo. customData = " + customData.toString());
-                            } else {
-                                //log.v("loadMediaInfo. customData == null");
+                val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 443433543
+                if (remoteMediaClient != null) {
+                    if ("ovp" == BuildConfig.FLAVOR) {
+                        pendingResult = remoteMediaClient!!.load(getOvpCastMediaInfo("0_b7s02kjl", vastAdTag, CAFCastBuilder.AdTagType.VAST, null), loadOptions)
+                        if (pendingResult != null) {
+                            pendingResult!!.setResultCallback { mediaChannelResult ->
+                                val customData = mediaChannelResult.customData
+                                if (customData != null) {
+                                    //log.v("loadMediaInfo. customData = " + customData.toString());
+                                } else {
+                                    //log.v("loadMediaInfo. customData == null");
+                                }
                             }
                         }
-                    }
-                } else {
-                    val protocol = CAFCastBuilder.HttpProtocol.Http /* CAFCastBuilder.HttpProtocol.Https */
-                    pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548571", "Web_Main", "", null, protocol, null), loadOptions)
-                    if (pendingResult != null) {
-                        pendingResult!!.setResultCallback { mediaChannelResult ->
-                            val customData = mediaChannelResult.customData
-                            if (customData != null) {
-                                //log.v("loadMediaInfo. customData = " + customData.toString());
-                            } else {
-                                //log.v("loadMediaInfo. customData == null");
+                    } else {
+                        val protocol = CAFCastBuilder.HttpProtocol.Http /* CAFCastBuilder.HttpProtocol.Https */
+                        pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548571", "Web_Main", "", null, protocol, null), loadOptions)
+                        if (pendingResult != null) {
+                            pendingResult!!.setResultCallback { mediaChannelResult ->
+                                val customData = mediaChannelResult.customData
+                                if (customData != null) {
+                                    //log.v("loadMediaInfo. customData = " + customData.toString());
+                                } else {
+                                    //log.v("loadMediaInfo. customData == null");
+                                }
                             }
                         }
                     }
@@ -339,22 +341,22 @@ class MainActivity: AppCompatActivity() {
     private fun getExternalVttCaptions(): List<Caption> {
         val caption1 = Caption()
         caption1.isDefault = false
-        caption1.type = "srt"
-        caption1.label = "Ger"
-        caption1.language = "nl"
-        caption1.url = "https://qa-nginx-vod.dev.kaltura.com/api_v3/index.php/service/caption_captionasset/action/serveWebVTT/captionAssetId/0_kozg4x1x/version/2/segmentIndex/1.vtt"
+        caption1.type = "vtt"
+        caption1.label = "Heb"
+        caption1.language = "he"
+        caption1.url = "https://externaltests.dev.kaltura.com/player/library_Player_V3/Captions/Caption_files_VTT/hebrew.vtt"
         val caption2 = Caption()
         caption2.isDefault = false
-        caption2.type = "srt"
-        caption2.label = "Rus"
-        caption2.language = "ru"
-        caption2.url = "https://qa-nginx-vod.dev.kaltura.com/api_v3/index.php/service/caption_captionasset/action/serveWebVTT/captionAssetId/0_njhnv6na/version/2/segmentIndex/1.vtt"
+        caption2.type = "vtt"
+        caption2.label = "Jap"
+        caption2.language = "ja"
+        caption2.url = "https://externaltests.dev.kaltura.com/player/library_Player_V3/Captions/Caption_files_VTT/japanese.vtt"
         val caption3 = Caption()
         caption3.isDefault = false
-        caption3.type = "srt"
-        caption3.label = "Eng"
-        caption3.language = "en"
-        caption3.url = "https://qa-nginx-vod.dev.kaltura.com/api_v3/index.php/service/caption_captionasset/action/serveWebVTT/captionAssetId/0_kozg4x1x/version/2/segmentIndex/1.vtt"
+        caption3.type = "vtt"
+        caption3.label = "Rus"
+        caption3.language = "ru"
+        caption3.url = "https://externaltests.dev.kaltura.com/player/library_Player_V3/Captions/Caption_files_VTT/russian.vtt"
         var captions: List<Caption> = mutableListOf(caption1, caption2, caption3)
         return captions
     }
@@ -398,7 +400,7 @@ class MainActivity: AppCompatActivity() {
 
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
         val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position.toLong()).build()
-        val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 31122334242
+        val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 321122334242
         //using QA partner 1091
 
         pendingResult = remoteMediaClient!!.load(getOvpCastMediaInfo("0_fl4ioobl", vastAdTag, CAFCastBuilder.AdTagType.VAST, getExternalVttCaptions()), loadOptions)
