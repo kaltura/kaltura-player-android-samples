@@ -45,7 +45,7 @@ object PartnersConfig {
     var OVP_FIRST_ENTRY_ID = "1_w9zx2eti"
     var OVP_SECOND_ENTRY_ID = "1_ebs5e9cy"
 
-    val SING_198_MEDIA_ID = "480989"
+    val MEDIA_ID_3009 = "548576"
     val OTT_PARTNER_ID = 3009
     val OTT_BASE_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
     val OTT_ASSET_ID = "548576"

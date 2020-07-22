@@ -10,11 +10,9 @@ import com.kaltura.playkit.samples.fulldemo.Consts.AD_7
 import com.kaltura.playkit.samples.fulldemo.Consts.AD_8
 import com.kaltura.playkit.samples.fulldemo.Consts.AD_9
 import com.kaltura.playkit.samples.fulldemo.Consts.AD_GOOGLE_SEARCH
-import com.kaltura.playkit.samples.fulldemo.Consts.AD_VOOT1
 import com.kaltura.playkit.samples.fulldemo.Consts.LIC_URL1
 import com.kaltura.playkit.samples.fulldemo.Consts.LIVE_URL
 import com.kaltura.playkit.samples.fulldemo.Consts.SOURCE_URL1
-import com.kaltura.playkit.samples.fulldemo.Consts.VOOT_URL1
 import java.util.ArrayList
  
 class VideoMetadata(
@@ -110,12 +108,6 @@ class VideoMetadata(
                         SOURCE_URL1,
                         LIC_URL1,
                         AD_3,
-                        R.drawable.k_image))
-                defaultVideos.add(VideoItem(
-                        "voot ad",
-                        VOOT_URL1,
-                        LIC_URL1,
-                        AD_VOOT1,
                         R.drawable.k_image))
 
                 return defaultVideos
