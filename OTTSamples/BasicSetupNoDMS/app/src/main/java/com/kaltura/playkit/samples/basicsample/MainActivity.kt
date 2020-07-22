@@ -24,8 +24,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     private val log = PKLog.get("MainActivity")
 
-    private val ASSET_ID = "480989"
-    val MEDIA_FORMAT = "Mobile_Devices_Main_SD_Dash"
+    private val ASSET_ID = "548576"
+    val MEDIA_FORMAT = "Mobile_Main"
     private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
     private var playPauseButton: Button? = null
@@ -141,15 +141,16 @@ class MainActivity : AppCompatActivity() {
                  please verify what is your OVP PartnerId! and set the ovpPartnerId
              if you are OTT client without media-prep
                  please do not set ovpPartnerd
-         */
+           Example:
 
         val phoenixTVPlayerParams = PhoenixTVPlayerParams()
-        phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
-        phoenixTVPlayerParams.ovpPartnerId = 1774581
+        phoenixTVPlayerParams.analyticsUrl = ANALYTICS_URL
+        phoenixTVPlayerParams.ovpPartnerId = OVP_PARTER_ID
         phoenixTVPlayerParams.partnerId = PARTNER_ID
         phoenixTVPlayerParams.serviceUrl = SERVER_URL
-        phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
+        phoenixTVPlayerParams.ovpServiceUrl = OVP_SERVICE_URL
         playerInitOptions.tvPlayerParams = phoenixTVPlayerParams
+         */
 
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
@@ -185,7 +186,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        val SERVER_URL = "https://api-preprod.ott.kaltura.com/v5_2_8/"
-        val PARTNER_ID = 198
+        val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
+        val PARTNER_ID = 3009
     }
 }

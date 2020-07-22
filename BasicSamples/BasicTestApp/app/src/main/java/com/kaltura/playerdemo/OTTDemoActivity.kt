@@ -89,16 +89,6 @@ class OTTDemoActivity : BaseDemoActivity() {
             }
         }
 
-        if (initOptions?.partnerId == 198) {
-            val phoenixTVPlayerParams = PhoenixTVPlayerParams()
-            phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
-            phoenixTVPlayerParams.ovpPartnerId = 1774581
-            phoenixTVPlayerParams.partnerId = 198
-            phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_1_0/"
-            phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
-            updatedInitOptions.tvPlayerParams = phoenixTVPlayerParams
-        }
-
         val player = KalturaOttPlayer.create(playerActivity, updatedInitOptions)
 
         val ottMediaAsset = OTTMediaAsset()

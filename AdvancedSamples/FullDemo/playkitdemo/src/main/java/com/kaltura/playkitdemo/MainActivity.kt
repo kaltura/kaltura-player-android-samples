@@ -43,6 +43,7 @@ import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.playkit.utils.Consts
+import com.kaltura.playkitdemo.PartnersConfig.MEDIA_ID_3009
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_CLEAR
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_DRM
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_HLS
@@ -51,7 +52,6 @@ import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_LIVE_1
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_VR
 import com.kaltura.playkitdemo.PartnersConfig.OVP_FIRST_ENTRY_ID
 import com.kaltura.playkitdemo.PartnersConfig.OVP_SECOND_ENTRY_ID
-import com.kaltura.playkitdemo.PartnersConfig.SING_198_MEDIA_ID
 import com.kaltura.playkitdemo.PartnersConfig.inLinePreAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preMidPostAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preMidPostSingleAdTagUrl
@@ -249,8 +249,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
         // OTT Playkit Player
         //loadKalturaPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
-        //loadKalturaPlayer(225, KalturaPlayer.Type.ott, pkPluginConfigs);
-        loadKalturaPlayer(198, KalturaPlayer.Type.ott, pkPluginConfigs)
+        loadKalturaPlayer(3009, KalturaPlayer.Type.ott, pkPluginConfigs)
 
 
         // OVP Playkit Player
@@ -290,19 +289,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         playerInitOptions?.setPluginConfigs(pkPluginConfigs)
 
         if (playerType == KalturaPlayer.Type.ott) {
-            if (mediaPartnerId == 225 || mediaPartnerId == 198) {
-                val phoenixTVPlayerParams = PhoenixTVPlayerParams()
-                phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
-                phoenixTVPlayerParams.ovpPartnerId = 1774581
-                phoenixTVPlayerParams.partnerId = mediaPartnerId
-                if (mediaPartnerId == 225) {
-                    phoenixTVPlayerParams.serviceUrl = "https://rest-as.ott.kaltura.com/v5_0_3/"
-                } else {
-                    phoenixTVPlayerParams.serviceUrl = "https://api-preprod.ott.kaltura.com/v5_2_8/"
-                }
-                phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
-                playerInitOptions?.tvPlayerParams = phoenixTVPlayerParams
-            }
             player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
         } else if (playerType == KalturaPlayer.Type.ovp) {
             player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
@@ -330,7 +316,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
             //startOvpChangeMediaLoading(OVP_FIRST_ENTRY_ID, null);
         } else if (playerType == KalturaPlayer.Type.ott) {
             //startOttMediaLoading(OTT_ASSET_ID, null, PhoenixMediaProvider.HttpProtocol.Http, "Mobile_Main"); //3009
-            startOttMediaLoading(SING_198_MEDIA_ID, null, PhoenixMediaProvider.HttpProtocol.Https, "Mobile_Devices_Main_HD_Dash") // 198
+            startOttMediaLoading(MEDIA_ID_3009, null, PhoenixMediaProvider.HttpProtocol.Http, "Mobile_Main") 
 
         } else if (playerType == KalturaPlayer.Type.basic) {
             // no media loading for basic
