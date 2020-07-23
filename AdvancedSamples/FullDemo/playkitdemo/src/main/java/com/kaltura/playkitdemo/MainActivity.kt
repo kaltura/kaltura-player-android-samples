@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         get() {
             val assetTitle = "VOD - Tears of Steel"
             val apiKey: String? = null
-            val contentSourceId = "2477953"
+            val contentSourceId = "19463"
             val videoId = "tears-of-steel"
             val streamFormat = StreamRequest.StreamFormat.HLS
             val licenseUrl: String? = null
