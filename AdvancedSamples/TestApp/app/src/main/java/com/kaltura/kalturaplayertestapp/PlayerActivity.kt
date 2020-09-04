@@ -336,6 +336,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setSecureSurface(appPlayerInitConfig.secureSurface)
                 .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode)
                 .setAbrSettings(appPlayerInitConfig.abrSettings)
+                .setVideoCodecSettings(appPlayerInitConfig.videoCodecSettings)
+                .setAudioCodecSettings(appPlayerInitConfig.audioCodecSettings)
                 .setLoadControlBuffers(appPlayerInitConfig.loadControlBuffers)
                 .setAllowClearLead(appPlayerInitConfig.allowClearLead)
                 .setEnableDecoderFallback(appPlayerInitConfig.enableDecoderFallback)
@@ -1442,15 +1444,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     internal fun initDrm() {
-        MediaSupport.initializeDrm(this) { supportedDrmSchemes, isHardwareDrmSupported, provisionPerformed, provisionError ->
-            if (provisionPerformed) {
+        MediaSupport.initializeDrm(this) { pkDeviceSupportInfo, provisionError ->
+            if (pkDeviceSupportInfo.isProvisionPerformed) {
                 if (provisionError != null) {
                     log.e("DRM Provisioning failed", provisionError)
                 } else {
                     log.d("DRM Provisioning succeeded")
                 }
             }
-            log.d("DRM initialized; supported: $supportedDrmSchemes isHardwareDrmSupported: $isHardwareDrmSupported")
+            log.d("DRM initialized; supported: ${pkDeviceSupportInfo.isHardwareDrmSupported} isHardwareDrmSupported: ${pkDeviceSupportInfo.isHardwareDrmSupported}")
         }
     }
 
