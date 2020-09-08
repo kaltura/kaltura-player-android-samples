@@ -1443,7 +1443,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         return true
     }
 
-    internal fun initDrm() {
+    private fun initDrm() {
         MediaSupport.initializeDrm(this) { pkDeviceSupportInfo, provisionError ->
             if (pkDeviceSupportInfo.isProvisionPerformed) {
                 if (provisionError != null) {
@@ -1452,7 +1452,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     log.d("DRM Provisioning succeeded")
                 }
             }
-            log.d("DRM initialized; supported: ${pkDeviceSupportInfo.isHardwareDrmSupported} isHardwareDrmSupported: ${pkDeviceSupportInfo.isHardwareDrmSupported}")
+            log.d("DRM initialized; supported: ${pkDeviceSupportInfo.supportedDrmSchemes} isHardwareDrmSupported: ${pkDeviceSupportInfo.isHardwareDrmSupported}")
         }
     }
 
