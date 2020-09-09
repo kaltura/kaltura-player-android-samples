@@ -34,7 +34,7 @@ class PlayerConfig {
     var maxVideoBitrate: Int? = null
     var maxVideoSize: PKMaxVideoSize? = null
     var handleAudioBecomingNoisyEnabled: Boolean? = null
-
+    var preferInternalSubtitles: Boolean? = null
 
     var setSubtitleStyle: SubtitleStyleSettings? = null
     var aspectRatioResizeMode: PKAspectRatioResizeMode? = null
@@ -42,6 +42,8 @@ class PlayerConfig {
     var licenseRequestAdapter: PKRequestParams.Adapter? = null
     var loadControlBuffers: LoadControlBuffers? = null
     var abrSettings: ABRSettings? = null
+    var videoCodecSettings: VideoCodecSettings? = null
+    var audioCodecSettings: AudioCodecSettings? = null
     var requestConfiguration: RequestConfiguration? = null
     var referrer: String? = null
     var forceSinglePlayerEngine: Boolean? = null
