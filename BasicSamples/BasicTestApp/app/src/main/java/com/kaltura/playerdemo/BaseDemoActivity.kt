@@ -143,16 +143,16 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
 
     protected abstract fun loadConfigFile()
 
-    internal fun initDrm() {
-        MediaSupport.initializeDrm(this) { supportedDrmSchemes, isHardwareDrmSupported, provisionPerformed, provisionError ->
-            if (provisionPerformed) {
+    private fun initDrm() {
+        MediaSupport.initializeDrm(this) { pkDeviceSupportInfo, provisionError ->
+            if (pkDeviceSupportInfo.isProvisionPerformed) {
                 if (provisionError != null) {
                     log.e("DRM Provisioning failed", provisionError)
                 } else {
                     log.d("DRM Provisioning succeeded")
                 }
             }
-            log.d("DRM initialized; supported: $supportedDrmSchemes isHardwareDrmSupported: $isHardwareDrmSupported")
+            log.d("DRM initialized; supported: ${pkDeviceSupportInfo.supportedDrmSchemes} isHardwareDrmSupported: ${pkDeviceSupportInfo.isHardwareDrmSupported}")
 
             // Now it's safe to look at `supportedDrmSchemes`
         }
