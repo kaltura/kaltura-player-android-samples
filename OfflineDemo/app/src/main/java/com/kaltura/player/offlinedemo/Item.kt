@@ -10,7 +10,7 @@ import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
 
-abstract class Item (val selectionPrefs: SelectionPrefs?, val title: String?) {
+abstract class Item (val selectionPrefs: SelectionPrefs?, val title: String?, val isPrefetch: Boolean = false) {
     var entry: PKMediaEntry? = null
     var assetInfo: OfflineManager.AssetInfo? = null
     var percentDownloaded: Float? = null
@@ -45,8 +45,9 @@ class BasicItem(
     private val id: String,
     private val url: String,
     prefs: SelectionPrefs? = null,
-    title: String? = null
-): Item(prefs, title) {
+    title: String? = null,
+    isPrefetch: Boolean = false
+): Item(prefs, title, isPrefetch) {
 
     init {
         this.entry = PKMediaEntry().apply {
@@ -70,8 +71,9 @@ abstract class KalturaItem(
     val partnerId: Int,
     val serverUrl: String,
     prefs: SelectionPrefs?,
-    title: String?
-): Item(prefs, title) {
+    title: String?,
+    isPrefetch: Boolean = false
+): Item(prefs, title, isPrefetch) {
 
     abstract fun mediaOptions(): MediaOptions
 
@@ -83,8 +85,9 @@ class OVPItem(
     private val entryId: String,
     serverUrl: String? = null,
     prefs: SelectionPrefs? = null,
-    title: String? = null
-) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title) {
+    title: String? = null,
+    isPrefetch: Boolean = false
+) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title, isPrefetch) {
 
     override fun id() = assetInfo?.assetId ?: entryId
 
@@ -97,8 +100,9 @@ class OTTItem(
     serverUrl: String,
     private val format: String?,
     prefs: SelectionPrefs? = null,
-    title: String? = null
-) : KalturaItem(partnerId, serverUrl, prefs, title) {
+    title: String? = null,
+    isPrefetch: Boolean = false
+) : KalturaItem(partnerId, serverUrl, prefs, title, isPrefetch) {
 
     override fun id() = assetInfo?.assetId ?: ottAssetId
 

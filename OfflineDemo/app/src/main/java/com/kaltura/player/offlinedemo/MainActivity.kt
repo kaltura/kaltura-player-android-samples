@@ -14,13 +14,18 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.get
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.kaltura.playkit.*
-import com.kaltura.tvplayer.KalturaPlayer
-import com.kaltura.tvplayer.MediaOptions
-import com.kaltura.tvplayer.OfflineManager
+import com.kaltura.playkit.providers.api.phoenix.APIDefines
+import com.kaltura.playkit.providers.ott.OTTMediaAsset
+import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.tvplayer.*
+import com.kaltura.tvplayer.offline.exo.PrefetchConfig
+import com.kaltura.tvplayer.offline.exo.PrefetchManager
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.view.*
 import java.util.*
 
 fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
@@ -43,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 //        setSupportActionBar(toolbar)
-
+        KalturaOttPlayer.initialize(this, MainActivity.PARTNER_ID, MainActivity.SERVER_URL);
 
         val itemsJson = Utils.readAssetToString(this, "items.json")
 
@@ -57,25 +62,44 @@ class MainActivity : AppCompatActivity() {
         manager.setEstimatedHlsAudioBitrate(64000)
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
-            override fun onAssetDownloadFailed(assetId: String, error: Exception) {
-                toastLong("Download of $error failed: $error")
+
+            override fun onAssetDownloadFailed(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
+                toastLong("Download of $assetId, ${downloadType.name} failed: $error")
                 updateItemStatus(assetId)
             }
 
-            override fun onAssetDownloadComplete(assetId: String) {
-                log.d("onAssetDownloadComplete")
+            override fun onAssetDownloadComplete(assetId: String, downloadType: OfflineManager.DownloadType) {
+                log.d("onAssetDownloadComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
 
-                log.d("onAssetDownloadComplete: ${SystemClock.elapsedRealtimeNanos() - startTime}")
-                toast("Complete")
+                if (downloadType == OfflineManager.DownloadType.FULL) {
+                    toast("Complete")
+                } else {
+                    toast("Prefetched")
+                }
                 updateItemStatus(assetId)
             }
 
-            override fun onAssetDownloadPending(assetId: String) {
+            override fun onAssetPrefetchComplete(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType
+            ) {
+                log.d("onAssetPrefetchComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
+
+                if (downloadType == OfflineManager.DownloadType.FULL) {
+                    toast("Complete")
+                } else {
+                    toast("Prefetched id =  $assetId")
+                }
                 updateItemStatus(assetId)
             }
 
-            override fun onAssetDownloadPaused(assetId: String) {
-                toast("Paused")
+            override fun onAssetDownloadPending(assetId: String, downloadType: OfflineManager.DownloadType) {
+                //toast("Pending - onAssetDownloadPending")
+                updateItemStatus(assetId)
+            }
+
+            override fun onAssetDownloadPaused(assetId: String, downloadType: OfflineManager.DownloadType) {
+                toast("Paused - onAssetDownloadPaused")
                 updateItemStatus(assetId)
             }
 
@@ -84,26 +108,34 @@ class MainActivity : AppCompatActivity() {
                 updateItemStatus(assetId)
             }
 
-            override fun onRegisterError(assetId: String, error: Exception) {
-                toastLong("onRegisterError: $assetId $error")
+            override fun onRegisterError(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
+                toastLong("onRegisterError: $assetId, ${downloadType.name}, $error ")
                 updateItemStatus(assetId)
             }
 
-            override fun onStateChanged(assetId: String, assetInfo: OfflineManager.AssetInfo) {
-                toast("onStateChanged")
+            override fun onStateChanged(assetId: String, downloadType: OfflineManager.DownloadType, assetInfo: OfflineManager.AssetInfo) {
+                toast("onStateChanged state = " + assetInfo.state.name)
                 updateItemStatus(assetId)
             }
 
-            override fun onAssetRemoved(assetId: String) {
+            override fun onAssetRemoved(assetId: String, downloadType: OfflineManager.DownloadType) {
                 toast("onAssetRemoved")
                 updateItemStatus(assetId)
             }
+
+            override fun onAssetRemoveError(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: java.lang.Exception
+            ) {
+                toast("Error Asset Was Not Removed")
+            }
+
 
         })
 
         manager.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
             log.d("[progress] $assetId: ${bytesDownloaded / 1000} / ${totalBytesEstimated / 1000}")
-
             val item = itemMap[assetId] ?: return@setDownloadProgressListener
             item.bytesDownloaded = bytesDownloaded
             item.percentDownloaded = percentDownloaded
@@ -141,16 +173,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showActionsDialog(item: Item) {
-        val items = arrayOf("Prepare", "Start", "Pause", "Play", "Remove", "Status", "Update")
+        val items = arrayOf("Prepare", "Start", "Pause", "Play", "Status", "Update", "Remove")
         AlertDialog.Builder(this).setItems(items) { _, i ->
             when (i) {
-                0 -> doPrepare(item)
+                0 -> if (item.isPrefetch) {
+                      doPrefetch(item)
+                    } else {
+                      doPrepare(item)
+                    }
                 1 -> doStart(item)
                 2 -> doPause(item)
                 3 -> doPlay(item)
-                4 -> doRemove(item)
-                5 -> doStatus(item)
-                6 -> updateItemStatus(item)
+                4 -> doStatus(item)
+                5 -> updateItemStatus(item)
+                6 -> doRemove(item)
             }
         }.show()
     }
@@ -161,7 +197,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doStatus(item: Item) {
-
         if (item !is KalturaItem) {
             toastLong("Not applicable")
             return
@@ -183,7 +218,7 @@ class MainActivity : AppCompatActivity() {
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             manager.renewDrmAssetLicense(item.id(), item.mediaOptions(), object: OfflineManager.MediaEntryCallback {
                 override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
-                    reduceLicenseDuration(mediaEntry, 300)
+                   // reduceLicenseDuration(mediaEntry, 300)
                 }
 
                 override fun onMediaEntryLoadError(error: Exception) {
@@ -218,6 +253,22 @@ class MainActivity : AppCompatActivity() {
         updateItemStatus(item)
     }
 
+    private fun buildOttMediaOptions(): OTTMediaOptions {
+        val ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = ASSET_ID
+        ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
+        ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
+        ottMediaAsset.ks = null
+        ottMediaAsset.formats = listOf("Mobile_Main")
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+
+        ottMediaOptions.startPosition = 0L;
+
+        return ottMediaOptions
+    }
+
     private fun doPrepare(item: Item) {
 
         if (item is KalturaItem) {
@@ -249,7 +300,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
-                reduceLicenseDuration(mediaEntry, 300)
+               // reduceLicenseDuration(mediaEntry, 300)
             }
 
             override fun onSourceSelected(
@@ -278,6 +329,112 @@ class MainActivity : AppCompatActivity() {
         } else {
             item.entry?.let {
                     entry -> manager.prepareAsset(entry, item.selectionPrefs ?: defaultPrefs, prepareCallback)
+            }
+        }
+    }
+
+    private fun doPrefetch(item: Item) {
+
+        if (item is KalturaItem) {
+            manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            manager.setKalturaServerUrl(item.serverUrl)
+        }
+
+        val prefetchCallback = object : OfflineManager.PrefetchCallback {
+            override fun onPrefetched(
+                assetId: String,
+                assetInfo: OfflineManager.AssetInfo,
+                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
+            ) {
+
+            }
+
+            override fun onPrepared(
+                assetId: String,
+                assetInfo: OfflineManager.AssetInfo,
+                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
+            ) {
+                item.assetInfo = assetInfo
+                assetList.invalidateViews()            }
+
+            override fun onPrefetchError(assetId: String, error: Exception) {
+                toastLong("onPrepareError: $error")
+            }
+
+            override fun onPrepareError(assetId: String, error: java.lang.Exception) {
+                TODO("Not yet implemented")
+            }
+        }
+
+        //val ottMediaOptions = buildOttMediaOptions();
+        //manager.prefetchAsset(ottMediaOptions, PrefetchConfig(), prefetchCallback)
+
+        val defaultPrefs = OfflineManager.SelectionPrefs().apply {
+            //videoHeight = 300
+            videoBitrate = 600000
+            //videoWidth = 400
+            allAudioLanguages = true
+            allTextLanguages = true
+            allowInefficientCodecs = false
+        }
+
+        var pm = manager.getPrefetchManager()
+        if (item is KalturaItem) {
+            if (!TextUtils.isEmpty(item.serverUrl)) {
+                manager.setKalturaServerUrl(item.serverUrl);
+            }
+
+            manager.prefetchAsset(item.mediaOptions(), PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+
+//            var ms1 = OTTMediaAsset()
+//            ms1.assetId = "610715"
+//            ms1.formats = Collections.singletonList("Tablet Main")
+//            ms1.protocol = PhoenixMediaProvider.HttpProtocol.Https
+//            var mo1 = OTTMediaOptions(ms1)
+//
+//            var ms2 = OTTMediaAsset()
+//            ms2.assetId = "924187"
+//            ms2.formats = Collections.singletonList("Tablet Main")
+//            ms2.protocol = PhoenixMediaProvider.HttpProtocol.Https
+//            var mo2 = OTTMediaOptions(ms2)
+//
+//            var entries = mutableListOf<MediaOptions>()
+//            entries.add(mo1)
+//            entries.add(mo2)
+//            entries.add(item.mediaOptions())
+//            pm.prefetchByMediaOptionsList(entries, PrefetchConfig())
+        } else {
+            item.entry?.let { entry ->
+                 manager.prefetchAsset(entry, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+
+//                var m1 = PKMediaEntry()
+//                m1.duration = 10000
+//                m1.id = "m1"
+//                m1.mediaType = PKMediaEntry.MediaEntryType.Vod
+//                m1.name = "m1"
+//                var ms1 = PKMediaSource()
+//                ms1.id = "m1"
+//                ms1.mediaFormat = PKMediaFormat.hls
+//                ms1.url = "https://rest-as.ott.kaltura.com/api_v3/service/assetFile/action/playManifest/partnerId/225/assetId/853309/assetType/media/assetFileId/9547693/contextType/PLAYBACK/a.m3u8"
+//                m1.sources = Collections.singletonList(ms1)
+//
+//
+//                var m2 = PKMediaEntry()
+//                m2.duration = 10000
+//                m2.id = "m2"
+//                m2.mediaType = PKMediaEntry.MediaEntryType.Vod
+//                m2.name = "m2"
+//                var ms2 = PKMediaSource()
+//                ms2.id = "m2"
+//                ms2.mediaFormat = PKMediaFormat.hls
+//                ms2.url = "https://rest-as.ott.kaltura.com/api_v3/service/assetFile/action/playManifest/partnerId/225/assetId/853309/assetType/media/assetFileId/9547693/contextType/PLAYBACK/a.m3u8"
+//                m2.sources = Collections.singletonList(ms2)
+//
+//                var entries = mutableListOf<PKMediaEntry>()
+//                entries.add(m1)
+//                entries.add(m2)
+//                entries.add(entry)
+//                pm.prefetchByMediaEntryList(entries, PrefetchConfig())
             }
         }
     }
@@ -335,5 +492,8 @@ class MainActivity : AppCompatActivity() {
 
     private companion object {
         val log = PKLog.get("MainActivity")
+        val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
+        private val ASSET_ID = "548576"
+        val PARTNER_ID = 3009
     }
 }
