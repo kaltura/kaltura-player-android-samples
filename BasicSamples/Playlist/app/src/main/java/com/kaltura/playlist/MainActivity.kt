@@ -143,6 +143,7 @@ class MainActivity : AppCompatActivity() {
         val basicMediaOptions2 = createMediaEntry(SOURCE2_ENTRY_ID, SOURCE_URL2)
 
         val mediaList = listOf(basicMediaOptions0, basicMediaOptions1, basicMediaOptions2)
+        log.d(TAG, "media lists"+SOURCE0_ENTRY_ID+","+SOURCE1_ENTRY_ID+","+SOURCE2_ENTRY_ID)
 
         loadPlaylistToPlayer(mediaList)
 
