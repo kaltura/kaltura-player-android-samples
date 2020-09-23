@@ -31,9 +31,11 @@
         android:orientation="horizontal">
 
         <ImageButton android:id="@id/kexo_prev"
+            android:contentDescription="prev"
             style="@style/ExoMediaButton.Previous"/>
 
         <ImageButton android:id="@id/kexo_rew"
+            android:contentDescription="rewind"
             style="@style/ExoMediaButton.Rewind"/>
 
         <ImageButton android:id="@id/kexo_shuffle"
