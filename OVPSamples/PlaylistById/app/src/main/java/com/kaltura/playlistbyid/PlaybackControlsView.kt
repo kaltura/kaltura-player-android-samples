@@ -16,9 +16,11 @@ import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.utils.Consts
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
+import android.util.Log
 
 class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
 
+    private val TAG = "MainActivity"
     private val log = PKLog.get("PlaybackControlsView")
     private val PROGRESS_BAR_MAX = 100
     private var player: KalturaPlayer? = null
@@ -142,7 +144,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
             dragging = false
             player?.let {
-                it.seekTo(position * it.duration / PROGRESS_BAR_MAX)
+                it.seekTo(position)
 
             }
         }
@@ -206,8 +208,10 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.kexo_play ->
+            R.id.kexo_play -> {
                 player?.play()
+                Log.d(TAG, "entry id" + player?.mediaEntry?.id);
+            }
             R.id.kexo_pause ->
                 player?.pause()
             R.id.kexo_ffwd -> {
@@ -218,9 +222,11 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
             }
             R.id.kexo_next -> {
                 player?.playlistController?.playNext()
+                Log.d(TAG, "new entry id" + player?.mediaEntry?.id);
             }
             R.id.kexo_prev -> {
                 player?.playlistController?.playPrev()
+                Log.d(TAG, "new entry id" + player?.mediaEntry?.id);
             }
         }
     }
