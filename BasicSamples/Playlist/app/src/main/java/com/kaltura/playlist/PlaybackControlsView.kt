@@ -22,6 +22,7 @@ import android.util.Log;
 
 class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
 
+    private val TAG = "MainActivity"
     private val log = PKLog.get("PlaybackControlsView")
     private val PROGRESS_BAR_MAX = 100
     private var player: KalturaPlayer? = null
@@ -113,11 +114,11 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         if (!dragging && position != Consts.POSITION_UNSET.toLong() && duration != Consts.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
             tvCurTime.text = stringForTime(position!!)
-            seekBar.setPosition(progressBarValue(position).toLong())
-            seekBar.setDuration(progressBarValue(duration).toLong())
+            seekBar.setPosition(player!!.currentPosition)
+            seekBar.setDuration(player!!.duration)
         }
 
-        seekBar.setBufferedPosition(progressBarValue(bufferedPosition).toLong())
+        seekBar.setBufferedPosition(player!!.bufferedPosition)
         // Remove scheduled updates.
         removeCallbacks(updateProgressAction)
         // Schedule an update if necessary.
@@ -211,8 +212,10 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.kexo_play ->
+            R.id.kexo_play -> {
                 player?.play()
+                Log.d(TAG, "entry id" + player?.mediaEntry?.id);
+            }
             R.id.kexo_pause ->
                 player?.pause()
             R.id.kexo_ffwd -> {
