@@ -146,7 +146,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
             dragging = false
             player?.let {
-                it.seekTo(position * it.duration / PROGRESS_BAR_MAX)
+                it.seekTo(position)
 
             }
         }
