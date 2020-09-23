@@ -18,6 +18,7 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.utils.Consts
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
+import android.util.Log;
 
 class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
 
