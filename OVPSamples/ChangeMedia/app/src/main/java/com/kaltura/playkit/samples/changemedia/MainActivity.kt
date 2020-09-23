@@ -16,9 +16,11 @@ import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 import kotlinx.android.synthetic.main.activity_main.*
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
 
+    private val TAG = "MainActivity"
     private val log = PKLog.get("MainActivity")
     private val FIRST_ENTRY_ID = "1_w9zx2eti"
     private val SECOND_ENTRY_ID = "1_ebs5e9cy"
@@ -38,6 +40,8 @@ class MainActivity : AppCompatActivity() {
         initChangeMediaButton()
 
         loadPlaykitPlayer()
+
+        prepareFirstEntry()
 
         showSystemUI()
 
@@ -169,6 +173,7 @@ class MainActivity : AppCompatActivity() {
                     it.play()
                 }
             }
+            Log.d(TAG, "entry id " + player?.mediaEntry?.id);
         }
     }
 
