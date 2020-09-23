@@ -13,6 +13,8 @@ import com.kaltura.android.exoplayer2.ui.DefaultTimeBar
 import com.kaltura.android.exoplayer2.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.plugins.ima.IMAConfig
+import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.utils.Consts
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
@@ -219,12 +221,39 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
                 //Do nothing for now
             }
             R.id.kexo_next -> {
+                var pos = player?.playlistController?.currentMediaIndex ?: 0
+                var listSize = player?.playlistController?.playlist?.mediaListSize ?: 0
+                pos++
+                if (listSize > 0 && pos >= listSize) {
+                    pos = 0;
+                }
+                player?.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(adsList.get(pos)))
                 player?.playlistController?.playNext()
             }
             R.id.kexo_prev -> {
+                var pos = player?.playlistController?.currentMediaIndex ?: 0
+                var listSize = player?.playlistController?.playlist?.mediaListSize ?: 0
+                pos--
+                if (listSize > 0 && pos < 0) {
+                    pos = listSize -1;
+                }
+                player?.updatePluginConfig(IMAPlugin.factory.name, getAdsConfig(adsList.get(pos)))
                 player?.playlistController?.playPrev()
             }
         }
+    }
+
+    private val AD0 = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator="
+    private val AD1 = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator="
+    private val AD2 = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
+    private val adsList = listOf(AD0, AD1, AD2)
+
+    private fun getAdsConfig(adTagUrl: String): IMAConfig {
+        val videoMimeTypes = ArrayList<String>()
+        videoMimeTypes.add("video/mp4")
+        videoMimeTypes.add("application/x-mpegURL")
+        videoMimeTypes.add("application/dash+xml")
+        return IMAConfig().setAdTagUrl(adTagUrl).setVideoMimeTypes(videoMimeTypes).enableDebugMode(true).setAlwaysStartWithPreroll(true).setAdLoadTimeOut(8)
     }
 
     fun release() {
