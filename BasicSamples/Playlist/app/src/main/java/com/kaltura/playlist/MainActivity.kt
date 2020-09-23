@@ -288,6 +288,8 @@ class MainActivity : AppCompatActivity() {
         val basicPlaylistIdOptions = BasicPlaylistOptions()
         basicPlaylistIdOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
         basicPlaylistIdOptions.basicMediaOptionsList = basicMediaOptionsList
+        basicPlaylistIdOptions.autoContinue=true
+        basicPlaylistIdOptions.loopEnabled=true
 
         player = KalturaBasicPlayer.create(this@MainActivity, playerInitOptions)
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
