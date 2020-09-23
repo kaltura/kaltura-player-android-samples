@@ -43,15 +43,19 @@
             style="@style/ExoMediaButton"/>
 
         <ImageButton android:id="@id/kexo_play"
+            android:contentDescription="play"
             style="@style/ExoMediaButton.Play"/>
 
         <ImageButton android:id="@id/kexo_pause"
+            android:contentDescription="pause"
             style="@style/ExoMediaButton.Pause"/>
 
         <ImageButton android:id="@id/kexo_ffwd"
+            android:contentDescription="ffwd"
             style="@style/ExoMediaButton.FastForward"/>
 
         <ImageButton android:id="@id/kexo_next"
+            android:contentDescription="next"
             style="@style/ExoMediaButton.Next"/>
 
         <ImageButton android:id="@id/kexo_vr"
@@ -67,6 +71,7 @@
         android:orientation="horizontal">
 
         <TextView android:id="@id/kexo_position"
+            android:contentDescription="time_current"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
@@ -78,11 +83,13 @@
 
         <com.kaltura.android.exoplayer2.ui.DefaultTimeBar
             android:id="@id/kexo_progress"
+            android:contentDescription="mediacontroller_progress"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="26dp"/>
 
         <TextView android:id="@id/kexo_duration"
+            android:contentDescription="time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
