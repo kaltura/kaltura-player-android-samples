@@ -1,6 +1,5 @@
 package com.kaltura.playlist
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.View
