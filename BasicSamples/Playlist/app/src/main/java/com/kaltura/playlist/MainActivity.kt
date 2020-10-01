@@ -1,4 +1,4 @@
-package com.kaltura.playlist
+package com.kaltura.playlistads
 
 import android.os.Build
 import android.os.Bundle
@@ -22,9 +22,12 @@ import com.kaltura.tvplayer.playlist.BasicPlaylistOptions
 import com.kaltura.tvplayer.playlist.CountDownOptions
 import com.kaltura.tvplayer.playlist.PlaylistEvent
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.ArrayList
+import java.util.*
+import android.util.Log as logger
 
 class MainActivity : AppCompatActivity() {
+
+    private val TAG = "MainActivity"
     private val log = PKLog.get("MainActivity")
     private val START_POSITION = 0L // position for start playback in msec.
 
@@ -143,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         val basicMediaOptions2 = createMediaEntry(SOURCE2_ENTRY_ID, SOURCE_URL2)
 
         val mediaList = listOf(basicMediaOptions0, basicMediaOptions1, basicMediaOptions2)
-        log.d(TAG, "media lists"+SOURCE0_ENTRY_ID+","+SOURCE1_ENTRY_ID+","+SOURCE2_ENTRY_ID)
+        logger.d(TAG, "media lists"+SOURCE0_ENTRY_ID+","+SOURCE1_ENTRY_ID+","+SOURCE2_ENTRY_ID)
 
         loadPlaylistToPlayer(mediaList)
 
@@ -281,7 +284,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadPlaylistToPlayer(basicMediaOptionsList: List<BasicMediaOptions>) {
         val playerInitOptions = PlayerInitOptions()
         val pkPluginConfigs = PKPluginConfigs()
-        val AD0 = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator="
+        val AD0 = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpreonlybumper&cmsid=496&vid=short_onecue&correlator="
         val adsConfig = getAdsConfig(AD0)
         pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
 
