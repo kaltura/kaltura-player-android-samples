@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import com.kaltura.netkit.connect.request.RequestConfiguration
 import com.kaltura.playkit.PKMediaFormat
 import com.kaltura.playkit.PKRequestParams
+import com.kaltura.playkit.PKSubtitlePreference
 import com.kaltura.playkit.player.*
 import com.kaltura.playkit.player.vr.VRSettings
 import com.kaltura.tvplayer.KalturaPlayer
@@ -34,7 +35,7 @@ class PlayerConfig {
     var maxVideoBitrate: Int? = null
     var maxVideoSize: PKMaxVideoSize? = null
     var handleAudioBecomingNoisyEnabled: Boolean? = null
-    var preferInternalSubtitles: Boolean? = null
+    var pkSubtitlePreference: PKSubtitlePreference? = null
 
     var setSubtitleStyle: SubtitleStyleSettings? = null
     var aspectRatioResizeMode: PKAspectRatioResizeMode? = null
