@@ -35,7 +35,7 @@ class PlayerConfig {
     var maxVideoBitrate: Int? = null
     var maxVideoSize: PKMaxVideoSize? = null
     var handleAudioBecomingNoisyEnabled: Boolean? = null
-    var pkSubtitlePreference: PKSubtitlePreference? = null
+    var subtitlePreference: PKSubtitlePreference? = null
 
     var setSubtitleStyle: SubtitleStyleSettings? = null
     var aspectRatioResizeMode: PKAspectRatioResizeMode? = null
