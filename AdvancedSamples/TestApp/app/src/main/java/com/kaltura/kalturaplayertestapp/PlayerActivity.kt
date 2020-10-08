@@ -354,7 +354,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setMaxVideoBitrate(appPlayerInitConfig.maxVideoBitrate)
                 .setMaxVideoSize(appPlayerInitConfig.maxVideoSize)
                 .setHandleAudioBecomingNoisy(appPlayerInitConfig.handleAudioBecomingNoisyEnabled)
-                .setSubtitlePreference(appPlayerInitConfig.pkSubtitlePreference)
+                .setSubtitlePreference(appPlayerInitConfig.subtitlePreference)
 
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject, true))
 
