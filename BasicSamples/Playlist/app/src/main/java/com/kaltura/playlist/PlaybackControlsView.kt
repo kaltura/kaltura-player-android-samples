@@ -112,11 +112,11 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         if (!dragging && position != Consts.POSITION_UNSET.toLong() && duration != Consts.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
             tvCurTime.text = stringForTime(position!!)
-            seekBar.setPosition(progressBarValue(position).toLong())
-            seekBar.setDuration(progressBarValue(duration).toLong())
+            seekBar.setPosition(position!!)
+            seekBar.setDuration(duration!!)
         }
 
-        seekBar.setBufferedPosition(progressBarValue(bufferedPosition).toLong())
+        seekBar.setBufferedPosition(bufferedPosition!!)
         // Remove scheduled updates.
         removeCallbacks(updateProgressAction)
         // Schedule an update if necessary.
@@ -137,16 +137,13 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
         override fun onScrubMove(timeBar: TimeBar, position: Long) {
             player?.let{
-                tvCurTime.text = stringForTime(position * it.duration / PROGRESS_BAR_MAX)
+                tvCurTime.text = stringForTime(position)
             }
         }
 
         override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
             dragging = false
-            player?.let {
-                it.seekTo(position * it.duration / PROGRESS_BAR_MAX)
-
-            }
+            player?.seekTo(position)
         }
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
