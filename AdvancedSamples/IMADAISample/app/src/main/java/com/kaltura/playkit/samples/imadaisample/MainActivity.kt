@@ -57,7 +57,7 @@ class MainActivity: AppCompatActivity() {
         get() {
             val assetTitle = "VOD - Tears of Steel"
             val apiKey: String? = null
-            val contentSourceId = "19463"
+            val contentSourceId = "2528370"
             val videoId = "tears-of-steel"
             val streamFormat = StreamRequest.StreamFormat.HLS
             val licenseUrl: String? = null
