@@ -13,6 +13,7 @@ import com.kaltura.android.exoplayer2.ui.DefaultTimeBar
 import com.kaltura.android.exoplayer2.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.utils.Consts
@@ -96,11 +97,20 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         var position: Long? = Consts.POSITION_UNSET.toLong()
         var bufferedPosition: Long? = 0
         player?.let {
-            duration = it.duration
-            position = it.currentPosition
-            //log.d("XXX Duration:" + duration);
-            //log.d("XXX Position:" + position);
-            bufferedPosition = it.bufferedPosition
+            val adController = player?.getController(AdController::class.java)
+            if (adController != null && adController.isAdDisplayed) {
+                duration = adController.adDuration
+                position = adController.adCurrentPosition
+
+                //log.d("adController Duration:" + duration);
+                //log.d("adController Position:" + position);
+            } else {
+                duration = player?.duration
+                position = player?.currentPosition
+                //log.d("Duration:" + duration);
+                //log.d("Position:" + position);
+                bufferedPosition = player?.bufferedPosition
+            }
 
         }
 

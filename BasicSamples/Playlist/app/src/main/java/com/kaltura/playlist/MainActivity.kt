@@ -41,8 +41,6 @@ class MainActivity : AppCompatActivity() {
     private var player: KalturaPlayer? = null
     private var isFullScreen: Boolean = false
 
-
-
     private fun subscribeToAdEvents() {
 
         player!!.addListener(this, AdEvent.started) { event ->
