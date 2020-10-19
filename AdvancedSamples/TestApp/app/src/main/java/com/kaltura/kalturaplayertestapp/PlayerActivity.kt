@@ -354,8 +354,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setMaxVideoBitrate(appPlayerInitConfig.maxVideoBitrate)
                 .setMaxVideoSize(appPlayerInitConfig.maxVideoSize)
                 .setHandleAudioBecomingNoisy(appPlayerInitConfig.handleAudioBecomingNoisyEnabled)
-                .setSubtitlePreference(appPlayerInitConfig.preferInternalSubtitles)
-
+                .setSubtitlePreference(appPlayerInitConfig.subtitlePreference)
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject, true))
 
         appPlayerInitConfig.trackSelection?.let {
@@ -1445,15 +1444,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun initDrm() {
-        MediaSupport.initializeDrm(this) { pkDeviceSupportInfo, provisionError ->
-            if (pkDeviceSupportInfo.isProvisionPerformed) {
+        MediaSupport.initializeDrm(this) { pkDeviceCapabilitiesInfo, provisionError ->
+            if (pkDeviceCapabilitiesInfo.isProvisionPerformed) {
                 if (provisionError != null) {
                     log.e("DRM Provisioning failed", provisionError)
                 } else {
                     log.d("DRM Provisioning succeeded")
                 }
             }
-            log.d("DRM initialized; supported: ${pkDeviceSupportInfo.supportedDrmSchemes} isHardwareDrmSupported: ${pkDeviceSupportInfo.isHardwareDrmSupported}")
+            log.d("DRM initialized; supported: ${pkDeviceCapabilitiesInfo.supportedDrmSchemes} isHardwareDrmSupported: ${pkDeviceCapabilitiesInfo.isHardwareDrmSupported}")
         }
     }
 
