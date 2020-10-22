@@ -1580,6 +1580,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager?.showControls(View.VISIBLE)
         }
+
+        playbackControlsView?.release()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
