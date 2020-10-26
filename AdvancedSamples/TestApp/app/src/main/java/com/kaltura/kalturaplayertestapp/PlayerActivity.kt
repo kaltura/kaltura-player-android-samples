@@ -647,6 +647,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             var ottMediaAsset = OTTMediaAsset()
             ottMediaAsset.assetId = it.assetId
             ottMediaAsset.urlType = it.urlType
+            ottMediaAsset.streamerType = it.streamerType
             ottMediaAsset.assetReferenceType = it.assetReferenceType
             ottMediaAsset.protocol = it.protocol
             ottMediaAsset.contextType = it.contextType
@@ -730,7 +731,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         return basicMediasOptionsList
     }
 
-
     private fun buildOttMediaOptions(startPosition: Long?, playListMediaIndex: Int): OTTMediaOptions? {
         val ottMedia = mediaList?.get(playListMediaIndex) ?: return null
 
@@ -742,13 +742,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
         ottMediaAsset.protocol = ottMedia.protocol
         ottMediaAsset.ks = ottMedia.ks
         ottMediaAsset.urlType = ottMedia.getUrlType()
+        ottMediaAsset.streamerType = ottMedia.getStreamerType()
+
         if (ottMedia.format != null) {
             ottMediaAsset.setFormats(listOf(ottMedia.format))
         }
         if (ottMedia.fileId != null) {
             ottMediaAsset.setMediaFileIds(listOf(ottMedia.fileId))
         }
-
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = startPosition
@@ -1324,6 +1325,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 }
                             }
                         }
+
                         imaPluginConfig?.let {
                             if (setPlugin) {
                                 pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, it.toJson())
