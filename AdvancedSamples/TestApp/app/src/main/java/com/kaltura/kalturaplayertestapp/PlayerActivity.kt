@@ -857,9 +857,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             if (adCuePoints?.adPluginName != IMADAIPlugin.factory.name) {
-                playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+                if (!initOptions.autoplay) {
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                } else {
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+                }
             }
-            playbackControlsManager?.showControls(View.INVISIBLE)
+            if (initOptions.autoplay) {
+                playbackControlsManager?.showControls(View.INVISIBLE)
+            }
             progressBar?.setVisibility(View.INVISIBLE)
         }
 
