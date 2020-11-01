@@ -863,7 +863,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
                 }
             }
-            playbackControlsManager?.showControls(View.INVISIBLE)
+            if (initOptions.autoplay) {
+                playbackControlsManager?.showControls(View.INVISIBLE)
+            }
             progressBar?.setVisibility(View.INVISIBLE)
         }
 
