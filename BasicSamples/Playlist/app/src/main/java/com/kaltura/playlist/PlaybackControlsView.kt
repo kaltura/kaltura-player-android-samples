@@ -1,4 +1,4 @@
-package com.kaltura.playlistads
+package com.kaltura.playlist
 
 import android.content.Context
 import android.util.AttributeSet

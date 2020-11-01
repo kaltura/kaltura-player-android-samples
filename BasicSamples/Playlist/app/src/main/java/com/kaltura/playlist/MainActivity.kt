@@ -1,4 +1,4 @@
-package com.kaltura.playlistads
+package com.kaltura.playlist
 
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +24,8 @@ import com.kaltura.tvplayer.playlist.PlaylistEvent
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import android.util.Log as logger
+import java.util.ArrayList
+
 
 class MainActivity : AppCompatActivity() {
 
