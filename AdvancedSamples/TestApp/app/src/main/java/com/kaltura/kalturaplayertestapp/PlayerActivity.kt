@@ -99,7 +99,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var currentPlayedMediaIndex = 0
     private var playbackControlsView: PlaybackControlsView? = null
     private var adCuePoints: AdCuePoints? = null
-    private var allAdsCompeted: Boolean = false
+    private var allAdsCompleted: Boolean = false
     private var playbackControlsManager: PlaybackControlsManager? = null
     private var isFirstOnResume = true
     private var isPlayingOnPause: Boolean = false
@@ -807,7 +807,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD ALL_ADS_COMPLETED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
-            allAdsCompeted = true
+            allAdsCompleted = true
             if (isPlaybackEndedState()) {
                 progressBar?.setVisibility(View.GONE)
                 playbackControlsManager?.showControls(View.VISIBLE)
@@ -848,7 +848,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.STARTED)
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
 
-            allAdsCompeted = false
+            allAdsCompleted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
             adCuePoints?.let {
                 if (!initOptions.autoplay && IMADAIPlugin.factory.name != it.getAdPluginName()) {
@@ -964,6 +964,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlayerEvent.ended) { event ->
             log.d("PLAYER ENDED")
+            playbackControlsManager?.setContentPlayerState(event.eventType())
             if (player?.playlistController != null) {
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                         ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
@@ -1538,7 +1539,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun isPlaybackEndedState(): Boolean {
-        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompeted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
+        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompleted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
     }
 
     private fun isPostrollAvailableInAdCuePoint(): Boolean {
