@@ -99,7 +99,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var currentPlayedMediaIndex = 0
     private var playbackControlsView: PlaybackControlsView? = null
     private var adCuePoints: AdCuePoints? = null
-    private var allAdsCompeted: Boolean = false
+    private var allAdsCompleted: Boolean = false
     private var playbackControlsManager: PlaybackControlsManager? = null
     private var isFirstOnResume = true
     private var isPlayingOnPause: Boolean = false
@@ -647,6 +647,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             var ottMediaAsset = OTTMediaAsset()
             ottMediaAsset.assetId = it.assetId
             ottMediaAsset.urlType = it.urlType
+            ottMediaAsset.streamerType = it.streamerType
             ottMediaAsset.assetReferenceType = it.assetReferenceType
             ottMediaAsset.protocol = it.protocol
             ottMediaAsset.contextType = it.contextType
@@ -730,7 +731,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         return basicMediasOptionsList
     }
 
-
     private fun buildOttMediaOptions(startPosition: Long?, playListMediaIndex: Int): OTTMediaOptions? {
         val ottMedia = mediaList?.get(playListMediaIndex) ?: return null
 
@@ -742,13 +742,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
         ottMediaAsset.protocol = ottMedia.protocol
         ottMediaAsset.ks = ottMedia.ks
         ottMediaAsset.urlType = ottMedia.getUrlType()
+        ottMediaAsset.streamerType = ottMedia.getStreamerType()
+
         if (ottMedia.format != null) {
             ottMediaAsset.setFormats(listOf(ottMedia.format))
         }
         if (ottMedia.fileId != null) {
             ottMediaAsset.setMediaFileIds(listOf(ottMedia.fileId))
         }
-
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = startPosition
@@ -806,7 +807,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD ALL_ADS_COMPLETED")
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
-            allAdsCompeted = true
+            allAdsCompleted = true
             if (isPlaybackEndedState()) {
                 progressBar?.setVisibility(View.GONE)
                 playbackControlsManager?.showControls(View.VISIBLE)
@@ -847,7 +848,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.STARTED)
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
 
-            allAdsCompeted = false
+            allAdsCompleted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
             adCuePoints?.let {
                 if (!initOptions.autoplay && IMADAIPlugin.factory.name != it.getAdPluginName()) {
@@ -856,9 +857,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             if (adCuePoints?.adPluginName != IMADAIPlugin.factory.name) {
-                playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+                if (!initOptions.autoplay) {
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                } else {
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+                }
             }
-            playbackControlsManager?.showControls(View.INVISIBLE)
+            if (initOptions.autoplay) {
+                playbackControlsManager?.showControls(View.INVISIBLE)
+            }
             progressBar?.setVisibility(View.INVISIBLE)
         }
 
@@ -957,6 +964,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlayerEvent.ended) { event ->
             log.d("PLAYER ENDED")
+            playbackControlsManager?.setContentPlayerState(event.eventType())
             if (player?.playlistController != null) {
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                         ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
@@ -1324,6 +1332,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 }
                             }
                         }
+
                         imaPluginConfig?.let {
                             if (setPlugin) {
                                 pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, it.toJson())
@@ -1530,7 +1539,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun isPlaybackEndedState(): Boolean {
-        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompeted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
+        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompleted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
     }
 
     private fun isPostrollAvailableInAdCuePoint(): Boolean {

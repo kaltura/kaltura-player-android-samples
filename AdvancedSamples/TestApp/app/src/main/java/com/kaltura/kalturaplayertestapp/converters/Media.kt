@@ -22,6 +22,7 @@ class Media {
     var mediaAdTag: String? = null
     var useApiCaptions: Boolean = false
     var urlType: String? = null
+    var streamerType: String? = null
     var externalSubtitles: List<PKExternalSubtitle>? = null
 
     fun getAssetType(): APIDefines.KalturaAssetType? {
@@ -110,6 +111,25 @@ class Media {
             return APIDefines.KalturaUrlType.Direct
         } else if (APIDefines.KalturaUrlType.PlayManifest.value.toLowerCase() == urlType?.toLowerCase()) {
             return APIDefines.KalturaUrlType.PlayManifest
+        }
+        return null
+    }
+
+    fun getStreamerType(): APIDefines.KalturaStreamerType? {
+        if (streamerType == null) {
+            return null
+        }
+        
+        if (APIDefines.KalturaStreamerType.Mpegdash.value.toLowerCase() == streamerType?.toLowerCase()) {
+            return APIDefines.KalturaStreamerType.Mpegdash;
+        } else if (APIDefines.KalturaStreamerType.Applehttp.value.toLowerCase() == streamerType?.toLowerCase()) {
+            return APIDefines.KalturaStreamerType.Applehttp;
+        } else if (APIDefines.KalturaStreamerType.Url.value.toLowerCase() == streamerType?.toLowerCase()) {
+            return APIDefines.KalturaStreamerType.Url;
+        } else if (APIDefines.KalturaStreamerType.Smothstreaming.value.toLowerCase() == streamerType?.toLowerCase()) {
+            return APIDefines.KalturaStreamerType.Smothstreaming;
+        } else if (APIDefines.KalturaStreamerType.None.value.toLowerCase() == streamerType?.toLowerCase()) {
+            return APIDefines.KalturaStreamerType.None;
         }
         return null
     }
