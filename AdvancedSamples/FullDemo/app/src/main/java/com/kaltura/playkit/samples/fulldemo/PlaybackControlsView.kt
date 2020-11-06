@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.SeekBar
 import android.widget.TextView
 import com.kaltura.android.exoplayer2.C
 import com.kaltura.android.exoplayer2.Player
@@ -16,7 +15,6 @@ import com.kaltura.android.exoplayer2.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
-import com.kaltura.playkit.utils.Consts
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
 

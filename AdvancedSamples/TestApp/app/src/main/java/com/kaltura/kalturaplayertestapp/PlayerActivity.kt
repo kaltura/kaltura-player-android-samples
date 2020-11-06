@@ -1497,6 +1497,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val container = findViewById<ViewGroup>(R.id.player_container_layout)
         playbackControlsView = findViewById(R.id.player_controls)
         playbackControlsView?.setVisibility(View.INVISIBLE)
+        playbackControlsView?.seekBar?.setPlayedColor(resources.getColor(R.color.colorAccent))
+        playbackControlsView?.seekBar?.setBufferedColor(resources.getColor(R.color.grey))
+        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.black))
+        playbackControlsView?.seekBar?.setScrubberColor(resources.getColor(R.color.colorAccent))
+
         container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 container.viewTreeObserver.removeOnGlobalLayoutListener(this)

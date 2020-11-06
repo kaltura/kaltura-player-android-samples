@@ -1,27 +1,16 @@
 package com.kaltura.playkitdemo
 
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
-
 import androidx.appcompat.app.AlertDialog
-
 import com.kaltura.netkit.connect.response.ResultElement
 import com.kaltura.netkit.utils.ErrorElement
-import com.kaltura.playkit.LocalAssetsManager
-import com.kaltura.playkit.LocalDataStore
-import com.kaltura.playkit.PKDrmParams
-import com.kaltura.playkit.PKLog
-import com.kaltura.playkit.PKMediaEntry
-import com.kaltura.playkit.PKMediaFormat
-import com.kaltura.playkit.PKMediaSource
+import com.kaltura.playkit.*
 import com.kaltura.playkit.providers.base.OnMediaLoadCompletion
-
 import java.io.File
-import java.util.Collections
 
 /**
  * Created by Noam Tamim @ Kaltura on 14/02/2017.

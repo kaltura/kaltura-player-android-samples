@@ -2,25 +2,19 @@ package com.kaltura.playerdemo
 
 import android.content.Intent
 import android.widget.FrameLayout
-
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-
 import com.kaltura.netkit.utils.GsonParser
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.Utils
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
+import com.kaltura.playkit.providers.ott.PhoenixMediaProvider.HttpProtocol.Https
 import com.kaltura.tvplayer.KalturaOttPlayer
-import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
-
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-
-import com.kaltura.playkit.providers.ott.PhoenixMediaProvider.HttpProtocol.Https
 
 class OTTDemoActivity : BaseDemoActivity() {
     private val log = PKLog.get("OTTDemoActivity")

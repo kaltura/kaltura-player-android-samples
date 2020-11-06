@@ -57,7 +57,6 @@ import com.kaltura.playkitdemo.PartnersConfig.preMidPostAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preMidPostSingleAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preSkipAdTagUrl
 import com.kaltura.tvplayer.*
-import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
