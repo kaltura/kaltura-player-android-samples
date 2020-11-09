@@ -132,6 +132,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         if (!dragging && position != C.POSITION_UNSET.toLong() && duration != C.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
             tvCurTime.text = stringForTime(position)
+            //TODO: FIX THE POSITION, DURATION AND BUFFERED POSITION TO NON-PERCENTAGE VALUE
             seekBar.setPosition(progressBarValue(position).toLong())
             seekBar.setDuration(progressBarValue(duration).toLong())
         }
