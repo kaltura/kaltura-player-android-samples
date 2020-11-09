@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.kaltura.android.exoplayer2.C
 import com.kaltura.android.exoplayer2.Player
 import com.kaltura.android.exoplayer2.Timeline
 import com.kaltura.android.exoplayer2.ui.DefaultTimeBar
@@ -15,6 +14,7 @@ import com.kaltura.android.exoplayer2.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
+import com.kaltura.playkit.utils.Consts
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
 
@@ -89,8 +89,8 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
 
     private fun updateProgress() {
-        var duration: Long? = C.TIME_UNSET
-        var position: Long? = C.POSITION_UNSET.toLong()
+        var duration: Long? = Consts.TIME_UNSET
+        var position: Long? = Consts.POSITION_UNSET.toLong()
         var bufferedPosition: Long? = 0
         if (player != null) {
             val adController = player?.getController(AdController::class.java)
@@ -109,12 +109,12 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
             }
         }
 
-        if (duration != C.TIME_UNSET) {
+        if (duration != Consts.TIME_UNSET) {
             //log.d("updateProgress Set Duration:" + duration);
             tvTime.text = stringForTime(duration!!)
         }
 
-        if (!dragging && position != C.POSITION_UNSET.toLong() && duration != C.TIME_UNSET) {
+        if (!dragging && position != Consts.POSITION_UNSET.toLong() && duration != Consts.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
             tvCurTime.text = stringForTime(position!!)
             seekBar.setPosition(position)
