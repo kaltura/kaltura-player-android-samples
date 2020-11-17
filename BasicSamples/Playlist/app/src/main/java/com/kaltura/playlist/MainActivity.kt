@@ -22,7 +22,7 @@ import com.kaltura.tvplayer.playlist.BasicPlaylistOptions
 import com.kaltura.tvplayer.playlist.CountDownOptions
 import com.kaltura.tvplayer.playlist.PlaylistEvent
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.ArrayList
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private val log = PKLog.get("MainActivity")
@@ -40,8 +40,6 @@ class MainActivity : AppCompatActivity() {
 
     private var player: KalturaPlayer? = null
     private var isFullScreen: Boolean = false
-
-
 
     private fun subscribeToAdEvents() {
 

@@ -1,52 +1,37 @@
 package com.kaltura.playerdemo
 
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
-import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonSyntaxException
 import com.kaltura.netkit.utils.ErrorElement
-import com.kaltura.playkit.PKDrmParams
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKMediaEntry
+import com.kaltura.playkit.PKMediaEntry.MediaEntryType.Unknown
 import com.kaltura.playkit.PKMediaFormat
-import com.kaltura.playkit.PKMediaSource
 import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
-
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
-
-import java.util.ArrayList
-
-import com.kaltura.playkit.PKMediaEntry.MediaEntryType.Unknown
-import com.kaltura.tvplayer.config.TVPlayerParams
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import org.json.JSONException
+import org.json.JSONObject
+import java.util.*
 
 abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, KalturaPlayer.OnEntryLoadListener {
 

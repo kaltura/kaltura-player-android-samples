@@ -179,6 +179,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    public override fun onDestroy() {
+        if (player != null) {
+            player?.removeListeners(this)
+            player?.destroy()
+            player = null
+        }
+        super.onDestroy()
+    }
+
     fun loadPlaykitPlayer() {
 
         previewImageWidth = 90

@@ -6,22 +6,12 @@ import android.text.Layout
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Spinner
-import android.widget.TextView
-
 import androidx.appcompat.app.AppCompatActivity
-
-import com.kaltura.playkit.PKDrmParams
-import com.kaltura.playkit.PKMediaEntry
-import com.kaltura.playkit.PKMediaFormat
-import com.kaltura.playkit.PKMediaSource
-import com.kaltura.playkit.PKSubtitleFormat
-import com.kaltura.playkit.PlayerEvent
+import com.kaltura.playkit.*
 import com.kaltura.playkit.player.*
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItem
 import com.kaltura.playkit.samples.subtitlesideloading.tracks.TrackItemAdapter
@@ -30,9 +20,7 @@ import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.tracks_selection_menu_layout.*
-
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 

@@ -13,6 +13,7 @@ import com.kaltura.android.exoplayer2.ui.DefaultTimeBar
 import com.kaltura.android.exoplayer2.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.utils.Consts
@@ -96,11 +97,20 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         var position: Long? = Consts.POSITION_UNSET.toLong()
         var bufferedPosition: Long? = 0
         player?.let {
-            duration = it.duration
-            position = it.currentPosition
-            //log.d("XXX Duration:" + duration);
-            //log.d("XXX Position:" + position);
-            bufferedPosition = it.bufferedPosition
+            val adController = player?.getController(AdController::class.java)
+            if (adController != null && adController.isAdDisplayed) {
+                duration = adController.adDuration
+                position = adController.adCurrentPosition
+
+                //log.d("adController Duration:" + duration);
+                //log.d("adController Position:" + position);
+            } else {
+                duration = player?.duration
+                position = player?.currentPosition
+                //log.d("Duration:" + duration);
+                //log.d("Position:" + position);
+                bufferedPosition = player?.bufferedPosition
+            }
 
         }
 
@@ -112,11 +122,11 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         if (!dragging && position != Consts.POSITION_UNSET.toLong() && duration != Consts.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
             tvCurTime.text = stringForTime(position!!)
-            seekBar.setPosition(progressBarValue(position).toLong())
-            seekBar.setDuration(progressBarValue(duration).toLong())
+            seekBar.setPosition(position!!)
+            seekBar.setDuration(duration!!)
         }
 
-        seekBar.setBufferedPosition(progressBarValue(bufferedPosition).toLong())
+        seekBar.setBufferedPosition(bufferedPosition!!)
         // Remove scheduled updates.
         removeCallbacks(updateProgressAction)
         // Schedule an update if necessary.
@@ -137,16 +147,13 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
         override fun onScrubMove(timeBar: TimeBar, position: Long) {
             player?.let{
-                tvCurTime.text = stringForTime(position * it.duration / PROGRESS_BAR_MAX)
+                tvCurTime.text = stringForTime(position)
             }
         }
 
         override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
             dragging = false
-            player?.let {
-                it.seekTo(position * it.duration / PROGRESS_BAR_MAX)
-
-            }
+            player?.seekTo(position)
         }
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {

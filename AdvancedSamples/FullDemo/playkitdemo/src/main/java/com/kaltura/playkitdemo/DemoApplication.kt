@@ -2,12 +2,7 @@ package com.kaltura.playkitdemo
 
 import android.content.res.Configuration
 import androidx.multidex.MultiDexApplication
-
 import com.kaltura.playkit.player.PKHttpClientManager
-import com.kaltura.tvplayer.KalturaOttPlayer
-import com.kaltura.tvplayer.KalturaOvpPlayer
-import com.kaltura.tvplayer.KalturaPlayer
-
 import com.kaltura.playkitdemo.PartnersConfig.OTT_PARTNER_ID
 import com.kaltura.playkitdemo.PartnersConfig.OTT_SERVER_URL
 import com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID
@@ -24,6 +19,8 @@ import com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_HLS
 import com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_LIVE
 import com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_LIVE_1
 import com.kaltura.playkitdemo.PartnersConfig.OVP_SERVER_URL_VR
+import com.kaltura.tvplayer.KalturaOttPlayer
+import com.kaltura.tvplayer.KalturaOvpPlayer
 
 
 class DemoApplication : MultiDexApplication() {
