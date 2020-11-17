@@ -141,7 +141,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         removeCallbacks(updateProgressAction)
         // Schedule an update if necessary.
         if (playerState != PlayerState.IDLE) {
-            val delayMs: Long = 500
+            val delayMs: Long = 1000
             postDelayed(updateProgressAction, delayMs)
         }
     }
