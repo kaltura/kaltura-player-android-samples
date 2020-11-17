@@ -24,6 +24,7 @@ import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
+import com.npaw.youbora.lib6.plugin.Options
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ACCOUNT_CODE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_AD_CAMPAIGN
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_CHANNEL
@@ -44,7 +45,7 @@ import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_OS_VERSION
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_TYPE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ENABLED
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USERNAME
-
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_CDN
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_NAME
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_RELEASE_VERSION
 
@@ -60,6 +61,11 @@ class MainActivity: AppCompatActivity() {
         private val ASSET_ID = "548576"
         val PARTNER_ID = 3009
     }
+
+    private var player: KalturaPlayer? = null
+    private var playPauseButton: Button? = null
+    private var isFullScreen: Boolean = false
+    private var playerState: PlayerState? = null
 
     //Youbora analytics Constants
     val ACCOUNT_CODE = "your_account_code"
@@ -83,12 +89,15 @@ class MainActivity: AppCompatActivity() {
     val AUDIO_CHANNELS = "your_audoi_channels"
     val DEVICE = "your_device"
     val QUALITY = "your_quality"
+    /**
+    Follow this {@link http://mapi.youbora.com:8081/cdns}
+     */
+    val CONTENT_CDN_CODE = "your_cdn_code"
 
-
-    private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
-    private var isFullScreen: Boolean = false
-    private var playerState: PlayerState? = null
+    /**
+    Follow this {@link http://mapi.youbora.com:8081/devices}
+     */
+    val DEVICE_CODE = "your_device_code"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -272,7 +281,7 @@ class MainActivity: AppCompatActivity() {
 
         //Optional - Device json o/w youbora will decide by its own.
         val deviceJson = JsonObject()
-        deviceJson.addProperty("deviceCode", "AndroidTV")
+        deviceJson.addProperty("deviceCode", DEVICE_CODE)
         deviceJson.addProperty("brand", "Xiaomi")
         deviceJson.addProperty("model", "Mii3")
         deviceJson.addProperty("type", "TvBox")
@@ -300,6 +309,7 @@ class MainActivity: AppCompatActivity() {
         propertiesJson.addProperty("audioChannels", AUDIO_CHANNELS)
         propertiesJson.addProperty("device", DEVICE)
         propertiesJson.addProperty("quality", QUALITY)
+        propertiesJson.addProperty("contentCdnCode", CONTENT_CDN_CODE)
 
         //You can add some extra params here:
         val extraParamJson = JsonObject()
@@ -335,7 +345,7 @@ class MainActivity: AppCompatActivity() {
         optBundle.putString(KEY_CONTENT_TITLE, MEDIA_TITLE)
 
         //Optional - Device bundle o/w youbora will decide by its own.
-        optBundle.putString(KEY_DEVICE_CODE, "AndroidTV")
+        optBundle.putString(KEY_DEVICE_CODE, DEVICE_CODE)
         optBundle.putString(KEY_DEVICE_BRAND, "Xiaomi")
         optBundle.putString(KEY_DEVICE_MODEL, "Mii3")
         optBundle.putString(KEY_DEVICE_TYPE, "TvBox")
@@ -349,6 +359,7 @@ class MainActivity: AppCompatActivity() {
         optBundle.putString(KEY_CONTENT_GENRE, GENRE)
         optBundle.putString(KEY_CONTENT_TYPE, TYPE)
         optBundle.putString(KEY_CONTENT_TRANSACTION_CODE, TRANSACTION_TYPE)
+        optBundle.putString(KEY_CONTENT_CDN, CONTENT_CDN_CODE)
 
         optBundle.putString(KEY_CONTENT_PRICE, PRICE)
         optBundle.putString(KEY_CONTENT_ENCODING_AUDIO_CODEC, AUDIO_TYPE)
