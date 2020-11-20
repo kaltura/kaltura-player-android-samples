@@ -1,34 +1,28 @@
 package com.kaltura.playkit.samples.imasample
 
-import android.os.Build
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
-
-import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.Button
 import android.widget.FrameLayout
-
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
+import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
-import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-
-import java.util.ArrayList
+import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -40,10 +34,8 @@ class MainActivity : AppCompatActivity() {
 
     //Ad configuration constants.
     internal var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
-
+    private var adCuePoints: AdCuePoints? = null
     private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
-    private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,65 +43,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         loadPlaykitPlayer()
-
-        findViewById<View>(R.id.activity_main).setOnClickListener { v ->
-            if (isFullScreen) {
-                showSystemUI()
-            } else {
-                hideSystemUI()
-            }
-        }
-    }
-
-    private fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
-        } else {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE)
-        }
-        isFullScreen = true
-    }
-
-    private fun showSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        } else {
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        }
-        isFullScreen = false
-    }
-
-
-    /**
-     * Just add a simple button which will start/pause playback.
-     */
-    private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById(R.id.play_pause_button)
-        //Add clickListener.
-        playPauseButton!!.setOnClickListener { v ->
-            if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
-                if (player!!.isPlaying || adController != null && adController.isAdPlaying) {
-                    player!!.pause()
-                    //If player is playing, change text of the button and pause.
-                    playPauseButton!!.setText(R.string.play_text)
-                } else {
-                    player!!.play()
-                    //If player is not playing, change text of the button and play.
-                    playPauseButton!!.setText(R.string.pause_text)
-                }
-            }
-        }
     }
 
     private fun addPlayerStateListener() {
@@ -122,10 +55,10 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         log.d("onPause")
         super.onPause()
+        if (playerControls != null) {
+            playerControls?.release()
+        }
         if (player != null) {
-            if (playPauseButton != null) {
-                playPauseButton!!.setText(R.string.pause_text)
-            }
             player!!.onApplicationPaused()
         }
     }
@@ -133,10 +66,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         log.d("onResume")
         super.onResume()
-
+        if (playerControls != null) {
+            playerControls?.resume()
+        }
         if (player != null && playerState != null) {
             player!!.onApplicationResumed()
-            player!!.play()
         }
     }
 
@@ -161,6 +95,8 @@ class MainActivity : AppCompatActivity() {
         val container = findViewById<ViewGroup>(R.id.player_root)
         container.addView(player!!.playerView)
 
+        playerControls?.setPlayer(player)
+
         val ottMediaOptions = buildOttMediaOptions()
         player!!.loadMedia(ottMediaOptions) { entry, loadError ->
             if (loadError != null) {
@@ -169,11 +105,6 @@ class MainActivity : AppCompatActivity() {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
             }
         }
-
-        addPlayPauseButton()
-
-        showSystemUI()
-
         addPlayerStateListener()
     }
 
@@ -219,7 +150,17 @@ class MainActivity : AppCompatActivity() {
                     + adInfo.getAdContentType())
         }
 
-        player!!.addListener(this, AdEvent.contentResumeRequested) { event -> log.d("ADS_PLAYBACK_ENDED") }
+        player!!.addListener(this, AdEvent.contentResumeRequested) {
+            event -> log.d("ADS_PLAYBACK_ENDED")
+            playerControls?.setSeekBarStateForAd(false)
+            playerControls?.setPlayerState(PlayerState.READY)
+        }
+
+        player?.addListener(this, AdEvent.contentPauseRequested) { event ->
+            log.d("AD_CONTENT_PAUSE_REQUESTED")
+            playerControls?.setSeekBarStateForAd(true)
+            playerControls?.setPlayerState(PlayerState.READY)
+        }
 
         player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
             log.d("AD_PLAYBACK_INFO_UPDATED  = " + event.width + "/" + event.height + "/" + event.bitrate)
@@ -239,8 +180,12 @@ class MainActivity : AppCompatActivity() {
 
         player!!.addListener(this, AdEvent.adBreakStarted) { event -> log.d("AD_BREAK_STARTED") }
 
-        player!!.addListener(this, AdEvent.cuepointsChanged) { event ->
+        player?.addListener(this, AdEvent.cuepointsChanged) { event ->
             log.d("AD_CUEPOINTS_UPDATED HasPostroll = " + event.cuePoints.hasPostRoll())
+            adCuePoints = event.cuePoints
+            if (adCuePoints != null) {
+                log.d("Has Postroll = " + adCuePoints?.hasPostRoll())
+            }
         }
 
         player!!.addListener(this, AdEvent.loaded) { event ->
@@ -257,7 +202,12 @@ class MainActivity : AppCompatActivity() {
 
         player!!.addListener(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
 
-        player!!.addListener(this, AdEvent.allAdsCompleted) { event -> log.d("AD_ALL_ADS_COMPLETED") }
+        player?.addListener(this, AdEvent.allAdsCompleted) {
+            event -> log.d("AD_ALL_ADS_COMPLETED")
+            if (adCuePoints != null && adCuePoints?.hasPostRoll()!!) {
+                playerControls?.setPlayerState(PlayerState.IDLE)
+            }
+        }
 
         player!!.addListener(this, AdEvent.completed) { event -> log.d("AD_COMPLETED") }
 
@@ -286,8 +236,12 @@ class MainActivity : AppCompatActivity() {
             log.d("AD_CLICKED url = " + event.clickThruUrl)
         }
 
-        player!!.addListener(this, AdEvent.error) { event ->
+        player?.addListener(this, AdEvent.error) { event ->
             log.d("AD_ERROR : " + event.error.errorType.name)
+            if (event != null && event.error != null) {
+                playerControls?.setSeekBarStateForAd(false)
+                log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
+            }
         }
 
         player!!.addListener(this, PlayerEvent.error) { event -> log.d("PLAYER ERROR " + event.error.message!!) }
