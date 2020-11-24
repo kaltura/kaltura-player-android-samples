@@ -91,7 +91,6 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         tvTime = this.findViewById(R.id.kexo_duration)
     }
 
-
     private fun updateProgress() {
         var duration = C.TIME_UNSET
         var position = C.POSITION_UNSET.toLong()
@@ -230,6 +229,10 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
 
     fun setSeekBarStateForAd(isAdPlaying: Boolean) {
         seekBar.isEnabled = !isAdPlaying
+    }
+
+    fun setAdMarkers(adGroupTime: LongArray, playedAdFlag: BooleanArray, totalAdCount: Int) {
+        seekBar.setAdGroupTimesMs(adGroupTime, playedAdFlag, totalAdCount)
     }
 
     override fun onClick(v: View) {

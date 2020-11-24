@@ -34,9 +34,12 @@ class MainActivity : AppCompatActivity() {
 
     //Ad configuration constants.
     internal var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
+    internal var ads5AdsEvery10Secs = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostlongpod&cmsid=496&vid=short_tencue&correlator="
     private var adCuePoints: AdCuePoints? = null
     private var player: KalturaPlayer? = null
     private var playerState: PlayerState? = null
+    private var adsPosition: MutableList<Long> = mutableListOf()
+    private var playedAdsPosition: MutableList<Boolean> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +86,7 @@ class MainActivity : AppCompatActivity() {
 
         // IMA Configuration
         val pkPluginConfigs = PKPluginConfigs()
-        val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
+        val adsConfig = getAdsConfig(ads5AdsEvery10Secs)
         pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
@@ -120,7 +123,6 @@ class MainActivity : AppCompatActivity() {
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
 
         ottMediaOptions.startPosition = START_POSITION
-
 
         return ottMediaOptions
     }
@@ -177,23 +179,23 @@ class MainActivity : AppCompatActivity() {
             //Log.d(TAG, "received AD PLAY_HEAD_CHANGED " + adEventProress.adPlayHead);
         }
 
-
         player!!.addListener(this, AdEvent.adBreakStarted) { event -> log.d("AD_BREAK_STARTED") }
 
         player?.addListener(this, AdEvent.cuepointsChanged) { event ->
-            log.d("AD_CUEPOINTS_UPDATED HasPostroll = " + event.cuePoints.hasPostRoll())
+            log.d("AD_CUEPOINTS_UPDATED")
             adCuePoints = event.cuePoints
-            if (adCuePoints != null) {
-                log.d("Has Postroll = " + adCuePoints?.hasPostRoll())
+            adCuePoints?.let {
+                adsPosition = it.adCuePoints
+                for (i: Long in adsPosition) {
+                    playedAdsPosition.add(true)
+                }
+
+                playerControls.setAdMarkers(adsPosition.toLongArray(), playedAdsPosition.toBooleanArray(),  it.adCuePoints.size)
             }
         }
 
         player!!.addListener(this, AdEvent.loaded) { event ->
             log.d("AD_LOADED " + event.adInfo.getAdIndexInPod() + "/" + event.adInfo.getTotalAdsInPod())
-        }
-
-        player!!.addListener(this, AdEvent.started) { event ->
-            log.d("AD_STARTED w/h - " + event.adInfo.getAdWidth() + "/" + event.adInfo.getAdHeight())
         }
 
         player!!.addListener(this, AdEvent.resumed) { event -> log.d("AD_RESUMED") }
