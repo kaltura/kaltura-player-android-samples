@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
 
         // IMA Configuration
         val pkPluginConfigs = PKPluginConfigs()
-        val adsConfig = getAdsConfig(ads5AdsEvery10Secs)
+        val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
         pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
@@ -156,12 +156,22 @@ class MainActivity : AppCompatActivity() {
             event -> log.d("ADS_PLAYBACK_ENDED")
             playerControls?.setSeekBarStateForAd(false)
             playerControls?.setPlayerState(PlayerState.READY)
+
+            adCuePoints?.let {
+                adsPosition = it.adCuePoints
+                for (i: Long in adsPosition) {
+                    playedAdsPosition.add(false)
+                }
+
+                playerControls.setAdMarkers(adsPosition.toLongArray(), playedAdsPosition.toBooleanArray(),  it.adCuePoints.size)
+            }
         }
 
         player?.addListener(this, AdEvent.contentPauseRequested) { event ->
             log.d("AD_CONTENT_PAUSE_REQUESTED")
             playerControls?.setSeekBarStateForAd(true)
             playerControls?.setPlayerState(PlayerState.READY)
+            playerControls.setAdMarkers(longArrayOf(null), booleanArrayOf(false), 1)
         }
 
         player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
@@ -184,14 +194,6 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, AdEvent.cuepointsChanged) { event ->
             log.d("AD_CUEPOINTS_UPDATED")
             adCuePoints = event.cuePoints
-            adCuePoints?.let {
-                adsPosition = it.adCuePoints
-                for (i: Long in adsPosition) {
-                    playedAdsPosition.add(true)
-                }
-
-                playerControls.setAdMarkers(adsPosition.toLongArray(), playedAdsPosition.toBooleanArray(),  it.adCuePoints.size)
-            }
         }
 
         player!!.addListener(this, AdEvent.loaded) { event ->
