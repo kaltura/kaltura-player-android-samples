@@ -203,10 +203,10 @@ class MainActivity: AppCompatActivity(), AdapterView.OnItemSelectedListener {
             val defaultAudioTrackIndex = tracks.getDefaultAudioTrackIndex()
             val defaultTextTrackIndex = tracks.getDefaultTextTrackIndex()
             if (tracks.getAudioTracks().size > 0) {
-                Log.d(TAG, "Default Audio language = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel()!!)
+                Log.d(TAG, "Default Audio language = " + tracks.getAudioTracks().get(defaultAudioTrackIndex).getLabel())
             }
             if (tracks.getTextTracks().size > 0) {
-                Log.d(TAG, "Default Text language = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel()!!)
+                Log.d(TAG, "Default Text language = " + tracks.getTextTracks().get(defaultTextTrackIndex).getLabel())
                 if (tvSpinnerTitle != null && ccStyleSpinner != null) {
                     tvSpinnerTitle!!.visibility = View.VISIBLE
                     ccStyleSpinner!!.visibility = View.VISIBLE
