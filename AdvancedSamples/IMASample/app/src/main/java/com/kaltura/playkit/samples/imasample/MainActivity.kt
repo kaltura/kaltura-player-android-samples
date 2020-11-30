@@ -1,6 +1,7 @@
 package com.kaltura.playkit.samples.imasample
 
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -32,14 +33,19 @@ class MainActivity : AppCompatActivity() {
     private val START_POSITION = 0L // position for start playback in msec.
     private val ASSET_ID = "548576"
 
-    //Ad configuration constants.
-    internal var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
-    internal var ads5AdsEvery10Secs = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostlongpod&cmsid=496&vid=short_tencue&correlator="
+    // Ads configuration constants.
+    private var preSkipAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator="
+    private var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
+    private var ads5AdsEvery10Secs = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostlongpod&cmsid=496&vid=short_tencue&correlator="
     private var adCuePoints: AdCuePoints? = null
+    private var adsPosition: MutableList<Long>? = null
+    private lateinit var playedAdsPosition: MutableList<Boolean>
+    private var adMarkersHashMap: MutableMap<Long, Boolean> = mutableMapOf()
+
+    // Player
     private var player: KalturaPlayer? = null
     private var playerState: PlayerState? = null
-    private var adsPosition: MutableList<Long> = mutableListOf()
-    private var playedAdsPosition: MutableList<Boolean> = mutableListOf()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
         // IMA Configuration
         val pkPluginConfigs = PKPluginConfigs()
-        val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
+        val adsConfig = getAdsConfig(preSkipAdTagUrl)
         pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
@@ -145,33 +151,43 @@ class MainActivity : AppCompatActivity() {
 
             //Then you can use the data object itself.
             val adInfo = event.adInfo
-
             //Print to log content type of this ad.
             log.d("ad event received: " + event.eventType().name
                     + ". Additional info: ad content type is: "
                     + adInfo.getAdContentType())
+
+            val adPodTime = event.adInfo.adPodTimeOffset
+            adMarkersHashMap[adPodTime] = true
         }
 
         player!!.addListener(this, AdEvent.contentResumeRequested) {
-            event -> log.d("ADS_PLAYBACK_ENDED")
+            log.d("ADS_PLAYBACK_ENDED")
+            playerControls?.visibility = View.VISIBLE
             playerControls?.setSeekBarStateForAd(false)
             playerControls?.setPlayerState(PlayerState.READY)
 
-            adCuePoints?.let {
-                adsPosition = it.adCuePoints
-                for (i: Long in adsPosition) {
-                    playedAdsPosition.add(false)
+            player?.let { player ->
+                adCuePoints?.let {
+                    if (it.hasPostRoll() && adMarkersHashMap.containsKey(-1L)) {
+                        adMarkersHashMap.remove(-1L)
+                        adMarkersHashMap[player.duration] = false
+                    }
                 }
+            }
 
-                playerControls.setAdMarkers(adsPosition.toLongArray(), playedAdsPosition.toBooleanArray(),  it.adCuePoints.size)
+            adsPosition = ArrayList(adMarkersHashMap.keys)
+            playedAdsPosition = ArrayList(adMarkersHashMap.values)
+
+            adCuePoints?.let { adCuePoints ->
+                adsPosition?.let {
+                    playerControls.setAdMarkers(it.toLongArray(), playedAdsPosition.toBooleanArray(),  adCuePoints.adCuePoints.size)
+                }
             }
         }
 
-        player?.addListener(this, AdEvent.contentPauseRequested) { event ->
+        player?.addListener(this, AdEvent.contentPauseRequested) {
             log.d("AD_CONTENT_PAUSE_REQUESTED")
-            playerControls?.setSeekBarStateForAd(true)
-            playerControls?.setPlayerState(PlayerState.READY)
-            playerControls.setAdMarkers(longArrayOf(null), booleanArrayOf(false), 1)
+            playerControls?.visibility = View.INVISIBLE
         }
 
         player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
@@ -194,6 +210,11 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, AdEvent.cuepointsChanged) { event ->
             log.d("AD_CUEPOINTS_UPDATED")
             adCuePoints = event.cuePoints
+            adCuePoints?.let { cuePoints ->
+                for (adTime: Long in cuePoints.adCuePoints) {
+                    adMarkersHashMap[adTime] = false
+                }
+            }
         }
 
         player!!.addListener(this, AdEvent.loaded) { event ->
@@ -242,7 +263,7 @@ class MainActivity : AppCompatActivity() {
 
         player?.addListener(this, AdEvent.error) { event ->
             log.d("AD_ERROR : " + event.error.errorType.name)
-            if (event != null && event.error != null) {
+            if (event?.error != null) {
                 playerControls?.setSeekBarStateForAd(false)
                 log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
             }
