@@ -1631,7 +1631,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (player != null) {
             log.d("onResume -> Player Activity onResume")
             player?.onApplicationResumed()
-            player
             setPlayerListeners()
             if (isPlayingOnPause) {
                 isPlayingOnPause = false
