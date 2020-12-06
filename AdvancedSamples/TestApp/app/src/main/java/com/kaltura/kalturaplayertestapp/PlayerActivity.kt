@@ -1566,8 +1566,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         playbackControlsView = findViewById(R.id.player_controls)
         playbackControlsView?.setVisibility(View.INVISIBLE)
         playbackControlsView?.seekBar?.setPlayedColor(resources.getColor(R.color.colorAccent))
-        playbackControlsView?.seekBar?.setBufferedColor(resources.getColor(R.color.grey))
-        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.black))
+        playbackControlsView?.seekBar?.setBufferedColor(resources.getColor(R.color.greyPrimary))
+        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_30))
         playbackControlsView?.seekBar?.setScrubberColor(resources.getColor(R.color.colorAccent))
 
         container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
