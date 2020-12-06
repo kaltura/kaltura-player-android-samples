@@ -596,7 +596,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         mediaList.forEach {
             var ovpMediaAsset = OVPMediaAsset()
-            ovpMediaAsset.entryId = it.entryId
+            ovpMediaAsset.entryId = it.entryId ?: ""
+            ovpMediaAsset.referenceId = it.referenceId ?: ""
             ovpMediaAsset.ks = it.ks
             ovpMediaAsset.referrer = it.referrer
 
@@ -763,6 +764,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         var ovpMediaAsset = OVPMediaAsset()
         ovpMediaAsset.entryId = ovpMedia.entryId
+        ovpMediaAsset.referenceId = ovpMedia.referenceId
         ovpMediaAsset.ks = ovpMedia.ks
         val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
 
