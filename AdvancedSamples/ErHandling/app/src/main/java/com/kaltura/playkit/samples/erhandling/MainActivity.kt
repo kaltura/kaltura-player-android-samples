@@ -2,15 +2,14 @@ package com.kaltura.playkit.samples.erhandling
 
 import android.os.Build
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
-
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
@@ -25,8 +24,7 @@ import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-
-import java.util.ArrayList
+import java.util.*
 
 class MainActivity: AppCompatActivity() {
 

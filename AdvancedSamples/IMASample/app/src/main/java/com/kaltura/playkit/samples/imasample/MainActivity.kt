@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addPlayerStateListener() {
-         player?.addListener(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun subscribeToAdEvents() {
 
-         player?.addListener(this, AdEvent.started) { event ->
+        player?.addListener(this, AdEvent.started) { event ->
             //Some events holds additional data objects in them.
             //In order to get access to this object you need first cast event to
             //the object it belongs to. You can learn more about this kind of objects in
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
             adMarkersHashMap[adPodTime] = true
         }
 
-         player?.addListener(this, AdEvent.contentResumeRequested) {
+        player?.addListener(this, AdEvent.contentResumeRequested) {
             log.d("ADS_PLAYBACK_ENDED")
             playerControls?.visibility = View.VISIBLE
             playerControls?.setSeekBarStateForAd(false)
@@ -186,22 +186,22 @@ class MainActivity : AppCompatActivity() {
             playerControls?.visibility = View.INVISIBLE
         }
 
-         player?.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
+        player?.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
             log.d("AD_PLAYBACK_INFO_UPDATED  = " + event.width + "/" + event.height + "/" + event.bitrate)
         }
 
-         player?.addListener(this, AdEvent.skippableStateChanged) { event -> log.d("SKIPPABLE_STATE_CHANGED") }
+        player?.addListener(this, AdEvent.skippableStateChanged) { event -> log.d("SKIPPABLE_STATE_CHANGED") }
 
-         player?.addListener(this, AdEvent.adRequested) { event ->
+        player?.addListener(this, AdEvent.adRequested) { event ->
             log.d("AD_REQUESTED adtag = " + event.adTagUrl)
         }
 
-         player?.addListener(this, AdEvent.playHeadChanged) { event ->
+        player?.addListener(this, AdEvent.playHeadChanged) { event ->
             val adEventProress = event
             //Log.d(TAG, "received AD PLAY_HEAD_CHANGED " + adEventProress.adPlayHead);
         }
 
-         player?.addListener(this, AdEvent.adBreakStarted) { event -> log.d("AD_BREAK_STARTED") }
+        player?.addListener(this, AdEvent.adBreakStarted) { event -> log.d("AD_BREAK_STARTED") }
 
         player?.addListener(this, AdEvent.cuepointsChanged) { event ->
             log.d("AD_CUEPOINTS_UPDATED")
@@ -213,15 +213,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-         player?.addListener(this, AdEvent.loaded) { event ->
+        player?.addListener(this, AdEvent.loaded) { event ->
             log.d("AD_LOADED " + event.adInfo.getAdIndexInPod() + "/" + event.adInfo.getTotalAdsInPod())
         }
 
-         player?.addListener(this, AdEvent.resumed) { event -> log.d("AD_RESUMED") }
+        player?.addListener(this, AdEvent.resumed) { event -> log.d("AD_RESUMED") }
 
-         player?.addListener(this, AdEvent.paused) { event -> log.d("AD_PAUSED") }
+        player?.addListener(this, AdEvent.paused) { event -> log.d("AD_PAUSED") }
 
-         player?.addListener(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
+        player?.addListener(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
 
         player?.addListener(this, AdEvent.allAdsCompleted) {
             event -> log.d("AD_ALL_ADS_COMPLETED")
@@ -230,11 +230,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-         player?.addListener(this, AdEvent.completed) { event -> log.d("AD_COMPLETED") }
+        player?.addListener(this, AdEvent.completed) { event -> log.d("AD_COMPLETED") }
 
-         player?.addListener(this, AdEvent.firstQuartile) { event -> log.d("FIRST_QUARTILE") }
+        player?.addListener(this, AdEvent.firstQuartile) { event -> log.d("FIRST_QUARTILE") }
 
-         player?.addListener(this, AdEvent.midpoint) { event ->
+        player?.addListener(this, AdEvent.midpoint) { event ->
             log.d("MIDPOINT")
             if (player != null) {
                 val adController =  player?.getController(AdController::class.java)
@@ -249,11 +249,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-         player?.addListener(this, AdEvent.thirdQuartile) { event -> log.d("THIRD_QUARTILE") }
+        player?.addListener(this, AdEvent.thirdQuartile) { event -> log.d("THIRD_QUARTILE") }
 
-         player?.addListener(this, AdEvent.adBreakEnded) { event -> log.d("AD_BREAK_ENDED") }
+        player?.addListener(this, AdEvent.adBreakEnded) { event -> log.d("AD_BREAK_ENDED") }
 
-         player?.addListener(this, AdEvent.adClickedEvent) { event ->
+        player?.addListener(this, AdEvent.adClickedEvent) { event ->
             log.d("AD_CLICKED url = " + event.clickThruUrl)
         }
 
@@ -265,7 +265,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-         player?.addListener(this, PlayerEvent.error) { event -> log.d("PLAYER ERROR " + event.error.message!!) }
+        player?.addListener(this, PlayerEvent.error) { event -> log.d("PLAYER ERROR " + event.error.message!!) }
     }
 
     companion object {

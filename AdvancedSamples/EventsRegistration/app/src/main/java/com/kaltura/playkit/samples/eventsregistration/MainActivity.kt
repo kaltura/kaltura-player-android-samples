@@ -2,19 +2,13 @@ package com.kaltura.playkit.samples.eventsregistration
 
 import android.os.Build
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.Spinner
-import android.widget.Toast
-
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
@@ -25,8 +19,7 @@ import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-
-import java.util.ArrayList
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 

@@ -24,9 +24,11 @@ import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-import com.npaw.youbora.lib6.plugin.Options
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ACCOUNT_CODE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_AD_CAMPAIGN
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_NAME
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_RELEASE_VERSION
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_CDN
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_CHANNEL
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_ENCODING_AUDIO_CODEC
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_GENRE
@@ -45,9 +47,6 @@ import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_OS_VERSION
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_TYPE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ENABLED
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USERNAME
-import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_CDN
-import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_NAME
-import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_RELEASE_VERSION
 
 class MainActivity: AppCompatActivity() {
 

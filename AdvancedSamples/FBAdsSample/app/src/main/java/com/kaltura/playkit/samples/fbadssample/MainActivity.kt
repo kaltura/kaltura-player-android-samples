@@ -7,15 +7,9 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
-
 import androidx.appcompat.app.AppCompatActivity
-
 import com.google.android.material.snackbar.Snackbar
-import com.kaltura.playkit.PKLog
-import com.kaltura.playkit.PKPluginConfigs
-import com.kaltura.playkit.PlayKitManager
-import com.kaltura.playkit.PlayerEvent
-import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ads.AdPositionType
@@ -30,8 +24,7 @@ import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-
-import java.util.ArrayList
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -95,14 +88,14 @@ class MainActivity : AppCompatActivity() {
         playPauseButton = this.findViewById(R.id.play_pause_button)
         //Add clickListener.
         playPauseButton!!.setOnClickListener { v ->
-           player?.let {
+            player?.let {
                 val adController =  it.getController(AdController::class.java)
                 if (it.isPlaying || adController != null && adController.isAdPlaying) {
-                     it.pause()
+                    it.pause()
                     //If player is playing, change text of the button and pause.
                     playPauseButton!!.setText(R.string.play_text)
                 } else {
-                     it.play()
+                    it.play()
                     //If player is not playing, change text of the button and play.
                     playPauseButton!!.setText(R.string.pause_text)
                 }
@@ -121,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             if (adController != null && adController.isAdPlaying) {
                 return@setOnClickListener
             } else {
-               player?.seekTo(0L)
+                player?.seekTo(0L)
             }
         }
     }
@@ -175,7 +168,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun addPlayerStateListener() {
-       player?.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener<PlayerEvent.StateChanged>(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
@@ -184,7 +177,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         log.d("onPause")
         super.onPause()
-       player?.let { player->
+        player?.let { player->
             playPauseButton?.setText(R.string.pause_text)
             player.onApplicationPaused()
         }
@@ -194,7 +187,7 @@ class MainActivity : AppCompatActivity() {
         log.d("onResume")
         super.onResume()
 
-       player?.let { player ->
+        player?.let { player ->
             playerState?.let {
                 player.onApplicationResumed()
                 player.play()
