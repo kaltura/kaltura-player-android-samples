@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
         // IMA Configuration
         val pkPluginConfigs = PKPluginConfigs()
-        val adsConfig = getAdsConfig(preSkipAdTagUrl)
+        val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
         pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)

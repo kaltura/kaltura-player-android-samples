@@ -81,7 +81,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         btnPrevious.setOnClickListener(this)
 
         seekBar = this.findViewById(R.id.kexo_progress)
-        seekBar.setPlayedColor(resources.getColor(R.color.colorAccent))
+        seekBar.setPlayedColor(resources.getColor(R.color.playedMediaColor))
         seekBar.setBufferedColor(resources.getColor(R.color.grey))
         seekBar.setUnplayedColor(resources.getColor(R.color.black))
         seekBar.setScrubberColor(resources.getColor(R.color.colorAccent))
