@@ -286,8 +286,8 @@ open class MainActivity: BaseActivity(), TestCaseConfigurationAdapter.OnJsonSele
                 if (data != null) {
                     val barcode = data.getParcelableExtra<Barcode>(BarcodeCaptureActivity.BarcodeObject)
                     Log.d(TAG, "Barcode read: " + barcode?.displayValue)
-                    if (barcode != null) {
-                        loadTestsFromUrl(barcode.displayValue)
+                    barcode?.let {
+                        loadTestsFromUrl(it.displayValue)
                     }
                 } else {
                     Log.d(TAG, "No barcode captured, intent data is null")
