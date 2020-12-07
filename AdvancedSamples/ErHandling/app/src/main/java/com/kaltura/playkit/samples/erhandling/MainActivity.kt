@@ -97,11 +97,11 @@ class MainActivity: AppCompatActivity() {
      */
     private fun subscribeToErrorEvents() {
 
-        player!!.addListener(this, PlayerEvent.error) { event ->
+        player?.addListener(this, PlayerEvent.error) { event ->
             Log.e(TAG, "PLAYER ERROR " + event.error.errorType.name + " " + event.error.message)
         }
 
-        player!!.addListener(this, AdEvent.error) { event ->
+        player?.addListener(this, AdEvent.error) { event ->
             Log.e(TAG, "AD_ERROR: " + event.error.errorType.name + " " + event.error.errorType.name)
         }
     }
@@ -114,13 +114,13 @@ class MainActivity: AppCompatActivity() {
         playPauseButton = this.findViewById(R.id.play_pause_button)
         //Add clickListener.
         playPauseButton!!.setOnClickListener { v ->
-            if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
-                if (player!!.isPlaying || adController != null && adController.isAdDisplayed && adController.isAdPlaying) {
+            player?.let {
+                val adController = it.getController(AdController::class.java)
+                if (it.isPlaying || adController != null && adController.isAdDisplayed && adController.isAdPlaying) {
                     if (adController != null && adController.isAdDisplayed) {
                         adController.pause()
                     } else {
-                        player!!.pause()
+                        it.pause()
                     }
                     //If player is playing, change text of the button and pause.
                     playPauseButton!!.setText(R.string.play_text)
@@ -128,7 +128,7 @@ class MainActivity: AppCompatActivity() {
                     if (adController != null && adController.isAdDisplayed) {
                         adController.play()
                     } else {
-                        player!!.play()
+                        it.play()
                     }
                     //If player is not playing, change text of the button and play.
                     playPauseButton!!.setText(R.string.pause_text)
@@ -138,7 +138,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun addPlayerStateListener() {
-        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
             Log.d(TAG, "State changed from " + event.oldState + " to " + event.newState)
             playerState = event.newState
         }
@@ -146,17 +146,17 @@ class MainActivity: AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (player != null && playerState != null) {
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let { player ->
+            playerState?.let {
+                player.onApplicationResumed()
+                player.play()
+            }
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (player != null) {
-            player!!.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
     }
 
     fun loadPlaykitPlayer() {
@@ -175,12 +175,12 @@ class MainActivity: AppCompatActivity() {
 
         player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
 
-        player!!.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
+        container.addView(player?.playerView)
 
         val ottMediaOptions = buildOttMediaOptions()
-        player!!.loadMedia(ottMediaOptions) { entry, loadError ->
+        player?.loadMedia(ottMediaOptions) { entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {

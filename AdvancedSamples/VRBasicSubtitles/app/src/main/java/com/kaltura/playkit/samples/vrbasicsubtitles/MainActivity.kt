@@ -228,20 +228,18 @@ class MainActivity: AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (player != null && playerState != null) {
-            if (playPauseButton != null) {
-                playPauseButton?.setText(R.string.pause_text)
+        playPauseButton?.setText(R.string.pause_text)
+        player?.let { player ->
+            playerState?.let {
+                player.onApplicationResumed()
+                player.play()
             }
-            player?.onApplicationResumed()
-            player?.play()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (player != null) {
-            player?.onApplicationPaused()
-        }
+        player?.onApplicationPaused()
     }
 
     /**

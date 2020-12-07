@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun subscribeToPlayerStateChanges() {
 
-        player!!.addListener(this, PlayerEvent.stateChanged) { event ->
+        player?.addListener(this, PlayerEvent.stateChanged) { event ->
             playerState = event.newState
             //Switch on the new state that is received.
             when (event.newState) {
@@ -138,19 +138,18 @@ class MainActivity : AppCompatActivity() {
      */
     private fun subscribeToPlayerEvents() {
 
-        player!!.addListener(this, PlayerEvent.play) { event ->
+        player?.addListener(this, PlayerEvent.play) { event ->
             Log.d(TAG, "event received: " + event.eventType().name)
-
         }
 
-        player!!.addListener(this, PlayerEvent.pause) { event -> Log.d(TAG, "event received: " + event.eventType().name) }
+        player?.addListener(this, PlayerEvent.pause) { event -> Log.d(TAG, "event received: " + event.eventType().name) }
 
-        player!!.addListener(this, PlayerEvent.playbackRateChanged) { event ->
+        player?.addListener(this, PlayerEvent.playbackRateChanged) { event ->
             Log.d(TAG, "event received: " + event.eventType().name + " Rate = " + event.rate)
 
         }
 
-        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             Log.d(TAG, "Event TRACKS_AVAILABLE")
 
             //Then you can use the data object itself.
@@ -162,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                     + tracks.getVideoTracks().size)
         }
 
-        player!!.addListener(this, PlayerEvent.error) { event ->
+        player?.addListener(this, PlayerEvent.error) { event ->
             Log.e(TAG, "Error Event: " + event.error.errorType + " " + event.error.message)
         }
     }
@@ -175,13 +174,13 @@ class MainActivity : AppCompatActivity() {
         playPauseButton = this.findViewById(R.id.play_pause_button)
         //Add clickListener.
         playPauseButton!!.setOnClickListener { v ->
-            if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
-                if (player!!.isPlaying || adController != null && adController.isAdDisplayed && adController.isAdPlaying) {
+            player?.let {
+                val adController = it.getController(AdController::class.java)
+                if (it.isPlaying || adController != null && adController.isAdDisplayed && adController.isAdPlaying) {
                     if (adController != null && adController.isAdDisplayed) {
                         adController.pause()
                     } else {
-                        player!!.pause()
+                        it.pause()
                     }
                     //If player is playing, change text of the button and pause.
                     playPauseButton!!.setText(R.string.play_text)
@@ -189,7 +188,7 @@ class MainActivity : AppCompatActivity() {
                     if (adController != null && adController.isAdDisplayed) {
                         adController.play()
                     } else {
-                        player!!.play()
+                        it.play()
                     }
                     //If player is not playing, change text of the button and play.
                     playPauseButton!!.setText(R.string.pause_text)
@@ -206,11 +205,9 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
-        if (player != null) {
-            if (playPauseButton != null) {
-                playPauseButton!!.setText(R.string.pause_text)
-            }
-            player!!.onApplicationPaused()
+        player?.let { player ->
+            playPauseButton?.setText(R.string.pause_text)
+            player.onApplicationPaused()
         }
     }
 
@@ -218,16 +215,18 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onResume")
         super.onResume()
 
-        if (player != null && playerState != null) {
-            player!!.onApplicationResumed()
-            player!!.play()
+        player?.let { player ->
+            playerState?.let {
+                player.onApplicationResumed()
+                player.play()
+            }
         }
     }
 
     public override fun onDestroy() {
-        if (player != null) {
-            player!!.removeListeners(this)
-            player!!.destroy()
+        player?.let {
+            it.removeListeners(this)
+            it.destroy()
             player = null
         }
         super.onDestroy()
@@ -241,8 +240,8 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(parent.context,
                         "OnItemSelectedListener : " + parent.getItemAtPosition(pos).toString() + "X",
                         Toast.LENGTH_SHORT).show()
-                if (player != null) {
-                    player!!.setPlaybackRate(parent.getItemAtPosition(pos) as Float)
+                player?.let {
+                    it.playbackRate = parent.getItemAtPosition(pos) as Float
                 }
             }
         }
@@ -265,12 +264,12 @@ class MainActivity : AppCompatActivity() {
 
         //Subscribe to the player events.
         subscribeToPlayerEvents()
-        player!!.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         val container = findViewById<ViewGroup>(R.id.player_root)
-        container.addView(player!!.playerView)
+        container.addView(player?.playerView)
 
         val ottMediaOptions = buildOttMediaOptions()
-        player!!.loadMedia(ottMediaOptions) { entry, loadError ->
+        player?.loadMedia(ottMediaOptions) { entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {

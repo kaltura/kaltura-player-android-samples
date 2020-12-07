@@ -64,20 +64,14 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         log.d("onPause")
         super.onPause()
-        playerControls?.let {
-            it.release()
-        }
-        player?.let {
-             player?.onApplicationPaused()
-        }
+        playerControls?.release()
+        player?.onApplicationPaused()
     }
 
     override fun onResume() {
         log.d("onResume")
         super.onResume()
-        if (playerControls != null) {
-            playerControls?.resume()
-        }
+        playerControls?.resume()
         player?.let { player ->
             playerState?.let {
                 player.onApplicationResumed()

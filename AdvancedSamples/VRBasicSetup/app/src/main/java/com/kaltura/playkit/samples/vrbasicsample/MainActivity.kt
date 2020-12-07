@@ -95,15 +95,15 @@ class MainActivity: AppCompatActivity() {
         playPauseButton = this.findViewById(R.id.play_pause_button)
         //Add clickListener.
         playPauseButton?.setOnClickListener { v ->
-            if (player != null) {
-                if (player!!.isPlaying) {
+            player?.let {
+                if (it.isPlaying) {
                     //If player is playing, change text of the button and pause.
                     playPauseButton?.setText(R.string.play_text)
-                    player?.pause()
+                    it.pause()
                 } else {
                     //If player is not playing, change text of the button and play.
                     playPauseButton?.setText(R.string.pause_text)
-                    player?.play()
+                    it.play()
                 }
             }
         }
@@ -117,8 +117,8 @@ class MainActivity: AppCompatActivity() {
         vrButton = this.findViewById(R.id.vr_button)
         //Add clickListener.
         vrButton?.setOnClickListener { v ->
-            if (player != null) {
-                if (player!!.isPlaying) {
+            player?.let {
+                if (it.isPlaying) {
                     switchVRMode()
                 }
             }
@@ -153,18 +153,19 @@ class MainActivity: AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (player != null && playerState != null) {
-            if (playPauseButton != null) {
-                playPauseButton?.setText(R.string.pause_text)
+
+        player?.let { player ->
+            playPauseButton?.let {
+                it.setText(R.string.pause_text)
             }
-            player?.onApplicationResumed()
-            player?.play()
+            player.onApplicationResumed()
+            player.play()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (player != null) {
+        player?.let {
             player?.onApplicationPaused()
         }
     }
