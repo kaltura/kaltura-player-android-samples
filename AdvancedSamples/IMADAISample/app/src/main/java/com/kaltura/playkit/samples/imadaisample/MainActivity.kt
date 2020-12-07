@@ -367,7 +367,7 @@ class MainActivity: AppCompatActivity() {
         playPauseButton!!.setOnClickListener { v ->
             player?.let {
                 val adController =  it.getController(AdController::class.java)
-                if ( it.isPlaying || adController != null && adController.isAdDisplayed && adController.isAdPlaying) {
+                if (it.isPlaying || adController != null && adController.isAdDisplayed && adController.isAdPlaying) {
                     if (adController != null && adController.isAdDisplayed) {
                         adController.pause()
                     } else {
