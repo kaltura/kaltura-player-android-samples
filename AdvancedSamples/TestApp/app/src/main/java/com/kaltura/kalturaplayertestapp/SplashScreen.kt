@@ -27,6 +27,7 @@ class SplashScreen: Activity() {
         if (isPlayServicesAvailable) {
             KalturaOvpPlayer.initialize(this, 4171, "http://qa-apache-php7.dev.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 1091, "http://qa-apache-php7.dev.kaltura.com/")
+            KalturaOvpPlayer.initialize(this, 2506752, "https://cdnapisec.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 27017, "https://cdnapisec.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 243342, "https://cdnapisec.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 1804331, "https://cdnapisec.kaltura.com/")
