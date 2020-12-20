@@ -809,7 +809,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, AdEvent.allAdsCompleted) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD ALL_ADS_COMPLETED")
-            playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
+            if (playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError) {
+                playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
+            }
             allAdsCompleted = true
             if (isPlaybackEndedState()) {
                 progressBar?.setVisibility(View.GONE)
@@ -835,7 +837,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, AdEvent.contentResumeRequested) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD CONTENT_RESUME_REQUESTED")
-            playbackControlsManager?.setAdPlayerState(AdEvent.Type.CONTENT_RESUME_REQUESTED)
+            if (playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError) {
+                playbackControlsManager?.setAdPlayerState(AdEvent.Type.CONTENT_RESUME_REQUESTED)
+            }
             playbackControlsManager?.showControls(View.INVISIBLE)
         }
 
@@ -911,6 +915,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, AdEvent.adBreakFetchError) { event ->
+            playbackControlsManager?.setAdPlayerState(event.eventType())
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD_BREAK_FETCH_ERROR")
         }
@@ -1619,7 +1624,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun isPlaybackEndedState(): Boolean {
-        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompleted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
+        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError && allAdsCompleted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
     }
 
     private fun isPostrollAvailableInAdCuePoint(): Boolean {
