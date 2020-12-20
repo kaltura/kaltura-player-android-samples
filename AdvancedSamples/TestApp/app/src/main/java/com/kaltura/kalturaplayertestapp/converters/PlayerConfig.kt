@@ -25,6 +25,7 @@ class PlayerConfig {
     var allowClearLead: Boolean? = null
     var enableDecoderFallback: Boolean? = null
     var secureSurface: Boolean? = null
+    var cea608CaptionsEnabled: Boolean? = null
     var adAutoPlayOnResume: Boolean? = null
     var vrPlayerEnabled: Boolean? = null
     var isTunneledAudioPlayback: Boolean? = null

@@ -343,6 +343,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setAllowClearLead(appPlayerInitConfig.allowClearLead)
                 .setEnableDecoderFallback(appPlayerInitConfig.enableDecoderFallback)
                 .setAdAutoPlayOnResume(appPlayerInitConfig.adAutoPlayOnResume)
+                .setCea608CaptionsEnabled(appPlayerInitConfig.cea608CaptionsEnabled)
                 .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
                 .setVRSettings(appPlayerInitConfig.vrSettings)
                 .setIsVideoViewHidden(appPlayerInitConfig.isVideoViewHidden)
