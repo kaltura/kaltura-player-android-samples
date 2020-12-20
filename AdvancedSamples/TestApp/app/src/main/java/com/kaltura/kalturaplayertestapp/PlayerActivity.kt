@@ -910,6 +910,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             progressBar?.setVisibility(View.INVISIBLE)
         }
 
+        player?.addListener(this, AdEvent.adBreakFetchError) { event ->
+            updateEventsLogsList("ad:\n" + event.eventType().name)
+            log.d("AD_BREAK_FETCH_ERROR")
+        }
+
         /////// PLAYER EVENTS
 
         //        player.addListener(this, PlayerEvent.play, event -> {
