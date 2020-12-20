@@ -657,6 +657,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ottMediaAsset.assetType = it.assetType
             ottMediaAsset.ks = it.ks
             ottMediaAsset.referrer = it.referrer
+            ottMediaAsset.adapterData = it.adapterData
 
             var mediaFilesList = mutableListOf<String>()
             it.fileIds.let {
@@ -746,6 +747,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         ottMediaAsset.ks = ottMedia.ks
         ottMediaAsset.urlType = ottMedia.getUrlType()
         ottMediaAsset.streamerType = ottMedia.getStreamerType()
+        ottMediaAsset.adapterData = ottMedia.adapterData
 
         if (ottMedia.format != null) {
             ottMediaAsset.setFormats(listOf(ottMedia.format))
