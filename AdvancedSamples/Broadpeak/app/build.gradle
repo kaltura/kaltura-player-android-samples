@@ -29,31 +29,12 @@ android {
 }
 
 dependencies {
-    api 'com.kaltura.playkit:broadpeakplugin:4.10.3'
 
-//    implementation 'com.kaltura.player:tvplayer:4.10.0'
-//    implementation 'com.kaltura.playkit:youboraplugin:4.10.0'
-//    implementation 'com.kaltura.playkit:imaplugin:4.10.0'
-//    implementation 'com.kaltura.playkit:googlecast:4.10.0'
-//    implementation 'com.kaltura.playkit:vrplugin:4.10.0'
-//    implementation 'com.kaltura.playkit:fbadsplugin:4.10.0'
-//    implementation 'com.kaltura.playkit:broadpeakplugin:4.10.0'
-
-//    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-youbora:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-googlecast:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-vr:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-fb-ads:develop-SNAPSHOT'
+    //implementation 'com.github.kaltura:playkit-android-broadpeak-smartlib:develop-SNAPSHOT'
+    api 'com.kaltura.playkit:broadpeakplugin:4.11.0'
 
 
 //    implementation project(':tvplayer')
-//    implementation project(":ima")
-//    implementation project(":youbora")
-//    implementation project(":googlecast")
-//    implementation project(":playkitvr")
-//    implementation project(":MD360")
-//    implementation project(':fbads')
 //    implementation project(':broadpeak')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
