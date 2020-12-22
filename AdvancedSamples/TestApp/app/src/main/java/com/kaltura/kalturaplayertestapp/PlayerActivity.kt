@@ -62,6 +62,7 @@ import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import com.kaltura.tvplayer.config.TVPlayerParams
 import com.kaltura.tvplayer.playlist.*
+import com.npaw.youbora.lib6.plugin.Options
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -342,6 +343,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setAllowClearLead(appPlayerInitConfig.allowClearLead)
                 .setEnableDecoderFallback(appPlayerInitConfig.enableDecoderFallback)
                 .setAdAutoPlayOnResume(appPlayerInitConfig.adAutoPlayOnResume)
+                .setCea608CaptionsEnabled(appPlayerInitConfig.cea608CaptionsEnabled)
                 .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
                 .setVRSettings(appPlayerInitConfig.vrSettings)
                 .setIsVideoViewHidden(appPlayerInitConfig.isVideoViewHidden)
@@ -808,7 +810,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, AdEvent.allAdsCompleted) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD ALL_ADS_COMPLETED")
-            playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
+            if (playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError) {
+                playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
+            }
             allAdsCompleted = true
             if (isPlaybackEndedState()) {
                 progressBar?.setVisibility(View.GONE)
@@ -834,7 +838,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, AdEvent.contentResumeRequested) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD CONTENT_RESUME_REQUESTED")
-            playbackControlsManager?.setAdPlayerState(AdEvent.Type.CONTENT_RESUME_REQUESTED)
+            if (playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError) {
+                playbackControlsManager?.setAdPlayerState(AdEvent.Type.CONTENT_RESUME_REQUESTED)
+            }
             playbackControlsManager?.showControls(View.INVISIBLE)
         }
 
@@ -907,6 +913,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, AdEvent.adBufferEnd) { event ->
             log.d("AD_BUFFER_END pos = " + event.adPosition)
             progressBar?.setVisibility(View.INVISIBLE)
+        }
+
+        player?.addListener(this, AdEvent.adBreakFetchError) { event ->
+            playbackControlsManager?.setAdPlayerState(event.eventType())
+            updateEventsLogsList("ad:\n" + event.eventType().name)
+            log.d("AD_BREAK_FETCH_ERROR")
         }
 
         /////// PLAYER EVENTS
@@ -1276,12 +1288,19 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (YouboraPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     if (pluginDescriptor.params != null) {
                         var youboraPluginConfig: YouboraConfig? = null
+                        var youboraPluginBundle: Bundle? = null
+                        val isBundle = pluginDescriptor.isBundle
                         when (pluginDescriptor.params) {
                             is JsonObject -> {
                                 youboraPluginConfig = gson.fromJson((pluginDescriptor.params as JsonObject).get("options"), YouboraConfig::class.java)
+                                youboraPluginConfig?.let {
+                                    if (isBundle == true) {
+                                        youboraPluginBundle = getYouboraBundle(it)
+                                    }
+                                }
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1296,18 +1315,24 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 config?.let {
                                     youboraPluginConfig = gson.fromJson(config, YouboraConfig::class.java)
                                 }
+
+                                youboraPluginConfig?.let {
+                                    if (isBundle == true) {
+                                        youboraPluginBundle = getYouboraBundle(it)
+                                    }
+                                }
                             }
                         }
                         youboraPluginConfig?.let {
                             if (setPlugin) {
-                                pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, it.toJson())
+                                pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, if (isBundle == true) youboraPluginBundle else it.toJson())
                             } else {
-                                player?.updatePluginConfig(YouboraPlugin.factory.name, it.toJson())
+                                player?.updatePluginConfig(YouboraPlugin.factory.name, if (isBundle == true) youboraPluginBundle else it.toJson())
                             }
                         }
                     }
                 } else if (KavaAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
-                    val kavaPluginConfig = gson.fromJson(pluginDescriptor.params, KavaAnalyticsConfig::class.java)
+                    val kavaPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, KavaAnalyticsConfig::class.java)
                     pkPluginConfigs.setPluginConfig(KavaAnalyticsPlugin.factory.name, kavaPluginConfig.toJson())
                 } else if (IMAPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     if (pluginDescriptor.params != null) {
@@ -1448,6 +1473,60 @@ class PlayerActivity: AppCompatActivity(), Observer {
         return pkPluginConfigs
     }
 
+    private fun getYouboraBundle(youboraPluginConfig: YouboraConfig): Bundle {
+
+        val optBundle = Bundle()
+
+        //Youbora config bundle. Main config goes here.
+        optBundle.putString(Options.KEY_ACCOUNT_CODE, youboraPluginConfig.accountCode)
+        optBundle.putString(Options.KEY_USERNAME, youboraPluginConfig.username)
+        optBundle.putBoolean(Options.KEY_ENABLED, true)
+        optBundle.putString(Options.KEY_APP_NAME, "TestApp");
+        optBundle.putString(Options.KEY_APP_RELEASE_VERSION, "v1.0");
+
+        //Media entry bundle.
+        optBundle.putString(Options.KEY_CONTENT_TITLE, youboraPluginConfig.media?.title)
+
+        //Optional - Device bundle o/w youbora will decide by its own.
+        optBundle.putString(Options.KEY_DEVICE_CODE, youboraPluginConfig.device?.deviceCode)
+        optBundle.putString(Options.KEY_DEVICE_BRAND, youboraPluginConfig.device?.brand)
+        optBundle.putString(Options.KEY_DEVICE_MODEL, youboraPluginConfig.device?.model)
+        optBundle.putString(Options.KEY_DEVICE_TYPE, youboraPluginConfig.device?.type)
+        optBundle.putString(Options.KEY_DEVICE_OS_NAME, youboraPluginConfig.device?.osName)
+        optBundle.putString(Options.KEY_DEVICE_OS_VERSION, youboraPluginConfig.device?.osVersion)
+
+        //Youbora ads configuration bundle.
+        optBundle.putString(Options.KEY_AD_CAMPAIGN, youboraPluginConfig.ads?.campaign)
+
+        //Configure custom properties here:
+        optBundle.putString(Options.KEY_CONTENT_GENRE, youboraPluginConfig.properties?.genre)
+        optBundle.putString(Options.KEY_CONTENT_TYPE, youboraPluginConfig.properties?.type)
+        optBundle.putString(Options.KEY_CONTENT_TRANSACTION_CODE, youboraPluginConfig.properties?.transactionType)
+        optBundle.putString(Options.KEY_CONTENT_CDN, youboraPluginConfig.properties?.contentCdnCode)
+
+        optBundle.putString(Options.KEY_CONTENT_PRICE, youboraPluginConfig.properties?.price)
+        optBundle.putString(Options.KEY_CONTENT_ENCODING_AUDIO_CODEC, youboraPluginConfig.properties?.audioType)
+        optBundle.putString(Options.KEY_CONTENT_CHANNEL, youboraPluginConfig.properties?.audioChannels)
+
+        val contentMetadataBundle = Bundle()
+
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_YEAR, youboraPluginConfig.properties?.year)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_CAST, youboraPluginConfig.properties?.cast)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_DIRECTOR, youboraPluginConfig.properties?.director)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_OWNER, youboraPluginConfig.properties?.owner)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_PARENTAL, youboraPluginConfig.properties?.parental)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_RATING, youboraPluginConfig.properties?.rating)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_QUALITY, youboraPluginConfig.properties?.quality)
+
+        optBundle.putBundle(Options.KEY_CONTENT_METADATA, contentMetadataBundle)
+
+        //You can add some extra params here:
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, youboraPluginConfig.extraParams?.param1)
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, youboraPluginConfig.extraParams?.param2)
+
+        return optBundle
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         backButtonPressed = true
         onBackPressed()
@@ -1546,7 +1625,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun isPlaybackEndedState(): Boolean {
-        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompleted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
+        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError && allAdsCompleted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
     }
 
     private fun isPostrollAvailableInAdCuePoint(): Boolean {
