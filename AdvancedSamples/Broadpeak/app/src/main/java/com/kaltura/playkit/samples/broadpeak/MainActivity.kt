@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity() {
         val ottMediaOptions = buildOttMediaOptions()
         player?.loadMedia(ottMediaOptions) { entry, loadError ->
             if (loadError != null) {
-                Snackbar.make(findViewById(android.R.id.content), loadError.message, BaseTransientBottomBar.LENGTH_LONG).show()
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_SHORT).show()
             } else {
                 Log.i(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.id)
             }
