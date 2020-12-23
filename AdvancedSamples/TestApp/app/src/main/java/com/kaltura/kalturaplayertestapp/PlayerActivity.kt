@@ -441,10 +441,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     if (error != null) {
                         log.d("OTTMedia Error Extra = " + error.getExtra())
                         Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
-                        playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
-                        if (playbackControlsView != null) {
+                        runOnUiThread(Runnable {
+                            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
                             playbackControlsManager?.showControls(View.VISIBLE)
-                        }
+                        })
                     } else {
                         log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId())
                     }
@@ -558,8 +558,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
                 } else {
                     setCurrentPlayedMediaIndex(ovpPlaylistIdOptions.startIndex)
-                    playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
-                    playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
+                    runOnUiThread(Runnable {
+                        playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                        playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
+                    })
                 }
             }
         } else {
