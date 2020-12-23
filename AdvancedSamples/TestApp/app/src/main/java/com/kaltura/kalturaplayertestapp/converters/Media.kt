@@ -24,6 +24,7 @@ class Media {
     var useApiCaptions: Boolean = false
     var urlType: String? = null
     var streamerType: String? = null
+    var adapterData: Map<String,String>? = null
     var externalSubtitles: List<PKExternalSubtitle>? = null
 
     fun getAssetType(): APIDefines.KalturaAssetType? {

@@ -400,9 +400,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 player?.loadMedia(ovpMediaOptions) { entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error Extra = " + error.getExtra())
-                        Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
-                        playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
-                        playbackControlsManager?.showControls(View.VISIBLE)
+                        runOnUiThread(Runnable {
+                            Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
+                            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                            playbackControlsManager?.showControls(View.VISIBLE)
+                        })
                     } else {
                         log.d("OVPMedia onEntryLoadComplete entry =" + entry.getId())
                     }
@@ -440,11 +442,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 player?.loadMedia(ottMediaOptions) { entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error Extra = " + error.getExtra())
-                        Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
-                        playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
-                        if (playbackControlsView != null) {
+                        runOnUiThread(Runnable {
+                            Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
+                            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
                             playbackControlsManager?.showControls(View.VISIBLE)
-                        }
+                        })
                     } else {
                         log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId())
                     }
@@ -558,8 +560,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
                 } else {
                     setCurrentPlayedMediaIndex(ovpPlaylistIdOptions.startIndex)
-                    playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
-                    playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
+                    runOnUiThread(Runnable {
+                        playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                        playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
+                    })
                 }
             }
         } else {
@@ -580,7 +584,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             player?.loadPlaylist(ovpPlaylistOptions) { playlistController, error ->
                 if (error != null) {
-                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                    runOnUiThread(Runnable {
+                        Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                    })
                 } else {
                     setCurrentPlayedMediaIndex(ovpPlaylistOptions.startIndex)
                     //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
@@ -631,7 +637,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.loadPlaylist(ottPlaylistIdOptions) { playlistController, error ->
             if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                runOnUiThread(Runnable {
+                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                })
             } else {
                 setCurrentPlayedMediaIndex(ottPlaylistIdOptions.startIndex)
                 //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
@@ -657,6 +665,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ottMediaAsset.assetType = it.assetType
             ottMediaAsset.ks = it.ks
             ottMediaAsset.referrer = it.referrer
+            ottMediaAsset.adapterData = it.adapterData
 
             var mediaFilesList = mutableListOf<String>()
             it.fileIds.let {
@@ -710,7 +719,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.loadPlaylist(basicPlaylistOptions) { playlistController, error ->
             if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                runOnUiThread(Runnable {
+                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                })
             } else {
                 log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistOptions.playlistMetadata.name)
                 setCurrentPlayedMediaIndex(basicPlaylistOptions.startIndex)
@@ -727,8 +738,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         mediaList.forEach {
             var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, it.countDownOptions)
-
-
+            
             basicMediasOptionsList.add(basicMediaOptions)
         }
         return basicMediasOptionsList
@@ -746,6 +756,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         ottMediaAsset.ks = ottMedia.ks
         ottMediaAsset.urlType = ottMedia.getUrlType()
         ottMediaAsset.streamerType = ottMedia.getStreamerType()
+        ottMediaAsset.adapterData = ottMedia.adapterData
 
         if (ottMedia.format != null) {
             ottMediaAsset.setFormats(listOf(ottMedia.format))

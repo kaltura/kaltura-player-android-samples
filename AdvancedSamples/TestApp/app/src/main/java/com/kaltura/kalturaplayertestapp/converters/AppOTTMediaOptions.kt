@@ -10,6 +10,7 @@ class AppOTTMediaOptions : AppMediaOptions() {
     var assetReferenceType: APIDefines.AssetReferenceType? = null
     var urlType: APIDefines.KalturaUrlType? = null
     var streamerType: APIDefines.KalturaStreamerType? = null
+    var adapterData: MutableMap<String,String>? = null
     var protocol: String? = HTTPS
     var formats: Array<String>? = null
     var fileIds: Array<String>? = null
