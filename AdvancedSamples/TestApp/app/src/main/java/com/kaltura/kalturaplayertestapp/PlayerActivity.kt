@@ -586,7 +586,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (error != null) {
                     runOnUiThread(Runnable {
                         Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
-                    }
+                    })
                 } else {
                     setCurrentPlayedMediaIndex(ovpPlaylistOptions.startIndex)
                     //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
@@ -639,7 +639,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (error != null) {
                 runOnUiThread(Runnable {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
-                }
+                })
             } else {
                 setCurrentPlayedMediaIndex(ottPlaylistIdOptions.startIndex)
                 //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
@@ -721,7 +721,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (error != null) {
                 runOnUiThread(Runnable {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
-                }
+                })
             } else {
                 log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistOptions.playlistMetadata.name)
                 setCurrentPlayedMediaIndex(basicPlaylistOptions.startIndex)
