@@ -9,7 +9,6 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PlayerEvent
