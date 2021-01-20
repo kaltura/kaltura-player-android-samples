@@ -350,6 +350,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
                 .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
                 .forceSinglePlayerEngine(appPlayerInitConfig.forceSinglePlayerEngine)
+                .forceWidevineL3Playback(appPlayerInitConfig.forceWidevineL3Playback)
                 .setTunneledAudioPlayback(appPlayerInitConfig.isTunneledAudioPlayback)
                 .setMaxAudioBitrate(appPlayerInitConfig.maxAudioBitrate)
                 .setMaxAudioChannelCount(appPlayerInitConfig.maxAudioChannelCount)
