@@ -49,6 +49,7 @@ class PlayerConfig {
     var requestConfiguration: RequestConfiguration? = null
     var referrer: String? = null
     var forceSinglePlayerEngine: Boolean? = null
+    var forceWidevineL3Playback: Boolean? = null
     var mediaList: List<Media>? = null
     var trackSelection: TrackSelection? = null
     var plugins: JsonArray? = null
