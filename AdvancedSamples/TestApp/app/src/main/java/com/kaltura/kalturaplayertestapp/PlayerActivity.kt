@@ -7,10 +7,7 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.DisplayMetrics
-import android.view.KeyEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.SearchView
@@ -35,6 +32,7 @@ import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
+import com.kaltura.playkit.player.PKLowLatencyConfig
 import com.kaltura.playkit.player.PKSubtitlePosition
 import com.kaltura.playkit.player.SubtitleStyleSettings
 import com.kaltura.playkit.plugins.ads.AdCuePoints
@@ -104,6 +102,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var playbackControlsManager: PlaybackControlsManager? = null
     private var isFirstOnResume = true
     private var isPlayingOnPause: Boolean = false
+    var pkLowLatencyConfig: PKLowLatencyConfig? = null
 
     private var networkChangeReceiver: NetworkChangeReceiver? = null
 
@@ -151,6 +150,23 @@ class PlayerActivity: AppCompatActivity(), Observer {
         } ?: run {
             showMessage(R.string.error_empty_input)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        if (pkLowLatencyConfig != null) {
+            menuInflater.inflate(R.menu.menu_activity_player, menu)
+            return true
+        }
+        return false
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_live_info -> {
+                playbackControlsManager?.liveInfoMenuClick()
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     fun playNext() {
@@ -326,6 +342,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //        }
         mediaList = appPlayerInitConfig.mediaList
 
+        // Low Latency Test
+        //appPlayerInitConfig.pkLowLatencyConfig = PKLowLatencyConfig().setTargetOffsetMs(15000L).setMaxOffsetMs(12000L).setMaxPlaybackSpeed(1.5f)
+
+        appPlayerInitConfig.pkLowLatencyConfig?.let {
+            pkLowLatencyConfig = it
+        }
+
         val partnerId = if (appPlayerInitConfig.partnerId != null) Integer.valueOf(appPlayerInitConfig.partnerId) else null
         initOptions = PlayerInitOptions(partnerId)
                 .setAutoPlay(appPlayerInitConfig.autoPlay)
@@ -346,6 +369,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setCea608CaptionsEnabled(appPlayerInitConfig.cea608CaptionsEnabled)
                 .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
                 .setVRSettings(appPlayerInitConfig.vrSettings)
+                .setPKLowLatencyConfig(pkLowLatencyConfig)
                 .setIsVideoViewHidden(appPlayerInitConfig.isVideoViewHidden)
                 .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
                 .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
@@ -1592,7 +1616,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         playbackControlsView?.setVisibility(View.INVISIBLE)
         playbackControlsView?.seekBar?.setPlayedColor(resources.getColor(R.color.colorAccent))
         playbackControlsView?.seekBar?.setBufferedColor(resources.getColor(R.color.greyPrimary))
-        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_30))
+        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_60))
         playbackControlsView?.seekBar?.setScrubberColor(resources.getColor(R.color.colorAccent))
 
         container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
@@ -1686,6 +1710,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager?.showControls(View.VISIBLE)
+        }
+
+        playbackControlsManager?.let {
+            it.removeLiveInfoHandler();
         }
 
         playbackControlsView?.release()
