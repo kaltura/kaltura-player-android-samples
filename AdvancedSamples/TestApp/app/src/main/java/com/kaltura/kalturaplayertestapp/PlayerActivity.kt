@@ -30,6 +30,7 @@ import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController
 import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor
 import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
+import com.kaltura.playkit.PKMediaEntry.MediaEntryType
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.playkit.player.PKLowLatencyConfig
@@ -102,6 +103,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var playbackControlsManager: PlaybackControlsManager? = null
     private var isFirstOnResume = true
     private var isPlayingOnPause: Boolean = false
+    private var liveInfoMenuItem: MenuItem? = null
     var pkLowLatencyConfig: PKLowLatencyConfig? = null
 
     private var networkChangeReceiver: NetworkChangeReceiver? = null
@@ -153,11 +155,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (pkLowLatencyConfig != null) {
-            menuInflater.inflate(R.menu.menu_activity_player, menu)
-            return true
-        }
-        return false
+        menuInflater.inflate(R.menu.menu_activity_player, menu)
+        liveInfoMenuItem = menu.findItem(R.id.menu_live_info)
+        liveInfoMenuItem?.setVisible(false)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -243,7 +244,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         entryId = entry.getId()
                     }
                     log.d("OVPMedia onEntryLoadComplete; $entryId; $error")
-                    handleOnEntryLoadComplete(error)
+                    handleOnEntryLoadComplete(error, entry)
                 }
             } else if (KalturaPlayer.Type.ott == appPlayerInitConfig?.playerType) {
                 val ottMediaOptions = buildOttMediaOptions(0L, currentPlayedMediaIndex) ?: return
@@ -254,7 +255,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         entryId = entry.getId()
                     }
                     log.d("OTTMedia onEntryLoadComplete; $entryId ; $error")
-                    handleOnEntryLoadComplete(error)
+                    handleOnEntryLoadComplete(error, entry)
                 }
             } else if (KalturaPlayer.Type.basic == appPlayerInitConfig?.playerType) run {
                 val mediaEntry = it.get(currentPlayedMediaIndex).pkMediaEntry
@@ -266,6 +267,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     mediaEntry?.externalSubtitleList = it.get(currentPlayedMediaIndex).externalSubtitles
                 }
                 player?.setMedia(mediaEntry, 0L)
+                showLiveInfoMenuItem(mediaEntry)
             } else {
                 log.e("Error no such player type <" + appPlayerInitConfig?.playerType + ">")
             }
@@ -273,7 +275,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
     }
 
-    private fun handleOnEntryLoadComplete(error: ErrorElement?) {
+    private fun handleOnEntryLoadComplete(error: ErrorElement?, mediaEntry: PKMediaEntry) {
         if (error != null) {
             log.d("Load Error Extra = " + error.extra)
             Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -283,6 +285,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (!initOptions.autoplay) {
                 playbackControlsManager?.showControls(View.VISIBLE)
             }
+            showLiveInfoMenuItem(mediaEntry)
         }
     }
 
@@ -304,7 +307,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun addSearchListener() {
-        searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String): Boolean {
 
@@ -342,8 +345,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //        }
         mediaList = appPlayerInitConfig.mediaList
 
-        // Low Latency Test
-        //appPlayerInitConfig.pkLowLatencyConfig = PKLowLatencyConfig().setTargetOffsetMs(15000L).setMaxOffsetMs(12000L).setMaxPlaybackSpeed(1.5f)
+        // Low Latency Test; don't uncomment it because config will come from json
+        // appPlayerInitConfig.pkLowLatencyConfig = PKLowLatencyConfig().setTargetOffsetMs(15000L).setMaxOffsetMs(12000L).setMaxPlaybackSpeed(1.5f)
 
         appPlayerInitConfig.pkLowLatencyConfig?.let {
             pkLowLatencyConfig = it
@@ -433,6 +436,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     } else {
                         log.d("OVPMedia onEntryLoadComplete entry =" + entry.getId())
                     }
+                    showLiveInfoMenuItem(entry)
                 }
             } else {
                 // PLAYLIST
@@ -475,6 +479,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     } else {
                         log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId())
                     }
+                    showLiveInfoMenuItem(entry)
                 }
             } else {
                 // PLAYLIST
@@ -493,6 +498,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 // PLAYLIST
                 handleBasicPlayerPlaylist(appPlayerInitConfig, player)
             }
+            showLiveInfoMenuItem(mediaEntry)
         } else {
             log.e("Failed to initialize player...")
             return
@@ -763,7 +769,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         mediaList.forEach {
             var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, it.countDownOptions)
-            
+
             basicMediasOptionsList.add(basicMediaOptions)
         }
         return basicMediasOptionsList
@@ -1090,7 +1096,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
             var message = "playlistCountDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
-            log.d("PLAYLIST $message" )
+            log.d("PLAYLIST $message")
             showMessage(message)
             //Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
@@ -1378,7 +1384,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 imaPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMAConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1412,7 +1418,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 imaDaiPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMADAIConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1445,7 +1451,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params as JsonObject, PhoenixAnalyticsConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1478,7 +1484,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 fbInstreamPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, FBInstreamConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1619,7 +1625,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_60))
         playbackControlsView?.seekBar?.setScrubberColor(resources.getColor(R.color.colorAccent))
 
-        container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
+        container.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 container.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 val screenHeight = getDeviceHeight()
@@ -1766,5 +1772,17 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         return displayMetrics.heightPixels
+    }
+
+    private fun showLiveInfoMenuItem(mediaEntry: PKMediaEntry?) {
+        liveInfoMenuItem?.let { menuItem ->
+            mediaEntry?.let {
+                if (it.mediaType == MediaEntryType.Live && pkLowLatencyConfig != null) {
+                    menuItem.setVisible(true)
+                } else {
+                    menuItem.setVisible(false)
+                }
+            }
+        }
     }
 }

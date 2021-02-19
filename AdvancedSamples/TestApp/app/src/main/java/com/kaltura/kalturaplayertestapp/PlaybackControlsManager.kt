@@ -49,10 +49,10 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             player?.let {
                 if (it.isPlaying) {
                     playerActivity.pkLowLatencyConfig?.let { pkLowLatencyConfig ->
-                        liveInfoText.text = "Live Offset: ${it.currentLiveOffset}" + "\n" +
-                                "targetOffset: ${pkLowLatencyConfig.targetOffsetMs} " + "\n" +
-                                "MinOffset: ${pkLowLatencyConfig.minOffsetMs} " + "\n" +
-                                "MaxOffset: ${pkLowLatencyConfig.maxOffsetMs} " + "\n" +
+                        liveInfoText.text = "Live Offset: ${validateConfigParams(it.currentLiveOffset)}" + "\n" +
+                                "targetOffset: ${validateConfigParams(pkLowLatencyConfig.targetOffsetMs)} " + "\n" +
+                                "MinOffset: ${validateConfigParams(pkLowLatencyConfig.minOffsetMs)} " + "\n" +
+                                "MaxOffset: ${validateConfigParams(pkLowLatencyConfig.maxOffsetMs)} " + "\n" +
                                 "MinPlaybackSpeed: ${pkLowLatencyConfig.minPlaybackSpeed} " + "\n" +
                                 "MaxPlaybackSpeed: ${pkLowLatencyConfig.maxPlaybackSpeed} " + "\n"
                     }
@@ -60,6 +60,13 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
                 lowLatencyHandler.postDelayed(this, LOW_LATENCY_HANDLER_TIMER.toLong())
             }
         }
+    }
+
+    private fun validateConfigParams(value: Long) : String {
+        if (value == Consts.TIME_UNSET) {
+            return "TIME_UNSET"
+        }
+        return value.toString()
     }
 
     var playerState: Enum<*>? = null
