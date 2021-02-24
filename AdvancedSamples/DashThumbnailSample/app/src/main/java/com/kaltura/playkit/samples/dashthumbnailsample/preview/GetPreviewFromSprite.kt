@@ -1,94 +1,98 @@
 package com.kaltura.playkit.samples.dashthumbnailsample.preview
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.BitmapRegionDecoder
-import android.graphics.Rect
+import android.graphics.RectF
+import androidx.core.graphics.toRect
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.FutureTarget
+import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.kaltura.playkit.PKLog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import java.io.IOException
+import com.kaltura.playkit.player.thumbnail.ThumbnailInfo
+import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
-open class GetPreviewFromSprite(var spriteSliceWidth: Int,
-                                var spriteSliceHeight: Int, var spriteSlicesCount: Int, var mediaEntryId: String) {
+class GetPreviewFromSprite(var context: Context) {
 
     private val log = PKLog.get("GetPreviewFromSprite")
-    private var imageSpriteUrl = "http://cdnapi.kaltura.com/p/2254732/sp/198255100/thumbnail/entry_id/${mediaEntryId}/width/${spriteSliceWidth}/vid_slices/${spriteSlicesCount}"
+    private val imageThreadPoolExecutor: ExecutorService = Executors.newFixedThreadPool(10)
 
-    private val connectionReadTimeOut: Int = 120000
-    private val connectionTimeOut: Int = 120000
-    private val successResponseCode: Int = 200
-    private val requestMethod: String = "GET"
-
-    /**
-     * Download the whole Sprite image which has preview image slices
-     */
-    open suspend fun downloadSpriteCoroutine(): HashMap<String, Bitmap>? {
-
-        var spritesHashMap: HashMap<String, Bitmap>? = null
-
-        return GlobalScope.async(Dispatchers.IO) {
-            var connection: HttpURLConnection? = null
-            var inputStream: InputStream? = null
-
-            try {
-                val url = URL(imageSpriteUrl)
-                connection = url.openConnection() as HttpURLConnection
-                connection.readTimeout = connectionReadTimeOut
-                connection.connectTimeout = connectionTimeOut
-                connection.requestMethod = requestMethod
-                connection.doInput = true
-                connection.connect()
-
-                if (connection.responseCode == successResponseCode) {
-                    inputStream = connection.inputStream
-                } else {
-                    log.e("Error downloading the image. Response code = " + connection.responseMessage)
-                }
-                spritesHashMap = framesFromImageStream(inputStream, spriteSlicesCount)
-            } catch (exception: IOException) {
-                log.e(exception.toString())
-            } finally {
-                connection?.disconnect()
-            }
-
-            spritesHashMap
-
-        }.await()
+    fun downloadSpriteCoroutine(thumbnailInfo: ThumbnailInfo, currentlyPlayingMediaImageKey: String): Future<Bitmap?>? {
+        val addImageExtractionProcessToPool = AddImageExtractionProcessToPool(thumbnailInfo, context, currentlyPlayingMediaImageKey)
+        return imageThreadPoolExecutor.submit(addImageExtractionProcessToPool)
     }
 
-    /**
-     * It excepts 1 row sprite image currently and multiple columns
-     * Extract the image frames from Sprite image
-     * Logic is to crop rectangle from sprite from left (left, top) (bottom, right) coordinates
-     */
-    private fun framesFromImageStream(inputStream: InputStream?, columns: Int): HashMap<String, Bitmap>? {
-        val previewImagesHashMap: HashMap<String, Bitmap>? = HashMap()
-        val options = BitmapFactory.Options()
-        options.inPreferredConfig = Bitmap.Config.RGB_565
-        val bitmapRegionDecoder: BitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
+    fun terminateService() {
+        imageThreadPoolExecutor.shutdownNow()
+        log.d("Service Terminated")
+    }
 
-        for (previewImageIndex: Int in 0 until columns) {
-            val cropRect = Rect((previewImageIndex * spriteSliceWidth), 0, (previewImageIndex * spriteSliceWidth + spriteSliceWidth), spriteSliceHeight)
+    private class AddImageExtractionProcessToPool(val thumbnailInfo: ThumbnailInfo?, var context: Context, var currentlyPlayingMediaImageKey: String): Callable<Bitmap?> {
+
+        private val log = PKLog.get("ImageProcessing")
+
+        override fun call(): Bitmap? {
+
+            var extractedBitmap: Bitmap? = null
+
+            thumbnailInfo?.let {
+                val futureTarget: FutureTarget<Bitmap> = Glide.with(context)
+                        .asBitmap()
+                        .skipMemoryCache(false)
+                        .diskCacheStrategy(DiskCacheStrategy.DATA)
+                        .load(it.url)
+                        .submit(SIZE_ORIGINAL, SIZE_ORIGINAL)
+
+                val fetchedBitmap = futureTarget.get()
+                //log.d("Bitmap Received = ${fetchedBitmap}  Thread Name = ${Thread.currentThread().name}} ")
+                extractedBitmap = convertBitmapAndExtractTile(fetchedBitmap, it)
+            }
+            return extractedBitmap
+        }
+
+        fun convertBitmapAndExtractTile(bitmap: Bitmap?, thumbnailInfo: ThumbnailInfo): Bitmap? {
+            val inputStream: InputStream = convertBitmapToStream(bitmap)
+            return framesFromImageStream(inputStream, thumbnailInfo, currentlyPlayingMediaImageKey)
+        }
+
+        private fun convertBitmapToStream(bitmap: Bitmap?) : InputStream {
+            val byteOutputStream = ByteArrayOutputStream()
+            bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, byteOutputStream)
+            val bitmapData: ByteArray = byteOutputStream.toByteArray()
+            return ByteArrayInputStream(bitmapData)
+        }
+
+        private fun framesFromImageStream(inputStream: InputStream?, thumbnailInfo: ThumbnailInfo, currentlyPlayingMediaImageKey: String): Bitmap? {
+            val options = BitmapFactory.Options()
+            options.inPreferredConfig = Bitmap.Config.RGB_565
+            val bitmapRegionDecoder: BitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
+
+            val cropRect: RectF? = MainActivity.getExtractedRectangle(thumbnailInfo)
+            //log.e("cropRect: ${cropRect?.toString()}")
+
             val extractedImageBitmap: Bitmap = try {
-                bitmapRegionDecoder.decodeRegion(cropRect, options)
+                bitmapRegionDecoder.decodeRegion(cropRect?.toRect(), options)
             } catch (e: IllegalArgumentException) {
-                log.e("The given height and width is out of rectangle which is outside the image. ImageSpriteUrl: ${imageSpriteUrl}")
-                previewImagesHashMap?.clear()
+                log.e("The given height and width is out of rectangle which is outside the image. ImageSpriteUrl: ${thumbnailInfo.url}")
                 bitmapRegionDecoder.recycle()
                 return null
             }
-            previewImagesHashMap?.put("" + previewImageIndex, extractedImageBitmap)
+
+            MainActivity.previewImageHashMap[currentlyPlayingMediaImageKey.plus(cropRect?.toString())] = extractedImageBitmap
+
+            bitmapRegionDecoder.recycle()
+
+            return extractedImageBitmap
         }
-
-        bitmapRegionDecoder.recycle()
-
-        return previewImagesHashMap
     }
-
 }
 

@@ -26,7 +26,8 @@
       android:id="@+id/image_preview"
       android:layout_width="150dp"
       android:layout_height="84dp"
-      android:src="@color/colorPrimary"
+      android:background="@drawable/bg_image_border"
+      android:src="@android:color/transparent"
       android:visibility="gone"
       android:contentDescription="@string/app_name"/>
 

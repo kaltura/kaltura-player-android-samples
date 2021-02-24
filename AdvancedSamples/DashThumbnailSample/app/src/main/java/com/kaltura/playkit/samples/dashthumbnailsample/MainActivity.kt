@@ -1,6 +1,7 @@
 package com.kaltura.playkit.samples.dashthumbnailsample
 
 import android.graphics.Bitmap
+import android.graphics.RectF
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -8,11 +9,10 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import com.kaltura.playkit.PKLog
-import com.kaltura.playkit.PKPluginConfigs
-import com.kaltura.playkit.PlayerEvent
-import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
+import com.kaltura.playkit.player.thumbnail.ImageRangeInfo
+import com.kaltura.playkit.player.thumbnail.ThumbnailInfo
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
@@ -21,16 +21,12 @@ import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.playkit.samples.dashthumbnailsample.preview.GetPreviewFromSprite
-import com.kaltura.tvplayer.KalturaOttPlayer
-import com.kaltura.tvplayer.KalturaPlayer
-import com.kaltura.tvplayer.OTTMediaOptions
-import com.kaltura.tvplayer.PlayerInitOptions
+import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,10 +35,34 @@ class MainActivity : AppCompatActivity() {
         val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
         val PARTNER_ID = 3009
         val log = PKLog.get("MainActivity")
-        var previewImageHashMap: HashMap<String, Bitmap>? = null
+        var previewImageHashMap: HashMap<String, Bitmap> = HashMap()
         var previewImageWidth: Int? = null
         var slicesCount: Int? = null
+        var currentlyPlayingMediaImageKey: String? = null
+        val useOneshotSpriteDownloadPattern: Boolean = false
+
+        fun getExtractedRectangle(thumbnailInfo: ThumbnailInfo?): RectF? {
+            thumbnailInfo?.let {
+                return RectF(it.x,
+                        it.y,
+                        it.x + it.width,
+                        it.y + it.height)
+            }
+            return null
+        }
     }
+
+    //Basic Player Config
+    //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails.mpd"
+    //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
+    private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd"
+    //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_4_tiles_thumbnails.mpd"
+
+    // Live
+    // private val SOURCE_URL = "https://pf5.broadpeak-vcdn.com/bpk-tv/tvr/default/index.mpd?deviceType=32&subscriptionType=0&ip=87.71.183.190&primaryToken=b40b7407069a6e34_6c30217e28d77513f3a515d08078f5fe"
+
+    private val MEDIA_FORMAT = PKMediaFormat.dash
+    private val LICENSE_URL = null
 
     private val START_POSITION = 0L // position for start playback in msec.
     private val FIRST_ASSET_ID = "548576"
@@ -53,18 +73,28 @@ class MainActivity : AppCompatActivity() {
     private var preMidPostAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpodbumper&cmsid=496&vid=short_onecue&correlator="
 
     private var player: KalturaPlayer? = null
-
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
     private var adCuePoints: AdCuePoints? = null
     private var isAdEnabled: Boolean = false
+    private var buildUsingBasicPlayer = true
     private var previewImageHeight: Int? = null
+    private lateinit var downloadSpriteImageCoroutine: GetPreviewFromSprite
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        loadPlaykitPlayer()
+        if (useOneshotSpriteDownloadPattern) {
+            downloadSpriteImageCoroutine = GetPreviewFromSprite(this)
+        }
+
+        if (buildUsingBasicPlayer) {
+            val mediaEntry = createMediaEntry()
+            loadPlaykitPlayer(mediaEntry)
+        } else {
+            loadPlaykitPlayer()
+        }
 
         activity_main.setOnClickListener { v ->
             if (isFullScreen) {
@@ -74,7 +104,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        btnChangeMedia.setOnClickListener{v ->
+        btnChangeMedia.setOnClickListener { v ->
 
             player?.let { it ->
                 it.mediaEntry?.let {
@@ -133,15 +163,9 @@ class MainActivity : AppCompatActivity() {
         isFullScreen = false
     }
 
-    private fun downloadPreviewImage(imageWidth: Int, imageHeight: Int, noOfSlices: Int, mediaEntryId: String) {
-        previewDownloadStatus.text = getString(R.string.downloading)
-        // Start download image coroutine on Main Thread
-        GlobalScope.launch(Dispatchers.Main) {
-            val getPreviewImage = GetPreviewFromSprite(imageWidth, imageHeight, noOfSlices, mediaEntryId)
-            // Clear the preview hashmap everytime when it tries downloading another image
-            previewImageHashMap?.clear()
-            previewImageHashMap = getPreviewImage.downloadSpriteCoroutine()
-            previewDownloadStatus.text = getString(R.string.donwload_complete)
+    private fun downloadPreviewImage(thumbnailInfo: ThumbnailInfo?) {
+        thumbnailInfo?.let {
+            downloadSpriteImageCoroutine.downloadSpriteCoroutine(thumbnailInfo, currentlyPlayingMediaImageKey!!)
         }
     }
 
@@ -151,7 +175,36 @@ class MainActivity : AppCompatActivity() {
             playerState = event.newState
         }
 
-        player?.addListener(this, PlayerEvent.error) { event -> log.d("player ERROR " + event.error.message) }
+        player?.addListener(this, PlayerEvent.error) { event ->
+            log.d("player ERROR " + event.error.message)
+        }
+
+        player?.addListener(this, PlayerEvent.imageTrackChanged) { event ->
+            log.d("imageTemplateUrl " + event.newTrack.imageTemplateUrl)
+        }
+
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
+            if (!event.tracksInfo.getImageTracks().isEmpty()) {
+                slicesCount = player?.vodThumbnailInfo?.imageRangeThumbnailMap?.size
+                if (useOneshotSpriteDownloadPattern) {
+                    player?.let {
+                        extractTileImagesFromSprite(it.vodThumbnailInfo.imageRangeThumbnailMap)
+                    }
+                }
+            }
+        }
+
+        player?.addListener(this, PlayerEvent.imageTrackChanged) { event ->
+            currentlyPlayingMediaImageKey = event.newTrack.label
+        }
+    }
+
+    private fun extractTileImagesFromSprite(imageRangeThumbnailMap: Map<ImageRangeInfo, ThumbnailInfo>?) {
+        imageRangeThumbnailMap?.let {
+            for ((imageRangeInfo, thumbnailInfo) in imageRangeThumbnailMap) {
+                downloadPreviewImage(thumbnailInfo)
+            }
+        }
     }
 
     override fun onPause() {
@@ -161,6 +214,8 @@ class MainActivity : AppCompatActivity() {
         if (playerControls != null) {
             playerControls?.release()
         }
+
+        downloadSpriteImageCoroutine.terminateService()
 
         player?.onApplicationPaused()
     }
@@ -217,7 +272,7 @@ class MainActivity : AppCompatActivity() {
             phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
             playerInitOptions?.tvPlayerParams = phoenixTVPlayerParams
         }
-        
+
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
 
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
@@ -251,7 +306,7 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
-                entry?.metadata?.get("entryId")?.let { downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, it) }
+                //   entry?.metadata?.get("entryId")?.let { downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, it) }
             }
         }
 
@@ -274,7 +329,7 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
-                entry?.metadata?.get("entryId")?.let { downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, it) }
+                // entry?.metadata?.get("entryId")?.let { downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, it) }
             }
         }
     }
@@ -304,8 +359,8 @@ class MainActivity : AppCompatActivity() {
                     + adInfo.getAdContentType())
         }
 
-        player?.addListener(this, AdEvent.contentResumeRequested) {
-            event -> log.d("ADS_PLAYBACK_ENDED")
+        player?.addListener(this, AdEvent.contentResumeRequested) { event ->
+            log.d("ADS_PLAYBACK_ENDED")
             playerControls?.setSeekBarStateForAd(false)
             playerControls?.setPlayerState(PlayerState.READY)
         }
@@ -356,8 +411,8 @@ class MainActivity : AppCompatActivity() {
 
         player?.addListener(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
 
-        player?.addListener(this, AdEvent.allAdsCompleted) {
-            event -> log.d("AD_ALL_ADS_COMPLETED")
+        player?.addListener(this, AdEvent.allAdsCompleted) { event ->
+            log.d("AD_ALL_ADS_COMPLETED")
             if (adCuePoints != null && adCuePoints?.hasPostRoll()!!) {
                 playerControls?.setPlayerState(PlayerState.IDLE)
             }
@@ -398,5 +453,79 @@ class MainActivity : AppCompatActivity() {
                 log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
             }
         }
+    }
+
+    fun loadPlaykitPlayer(pkMediaEntry: PKMediaEntry) {
+        val playerInitOptions = PlayerInitOptions()
+
+        player = KalturaBasicPlayer.create(this@MainActivity, playerInitOptions)
+        player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+
+        val container = player_root
+        container.addView(player?.playerView)
+        playerControls?.setPlayer(player)
+        player?.setMedia(pkMediaEntry, START_POSITION)
+
+        showSystemUI()
+
+        addPlayerStateListener()
+    }
+
+    /**
+     * Create [PKMediaEntry] with minimum necessary data.
+     *
+     * @return - the [PKMediaEntry] object.
+     */
+    private fun createMediaEntry(): PKMediaEntry {
+        //Create media entry.
+        val mediaEntry = PKMediaEntry()
+
+        //Set id for the entry.
+        mediaEntry.id = "thumbnailEntry"
+
+        //Set media entry type. It could be Live,Vod or Unknown.
+        //In this sample we use Vod.
+        //mediaEntry.mediaType = PKMediaEntry.MediaEntryType.Live
+        mediaEntry.mediaType = PKMediaEntry.MediaEntryType.Vod
+
+        //Create list that contains at least 1 media source.
+        //Each media entry can contain a couple of different media sources.
+        //All of them represent the same content, the difference is in it format.
+        //For example same entry can contain PKMediaSource with dash and another
+        // PKMediaSource can be with hls. The player will decide by itself which source is
+        // preferred for playback.
+        val mediaSources = createMediaSources()
+
+        //Set media sources to the entry.
+        mediaEntry.sources = mediaSources
+
+        return mediaEntry
+    }
+
+    /**
+     * Create list of [PKMediaSource].
+     *
+     * @return - the list of sources.
+     */
+    private fun createMediaSources(): List<PKMediaSource> {
+
+        //Create new PKMediaSource instance.
+        val mediaSource = PKMediaSource()
+
+        //Set the id.
+        mediaSource.id = "testLiveSource"
+
+        //Set the content url. In our case it will be link to hls source(.m3u8).
+        mediaSource.url = SOURCE_URL
+
+        //Set the format of the source. In our case it will be hls in case of mpd/wvm formats you have to to call mediaSource.setDrmData method as well
+        mediaSource.mediaFormat = MEDIA_FORMAT
+
+        // Add DRM data if required
+        if (LICENSE_URL != null) {
+            mediaSource.drmData = listOf(PKDrmParams(LICENSE_URL, PKDrmParams.Scheme.WidevineCENC))
+        }
+
+        return listOf(mediaSource)
     }
 }

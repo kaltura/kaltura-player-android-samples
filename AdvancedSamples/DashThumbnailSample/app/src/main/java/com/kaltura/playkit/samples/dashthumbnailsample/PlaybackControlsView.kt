@@ -2,6 +2,7 @@ package com.kaltura.playkit.samples.dashthumbnailsample
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -17,9 +18,17 @@ import com.kaltura.android.exoplayer2.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
+import com.kaltura.playkit.player.thumbnail.ThumbnailInfo
+import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.currentlyPlayingMediaImageKey
+import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.getExtractedRectangle
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.previewImageHashMap
+import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.previewImageWidth
+import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.slicesCount
+import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.useOneshotSpriteDownloadPattern
+import com.kaltura.playkit.samples.dashthumbnailsample.preview.GetPreviewFromSprite
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
+import java.util.concurrent.Future
 
 
 /**
@@ -50,19 +59,23 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
     private lateinit var btnRepeatToggle: ImageButton
     private lateinit var btnVr: ImageButton
     private lateinit var previewImage: ImageView
-
+    private val ctx: Context
     private var dragging = false
-
     private val componentListener: ComponentListener
+    private var downloadSpriteImageCoroutine: GetPreviewFromSprite? = null
 
     private val updateProgressAction = Runnable { this.updateProgress() }
 
     init {
         LayoutInflater.from(context).inflate(R.layout.exo_playback_control_view_old, this)
         formatBuilder = StringBuilder()
+        this.ctx = context
         formatter = Formatter(formatBuilder, Locale.getDefault())
         componentListener = ComponentListener()
         initPlaybackControls()
+        if (!useOneshotSpriteDownloadPattern) {
+            downloadSpriteImageCoroutine = GetPreviewFromSprite(this.ctx)
+        }
     }
 
     private fun initPlaybackControls() {
@@ -156,7 +169,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         }
 
         override fun onScrubMove(timeBar: TimeBar, position: Long) {
-            previewImage.visibility = View.GONE
+            previewImage.visibility = View.VISIBLE
             var positionInPercentage = 0
 
             player?.let {
@@ -166,20 +179,39 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
             // positionInPercentage.toFloat() - Gives seek percent
             // seekBar?.width - SeekBar width which changes based on device width
             // leftMargin - Gives the margin from left of the screen
-            val leftMargin: Float = (seekBar.width.times(positionInPercentage.toFloat())).div(MainActivity.slicesCount ?: 100)
+            val leftMargin: Float = (seekBar.width.times(positionInPercentage.toFloat())).div(slicesCount ?: 100)
 
             // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
-            if (leftMargin < (seekBar.width + (4 * tvCurTime.paddingLeft) - (MainActivity.previewImageWidth ?: 90) - tvCurTime.width)) {
+            if (leftMargin < (seekBar.width + (4 * tvCurTime.paddingLeft) - (previewImageWidth ?: 90) - tvCurTime.width)) {
                 previewImage.translationX = leftMargin
             }
 
-            if (!previewImageHashMap.isNullOrEmpty()) {
-                val previewBitmap: Bitmap? = previewImageHashMap?.get(positionInPercentage.toString())
-                previewBitmap?.let {
-                    previewImage.visibility = View.VISIBLE
-                    previewImage.setImageBitmap(it)
+            val thumbnailInfo: ThumbnailInfo? = player?.getThumbnailInfo(position)
+
+            thumbnailInfo?.let {
+                if (useOneshotSpriteDownloadPattern) {
+                    val croppedRect: RectF? = getExtractedRectangle(it)
+                    val imageKey: String = currentlyPlayingMediaImageKey.plus(croppedRect?.toString())
+                    val previewBitmap: Bitmap? = previewImageHashMap[imageKey]
+                    previewBitmap?.let {
+                        previewImage.setImageBitmap(previewBitmap)
+                    }
+                } else {
+                    downloadSpriteImageCoroutine?.let { downloadImage ->
+                        val receivedBitmap: Future<Bitmap?>? = downloadImage.downloadSpriteCoroutine(it, currentlyPlayingMediaImageKey!!)
+                        receivedBitmap?.let { bitmap ->
+                            previewImage.setImageBitmap(bitmap.get())
+                        }
+                    }
                 }
             }
+
+            /* if (!previewImageHashMap.isNullOrEmpty()) {
+                 val previewBitmap: Bitmap? = previewImageHashMap[imageKey]
+                 previewBitmap?.let { bitmap ->
+                     previewImage.setImageBitmap(bitmap)
+                 }
+             }*/
 
             player?.let {
                 tvCurTime.text = stringForTime(position)
