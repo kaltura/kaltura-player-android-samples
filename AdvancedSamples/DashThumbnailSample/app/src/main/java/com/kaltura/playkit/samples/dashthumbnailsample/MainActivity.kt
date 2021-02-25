@@ -52,20 +52,36 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun terminateThreadPoolExecutor(previewFromSprite: GetPreviewFromSprite?) {
-            previewFromSprite?.let {
-                it.terminateService()
-            }
+            previewFromSprite?.terminateService()
         }
     }
 
-    //Basic Player Config
+
+    /**** Basic Player Config Start*****/
+
+    //The url of the first source to play
+    private val FIRST_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
+    //The url of the second source to play
+    private val SECOND_SOURCE_URL = "https://pf5.broadpeak-vcdn.com/bpk-tv/tvr/default/index.mpd?deviceType=32&subscriptionType=0&ip=87.71.183.190&primaryToken=b40b7407069a6e34_6c30217e28d77513f3a515d08078f5fe"
+    //id of the first entry
+    private val FIRST_ENTRY_ID = "entry_id_1"
+    //id of the second entry
+    private val SECOND_ENTRY_ID = "entry_id_2"
+    //id of the first media source.
+    private val FIRST_MEDIA_SOURCE_ID = "source_id_1"
+    //id of the second media source.
+    private val SECOND_MEDIA_SOURCE_ID = "source_id_2"
+
+    // Sample VOD Sources for Basic Config
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails.mpd"
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
-    private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd"
+    //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd"
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_4_tiles_thumbnails.mpd"
 
-    // Live
+    // Sample Live Sources for Basic Config
     // private val SOURCE_URL = "https://pf5.broadpeak-vcdn.com/bpk-tv/tvr/default/index.mpd?deviceType=32&subscriptionType=0&ip=87.71.183.190&primaryToken=b40b7407069a6e34_6c30217e28d77513f3a515d08078f5fe"
+
+    /**** Basic Player Config End*****/
 
     private val MEDIA_FORMAT = PKMediaFormat.dash
     private val LICENSE_URL = null
@@ -96,7 +112,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (buildUsingBasicPlayer) {
-            val mediaEntry = createMediaEntry()
+            val mediaEntry = createFirstMediaEntry()
             loadPlaykitPlayer(mediaEntry)
         } else {
             loadPlaykitPlayer()
@@ -112,34 +128,37 @@ class MainActivity : AppCompatActivity() {
 
         btnChangeMedia.setOnClickListener { v ->
 
+            clearResources()
+
             player?.let { it ->
-                it.mediaEntry?.let {
-                    if (it.id == FIRST_ASSET_ID) {
-                        if (isAdEnabled) {
-                            val adsConfig = getAdsConfig(preMidPostAdTagUrl)
-                            player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+                if (buildUsingBasicPlayer) {
+                    changeMedia()
+                } else {
+                    it.mediaEntry?.let {
+                        if (it.id == FIRST_ASSET_ID) {
+                            if (isAdEnabled) {
+                                val adsConfig = getAdsConfig(preMidPostAdTagUrl)
+                                player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+                            }
+                            buildSecondOttMediaOptions()
+                        } else {
+                            if (isAdEnabled) {
+                                val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
+                                player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+                            }
+                            buildFirstOttMediaOptions()
                         }
-
-                        previewImageWidth = 150
-                        previewImageHeight = 84
-                        slicesCount = 100
-
-                        buildSecondOttMediaOptions()
-                    } else {
-                        if (isAdEnabled) {
-                            val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
-                            player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
-                        }
-
-                        previewImageWidth = 90
-                        previewImageHeight = 50
-                        slicesCount = 100
-
-                        buildFirstOttMediaOptions()
                     }
                 }
             }
         }
+    }
+
+    private fun clearResources() {
+        previewImageHashMap.clear()
+        currentlyPlayingMediaImageKey = null
+        slicesCount = null
+        previewImageWidth = null
     }
 
     private fun hideSystemUI() {
@@ -171,7 +190,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun downloadPreviewImage(thumbnailInfo: ThumbnailInfo?) {
         thumbnailInfo?.let {
-            downloadSpriteImageCoroutine?.downloadSpriteCoroutine(thumbnailInfo, currentlyPlayingMediaImageKey!!)
+            downloadSpriteImageCoroutine?.downloadSpriteCoroutine(thumbnailInfo, currentlyPlayingMediaImageKey!!, false)
         }
     }
 
@@ -190,7 +209,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
-            if (!event.tracksInfo.getImageTracks().isEmpty()) {
+            if (!event.tracksInfo.getImageTracks().isEmpty() && !player?.isLive()!!) {
                 slicesCount = player?.vodThumbnailInfo?.imageRangeThumbnailMap?.size
                 if (useOneshotSpriteDownloadPattern) {
                     player?.let {
@@ -221,8 +240,6 @@ class MainActivity : AppCompatActivity() {
             playerControls?.release()
         }
 
-        terminateThreadPoolExecutor(downloadSpriteImageCoroutine)
-
         player?.onApplicationPaused()
     }
 
@@ -241,6 +258,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     public override fun onDestroy() {
+        terminateThreadPoolExecutor(downloadSpriteImageCoroutine)
+        playerControls?.terminateThreadPool()
+        clearResources()
         if (player != null) {
             player?.removeListeners(this)
             player?.destroy()
@@ -250,12 +270,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loadPlaykitPlayer() {
-
-        previewImageWidth = 90
-        previewImageHeight = 50
-        slicesCount = 100
-
-
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
         playerInitOptions.setAllowCrossProtocolEnabled(true)
@@ -312,10 +326,8 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
-                //   entry?.metadata?.get("entryId")?.let { downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, it) }
             }
         }
-
     }
 
     private fun buildSecondOttMediaOptions() {
@@ -335,7 +347,6 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
-                // entry?.metadata?.get("entryId")?.let { downloadPreviewImage(previewImageWidth ?: 150, previewImageHeight ?: 84, slicesCount ?: 100, it) }
             }
         }
     }
@@ -391,7 +402,6 @@ class MainActivity : AppCompatActivity() {
             val adEventProress = event
             //Log.d(TAG, "received AD PLAY_HEAD_CHANGED " + adEventProress.adPlayHead);
         }
-
 
         player?.addListener(this, AdEvent.adBreakStarted) { event -> log.d("AD_BREAK_STARTED") }
 
@@ -454,7 +464,7 @@ class MainActivity : AppCompatActivity() {
 
         player?.addListener(this, AdEvent.error) { event ->
             log.d("AD_ERROR : " + event.error.errorType.name)
-            if (event != null && event.error != null) {
+            if (event?.error != null) {
                 playerControls?.setSeekBarStateForAd(false)
                 log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
             }
@@ -478,20 +488,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
+     * Will switch between entries. If the first entry is currently active it will
+     * prepare the second one. Otherwise it will prepare the first one.
+     */
+    private fun changeMedia() {
+        val mediaEntry: PKMediaEntry
+        //Check if id of the media entry that is set in mediaConfig.
+        if (player?.mediaEntry?.id == FIRST_ENTRY_ID) {
+            //If first one is active, prepare second one.
+            mediaEntry = createSecondMediaEntry()
+        } else {
+            //If the second one is active, prepare the first one.
+            mediaEntry = createFirstMediaEntry()
+        }
+        //Prepare player with media configuration.
+        player?.setMedia(mediaEntry, 0L)
+    }
+
+    /**
      * Create [PKMediaEntry] with minimum necessary data.
      *
      * @return - the [PKMediaEntry] object.
      */
-    private fun createMediaEntry(): PKMediaEntry {
+    private fun createFirstMediaEntry(): PKMediaEntry {
         //Create media entry.
         val mediaEntry = PKMediaEntry()
 
         //Set id for the entry.
-        mediaEntry.id = "thumbnailEntry"
+        mediaEntry.id = FIRST_ENTRY_ID
+
+        currentlyPlayingMediaImageKey = FIRST_ENTRY_ID
 
         //Set media entry type. It could be Live,Vod or Unknown.
-        //In this sample we use Vod.
-        //mediaEntry.mediaType = PKMediaEntry.MediaEntryType.Live
+        //For now we will use Unknown.
         mediaEntry.mediaType = PKMediaEntry.MediaEntryType.Vod
 
         //Create list that contains at least 1 media source.
@@ -500,7 +529,39 @@ class MainActivity : AppCompatActivity() {
         //For example same entry can contain PKMediaSource with dash and another
         // PKMediaSource can be with hls. The player will decide by itself which source is
         // preferred for playback.
-        val mediaSources = createMediaSources()
+        val mediaSources = createFirstMediaSources()
+
+        //Set media sources to the entry.
+        mediaEntry.sources = mediaSources
+
+        return mediaEntry
+    }
+
+    /**
+     * Create [PKMediaEntry] with minimum necessary data.
+     *
+     * @return - the [PKMediaEntry] object.
+     */
+    private fun createSecondMediaEntry(): PKMediaEntry {
+        //Create media entry.
+        val mediaEntry = PKMediaEntry()
+
+        //Set id for the entry.
+        mediaEntry.id = SECOND_ENTRY_ID
+
+        currentlyPlayingMediaImageKey = SECOND_ENTRY_ID
+
+        //Set media entry type. It could be Live,Vod or Unknown.
+        //For now we will use Unknown.
+        mediaEntry.mediaType = PKMediaEntry.MediaEntryType.Live
+
+        //Create list that contains at least 1 media source.
+        //Each media entry can contain a couple of different media sources.
+        //All of them represent the same content, the difference is in it format.
+        //For example same entry can contain PKMediaSource with dash and another
+        // PKMediaSource can be with hls. The player will decide by itself which source is
+        // preferred for playback.
+        val mediaSources = createSecondMediaSources()
 
         //Set media sources to the entry.
         mediaEntry.sources = mediaSources
@@ -513,25 +574,52 @@ class MainActivity : AppCompatActivity() {
      *
      * @return - the list of sources.
      */
-    private fun createMediaSources(): List<PKMediaSource> {
+    private fun createFirstMediaSources(): List<PKMediaSource> {
+        //Init list which will hold the PKMediaSources.
+        val mediaSources = ArrayList<PKMediaSource>()
 
         //Create new PKMediaSource instance.
         val mediaSource = PKMediaSource()
 
         //Set the id.
-        mediaSource.id = "testLiveSource"
+        mediaSource.id = FIRST_MEDIA_SOURCE_ID
 
         //Set the content url. In our case it will be link to hls source(.m3u8).
-        mediaSource.url = SOURCE_URL
+        mediaSource.url = FIRST_SOURCE_URL
 
-        //Set the format of the source. In our case it will be hls in case of mpd/wvm formats you have to to call mediaSource.setDrmData method as well
-        mediaSource.mediaFormat = MEDIA_FORMAT
+        //Set the format of the source. In our case it will be hls.
+        mediaSource.mediaFormat = PKMediaFormat.dash
 
-        // Add DRM data if required
-        if (LICENSE_URL != null) {
-            mediaSource.drmData = listOf(PKDrmParams(LICENSE_URL, PKDrmParams.Scheme.WidevineCENC))
-        }
+        //Add media source to the list.
+        mediaSources.add(mediaSource)
 
-        return listOf(mediaSource)
+        return mediaSources
+    }
+
+    /**
+     * Create list of [PKMediaSource].
+     *
+     * @return - the list of sources.
+     */
+    private fun createSecondMediaSources(): List<PKMediaSource> {
+        //Init list which will hold the PKMediaSources.
+        val mediaSources = ArrayList<PKMediaSource>()
+
+        //Create new PKMediaSource instance.
+        val mediaSource = PKMediaSource()
+
+        //Set the id.
+        mediaSource.id = SECOND_MEDIA_SOURCE_ID
+
+        //Set the content url. In our case it will be link to m3u8 source(.m3u8).
+        mediaSource.url = SECOND_SOURCE_URL
+
+        //Set the format of the source. In our case it will be hls.
+        mediaSource.mediaFormat = PKMediaFormat.dash
+
+        //Add media source to the list.
+        mediaSources.add(mediaSource)
+
+        return mediaSources
     }
 }

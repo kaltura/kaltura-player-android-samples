@@ -187,31 +187,27 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
             }
 
             val thumbnailInfo: ThumbnailInfo? = player?.getThumbnailInfo(position)
+            val isLiveMedia: Boolean = player?.isLive!!
 
             thumbnailInfo?.let {
-                if (useOneshotSpriteDownloadPattern) {
-                    val croppedRect: RectF? = getExtractedRectangle(it)
-                    val imageKey: String = currentlyPlayingMediaImageKey.plus(croppedRect?.toString())
-                    val previewBitmap: Bitmap? = previewImageHashMap[imageKey]
-                    previewBitmap?.let {
-                        previewImage.setImageBitmap(previewBitmap)
-                    }
+                val croppedRect: RectF? = getExtractedRectangle(it)
+                val imageKey: String = currentlyPlayingMediaImageKey.plus(croppedRect?.toString())
+                val previewBitmap: Bitmap? = previewImageHashMap[imageKey]
+                if (previewBitmap != null && !isLiveMedia) {
+                    log.d("Image picked from Hashmap")
+                    previewImage.setImageBitmap(previewBitmap)
                 } else {
-                    downloadSpriteImageCoroutine?.let { downloadImage ->
-                        val receivedBitmap: Future<Bitmap?>? = downloadImage.downloadSpriteCoroutine(it, currentlyPlayingMediaImageKey!!)
-                        receivedBitmap?.let { bitmap ->
-                            previewImage.setImageBitmap(bitmap.get())
+                    if (!useOneshotSpriteDownloadPattern) {
+                        log.d("Image picked from Service")
+                        downloadSpriteImageCoroutine?.let { downloadImage ->
+                            val receivedBitmap: Future<Bitmap?>? = downloadImage.downloadSpriteCoroutine(it, currentlyPlayingMediaImageKey!!, isLiveMedia)
+                            receivedBitmap?.let { bitmap ->
+                                previewImage.setImageBitmap(bitmap.get())
+                            }
                         }
                     }
                 }
             }
-
-            /* if (!previewImageHashMap.isNullOrEmpty()) {
-                 val previewBitmap: Bitmap? = previewImageHashMap[imageKey]
-                 previewBitmap?.let { bitmap ->
-                     previewImage.setImageBitmap(bitmap)
-                 }
-             }*/
 
             player?.let {
                 tvCurTime.text = stringForTime(position)
@@ -320,8 +316,11 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
     }
 
     fun release() {
-        MainActivity.terminateThreadPoolExecutor(downloadSpriteImageCoroutine)
         removeCallbacks(updateProgressAction)
+    }
+
+    fun terminateThreadPool() {
+        MainActivity.terminateThreadPoolExecutor(downloadSpriteImageCoroutine)
     }
 
     fun resume() {

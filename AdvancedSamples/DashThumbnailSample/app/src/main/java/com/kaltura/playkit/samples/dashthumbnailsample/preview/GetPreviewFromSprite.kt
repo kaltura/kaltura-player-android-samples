@@ -26,8 +26,8 @@ class GetPreviewFromSprite(var context: Context) {
     private val log = PKLog.get("GetPreviewFromSprite")
     private val imageThreadPoolExecutor: ExecutorService = Executors.newFixedThreadPool(10)
 
-    fun downloadSpriteCoroutine(thumbnailInfo: ThumbnailInfo, currentlyPlayingMediaImageKey: String): Future<Bitmap?>? {
-        val addImageExtractionProcessToPool = AddImageExtractionProcessToPool(thumbnailInfo, context, currentlyPlayingMediaImageKey)
+    fun downloadSpriteCoroutine(thumbnailInfo: ThumbnailInfo, currentlyPlayingMediaImageKey: String, isLiveMedia: Boolean): Future<Bitmap?>? {
+        val addImageExtractionProcessToPool = AddImageExtractionProcessToPool(thumbnailInfo, context, currentlyPlayingMediaImageKey, isLiveMedia)
         return imageThreadPoolExecutor.submit(addImageExtractionProcessToPool)
     }
 
@@ -36,7 +36,7 @@ class GetPreviewFromSprite(var context: Context) {
         log.d("Service Terminated")
     }
 
-    private class AddImageExtractionProcessToPool(val thumbnailInfo: ThumbnailInfo?, var context: Context, var currentlyPlayingMediaImageKey: String): Callable<Bitmap?> {
+    private class AddImageExtractionProcessToPool(val thumbnailInfo: ThumbnailInfo?, var context: Context, var currentlyPlayingMediaImageKey: String, var isLiveMedia: Boolean): Callable<Bitmap?> {
 
         private val log = PKLog.get("ImageProcessing")
 
@@ -53,15 +53,16 @@ class GetPreviewFromSprite(var context: Context) {
                         .submit(SIZE_ORIGINAL, SIZE_ORIGINAL)
 
                 val fetchedBitmap = futureTarget.get()
-                //log.d("Bitmap Received = ${fetchedBitmap}  Thread Name = ${Thread.currentThread().name}} ")
-                extractedBitmap = convertBitmapAndExtractTile(fetchedBitmap, it)
+                log.d("Bitmap URL = ${it.url} ")
+                log.d("Bitmap Received = ${fetchedBitmap}  Thread Name = ${Thread.currentThread().name}")
+                extractedBitmap = convertBitmapAndExtractTile(fetchedBitmap, it, isLiveMedia)
             }
             return extractedBitmap
         }
 
-        fun convertBitmapAndExtractTile(bitmap: Bitmap?, thumbnailInfo: ThumbnailInfo): Bitmap? {
+        fun convertBitmapAndExtractTile(bitmap: Bitmap?, thumbnailInfo: ThumbnailInfo, isLiveMedia: Boolean): Bitmap? {
             val inputStream: InputStream = convertBitmapToStream(bitmap)
-            return framesFromImageStream(inputStream, thumbnailInfo, currentlyPlayingMediaImageKey)
+            return framesFromImageStream(inputStream, thumbnailInfo, currentlyPlayingMediaImageKey, isLiveMedia)
         }
 
         private fun convertBitmapToStream(bitmap: Bitmap?) : InputStream {
@@ -71,7 +72,7 @@ class GetPreviewFromSprite(var context: Context) {
             return ByteArrayInputStream(bitmapData)
         }
 
-        private fun framesFromImageStream(inputStream: InputStream?, thumbnailInfo: ThumbnailInfo, currentlyPlayingMediaImageKey: String): Bitmap? {
+        private fun framesFromImageStream(inputStream: InputStream?, thumbnailInfo: ThumbnailInfo, currentlyPlayingMediaImageKey: String, isLiveMedia: Boolean): Bitmap? {
             val options = BitmapFactory.Options()
             options.inPreferredConfig = Bitmap.Config.RGB_565
             val bitmapRegionDecoder: BitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
@@ -87,7 +88,9 @@ class GetPreviewFromSprite(var context: Context) {
                 return null
             }
 
-            MainActivity.previewImageHashMap[currentlyPlayingMediaImageKey.plus(cropRect?.toString())] = extractedImageBitmap
+            if (!isLiveMedia) {
+                MainActivity.previewImageHashMap[currentlyPlayingMediaImageKey.plus(cropRect?.toString())] = extractedImageBitmap
+            }
 
             bitmapRegionDecoder.recycle()
 
