@@ -19,7 +19,6 @@ import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.thumbnail.ThumbnailInfo
-import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.currentlyPlayingMediaImageKey
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.getExtractedRectangle
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.previewImageHashMap
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.previewImageWidth
@@ -169,40 +168,46 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         }
 
         override fun onScrubMove(timeBar: TimeBar, position: Long) {
-            previewImage.visibility = View.VISIBLE
-            var positionInPercentage = 0
+            if (MainActivity.isImageTrackAvailable) {
+                previewImage.visibility = View.VISIBLE
+                var positionInPercentage = 0
 
-            player?.let {
-                positionInPercentage = Math.round((position * PROGRESS_BAR_MAX / it.duration).toFloat())
-            }
+                player?.let {
+                    positionInPercentage = Math.round((position * PROGRESS_BAR_MAX / it.duration).toFloat())
+                }
 
-            // positionInPercentage.toFloat() - Gives seek percent
-            // seekBar?.width - SeekBar width which changes based on device width
-            // leftMargin - Gives the margin from left of the screen
-            val leftMargin: Float = (seekBar.width.times(positionInPercentage.toFloat())).div(slicesCount ?: 100)
+                // positionInPercentage.toFloat() - Gives seek percent
+                // seekBar?.width - SeekBar width which changes based on device width
+                // leftMargin - Gives the margin from left of the screen
+                val leftMargin: Float = (seekBar.width.times(positionInPercentage.toFloat())).div(slicesCount
+                        ?: 100)
 
-            // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
-            if (leftMargin < (seekBar.width + (4 * tvCurTime.paddingLeft) - (previewImageWidth ?: 90) - tvCurTime.width)) {
-                previewImage.translationX = leftMargin
-            }
+                // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
+                if (leftMargin < (seekBar.width + (4 * tvCurTime.paddingLeft) - (previewImageWidth
+                                ?: 90) - tvCurTime.width)) {
+                    previewImage.translationX = leftMargin
+                }
 
-            val thumbnailInfo: ThumbnailInfo? = player?.getThumbnailInfo(position)
-            val isLiveMedia: Boolean = player?.isLive!!
+                val thumbnailInfo: ThumbnailInfo? = player?.getThumbnailInfo(position)
+                val isLiveMedia: Boolean = player?.isLive!!
 
-            thumbnailInfo?.let {
-                val croppedRect: RectF? = getExtractedRectangle(it)
-                val imageKey: String = currentlyPlayingMediaImageKey.plus(croppedRect?.toString())
-                val previewBitmap: Bitmap? = previewImageHashMap[imageKey]
-                if (previewBitmap != null && !isLiveMedia) {
-                    log.d("Image picked from Hashmap")
-                    previewImage.setImageBitmap(previewBitmap)
-                } else {
-                    if (!useOneshotSpriteDownloadPattern) {
-                        log.d("Image picked from Service")
-                        downloadSpriteImageCoroutine?.let { downloadImage ->
-                            val receivedBitmap: Future<Bitmap?>? = downloadImage.downloadSpriteCoroutine(it, currentlyPlayingMediaImageKey!!, isLiveMedia)
-                            receivedBitmap?.let { bitmap ->
-                                previewImage.setImageBitmap(bitmap.get())
+                thumbnailInfo?.let {
+                    val croppedRect: RectF? = getExtractedRectangle(it)
+                    val imageKey: String = it.url.plus(croppedRect)
+                    val previewBitmap: Bitmap? = previewImageHashMap[imageKey]
+                    if (previewBitmap != null && !isLiveMedia) {
+                        log.d("Image picked from Hashmap")
+                        previewImage.setImageBitmap(previewBitmap)
+                    } else {
+                        if (!useOneshotSpriteDownloadPattern) {
+                            log.d("Image picked from Service")
+                            downloadSpriteImageCoroutine?.let { downloadImage ->
+                                val receivedFuture: Future<Bitmap?>? = downloadImage.downloadSpriteCoroutine(it, isLiveMedia)
+                                receivedFuture?.let { future ->
+                                    future?.let { bitmap ->
+                                        previewImage.setImageBitmap(bitmap.get())
+                                    }
+                                }
                             }
                         }
                     }

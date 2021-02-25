@@ -8,6 +8,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
@@ -30,6 +31,7 @@ import kotlin.collections.HashMap
 
 
 class MainActivity : AppCompatActivity() {
+
     companion object {
         //Media entry configuration constants.
         val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
@@ -38,8 +40,8 @@ class MainActivity : AppCompatActivity() {
         var previewImageHashMap: HashMap<String, Bitmap> = HashMap()
         var previewImageWidth: Int? = null
         var slicesCount: Int? = null
-        var currentlyPlayingMediaImageKey: String? = null
         val useOneshotSpriteDownloadPattern: Boolean = false
+        var isImageTrackAvailable: Boolean = false
 
         fun getExtractedRectangle(thumbnailInfo: ThumbnailInfo?): RectF? {
             thumbnailInfo?.let {
@@ -55,7 +57,6 @@ class MainActivity : AppCompatActivity() {
             previewFromSprite?.terminateService()
         }
     }
-
 
     /**** Basic Player Config Start*****/
 
@@ -99,9 +100,9 @@ class MainActivity : AppCompatActivity() {
     private var playerState: PlayerState? = null
     private var adCuePoints: AdCuePoints? = null
     private var isAdEnabled: Boolean = false
-    private var buildUsingBasicPlayer = true
-    private var previewImageHeight: Int? = null
     private var downloadSpriteImageCoroutine: GetPreviewFromSprite? = null
+
+    private var buildUsingBasicPlayer = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -156,9 +157,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun clearResources() {
         previewImageHashMap.clear()
-        currentlyPlayingMediaImageKey = null
+        isImageTrackAvailable = false
         slicesCount = null
         previewImageWidth = null
+        log.d("Cleared Resources")
+    }
+
+    private fun clearGlideDiskCache() {
+        Thread {
+            Runnable {
+                Glide.get(this).clearDiskCache()
+                log.d("Cleared Glide Disk Cache")
+            }
+        }.start()
     }
 
     private fun hideSystemUI() {
@@ -190,7 +201,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun downloadPreviewImage(thumbnailInfo: ThumbnailInfo?) {
         thumbnailInfo?.let {
-            downloadSpriteImageCoroutine?.downloadSpriteCoroutine(thumbnailInfo, currentlyPlayingMediaImageKey!!, false)
+            downloadSpriteImageCoroutine?.downloadSpriteCoroutine(thumbnailInfo, false)
         }
     }
 
@@ -210,6 +221,7 @@ class MainActivity : AppCompatActivity() {
 
         player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             if (!event.tracksInfo.getImageTracks().isEmpty() && !player?.isLive()!!) {
+                isImageTrackAvailable = true
                 slicesCount = player?.vodThumbnailInfo?.imageRangeThumbnailMap?.size
                 if (useOneshotSpriteDownloadPattern) {
                     player?.let {
@@ -220,7 +232,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         player?.addListener(this, PlayerEvent.imageTrackChanged) { event ->
-            currentlyPlayingMediaImageKey = event.newTrack.label
+            if (isImageTrackAvailable) {
+                event?.let {
+                    previewImageWidth = Math.floor((it.newTrack.width / it.newTrack.tilesHorizontal).toDouble()).toInt()
+                }
+            }
         }
     }
 
@@ -258,9 +274,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     public override fun onDestroy() {
-        terminateThreadPoolExecutor(downloadSpriteImageCoroutine)
-        playerControls?.terminateThreadPool()
-        clearResources()
+        if (isImageTrackAvailable) {
+            terminateThreadPoolExecutor(downloadSpriteImageCoroutine)
+            playerControls?.terminateThreadPool()
+            clearResources()
+            Glide.get(this).clearMemory()
+            clearGlideDiskCache()
+        }
         if (player != null) {
             player?.removeListeners(this)
             player?.destroy()
@@ -517,8 +537,6 @@ class MainActivity : AppCompatActivity() {
         //Set id for the entry.
         mediaEntry.id = FIRST_ENTRY_ID
 
-        currentlyPlayingMediaImageKey = FIRST_ENTRY_ID
-
         //Set media entry type. It could be Live,Vod or Unknown.
         //For now we will use Unknown.
         mediaEntry.mediaType = PKMediaEntry.MediaEntryType.Vod
@@ -548,8 +566,6 @@ class MainActivity : AppCompatActivity() {
 
         //Set id for the entry.
         mediaEntry.id = SECOND_ENTRY_ID
-
-        currentlyPlayingMediaImageKey = SECOND_ENTRY_ID
 
         //Set media entry type. It could be Live,Vod or Unknown.
         //For now we will use Unknown.
@@ -588,7 +604,7 @@ class MainActivity : AppCompatActivity() {
         mediaSource.url = FIRST_SOURCE_URL
 
         //Set the format of the source. In our case it will be hls.
-        mediaSource.mediaFormat = PKMediaFormat.dash
+        mediaSource.mediaFormat = MEDIA_FORMAT
 
         //Add media source to the list.
         mediaSources.add(mediaSource)
@@ -615,7 +631,7 @@ class MainActivity : AppCompatActivity() {
         mediaSource.url = SECOND_SOURCE_URL
 
         //Set the format of the source. In our case it will be hls.
-        mediaSource.mediaFormat = PKMediaFormat.dash
+        mediaSource.mediaFormat = MEDIA_FORMAT
 
         //Add media source to the list.
         mediaSources.add(mediaSource)
