@@ -222,10 +222,10 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             if (!event.tracksInfo.getImageTracks().isEmpty() && !player?.isLive()!!) {
                 isImageTrackAvailable = true
-                slicesCount = player?.vodThumbnailInfo?.imageRangeThumbnailMap?.size
+                slicesCount = player?.thumbnailVodInfo?.imageRangeThumbnailMap?.size
                 if (useOneshotSpriteDownloadPattern) {
                     player?.let {
-                        extractTileImagesFromSprite(it.vodThumbnailInfo.imageRangeThumbnailMap)
+                        extractTileImagesFromSprite(it.thumbnailVodInfo.imageRangeThumbnailMap)
                     }
                 }
             }
