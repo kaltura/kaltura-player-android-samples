@@ -320,6 +320,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
     }
 
     fun release() {
+        MainActivity.terminateThreadPoolExecutor(downloadSpriteImageCoroutine)
         removeCallbacks(updateProgressAction)
     }
 

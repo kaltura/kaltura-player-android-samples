@@ -50,6 +50,12 @@ class MainActivity : AppCompatActivity() {
             }
             return null
         }
+
+        fun terminateThreadPoolExecutor(previewFromSprite: GetPreviewFromSprite?) {
+            previewFromSprite?.let {
+                it.terminateService()
+            }
+        }
     }
 
     //Basic Player Config
@@ -79,7 +85,7 @@ class MainActivity : AppCompatActivity() {
     private var isAdEnabled: Boolean = false
     private var buildUsingBasicPlayer = true
     private var previewImageHeight: Int? = null
-    private lateinit var downloadSpriteImageCoroutine: GetPreviewFromSprite
+    private var downloadSpriteImageCoroutine: GetPreviewFromSprite? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -165,7 +171,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun downloadPreviewImage(thumbnailInfo: ThumbnailInfo?) {
         thumbnailInfo?.let {
-            downloadSpriteImageCoroutine.downloadSpriteCoroutine(thumbnailInfo, currentlyPlayingMediaImageKey!!)
+            downloadSpriteImageCoroutine?.downloadSpriteCoroutine(thumbnailInfo, currentlyPlayingMediaImageKey!!)
         }
     }
 
@@ -215,7 +221,7 @@ class MainActivity : AppCompatActivity() {
             playerControls?.release()
         }
 
-        downloadSpriteImageCoroutine.terminateService()
+        terminateThreadPoolExecutor(downloadSpriteImageCoroutine)
 
         player?.onApplicationPaused()
     }
