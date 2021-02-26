@@ -23,7 +23,6 @@ import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.ge
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.previewImageHashMap
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.previewImageWidth
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.slicesCount
-import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.useOneshotSpriteDownloadPattern
 import com.kaltura.playkit.samples.dashthumbnailsample.preview.GetPreviewFromSprite
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
@@ -72,9 +71,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         formatter = Formatter(formatBuilder, Locale.getDefault())
         componentListener = ComponentListener()
         initPlaybackControls()
-        if (!useOneshotSpriteDownloadPattern) {
-            downloadSpriteImageCoroutine = GetPreviewFromSprite(this.ctx)
-        }
+        downloadSpriteImageCoroutine = GetPreviewFromSprite(this.ctx)
     }
 
     private fun initPlaybackControls() {
@@ -201,14 +198,12 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
                         log.d("Image picked from Hashmap")
                         previewImage.setImageBitmap(previewBitmap)
                     } else {
-                        if (!useOneshotSpriteDownloadPattern) {
-                            log.d("Image picked from Service")
-                            downloadSpriteImageCoroutine?.let { downloadImage ->
-                                val receivedFuture: Future<Bitmap?>? = downloadImage.downloadSpriteCoroutine(it, isLiveMedia)
-                                receivedFuture?.let { future ->
-                                    future?.let { bitmap ->
-                                        previewImage.setImageBitmap(bitmap.get())
-                                    }
+                        log.d("Image picked from Service")
+                        downloadSpriteImageCoroutine?.let { downloadImage ->
+                            val receivedFuture: Future<Bitmap?>? = downloadImage.downloadSpriteCoroutine(it, isLiveMedia)
+                            receivedFuture?.let { future ->
+                                future?.let { bitmap ->
+                                    previewImage.setImageBitmap(bitmap.get())
                                 }
                             }
                         }

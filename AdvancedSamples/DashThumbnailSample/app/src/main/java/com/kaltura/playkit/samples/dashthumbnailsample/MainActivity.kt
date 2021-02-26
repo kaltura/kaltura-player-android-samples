@@ -39,8 +39,7 @@ class MainActivity : AppCompatActivity() {
         val log = PKLog.get("MainActivity")
         var previewImageHashMap: HashMap<String, Bitmap> = HashMap()
         var previewImageWidth: Int? = null
-        var slicesCount: Int? = null
-        val useOneshotSpriteDownloadPattern: Boolean = false
+        var slicesCount: Int? = 100
         var isImageTrackAvailable: Boolean = false
 
         fun getExtractedRectangle(thumbnailInfo: ThumbnailInfo?): RectF? {
@@ -100,17 +99,12 @@ class MainActivity : AppCompatActivity() {
     private var playerState: PlayerState? = null
     private var adCuePoints: AdCuePoints? = null
     private var isAdEnabled: Boolean = false
-    private var downloadSpriteImageCoroutine: GetPreviewFromSprite? = null
 
-    private var buildUsingBasicPlayer = false
+    private var buildUsingBasicPlayer = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        if (useOneshotSpriteDownloadPattern) {
-            downloadSpriteImageCoroutine = GetPreviewFromSprite(this)
-        }
 
         if (buildUsingBasicPlayer) {
             val mediaEntry = createFirstMediaEntry()
@@ -158,7 +152,6 @@ class MainActivity : AppCompatActivity() {
     private fun clearResources() {
         previewImageHashMap.clear()
         isImageTrackAvailable = false
-        slicesCount = null
         previewImageWidth = null
         log.d("Cleared Resources")
     }
@@ -199,12 +192,6 @@ class MainActivity : AppCompatActivity() {
         isFullScreen = false
     }
 
-    private fun downloadPreviewImage(thumbnailInfo: ThumbnailInfo?) {
-        thumbnailInfo?.let {
-            downloadSpriteImageCoroutine?.downloadSpriteCoroutine(thumbnailInfo, false)
-        }
-    }
-
     private fun addPlayerStateListener() {
         player?.addListener(this, PlayerEvent.stateChanged) { event ->
             log.d("State changed from " + event.oldState + " to " + event.newState)
@@ -220,14 +207,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
-            if (!event.tracksInfo.getImageTracks().isEmpty() && !player?.isLive()!!) {
+            if (!event.tracksInfo.getImageTracks().isEmpty()) {
                 isImageTrackAvailable = true
-                slicesCount = player?.thumbnailVodInfo?.imageRangeThumbnailMap?.size
-                if (useOneshotSpriteDownloadPattern) {
-                    player?.let {
-                        extractTileImagesFromSprite(it.thumbnailVodInfo.imageRangeThumbnailMap)
-                    }
-                }
+                //slicesCount = player?.thumbnailVodInfo?.imageRangeThumbnailMap?.size
             }
         }
 
@@ -236,14 +218,6 @@ class MainActivity : AppCompatActivity() {
                 event?.let {
                     previewImageWidth = Math.floor((it.newTrack.width / it.newTrack.tilesHorizontal).toDouble()).toInt()
                 }
-            }
-        }
-    }
-
-    private fun extractTileImagesFromSprite(imageRangeThumbnailMap: Map<ImageRangeInfo, ThumbnailInfo>?) {
-        imageRangeThumbnailMap?.let {
-            for ((imageRangeInfo, thumbnailInfo) in imageRangeThumbnailMap) {
-                downloadPreviewImage(thumbnailInfo)
             }
         }
     }
@@ -275,7 +249,6 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onDestroy() {
         if (isImageTrackAvailable) {
-            terminateThreadPoolExecutor(downloadSpriteImageCoroutine)
             playerControls?.terminateThreadPool()
             clearResources()
             Glide.get(this).clearMemory()
