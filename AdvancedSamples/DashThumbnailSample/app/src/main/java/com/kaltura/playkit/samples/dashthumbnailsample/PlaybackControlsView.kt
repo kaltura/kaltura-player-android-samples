@@ -87,6 +87,8 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         btnRewind.visibility = View.GONE
         btnNext = this.findViewById(R.id.kexo_next)
         btnPrevious = this.findViewById(R.id.kexo_prev)
+        btnNext.visibility = View.GONE
+        btnPrevious.visibility = View.GONE
         btnRepeatToggle = this.findViewById(R.id.kexo_repeat_toggle)
         btnRepeatToggle.visibility = View.GONE
         btnShuffle = this.findViewById(R.id.kexo_shuffle)
@@ -99,8 +101,8 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         btnPause.setOnClickListener(this)
         btnFastForward.setOnClickListener(this)
         btnRewind.setOnClickListener(this)
-        btnNext.setOnClickListener(this)
-        btnPrevious.setOnClickListener(this)
+        //btnNext.setOnClickListener(this)
+        //btnPrevious.setOnClickListener(this)
 
         seekBar = this.findViewById(R.id.kexo_progress)
         seekBar.setPlayedColor(resources.getColor(R.color.colorAccent))

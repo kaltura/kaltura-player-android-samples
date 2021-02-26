@@ -35,15 +35,6 @@
         android:layout_margin="@dimen/activity_horizontal_margin"
         app:layout_constraintTop_toBottomOf="@id/guideline2"/>
 
-    <TextView
-        android:id="@+id/previewDownloadStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="@string/preview"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        app:layout_constraintTop_toTopOf="@id/btnChangeMedia"/>
-
     <com.kaltura.playkit.samples.dashthumbnailsample.PlaybackControlsView
         android:id="@+id/playerControls"
         android:layout_width="match_parent"
