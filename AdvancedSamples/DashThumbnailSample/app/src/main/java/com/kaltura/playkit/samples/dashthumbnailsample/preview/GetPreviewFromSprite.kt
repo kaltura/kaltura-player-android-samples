@@ -25,8 +25,14 @@ import java.util.concurrent.Future
 class GetPreviewFromSprite(var context: Context) {
 
     private val log = PKLog.get("GetPreviewFromSprite")
+    // Service to get thumbnail bitmaps
     private val imageThreadPoolExecutor: ExecutorService = Executors.newFixedThreadPool(10)
 
+    /**
+     * Method to be called from app
+     * ThumbnailInfo: Metadata for the image
+     * isLiveMedia: Set to true if the current media is Live
+     */
     fun downloadSpriteCoroutine(thumbnailInfo: ThumbnailInfo, isLiveMedia: Boolean): Future<Bitmap?>? {
         val addImageExtractionProcessToPool = AddImageExtractionProcessToPool(thumbnailInfo, context, isLiveMedia)
         return imageThreadPoolExecutor.submit(addImageExtractionProcessToPool)
@@ -37,6 +43,12 @@ class GetPreviewFromSprite(var context: Context) {
         log.d("Service Terminated")
     }
 
+    /**
+     * Class to do heavy duty task
+     * To download the Thumbnail Bitmap
+     * Post download, doing the image processing (Cropping the image from the Sprite Thumbnail: ONLY for VOD)
+     * For Live content: For each seek, an individual image or thumbnail will come
+     */
     private class AddImageExtractionProcessToPool(val thumbnailInfo: ThumbnailInfo?, var context: Context, var isLiveMedia: Boolean): Callable<Bitmap?> {
 
         private val log = PKLog.get("ImageProcessing")
@@ -71,6 +83,9 @@ class GetPreviewFromSprite(var context: Context) {
             return framesFromImageStream(inputStream, thumbnailInfo, isLiveMedia)
         }
 
+        /**
+         * Convert Bitmap to InputStream; required for BitmapRegionDecoder
+         */
         private fun convertBitmapToStream(bitmap: Bitmap?) : InputStream {
             val byteOutputStream = ByteArrayOutputStream()
             bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, byteOutputStream)
@@ -78,6 +93,10 @@ class GetPreviewFromSprite(var context: Context) {
             return ByteArrayInputStream(bitmapData)
         }
 
+        /**
+         * Gets the Bitmap's inputstream and based on the Thumbnail info
+         * extracts the rectangle Tile/Frame
+         */
         private fun framesFromImageStream(inputStream: InputStream?, thumbnailInfo: ThumbnailInfo, isLiveMedia: Boolean): Bitmap? {
             val options = BitmapFactory.Options()
             options.inPreferredConfig = Bitmap.Config.RGB_565
@@ -95,6 +114,7 @@ class GetPreviewFromSprite(var context: Context) {
             }
 
             if (!isLiveMedia) {
+                // Saving Bitmap to Hashmap
                 MainActivity.previewImageHashMap[thumbnailInfo.url.plus(cropRect?.toString())] = extractedImageBitmap
             }
 

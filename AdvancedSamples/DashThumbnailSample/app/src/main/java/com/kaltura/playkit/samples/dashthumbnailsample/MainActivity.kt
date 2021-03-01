@@ -81,24 +81,28 @@ class MainActivity : AppCompatActivity() {
 
     /**** Basic Player Config End*****/
 
+    // If you want to use OTT player which will get media source from our BE
+    // then keep this flag false
+    private var buildUsingBasicPlayer = true
+
+    /**** OTT Player Config Start ******/
     private val MEDIA_FORMAT = PKMediaFormat.dash
     private val LICENSE_URL = null
 
     private val START_POSITION = 0L // position for start playback in msec.
     private val FIRST_ASSET_ID = "548576"
     private val SECOND_ASSET_ID = "548577"
+    /**** OTT Player Config End ****/
 
-    //Ad configuration constants.
+    //Ad configuration constants. Ads are only enabled with OTT Player
     private var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
     private var preMidPostAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostpodbumper&cmsid=496&vid=short_onecue&correlator="
+    private var isAdEnabled: Boolean = false
 
     private var player: KalturaPlayer? = null
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
     private var adCuePoints: AdCuePoints? = null
-    private var isAdEnabled: Boolean = false
-
-    private var buildUsingBasicPlayer = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -147,6 +151,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Clear the resources for on Change Media and
+     * in onDestroy
+     */
     private fun clearResources() {
         previewImageHashMap.clear()
         isImageTrackAvailable = false
@@ -255,6 +263,9 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    /**
+     * Loading Kaltura OTT Player
+     */
     fun loadPlaykitPlayer() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
@@ -457,6 +468,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Load Basic Kaltura Player
+     */
     fun loadPlaykitPlayer(pkMediaEntry: PKMediaEntry) {
         val playerInitOptions = PlayerInitOptions()
 
