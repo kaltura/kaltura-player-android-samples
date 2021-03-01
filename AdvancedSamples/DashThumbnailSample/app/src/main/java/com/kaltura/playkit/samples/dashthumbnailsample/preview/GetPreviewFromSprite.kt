@@ -59,7 +59,7 @@ class GetPreviewFromSprite(var context: Context) {
                     log.d("Bitmap Received = ${fetchedBitmap}  Thread Name = ${Thread.currentThread().name}")
                     extractedBitmap = convertBitmapAndExtractTile(fetchedBitmap, it, isLiveMedia)
                 } catch (exception: GlideException) {
-                    log.d("GlideException = ${exception.logRootCauses("Gourav")}")
+                    log.d("GlideException = ${exception.logRootCauses("GetPreviewFromSprite")}")
                     return extractedBitmap
                 }
             }

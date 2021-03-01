@@ -22,7 +22,6 @@ import com.kaltura.playkit.player.thumbnail.ThumbnailInfo
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.getExtractedRectangle
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.previewImageHashMap
 import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.previewImageWidth
-import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity.Companion.slicesCount
 import com.kaltura.playkit.samples.dashthumbnailsample.preview.GetPreviewFromSprite
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
@@ -178,8 +177,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
                 // positionInPercentage.toFloat() - Gives seek percent
                 // seekBar?.width - SeekBar width which changes based on device width
                 // leftMargin - Gives the margin from left of the screen
-                val leftMargin: Float = (seekBar.width.times(positionInPercentage.toFloat())).div(slicesCount
-                        ?: 100)
+                val leftMargin: Float = (seekBar.width.times(positionInPercentage.toFloat())).div(100)
 
                 // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
                 if (leftMargin < (seekBar.width + (4 * tvCurTime.paddingLeft) - (previewImageWidth

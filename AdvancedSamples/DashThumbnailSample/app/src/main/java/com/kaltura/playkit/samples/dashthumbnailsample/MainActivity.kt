@@ -12,7 +12,6 @@ import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
-import com.kaltura.playkit.player.thumbnail.ImageRangeInfo
 import com.kaltura.playkit.player.thumbnail.ThumbnailInfo
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
@@ -39,7 +38,6 @@ class MainActivity : AppCompatActivity() {
         val log = PKLog.get("MainActivity")
         var previewImageHashMap: HashMap<String, Bitmap> = HashMap()
         var previewImageWidth: Int? = null
-        var slicesCount: Int? = 100
         var isImageTrackAvailable: Boolean = false
 
         fun getExtractedRectangle(thumbnailInfo: ThumbnailInfo?): RectF? {
@@ -202,14 +200,9 @@ class MainActivity : AppCompatActivity() {
             log.d("player ERROR " + event.error.message)
         }
 
-        player?.addListener(this, PlayerEvent.imageTrackChanged) { event ->
-            log.d("imageTemplateUrl " + event.newTrack.imageTemplateUrl)
-        }
-
         player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             if (!event.tracksInfo.getImageTracks().isEmpty()) {
                 isImageTrackAvailable = true
-                //slicesCount = player?.thumbnailVodInfo?.imageRangeThumbnailMap?.size
             }
         }
 
