@@ -157,14 +157,18 @@ class PlayerActivity: AppCompatActivity(), Observer {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_activity_player, menu)
         liveInfoMenuItem = menu.findItem(R.id.menu_live_info)
-        liveInfoMenuItem?.setVisible(false)
+        liveInfoMenuItem?.setVisible(true)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_live_info -> {
-                playbackControlsManager?.liveInfoMenuClick()
+                if (pkLowLatencyConfig != null) {
+                    playbackControlsManager?.liveInfoMenuClick()
+                } else {
+                    Toast.makeText(this, "Info is available only for Low Latency configuration.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
         return super.onOptionsItemSelected(item)
@@ -345,8 +349,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //        }
         mediaList = appPlayerInitConfig.mediaList
 
-        // Low Latency Test; don't uncomment it because config will come from json
-        // appPlayerInitConfig.pkLowLatencyConfig = PKLowLatencyConfig().setTargetOffsetMs(15000L).setMaxOffsetMs(12000L).setMaxPlaybackSpeed(1.5f)
+        // For Low Latency Test; don't uncomment it because config will come from json
+        //appPlayerInitConfig.pkLowLatencyConfig = PKLowLatencyConfig().setTargetOffsetMs(15000L).setMaxOffsetMs(12000L).setMaxPlaybackSpeed(1.5f)
 
         appPlayerInitConfig.pkLowLatencyConfig?.let {
             pkLowLatencyConfig = it
