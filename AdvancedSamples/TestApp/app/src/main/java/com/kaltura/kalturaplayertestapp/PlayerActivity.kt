@@ -3,6 +3,7 @@ package com.kaltura.kalturaplayertestapp
 import AppOVPMediaOptions
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
@@ -97,6 +98,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var searchView: SearchView? = null
     private var tracksSelectionController: TracksSelectionController? = null
     private var appPlayerInitConfig: PlayerConfig? = null
+    private var updateParams: UpdateParams? = null
     private var currentPlayedMediaIndex = 0
     private var playbackControlsView: PlaybackControlsView? = null
     private var adCuePoints: AdCuePoints? = null
@@ -131,12 +133,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
         appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig::class.java)
 
         appPlayerInitConfig?.let {
-            if (appPlayerInitConfig?.requestConfiguration != null) {
-                APIOkRequestsExecutor.getSingleton().requestConfiguration = appPlayerInitConfig?.requestConfiguration
+            if (it.requestConfiguration != null) {
+                APIOkRequestsExecutor.getSingleton().requestConfiguration = it.requestConfiguration
                 APIOkRequestsExecutor.getSingleton().setNetworkErrorEventListener { errorElement -> log.d("XXX NetworkError code = " + errorElement.code + " " + errorElement.message) }
             }
 
-            val playerType = appPlayerInitConfig?.playerType
+            this.updateParams = it.updateParams
+
+            val playerType = it.playerType
             when {
                 KalturaPlayer.Type.basic == playerType -> {
                     buildPlayer(it, currentPlayedMediaIndex, playerType)
@@ -150,6 +154,43 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         } ?: run {
             showMessage(R.string.error_empty_input)
+        }
+
+        checkUpdateParamsAndShowSnackbar()
+    }
+
+    /**
+     * Checks the updatable prameters in JSON
+     */
+    fun checkUpdateParamsAndShowSnackbar() {
+        updateParams?.let { params ->
+            params.timerForSnackbar?.let { delay ->
+                Timer().schedule(object: TimerTask() {
+                    override fun run() {
+                        var snackbar: Snackbar? = null
+
+                        if (params.isUpdateABRSettings != null && params.isUpdateABRSettings!!) {
+                            snackbar = Snackbar.make(findViewById(android.R.id.content), "UpdateABRSettings", Snackbar.LENGTH_INDEFINITE)
+                            snackbar.setAction("Update") {
+                                player?.let { player ->
+                                    params.updatedABRSettings?.let { updatedABR ->
+                                        player.updateABRSettings(updatedABR)
+                                    }
+                                }
+                            }
+                        } else if (params.isResetABRSettings != null && params.isResetABRSettings!!) {
+                            snackbar = Snackbar.make(findViewById(android.R.id.content), "ResetABRSettings", Snackbar.LENGTH_INDEFINITE)
+                            snackbar.setAction("Reset") {
+                                player?.resetABRSettings()
+                            }
+                        }
+                        snackbar?.let {
+                            it.setActionTextColor(Color.YELLOW)
+                            it.show()
+                        }
+                    }
+                }, delay)
+            }
         }
     }
 
@@ -1592,7 +1633,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         playbackControlsView?.setVisibility(View.INVISIBLE)
         playbackControlsView?.seekBar?.setPlayedColor(resources.getColor(R.color.colorAccent))
         playbackControlsView?.seekBar?.setBufferedColor(resources.getColor(R.color.greyPrimary))
-        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_30))
+        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_60))
         playbackControlsView?.seekBar?.setScrubberColor(resources.getColor(R.color.colorAccent))
 
         container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
