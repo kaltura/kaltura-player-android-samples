@@ -30,7 +30,6 @@ import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController
 import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor
 import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
-import com.kaltura.playkit.PKMediaEntry.MediaEntryType
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.playkit.player.PKLowLatencyConfig
@@ -103,7 +102,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var playbackControlsManager: PlaybackControlsManager? = null
     private var isFirstOnResume = true
     private var isPlayingOnPause: Boolean = false
-    private var liveInfoMenuItem: MenuItem? = null
     var pkLowLatencyConfig: PKLowLatencyConfig? = null
 
     private var networkChangeReceiver: NetworkChangeReceiver? = null
@@ -154,26 +152,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_activity_player, menu)
-        liveInfoMenuItem = menu.findItem(R.id.menu_live_info)
-        liveInfoMenuItem?.setVisible(true)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_live_info -> {
-                if (pkLowLatencyConfig != null) {
-                    playbackControlsManager?.liveInfoMenuClick()
-                } else {
-                    Toast.makeText(this, "Info is available only for Low Latency configuration.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     fun playNext() {
         //playbackControlsManager?.setAdPlayerState(null)
         //playbackControlsManager?.setContentPlayerState(null)
@@ -195,7 +173,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             }
         }
-
     }
 
     fun playPrev() {
@@ -271,7 +248,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     mediaEntry?.externalSubtitleList = it.get(currentPlayedMediaIndex).externalSubtitles
                 }
                 player?.setMedia(mediaEntry, 0L)
-                showLiveInfoMenuItem(mediaEntry)
             } else {
                 log.e("Error no such player type <" + appPlayerInitConfig?.playerType + ">")
             }
@@ -289,7 +265,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (!initOptions.autoplay) {
                 playbackControlsManager?.showControls(View.VISIBLE)
             }
-            showLiveInfoMenuItem(mediaEntry)
         }
     }
 
@@ -440,7 +415,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     } else {
                         log.d("OVPMedia onEntryLoadComplete entry =" + entry.getId())
                     }
-                    showLiveInfoMenuItem(entry)
                 }
             } else {
                 // PLAYLIST
@@ -483,7 +457,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     } else {
                         log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId())
                     }
-                    showLiveInfoMenuItem(entry)
                 }
             } else {
                 // PLAYLIST
@@ -502,7 +475,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 // PLAYLIST
                 handleBasicPlayerPlaylist(appPlayerInitConfig, player)
             }
-            showLiveInfoMenuItem(mediaEntry)
         } else {
             log.e("Failed to initialize player...")
             return
@@ -1776,17 +1748,5 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         return displayMetrics.heightPixels
-    }
-
-    private fun showLiveInfoMenuItem(mediaEntry: PKMediaEntry?) {
-        liveInfoMenuItem?.let { menuItem ->
-            mediaEntry?.let {
-                if (it.mediaType == MediaEntryType.Live && pkLowLatencyConfig != null) {
-                    menuItem.setVisible(true)
-                } else {
-                    menuItem.setVisible(false)
-                }
-            }
-        }
     }
 }

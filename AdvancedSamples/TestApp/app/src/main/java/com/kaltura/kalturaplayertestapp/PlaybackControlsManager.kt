@@ -120,7 +120,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         lowLatencyHandler.postDelayed(lowLatencyRunnable, LOW_LATENCY_HANDLER_TIMER.toLong())
     }
 
-    public fun removeLiveInfoHandler() {
+    fun removeLiveInfoHandler() {
         lowLatencyHandler.removeCallbacks(lowLatencyRunnable)
     }
 
@@ -148,9 +148,12 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             return
         }
         if (isAdDisplayed && FBInstreamPlugin.factory.getName().equals(adPluginName)) {
-            showControls(View.INVISIBLE);
+            showControls(View.INVISIBLE)
         } else {
-            showControls(View.VISIBLE);
+            showControls(View.VISIBLE)
+        }
+        playerActivity.pkLowLatencyConfig?.let {
+            liveInfoMenuClick()
         }
         hideButtonsHandler.removeCallbacks(hideButtonsRunnable)
         hideButtonsHandler.postDelayed(hideButtonsRunnable, REMOVE_CONTROLS_TIMEOUT.toLong())
