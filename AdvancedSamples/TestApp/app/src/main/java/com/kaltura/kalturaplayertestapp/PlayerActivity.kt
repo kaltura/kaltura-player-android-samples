@@ -164,7 +164,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     fun checkUpdateParamsAndShowSnackbar() {
         updateParams?.let { params ->
             params.timerForSnackbar?.let { delay ->
-                Timer().schedule(object: TimerTask() {
+                Timer().schedule(object : TimerTask() {
                     override fun run() {
                         var snackbar: Snackbar? = null
 
