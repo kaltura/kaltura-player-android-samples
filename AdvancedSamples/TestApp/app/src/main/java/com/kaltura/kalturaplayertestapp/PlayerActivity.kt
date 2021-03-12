@@ -273,7 +273,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         entryId = entry.getId()
                     }
                     log.d("OVPMedia onEntryLoadComplete; $entryId; $error")
-                    handleOnEntryLoadComplete(error, entry)
+                    handleOnEntryLoadComplete(error)
                 }
             } else if (KalturaPlayer.Type.ott == appPlayerInitConfig?.playerType) {
                 val ottMediaOptions = buildOttMediaOptions(0L, currentPlayedMediaIndex) ?: return
@@ -284,7 +284,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         entryId = entry.getId()
                     }
                     log.d("OTTMedia onEntryLoadComplete; $entryId ; $error")
-                    handleOnEntryLoadComplete(error, entry)
+                    handleOnEntryLoadComplete(error)
                 }
             } else if (KalturaPlayer.Type.basic == appPlayerInitConfig?.playerType) run {
                 val mediaEntry = it.get(currentPlayedMediaIndex).pkMediaEntry
@@ -303,7 +303,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
     }
 
-    private fun handleOnEntryLoadComplete(error: ErrorElement?, mediaEntry: PKMediaEntry) {
+    private fun handleOnEntryLoadComplete(error: ErrorElement?) {
         if (error != null) {
             log.d("Load Error Extra = " + error.extra)
             Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()

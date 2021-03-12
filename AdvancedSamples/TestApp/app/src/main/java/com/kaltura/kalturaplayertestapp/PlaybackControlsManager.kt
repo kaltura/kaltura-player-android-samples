@@ -1,6 +1,5 @@
 package com.kaltura.kalturaplayertestapp
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
