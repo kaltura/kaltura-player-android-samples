@@ -43,18 +43,20 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     private var adPluginName: String? = null
     val lowLatencyHandler = Handler(Looper.getMainLooper())
 
-    @SuppressLint("SetTextI18n")
     val lowLatencyRunnable = object : Runnable {
         override fun run() {
             player?.let {
                 if (it.isPlaying) {
                     playerActivity.pkLowLatencyConfig?.let { pkLowLatencyConfig ->
-                        liveInfoText.text = "Live Offset: ${validateConfigParams(it.currentLiveOffset)}" + "\n" +
-                                "targetOffset: ${validateConfigParams(pkLowLatencyConfig.targetOffsetMs)} " + "\n" +
-                                "MinOffset: ${validateConfigParams(pkLowLatencyConfig.minOffsetMs)} " + "\n" +
-                                "MaxOffset: ${validateConfigParams(pkLowLatencyConfig.maxOffsetMs)} " + "\n" +
-                                "MinPlaybackSpeed: ${pkLowLatencyConfig.minPlaybackSpeed} " + "\n" +
-                                "MaxPlaybackSpeed: ${pkLowLatencyConfig.maxPlaybackSpeed} " + "\n"
+                        val liveInfoBuilder = StringBuffer()
+                        liveInfoBuilder.append("Live Offset: ${validateConfigParams(it.currentLiveOffset)}" + "\n")
+                        liveInfoBuilder.append("TargetOffset: ${validateConfigParams(pkLowLatencyConfig.targetOffsetMs)} " + "\n")
+                        liveInfoBuilder.append("MinOffset: ${validateConfigParams(pkLowLatencyConfig.minOffsetMs)} " + "\n")
+                        liveInfoBuilder.append("MaxOffset: ${validateConfigParams(pkLowLatencyConfig.maxOffsetMs)} " + "\n")
+                        liveInfoBuilder.append("MinPlaybackSpeed: ${pkLowLatencyConfig.minPlaybackSpeed} " + "\n")
+                        liveInfoBuilder.append("MaxPlaybackSpeed: ${pkLowLatencyConfig.maxPlaybackSpeed} " + "\n")
+
+                        liveInfoText.text = liveInfoBuilder.toString()
                     }
                 }
                 lowLatencyHandler.postDelayed(this, LOW_LATENCY_HANDLER_TIMER.toLong())
