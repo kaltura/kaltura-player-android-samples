@@ -44,6 +44,7 @@ class PlayerConfig {
     var contentRequestAdapter: PKRequestParams.Adapter? = null
     var licenseRequestAdapter: PKRequestParams.Adapter? = null
     var loadControlBuffers: LoadControlBuffers? = null
+    var updateParams: UpdateParams? = null
     var abrSettings: ABRSettings? = null
     var videoCodecSettings: VideoCodecSettings? = null
     var audioCodecSettings: AudioCodecSettings? = null
