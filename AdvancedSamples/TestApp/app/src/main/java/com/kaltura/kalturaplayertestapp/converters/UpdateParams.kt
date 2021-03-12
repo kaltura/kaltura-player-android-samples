@@ -1,6 +1,7 @@
 package com.kaltura.kalturaplayertestapp.converters
 
 import com.kaltura.playkit.player.ABRSettings
+import com.kaltura.playkit.player.PKLowLatencyConfig
 
 class UpdateParams {
 
@@ -12,5 +13,7 @@ class UpdateParams {
 
     var isResetABRSettings: Boolean? = null
 
-}
+    var isUpdatePkLowLatencyConfig: Boolean? = null
+    var updatePkLowLatencyConfig: PKLowLatencyConfig? = null
 
+}

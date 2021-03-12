@@ -5,7 +5,9 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController
 import com.kaltura.playkit.PKLog
@@ -33,9 +35,40 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     private val prevImgBtn: ImageView
     private val nextImgBtn: ImageView
 
+    private var liveInfoFrame: FrameLayout
+    private lateinit var liveInfoText: TextView
+
     private val vrToggle: ImageView
     private var adPluginName: String? = null
+    val lowLatencyHandler = Handler(Looper.getMainLooper())
 
+    val lowLatencyRunnable = object : Runnable {
+        override fun run() {
+            player?.let {
+                if (it.isPlaying) {
+                    playerActivity.pkLowLatencyConfig?.let { pkLowLatencyConfig ->
+                        val liveInfoBuilder = StringBuffer()
+                        liveInfoBuilder.append("Live Offset: ${validateConfigParams(it.currentLiveOffset)}" + "\n")
+                        liveInfoBuilder.append("TargetOffset: ${validateConfigParams(pkLowLatencyConfig.targetOffsetMs)} " + "\n")
+                        liveInfoBuilder.append("MinOffset: ${validateConfigParams(pkLowLatencyConfig.minOffsetMs)} " + "\n")
+                        liveInfoBuilder.append("MaxOffset: ${validateConfigParams(pkLowLatencyConfig.maxOffsetMs)} " + "\n")
+                        liveInfoBuilder.append("MinPlaybackSpeed: ${pkLowLatencyConfig.minPlaybackSpeed} " + "\n")
+                        liveInfoBuilder.append("MaxPlaybackSpeed: ${pkLowLatencyConfig.maxPlaybackSpeed} " + "\n")
+
+                        liveInfoText.text = liveInfoBuilder.toString()
+                    }
+                }
+                lowLatencyHandler.postDelayed(this, LOW_LATENCY_HANDLER_TIMER.toLong())
+            }
+        }
+    }
+
+    private fun validateConfigParams(value: Long) : String {
+        if (value == Consts.TIME_UNSET) {
+            return "TIME_UNSET"
+        }
+        return value.toString()
+    }
 
     var playerState: Enum<*>? = null
         private set
@@ -63,13 +96,33 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         this.shuffleBtn = playerActivity.findViewById(R.id.shuffle_btn)
         this.recoverOnErrorBtn = playerActivity.findViewById(R.id.recover_btn)
 
-
         this.prevImgBtn = playerActivity.findViewById(R.id.icon_play_prev)
         this.nextImgBtn = playerActivity.findViewById(R.id.icon_play_next)
+
+        liveInfoFrame = playerActivity.findViewById(R.id.live_info_frame)
+        liveInfoText = playerActivity.findViewById(R.id.live_info_txt)
 
         this.vrToggle = playerActivity.findViewById(R.id.vrtoggleButton)
         vrToggle.setOnClickListener { togglVRClick() }
         showControls(View.INVISIBLE)
+    }
+
+    fun liveInfoMenuClick() {
+        if (liveInfoFrame.visibility == View.GONE) {
+            liveInfoFrame.visibility = View.VISIBLE
+            startLiveInfoHandler()
+        } else {
+            liveInfoFrame.visibility = View.GONE
+            removeLiveInfoHandler()
+        }
+    }
+
+    private fun startLiveInfoHandler() {
+        lowLatencyHandler.postDelayed(lowLatencyRunnable, LOW_LATENCY_HANDLER_TIMER.toLong())
+    }
+
+    fun removeLiveInfoHandler() {
+        lowLatencyHandler.removeCallbacks(lowLatencyRunnable)
     }
 
     fun togglVRClick() {
@@ -96,9 +149,12 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             return
         }
         if (isAdDisplayed && FBInstreamPlugin.factory.getName().equals(adPluginName)) {
-            showControls(View.INVISIBLE);
+            showControls(View.INVISIBLE)
         } else {
-            showControls(View.VISIBLE);
+            showControls(View.VISIBLE)
+        }
+        playerActivity.pkLowLatencyConfig?.let {
+            liveInfoMenuClick()
         }
         hideButtonsHandler.removeCallbacks(hideButtonsRunnable)
         hideButtonsHandler.postDelayed(hideButtonsRunnable, REMOVE_CONTROLS_TIMEOUT.toLong())
@@ -319,7 +375,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         }
     }
 
-    fun setSeekBarVisibiliy(visibility :Int) {
+    fun setSeekBarVisibiliy(visibility: Int) {
         playbackControlsView?.setSeekBarVisibility(visibility)
     }
 
@@ -338,7 +394,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
                     loopBtn.setBackgroundColor(Color.rgb(66, 165, 245))
                 }
             }
-            updatePrevNextImgBtnFunctionality(player.playlistController.currentMediaIndex, player.playlistController.playlist?.mediaList?.size ?: 0)
+            updatePrevNextImgBtnFunctionality(player.playlistController.currentMediaIndex, player.playlistController.playlist?.mediaList?.size
+                    ?: 0)
 
         }
 
@@ -409,5 +466,6 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     companion object {
         private val log = PKLog.get("PlaybackControlsManager")
         private val REMOVE_CONTROLS_TIMEOUT = 3000 //3250
+        private val LOW_LATENCY_HANDLER_TIMER = 1000
     }
 }

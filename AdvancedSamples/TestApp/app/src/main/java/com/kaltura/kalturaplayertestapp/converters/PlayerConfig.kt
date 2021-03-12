@@ -30,6 +30,7 @@ class PlayerConfig {
     var vrPlayerEnabled: Boolean? = null
     var isTunneledAudioPlayback: Boolean? = null
     var vrSettings: VRSettings? = null
+    var pkLowLatencyConfig: PKLowLatencyConfig? = null
     var isVideoViewHidden: Boolean? = null
     var maxAudioBitrate: Int? = null
     var maxAudioChannelCount: Int? = null
