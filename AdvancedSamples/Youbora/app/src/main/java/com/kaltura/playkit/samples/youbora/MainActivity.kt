@@ -9,7 +9,9 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PlayerEvent
@@ -46,6 +48,12 @@ import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_OS_NAME
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_OS_VERSION
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_TYPE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ENABLED
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_NAME_HEADER
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_NODE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_NODE_LIST
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_SWITCH_HEADER
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_TTL
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_MANIFEST
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USERNAME
 
 class MainActivity: AppCompatActivity() {
@@ -71,7 +79,15 @@ class MainActivity: AppCompatActivity() {
     val UNIQUE_USER_NAME = "your_app_logged_in_user_email_or_userId"
     val MEDIA_TITLE = "your_media_title"
     val ENABLE_SMART_ADS = true
-    private val CAMPAIGN = "your_campaign_name"
+
+    val PARSE_MANIFEST = true
+    val PARSE_CDN_NODE = true
+    val PARSE_CDN_SWITCH_HEADER = true
+    val PARSE_CDN_NODE_LIST = arrayListOf("Akamai", "Cloudfront", "Level3", "Fastly", "Highwinds")
+    val PARSE_CDN_NAME_HEADERS = "x-cdn-forward"
+    val PARSE_CDN_TTL = 60
+
+    val CAMPAIGN = "your_campaign_name"
     val EXTRA_PARAM_1 = "playKitPlayer"
     val EXTRA_PARAM_2 = ""
     val GENRE = "your_genre"
@@ -80,7 +96,7 @@ class MainActivity: AppCompatActivity() {
     val YEAR = "your_year"
     val CAST = "your_cast"
     val DIRECTOR = "your_director"
-    private val OWNER = "your_owner"
+    val OWNER = "your_owner"
     val PARENTAL = "your_parental"
     val PRICE = "your_price"
     val RATING = "your_rating"
@@ -224,7 +240,7 @@ class MainActivity: AppCompatActivity() {
         val ottMediaOptions = buildOttMediaOptions()
         player?.loadMedia(ottMediaOptions) { entry, loadError ->
             if (loadError != null) {
-                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, BaseTransientBottomBar.LENGTH_LONG).show()
             } else {
                 Log.i(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.id)
             }
@@ -268,6 +284,7 @@ class MainActivity: AppCompatActivity() {
         val youboraConfigJson = JsonObject()
         youboraConfigJson.addProperty("accountCode", ACCOUNT_CODE)
         youboraConfigJson.addProperty("username", UNIQUE_USER_NAME)
+
         youboraConfigJson.addProperty("haltOnError", true)
         youboraConfigJson.addProperty("enableAnalytics", true)
         youboraConfigJson.addProperty("enableSmartAds", ENABLE_SMART_ADS)
@@ -278,6 +295,19 @@ class MainActivity: AppCompatActivity() {
         //Media entry json.
         val mediaEntryJson = JsonObject()
         mediaEntryJson.addProperty("title", MEDIA_TITLE)
+
+        //Optional - Parse
+        val parseJson = JsonObject()
+        parseJson.addProperty("parseManifest", PARSE_MANIFEST)
+        parseJson.addProperty("parseCdnNode", PARSE_CDN_NODE)
+        parseJson.addProperty("parseCdnSwitchHeader", PARSE_CDN_SWITCH_HEADER)
+        val parseCdnNodeListJsonArray = JsonArray()
+        for(cdn in PARSE_CDN_NODE_LIST) {
+            parseCdnNodeListJsonArray.add(cdn)
+        }
+        parseJson.add("cdnNodeList", parseCdnNodeListJsonArray)
+        parseJson.addProperty("cdnNameHeaders", PARSE_CDN_NAME_HEADERS)
+        parseJson.addProperty("parseCdnTTL", PARSE_CDN_TTL)
 
         //Optional - Device json o/w youbora will decide by its own.
         val deviceJson = JsonObject()
@@ -318,6 +348,7 @@ class MainActivity: AppCompatActivity() {
 
         //Add all the json objects created before to the pluginEntry json.
         youboraConfigJson.add("media", mediaEntryJson)
+        youboraConfigJson.add("parse", parseJson)
         youboraConfigJson.add("device", deviceJson)
         youboraConfigJson.add("ads", adsJson)
         youboraConfigJson.add("properties", propertiesJson)
@@ -343,6 +374,16 @@ class MainActivity: AppCompatActivity() {
 
         //Media entry bundle.
         optBundle.putString(KEY_CONTENT_TITLE, MEDIA_TITLE)
+        optBundle.putBoolean(KEY_PARSE_MANIFEST, true);
+        optBundle.putBoolean(KEY_PARSE_CDN_NODE, true);
+
+        optBundle.putBoolean(KEY_PARSE_MANIFEST, PARSE_MANIFEST)
+        optBundle.putBoolean(KEY_PARSE_CDN_NODE, PARSE_CDN_NODE)
+        optBundle.putBoolean(KEY_PARSE_CDN_SWITCH_HEADER, PARSE_CDN_SWITCH_HEADER)
+        optBundle.putStringArrayList(KEY_PARSE_CDN_NODE_LIST, PARSE_CDN_NODE_LIST)
+        optBundle.putString(KEY_PARSE_CDN_NAME_HEADER, PARSE_CDN_NAME_HEADERS)
+        optBundle.putInt(KEY_PARSE_CDN_TTL, PARSE_CDN_TTL)
+
 
         //Optional - Device bundle o/w youbora will decide by its own.
         optBundle.putString(KEY_DEVICE_CODE, DEVICE_CODE)
