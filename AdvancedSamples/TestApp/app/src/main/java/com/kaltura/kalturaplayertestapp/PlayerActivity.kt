@@ -3,14 +3,12 @@ package com.kaltura.kalturaplayertestapp
 import AppOVPMediaOptions
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.DisplayMetrics
-import android.view.KeyEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.SearchView
@@ -35,6 +33,7 @@ import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
+import com.kaltura.playkit.player.PKLowLatencyConfig
 import com.kaltura.playkit.player.PKSubtitlePosition
 import com.kaltura.playkit.player.SubtitleStyleSettings
 import com.kaltura.playkit.plugins.ads.AdCuePoints
@@ -97,6 +96,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var searchView: SearchView? = null
     private var tracksSelectionController: TracksSelectionController? = null
     private var appPlayerInitConfig: PlayerConfig? = null
+    private var updateParams: UpdateParams? = null
     private var currentPlayedMediaIndex = 0
     private var playbackControlsView: PlaybackControlsView? = null
     private var adCuePoints: AdCuePoints? = null
@@ -104,6 +104,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var playbackControlsManager: PlaybackControlsManager? = null
     private var isFirstOnResume = true
     private var isPlayingOnPause: Boolean = false
+    var pkLowLatencyConfig: PKLowLatencyConfig? = null
 
     private var networkChangeReceiver: NetworkChangeReceiver? = null
 
@@ -131,12 +132,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
         appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig::class.java)
 
         appPlayerInitConfig?.let {
-            if (appPlayerInitConfig?.requestConfiguration != null) {
-                APIOkRequestsExecutor.getSingleton().requestConfiguration = appPlayerInitConfig?.requestConfiguration
+            if (it.requestConfiguration != null) {
+                APIOkRequestsExecutor.getSingleton().requestConfiguration = it.requestConfiguration
                 APIOkRequestsExecutor.getSingleton().setNetworkErrorEventListener { errorElement -> log.d("XXX NetworkError code = " + errorElement.code + " " + errorElement.message) }
             }
 
-            val playerType = appPlayerInitConfig?.playerType
+            this.updateParams = it.updateParams
+
+            val playerType = it.playerType
             when {
                 KalturaPlayer.Type.basic == playerType -> {
                     buildPlayer(it, currentPlayedMediaIndex, playerType)
@@ -150,6 +153,50 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         } ?: run {
             showMessage(R.string.error_empty_input)
+        }
+
+        checkUpdateParamsAndShowSnackbar()
+    }
+
+    /**
+     * Checks the updatable prameters in JSON
+     */
+    fun checkUpdateParamsAndShowSnackbar() {
+        updateParams?.let { params ->
+            params.timerForSnackbar?.let { delay ->
+                Timer().schedule(object : TimerTask() {
+                    override fun run() {
+                        var snackbar: Snackbar? = null
+
+                        if (params.isUpdateABRSettings != null && params.isUpdateABRSettings!!) {
+                            snackbar = Snackbar.make(findViewById(android.R.id.content), "UpdateABRSettings", Snackbar.LENGTH_INDEFINITE)
+                            snackbar.setAction("Update") {
+                                player?.let { player ->
+                                    params.updatedABRSettings?.let { updatedABR ->
+                                        player.updateABRSettings(updatedABR)
+                                    }
+                                }
+                            }
+                        } else if (params.isResetABRSettings != null && params.isResetABRSettings!!) {
+                            snackbar = Snackbar.make(findViewById(android.R.id.content), "ResetABRSettings", Snackbar.LENGTH_INDEFINITE)
+                            snackbar.setAction("Reset") {
+                                player?.resetABRSettings()
+                            }
+                        } else if (params.isUpdatePkLowLatencyConfig != null && params.updatePkLowLatencyConfig != null) {
+                            snackbar = Snackbar.make(findViewById(android.R.id.content), "UpdateLowLatency", Snackbar.LENGTH_INDEFINITE)
+                            snackbar.setAction("Update") {
+                                pkLowLatencyConfig = params.updatePkLowLatencyConfig
+                                player?.updatePKLowLatencyConfig(pkLowLatencyConfig)
+                            }
+                        }
+
+                        snackbar?.let {
+                            it.setActionTextColor(Color.YELLOW)
+                            it.show()
+                        }
+                    }
+                }, delay)
+            }
         }
     }
 
@@ -174,7 +221,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             }
         }
-
     }
 
     fun playPrev() {
@@ -288,7 +334,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun addSearchListener() {
-        searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String): Boolean {
 
@@ -326,6 +372,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //        }
         mediaList = appPlayerInitConfig.mediaList
 
+        // For Low Latency Test; don't uncomment it because config will come from json
+        //appPlayerInitConfig.pkLowLatencyConfig = PKLowLatencyConfig().setTargetOffsetMs(15000L).setMaxOffsetMs(12000L).setMaxPlaybackSpeed(1.5f)
+
+        appPlayerInitConfig.pkLowLatencyConfig?.let {
+            pkLowLatencyConfig = it
+        }
+
         val partnerId = if (appPlayerInitConfig.partnerId != null) Integer.valueOf(appPlayerInitConfig.partnerId) else null
         initOptions = PlayerInitOptions(partnerId)
                 .setAutoPlay(appPlayerInitConfig.autoPlay)
@@ -346,6 +399,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setCea608CaptionsEnabled(appPlayerInitConfig.cea608CaptionsEnabled)
                 .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
                 .setVRSettings(appPlayerInitConfig.vrSettings)
+                .setPKLowLatencyConfig(pkLowLatencyConfig)
                 .setIsVideoViewHidden(appPlayerInitConfig.isVideoViewHidden)
                 .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
                 .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
@@ -739,7 +793,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         mediaList.forEach {
             var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, it.countDownOptions)
-            
+
             basicMediasOptionsList.add(basicMediaOptions)
         }
         return basicMediasOptionsList
@@ -1066,7 +1120,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
             var message = "playlistCountDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
-            log.d("PLAYLIST $message" )
+            log.d("PLAYLIST $message")
             showMessage(message)
             //Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
@@ -1354,7 +1408,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 imaPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMAConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1388,7 +1442,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 imaDaiPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMADAIConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1421,7 +1475,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params as JsonObject, PhoenixAnalyticsConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1454,7 +1508,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 fbInstreamPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, FBInstreamConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1592,10 +1646,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         playbackControlsView?.setVisibility(View.INVISIBLE)
         playbackControlsView?.seekBar?.setPlayedColor(resources.getColor(R.color.colorAccent))
         playbackControlsView?.seekBar?.setBufferedColor(resources.getColor(R.color.greyPrimary))
-        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_30))
+        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_60))
         playbackControlsView?.seekBar?.setScrubberColor(resources.getColor(R.color.colorAccent))
 
-        container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
+        container.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 container.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 val screenHeight = getDeviceHeight()
@@ -1686,6 +1740,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager?.showControls(View.VISIBLE)
+        }
+
+        playbackControlsManager?.let {
+            it.removeLiveInfoHandler();
         }
 
         playbackControlsView?.release()

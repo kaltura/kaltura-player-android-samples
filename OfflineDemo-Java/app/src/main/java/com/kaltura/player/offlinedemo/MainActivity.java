@@ -26,6 +26,7 @@ import com.kaltura.playkit.PKMediaSource;
 import com.kaltura.playkit.Utils;
 import com.kaltura.tvplayer.KalturaPlayer;
 import com.kaltura.tvplayer.OfflineManager;
+import com.kaltura.tvplayer.offline.OfflineManagerSettings;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
         manager = OfflineManager.getInstance(this);
 //        manager.setPreferredMediaFormat(PKMediaFormat.hls)
-        manager.setEstimatedHlsAudioBitrate(64000);
+        manager.setOfflineManagerSettings(new OfflineManagerSettings().setDefaultHlsAudioBitrateEstimation(64000));
 
         manager.setAssetStateListener(new OfflineManager.AssetStateListener() {
             @Override
