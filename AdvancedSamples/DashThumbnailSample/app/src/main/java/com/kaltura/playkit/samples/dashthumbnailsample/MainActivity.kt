@@ -9,6 +9,7 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
@@ -217,7 +218,7 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, PlayerEvent.imageTrackChanged) { event ->
             if (isImageTrackAvailable) {
                 event?.let {
-                    previewImageWidth = Math.floor((it.newTrack.width / it.newTrack.tilesHorizontal).toDouble()).toInt()
+                    previewImageWidth = Math.floor((it.newTrack.width / it.newTrack.cols).toDouble()).toInt()
                 }
             }
         }
@@ -320,7 +321,7 @@ class MainActivity : AppCompatActivity() {
 
         player?.loadMedia(ottMediaOptions) { entry, loadError ->
             if (loadError != null) {
-                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, BaseTransientBottomBar.LENGTH_LONG).show()
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
             }
@@ -341,7 +342,7 @@ class MainActivity : AppCompatActivity() {
 
         player?.loadMedia(ottMediaOptions) { entry, loadError ->
             if (loadError != null) {
-                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, BaseTransientBottomBar.LENGTH_LONG).show()
             } else {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
             }
