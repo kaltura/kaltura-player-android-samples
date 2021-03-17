@@ -9,7 +9,6 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -240,7 +239,7 @@ class MainActivity: AppCompatActivity() {
         val ottMediaOptions = buildOttMediaOptions()
         player?.loadMedia(ottMediaOptions) { entry, loadError ->
             if (loadError != null) {
-                Snackbar.make(findViewById(android.R.id.content), loadError.message, BaseTransientBottomBar.LENGTH_LONG).show()
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
                 Log.i(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.id)
             }
