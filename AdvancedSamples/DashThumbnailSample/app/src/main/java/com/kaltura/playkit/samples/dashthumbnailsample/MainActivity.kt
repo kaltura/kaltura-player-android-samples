@@ -77,7 +77,6 @@ class MainActivity : AppCompatActivity() {
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd"
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_4_tiles_thumbnails.mpd"
 
-  
     /**** Basic Player Config End*****/
 
     // If you want to use OTT player which will get media source from our BE

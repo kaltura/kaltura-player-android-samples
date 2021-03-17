@@ -33,7 +33,7 @@ class GetPreviewFromSprite(var context: Context) {
      * ThumbnailInfo: Metadata for the image
      * isLiveMedia: Set to true if the current media is Live
      */
-    fun downloadSpriteCoroutine(thumbnailInfo: ThumbnailInfo, isLiveMedia: Boolean): Future<Bitmap?>? {
+    fun downloadSpriteService(thumbnailInfo: ThumbnailInfo, isLiveMedia: Boolean): Future<Bitmap?>? {
         val addImageExtractionProcessToPool = AddImageExtractionProcessToPool(thumbnailInfo, context, isLiveMedia)
         return imageThreadPoolExecutor.submit(addImageExtractionProcessToPool)
     }

@@ -198,7 +198,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
                     } else {
                         log.d("Image picked from Service")
                         downloadSpriteImageCoroutine?.let { downloadImage ->
-                            val receivedFuture: Future<Bitmap?>? = downloadImage.downloadSpriteCoroutine(it, isLiveMedia)
+                            val receivedFuture: Future<Bitmap?>? = downloadImage.downloadSpriteService(it, isLiveMedia)
                             receivedFuture?.let { future ->
                                 future?.let { bitmap ->
                                     previewImage.setImageBitmap(bitmap.get())
