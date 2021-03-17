@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
     //The url of the first source to play
     private val FIRST_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
     //The url of the second source to play
-    private val SECOND_SOURCE_URL = "https://pf5.broadpeak-vcdn.com/bpk-tv/tvr/default/index.mpd?deviceType=32&subscriptionType=0&ip=87.71.183.190&primaryToken=b40b7407069a6e34_6c30217e28d77513f3a515d08078f5fe"
+    private val SECOND_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_4_tiles_thumbnails.mpd"
     //id of the first entry
     private val FIRST_ENTRY_ID = "entry_id_1"
     //id of the second entry
@@ -77,9 +77,7 @@ class MainActivity : AppCompatActivity() {
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd"
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_4_tiles_thumbnails.mpd"
 
-    // Sample Live Sources for Basic Config
-    // private val SOURCE_URL = "https://pf5.broadpeak-vcdn.com/bpk-tv/tvr/default/index.mpd?deviceType=32&subscriptionType=0&ip=87.71.183.190&primaryToken=b40b7407069a6e34_6c30217e28d77513f3a515d08078f5fe"
-
+  
     /**** Basic Player Config End*****/
 
     // If you want to use OTT player which will get media source from our BE
