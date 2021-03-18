@@ -6,12 +6,15 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
+import com.kaltura.playkit.player.DashImageTrack
 import com.kaltura.playkit.player.thumbnail.ThumbnailInfo
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
@@ -29,7 +32,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
 
     companion object {
         //Media entry configuration constants.
@@ -58,7 +61,7 @@ class MainActivity : AppCompatActivity() {
     /**** Basic Player Config Start*****/
 
     //The url of the first source to play
-    private val FIRST_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
+    private val FIRST_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd" //"http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
     //The url of the second source to play
     private val SECOND_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_4_tiles_thumbnails.mpd"
     //id of the first entry
@@ -75,7 +78,7 @@ class MainActivity : AppCompatActivity() {
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd"
     //private val SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_4_tiles_thumbnails.mpd"
-
+    private var userIsInteracting: Boolean = false
     /**** Basic Player Config End*****/
 
     // If you want to use OTT player which will get media source from our BE
@@ -100,7 +103,7 @@ class MainActivity : AppCompatActivity() {
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
     private var adCuePoints: AdCuePoints? = null
-
+    private var dashImageTracks = mutableListOf<DashImageTrack>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -119,6 +122,7 @@ class MainActivity : AppCompatActivity() {
                 hideSystemUI()
             }
         }
+
 
         btnChangeMedia.setOnClickListener { v ->
 
@@ -208,6 +212,24 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             if (!event.tracksInfo.getImageTracks().isEmpty()) {
                 isImageTrackAvailable = true
+                dashImageTracks = event.tracksInfo.getImageTracks() as MutableList<DashImageTrack>
+                val imageTrackStrings: MutableList<String> = mutableListOf()
+                for(imageTrack in dashImageTracks) {
+                    imageTrackStrings.add(imageTrack.label)
+                }
+
+                val ccStyleAdapter: ArrayAdapter<String> = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, imageTrackStrings)
+                imageTrackSpinner.adapter = ccStyleAdapter
+                imageTrackSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+                        if (!userIsInteracting) {
+                            return
+                        }
+                        player!!.changeTrack(dashImageTracks.get(position).uniqueId)
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                }
             }
         }
 
@@ -343,6 +365,24 @@ class MainActivity : AppCompatActivity() {
                 log.d("OTTMedia onEntryLoadComplete  entry = " + entry.id)
             }
         }
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+        if (!userIsInteracting) {
+            return
+        }
+        //Get the selected TrackItem from adapter.
+        val trackItem: DashImageTrack = parent.getItemAtPosition(position) as DashImageTrack
+
+        //Important! This will actually do the switch between tracks.
+        player!!.changeTrack(trackItem.getUniqueId())
+    }
+
+    override  fun onNothingSelected(parent: AdapterView<*>?) {}
+
+    override   fun onUserInteraction() {
+        super.onUserInteraction()
+        userIsInteracting = true
     }
 
     private fun getAdsConfig(adTagUrl: String): IMAConfig {
