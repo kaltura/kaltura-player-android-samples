@@ -10,6 +10,8 @@
 //project(':ima').projectDir = new File('../../playkit-android-ima/imaplugin')
 //include ':youbora'
 //project(':youbora').projectDir = new File('../../playkit-android-youbora/youboraplugin')
+//include ':smartswitchplugin'
+//project(':smartswitchplugin').projectDir = new File('../../playkit-android-smartSwitch/smartswitchplugin')
 //include ':googlecast'
 //project(':googlecast').projectDir = new File(settingsDir,'../../playkit-android-googlecast/googlecast')
 //include ':MD360'
@@ -38,7 +40,8 @@ def samples = [
         'VRBasicSubtitles',
 	    'MediaPreviewSample',
         'RecyclerViewSample',
-        'DashThumbnailSample'
+        'DashThumbnailSample',
+        //'SmartSwitch'
 ]
 
 samples.each {
