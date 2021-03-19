@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
     /**** Basic Player Config Start*****/
 
     //The url of the first source to play
-    private val FIRST_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd" //"http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
+    private val FIRST_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd"
     //The url of the second source to play
     private val SECOND_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_4_tiles_thumbnails.mpd"
     //id of the first entry
@@ -122,7 +122,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
                 hideSystemUI()
             }
         }
-
 
         btnChangeMedia.setOnClickListener { v ->
 
@@ -225,7 +224,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
                         if (!userIsInteracting) {
                             return
                         }
-                        player!!.changeTrack(dashImageTracks.get(position).uniqueId)
+                        player?.changeTrack(dashImageTracks.get(position).uniqueId)
                     }
 
                     override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -375,7 +374,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         val trackItem: DashImageTrack = parent.getItemAtPosition(position) as DashImageTrack
 
         //Important! This will actually do the switch between tracks.
-        player!!.changeTrack(trackItem.getUniqueId())
+        player?.changeTrack(trackItem.getUniqueId())
     }
 
     override  fun onNothingSelected(parent: AdapterView<*>?) {}
