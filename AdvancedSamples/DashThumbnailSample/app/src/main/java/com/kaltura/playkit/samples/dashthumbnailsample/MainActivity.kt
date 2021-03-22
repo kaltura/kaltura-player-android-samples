@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         }
 
         player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
-            if (!event.tracksInfo.getImageTracks().isEmpty()) {
+            if (event.tracksInfo.getImageTracks().isNotEmpty()) {
                 isImageTrackAvailable = true
                 dashImageTracks = event.tracksInfo.getImageTracks() as MutableList<DashImageTrack>
                 val imageTrackStrings: MutableList<String> = mutableListOf()
