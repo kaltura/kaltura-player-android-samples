@@ -11,7 +11,6 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKPluginConfigs
-import com.kaltura.playkit.PlayKitManager
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.plugins.smartswitch.SmartSwitchEvent
@@ -138,7 +137,6 @@ class MainActivity : AppCompatActivity() {
 
         // SmartSwitch Configuration
         val pkPluginConfigs = PKPluginConfigs()
-        PlayKitManager.registerPlugins(this, SmartSwitchPlugin.factory)
         val optionalParams: HashMap<String, String> = HashMap()
         optionalParams.put("OPTION_PARAM_KEY_1", "OPTION_PARAM_VALUE_1")
         optionalParams.put("OPTION_PARAM_KEY_2", "OPTION_PARAM_VALUE_2")
