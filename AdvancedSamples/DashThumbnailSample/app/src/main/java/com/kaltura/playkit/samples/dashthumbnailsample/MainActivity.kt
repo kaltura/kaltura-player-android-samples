@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
     /**** Basic Player Config Start*****/
 
     //The url of the first source to play
-    private val FIRST_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd" //"http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
+    private val FIRST_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails.mpd" //"http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails_2.mpd"
     //The url of the second source to play
     private val SECOND_SOURCE_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_with_4_tiles_thumbnails.mpd"
     //id of the first entry
@@ -218,8 +218,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
                     imageTrackStrings.add(imageTrack.label)
                 }
 
-                val ccStyleAdapter: ArrayAdapter<String> = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, imageTrackStrings)
-                imageTrackSpinner.adapter = ccStyleAdapter
+                val imageTrackAdapter: ArrayAdapter<String> = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, imageTrackStrings)
+                imageTrackSpinner.adapter = imageTrackAdapter
                 imageTrackSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
                         if (!userIsInteracting) {
