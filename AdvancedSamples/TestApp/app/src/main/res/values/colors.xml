@@ -9,4 +9,6 @@
     <color name="greyDisabled">#61000000</color>
     <color name="lightBlue">#cee6ee</color>
     <color name="lightGrey">#dadada</color>
+    <color name="opaque_grey">#ccff0000</color>
+
 </resources>
