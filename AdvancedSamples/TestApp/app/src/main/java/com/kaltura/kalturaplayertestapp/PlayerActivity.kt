@@ -931,9 +931,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             if (adCuePoints?.adPluginName != IMADAIPlugin.factory.name) {
-                if (!initOptions.autoplay) {
-                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
-                } else {
+                if (initOptions.autoplay) {
                     playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
                 }
             }
