@@ -20,6 +20,7 @@ import com.kaltura.playkit.*
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OfflineManager
+import com.kaltura.tvplayer.offline.OfflineManagerSettings
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
         manager = OfflineManager.getInstance(this)
 //        manager.setPreferredMediaFormat(PKMediaFormat.hls)
-        manager.setEstimatedHlsAudioBitrate(64000)
+        manager.setOfflineManagerSettings(OfflineManagerSettings().setDefaultHlsAudioBitrateEstimation(64000))
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
             override fun onAssetDownloadFailed(assetId: String, error: Exception) {

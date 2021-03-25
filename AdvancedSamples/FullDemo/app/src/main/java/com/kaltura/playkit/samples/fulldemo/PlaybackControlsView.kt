@@ -6,8 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.SeekBar
 import android.widget.TextView
+import com.kaltura.android.exoplayer2.Player
+import com.kaltura.android.exoplayer2.Timeline
+import com.kaltura.android.exoplayer2.ui.DefaultTimeBar
+import com.kaltura.android.exoplayer2.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
@@ -15,17 +18,20 @@ import com.kaltura.playkit.utils.Consts
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
 
-class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
 
     private val log = PKLog.get("PlaybackControlsView")
     private val PROGRESS_BAR_MAX = 100
-    private var player: KalturaPlayer? = null
-    private var playerState: PlayerState? = null
-
     private val formatter: Formatter
     private val formatBuilder: StringBuilder
+    private val componentListener: ComponentListener
+    private val updateProgressAction = Runnable { this.updateProgress() }
 
-    private lateinit var seekBar: SeekBar
+    private var player: KalturaPlayer? = null
+    private var playerState: PlayerState? = null
+    private var dragging = false
+
+    private lateinit var seekBar: DefaultTimeBar
     private lateinit var tvCurTime: TextView
     private lateinit var tvTime: TextView
     private lateinit var btnPlay: ImageButton
@@ -34,26 +40,34 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
     private lateinit var btnRewind: ImageButton
     private lateinit var btnNext: ImageButton
     private lateinit var btnPrevious: ImageButton
-
-    private var dragging = false
-
-    private val updateProgressAction = Runnable { updateProgress() }
+    private lateinit var btnShuffle: ImageButton
+    private lateinit var btnRepeatToggle: ImageButton
+    private lateinit var btnVr: ImageButton
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.playback_layout, this)
+        LayoutInflater.from(context).inflate(R.layout.exo_playback_control_view_old, this)
         formatBuilder = StringBuilder()
         formatter = Formatter(formatBuilder, Locale.getDefault())
+        componentListener = ComponentListener()
         initPlaybackControls()
     }
 
     private fun initPlaybackControls() {
 
-        btnPlay = this.findViewById(R.id.play)
-        btnPause = this.findViewById(R.id.pause)
-        btnFastForward = this.findViewById(R.id.ffwd)
-        btnRewind = this.findViewById(R.id.rew)
-        btnNext = this.findViewById(R.id.next)
-        btnPrevious = this.findViewById(R.id.prev)
+        btnPlay = this.findViewById(R.id.kexo_play)
+        btnPause = this.findViewById(R.id.kexo_pause)
+        btnFastForward = this.findViewById(R.id.kexo_ffwd)
+        btnFastForward.visibility = View.GONE
+        btnRewind = this.findViewById(R.id.kexo_rew)
+        btnRewind.visibility = View.GONE
+        btnNext = this.findViewById(R.id.kexo_next)
+        btnPrevious = this.findViewById(R.id.kexo_prev)
+        btnRepeatToggle = this.findViewById(R.id.kexo_repeat_toggle)
+        btnRepeatToggle.visibility = View.GONE
+        btnShuffle = this.findViewById(R.id.kexo_shuffle)
+        btnShuffle.visibility = View.GONE
+        btnVr = this.findViewById(R.id.kexo_vr)
+        btnVr.visibility = View.GONE
 
         btnPlay.setOnClickListener(this)
         btnPause.setOnClickListener(this)
@@ -62,12 +76,17 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         btnNext.setOnClickListener(this)
         btnPrevious.setOnClickListener(this)
 
-        seekBar = this.findViewById(R.id.mediacontroller_progress)
-        seekBar.setOnSeekBarChangeListener(this)
+        seekBar = this.findViewById(R.id.kexo_progress)
+        seekBar.setPlayedColor(resources.getColor(R.color.colorAccent))
+        seekBar.setBufferedColor(resources.getColor(R.color.grey))
+        seekBar.setUnplayedColor(resources.getColor(R.color.black))
+        seekBar.setScrubberColor(resources.getColor(R.color.colorAccent))
+        seekBar.addListener(componentListener)
 
-        tvCurTime = this.findViewById(R.id.time_current)
-        tvTime = this.findViewById(R.id.time)
+        tvCurTime = this.findViewById(R.id.kexo_position)
+        tvTime = this.findViewById(R.id.kexo_duration)
     }
+
 
     private fun updateProgress() {
         var duration: Long? = Consts.TIME_UNSET
@@ -78,13 +97,14 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
             if (adController != null && adController.isAdDisplayed) {
                 duration = adController.adDuration
                 position = adController.adCurrentPosition
-                //log.d("XXX adController Duration:" + duration);
-                //log.d("XXX adController Position:" + position);
+
+                //log.d("adController Duration:" + duration);
+                //log.d("adController Position:" + position);
             } else {
                 duration = player?.duration
                 position = player?.currentPosition
-                //log.d("XXX Duration:" + duration);
-                //log.d("XXX Position:" + position);
+                //log.d("Duration:" + duration);
+                //log.d("Position:" + position);
                 bufferedPosition = player?.bufferedPosition
             }
         }
@@ -97,45 +117,82 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         if (!dragging && position != Consts.POSITION_UNSET.toLong() && duration != Consts.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
             tvCurTime.text = stringForTime(position!!)
-            seekBar.progress = progressBarValue(position)
+            seekBar.setPosition(position)
+            seekBar.setDuration(duration)
         }
 
-        seekBar.secondaryProgress = progressBarValue(bufferedPosition!!)
+        seekBar.setBufferedPosition(bufferedPosition!!)
         // Remove scheduled updates.
         removeCallbacks(updateProgressAction)
         // Schedule an update if necessary.
-        val adController = player?.getController(AdController::class.java)
-        if (playerState != PlayerState.IDLE && adController != null && adController.adCurrentPosition >= 0) {
+        if (playerState != PlayerState.IDLE) {
             val delayMs: Long = 1000
             postDelayed(updateProgressAction, delayMs)
         }
     }
 
+    /**
+     * Component Listener for Default time bar from ExoPlayer UI
+     */
+    private inner class ComponentListener : Player.EventListener, TimeBar.OnScrubListener, View.OnClickListener {
+
+        override fun onScrubStart(timeBar: TimeBar, position: Long) {
+            dragging = true
+        }
+
+        override fun onScrubMove(timeBar: TimeBar, position: Long) {
+            tvCurTime.text = stringForTime(position)
+        }
+
+        override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
+            dragging = false
+            player?.seekTo(position)
+        }
+
+        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            updateProgress()
+        }
+
+        override fun onPositionDiscontinuity(@Player.DiscontinuityReason reason: Int) {
+            updateProgress()
+        }
+
+        override fun onTimelineChanged(timeline: Timeline, manifest: Any?, reason: Int) {
+            updateProgress()
+        }
+
+        override fun onClick(view: View) {}
+    }
+
     private fun progressBarValue(position: Long): Int {
         var progressValue = 0
+        player?.let{
+            var duration: Long? = it.duration
+            //log.d("position = "  + position);
+            //log.d("duration = "  + duration);
+            val adController = it.getController(AdController::class.java)
+            if (adController != null && adController.isAdDisplayed) {
+                duration = adController.adDuration
+            }
+            if (duration!! > 0) {
+                //log.d("position = "  + position);
+                progressValue = Math.round((position * PROGRESS_BAR_MAX / duration).toFloat())
+            }
+            //log.d("progressValue = "  + progressValue);
+        }
+
+        return progressValue
+    }
+
+    private fun positionValue(progress: Long): Long {
+        var positionValue: Long = 0
         player?.let {
             var duration: Long? = it.duration
             val adController = it.getController(AdController::class.java)
             if (adController != null && adController.isAdDisplayed) {
                 duration = adController.adDuration
             }
-            if (duration!! > 0) {
-                progressValue = (position * PROGRESS_BAR_MAX / duration).toInt()
-            }
-        }
-
-        return progressValue
-    }
-
-    private fun positionValue(progress: Int): Long {
-        var positionValue: Long = 0
-        player?.let {
-            var duration = it.duration
-            val adController = it.getController(AdController::class.java)
-            if (adController != null && adController.isAdDisplayed) {
-                duration = adController.adDuration
-            }
-            positionValue = duration * progress / PROGRESS_BAR_MAX
+            positionValue = Math.round((duration?.times(progress)?.div(PROGRESS_BAR_MAX))!!.toFloat()).toLong()
         }
 
         return positionValue
@@ -169,39 +226,23 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.play ->
-                player?.play()
-            R.id.pause ->
-                player?.pause()
-            R.id.ffwd -> {
+            R.id.kexo_play -> player?.play()
+
+            R.id.kexo_pause -> player?.pause()
+
+            R.id.kexo_ffwd -> {
                 //Do nothing for now
             }
-            R.id.rew -> {
+            R.id.kexo_rew -> {
                 //Do nothing for now
             }
-            R.id.next -> {
+            R.id.kexo_next -> {
                 //Do nothing for now
             }
-            R.id.prev -> {
+            R.id.kexo_prev -> {
                 //Do nothing for now
             }
         }
-    }
-
-    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        if (fromUser) {
-            tvCurTime.text = stringForTime(positionValue(progress))
-        }
-    }
-
-
-    override fun onStartTrackingTouch(seekBar: SeekBar) {
-        dragging = true
-    }
-
-    override fun onStopTrackingTouch(seekBar: SeekBar) {
-        dragging = false
-        player?.seekTo(positionValue(seekBar.progress))
     }
 
     fun release() {

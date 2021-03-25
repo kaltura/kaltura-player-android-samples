@@ -26,7 +26,6 @@ import java.util.*
 import android.util.Log as logger
 import java.util.ArrayList
 
-
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
@@ -45,8 +44,6 @@ class MainActivity : AppCompatActivity() {
 
     private var player: KalturaPlayer? = null
     private var isFullScreen: Boolean = false
-
-
 
     private fun subscribeToAdEvents() {
 

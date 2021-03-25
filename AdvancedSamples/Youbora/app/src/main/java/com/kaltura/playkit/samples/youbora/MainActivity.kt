@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PlayerEvent
@@ -26,6 +27,9 @@ import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ACCOUNT_CODE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_AD_CAMPAIGN
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_NAME
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_RELEASE_VERSION
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_CDN
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_CHANNEL
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_ENCODING_AUDIO_CODEC
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_GENRE
@@ -43,10 +47,13 @@ import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_OS_NAME
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_OS_VERSION
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_TYPE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ENABLED
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_NAME_HEADER
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_NODE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_NODE_LIST
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_SWITCH_HEADER
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_TTL
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_MANIFEST
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USERNAME
-
-import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_NAME
-import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_RELEASE_VERSION
 
 class MainActivity: AppCompatActivity() {
 
@@ -61,12 +68,25 @@ class MainActivity: AppCompatActivity() {
         val PARTNER_ID = 3009
     }
 
+    private var player: KalturaPlayer? = null
+    private var playPauseButton: Button? = null
+    private var isFullScreen: Boolean = false
+    private var playerState: PlayerState? = null
+
     //Youbora analytics Constants
     val ACCOUNT_CODE = "your_account_code"
     val UNIQUE_USER_NAME = "your_app_logged_in_user_email_or_userId"
     val MEDIA_TITLE = "your_media_title"
     val ENABLE_SMART_ADS = true
-    private val CAMPAIGN = "your_campaign_name"
+
+    val PARSE_MANIFEST = true
+    val PARSE_CDN_NODE = true
+    val PARSE_CDN_SWITCH_HEADER = true
+    val PARSE_CDN_NODE_LIST = arrayListOf("Akamai", "Cloudfront", "Level3", "Fastly", "Highwinds")
+    val PARSE_CDN_NAME_HEADERS = "x-cdn-forward"
+    val PARSE_CDN_TTL = 60
+
+    val CAMPAIGN = "your_campaign_name"
     val EXTRA_PARAM_1 = "playKitPlayer"
     val EXTRA_PARAM_2 = ""
     val GENRE = "your_genre"
@@ -75,7 +95,7 @@ class MainActivity: AppCompatActivity() {
     val YEAR = "your_year"
     val CAST = "your_cast"
     val DIRECTOR = "your_director"
-    private val OWNER = "your_owner"
+    val OWNER = "your_owner"
     val PARENTAL = "your_parental"
     val PRICE = "your_price"
     val RATING = "your_rating"
@@ -83,12 +103,15 @@ class MainActivity: AppCompatActivity() {
     val AUDIO_CHANNELS = "your_audoi_channels"
     val DEVICE = "your_device"
     val QUALITY = "your_quality"
+    /**
+    Follow this {@link http://mapi.youbora.com:8081/cdns}
+     */
+    val CONTENT_CDN_CODE = "your_cdn_code"
 
-
-    private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
-    private var isFullScreen: Boolean = false
-    private var playerState: PlayerState? = null
+    /**
+    Follow this {@link http://mapi.youbora.com:8081/devices}
+     */
+    val DEVICE_CODE = "your_device_code"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -154,14 +177,16 @@ class MainActivity: AppCompatActivity() {
         playPauseButton = this.findViewById<View>(R.id.play_pause_button) as Button
         //Add clickListener.
         playPauseButton?.setOnClickListener {
-            if (player!!.isPlaying) {
-                //If player is playing, change text of the button and pause.
-                playPauseButton?.setText(R.string.play_text)
-                player?.pause()
-            } else {
-                //If player is not playing, change text of the button and play.
-                playPauseButton?.setText(R.string.pause_text)
-                player?.play()
+            player?.let {
+                if (it.isPlaying) {
+                    //If player is playing, change text of the button and pause.
+                    playPauseButton?.setText(R.string.play_text)
+                    it.pause()
+                } else {
+                    //If player is not playing, change text of the button and play.
+                    playPauseButton?.setText(R.string.pause_text)
+                    it.play()
+                }
             }
         }
     }
@@ -176,21 +201,20 @@ class MainActivity: AppCompatActivity() {
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
-        if (player != null) {
-            if (playPauseButton != null) {
-                playPauseButton?.setText(R.string.pause_text)
-            }
-            player?.onApplicationPaused()
+        player?.let { player ->
+            playPauseButton?.setText(R.string.pause_text)
+            player.onApplicationPaused()
         }
     }
 
     override fun onResume() {
         Log.d(TAG, "onResume")
         super.onResume()
-
-        if (player != null && playerState != null) {
-            player?.onApplicationResumed()
-            player?.play()
+        player?.let {  player ->
+            playerState?.let {
+                player.onApplicationResumed()
+                player.play()
+            }
         }
     }
 
@@ -259,6 +283,7 @@ class MainActivity: AppCompatActivity() {
         val youboraConfigJson = JsonObject()
         youboraConfigJson.addProperty("accountCode", ACCOUNT_CODE)
         youboraConfigJson.addProperty("username", UNIQUE_USER_NAME)
+
         youboraConfigJson.addProperty("haltOnError", true)
         youboraConfigJson.addProperty("enableAnalytics", true)
         youboraConfigJson.addProperty("enableSmartAds", ENABLE_SMART_ADS)
@@ -270,9 +295,22 @@ class MainActivity: AppCompatActivity() {
         val mediaEntryJson = JsonObject()
         mediaEntryJson.addProperty("title", MEDIA_TITLE)
 
+        //Optional - Parse
+        val parseJson = JsonObject()
+        parseJson.addProperty("parseManifest", PARSE_MANIFEST)
+        parseJson.addProperty("parseCdnNode", PARSE_CDN_NODE)
+        parseJson.addProperty("parseCdnSwitchHeader", PARSE_CDN_SWITCH_HEADER)
+        val parseCdnNodeListJsonArray = JsonArray()
+        for(cdn in PARSE_CDN_NODE_LIST) {
+            parseCdnNodeListJsonArray.add(cdn)
+        }
+        parseJson.add("cdnNodeList", parseCdnNodeListJsonArray)
+        parseJson.addProperty("cdnNameHeaders", PARSE_CDN_NAME_HEADERS)
+        parseJson.addProperty("parseCdnTTL", PARSE_CDN_TTL)
+
         //Optional - Device json o/w youbora will decide by its own.
         val deviceJson = JsonObject()
-        deviceJson.addProperty("deviceCode", "AndroidTV")
+        deviceJson.addProperty("deviceCode", DEVICE_CODE)
         deviceJson.addProperty("brand", "Xiaomi")
         deviceJson.addProperty("model", "Mii3")
         deviceJson.addProperty("type", "TvBox")
@@ -300,6 +338,7 @@ class MainActivity: AppCompatActivity() {
         propertiesJson.addProperty("audioChannels", AUDIO_CHANNELS)
         propertiesJson.addProperty("device", DEVICE)
         propertiesJson.addProperty("quality", QUALITY)
+        propertiesJson.addProperty("contentCdnCode", CONTENT_CDN_CODE)
 
         //You can add some extra params here:
         val extraParamJson = JsonObject()
@@ -308,6 +347,7 @@ class MainActivity: AppCompatActivity() {
 
         //Add all the json objects created before to the pluginEntry json.
         youboraConfigJson.add("media", mediaEntryJson)
+        youboraConfigJson.add("parse", parseJson)
         youboraConfigJson.add("device", deviceJson)
         youboraConfigJson.add("ads", adsJson)
         youboraConfigJson.add("properties", propertiesJson)
@@ -333,9 +373,19 @@ class MainActivity: AppCompatActivity() {
 
         //Media entry bundle.
         optBundle.putString(KEY_CONTENT_TITLE, MEDIA_TITLE)
+        optBundle.putBoolean(KEY_PARSE_MANIFEST, true);
+        optBundle.putBoolean(KEY_PARSE_CDN_NODE, true);
+
+        optBundle.putBoolean(KEY_PARSE_MANIFEST, PARSE_MANIFEST)
+        optBundle.putBoolean(KEY_PARSE_CDN_NODE, PARSE_CDN_NODE)
+        optBundle.putBoolean(KEY_PARSE_CDN_SWITCH_HEADER, PARSE_CDN_SWITCH_HEADER)
+        optBundle.putStringArrayList(KEY_PARSE_CDN_NODE_LIST, PARSE_CDN_NODE_LIST)
+        optBundle.putString(KEY_PARSE_CDN_NAME_HEADER, PARSE_CDN_NAME_HEADERS)
+        optBundle.putInt(KEY_PARSE_CDN_TTL, PARSE_CDN_TTL)
+
 
         //Optional - Device bundle o/w youbora will decide by its own.
-        optBundle.putString(KEY_DEVICE_CODE, "AndroidTV")
+        optBundle.putString(KEY_DEVICE_CODE, DEVICE_CODE)
         optBundle.putString(KEY_DEVICE_BRAND, "Xiaomi")
         optBundle.putString(KEY_DEVICE_MODEL, "Mii3")
         optBundle.putString(KEY_DEVICE_TYPE, "TvBox")
@@ -349,6 +399,7 @@ class MainActivity: AppCompatActivity() {
         optBundle.putString(KEY_CONTENT_GENRE, GENRE)
         optBundle.putString(KEY_CONTENT_TYPE, TYPE)
         optBundle.putString(KEY_CONTENT_TRANSACTION_CODE, TRANSACTION_TYPE)
+        optBundle.putString(KEY_CONTENT_CDN, CONTENT_CDN_CODE)
 
         optBundle.putString(KEY_CONTENT_PRICE, PRICE)
         optBundle.putString(KEY_CONTENT_ENCODING_AUDIO_CODEC, AUDIO_TYPE)

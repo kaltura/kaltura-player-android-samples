@@ -3,14 +3,12 @@ package com.kaltura.kalturaplayertestapp
 import AppOVPMediaOptions
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.DisplayMetrics
-import android.view.KeyEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.SearchView
@@ -35,6 +33,7 @@ import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
+import com.kaltura.playkit.player.PKLowLatencyConfig
 import com.kaltura.playkit.player.PKSubtitlePosition
 import com.kaltura.playkit.player.SubtitleStyleSettings
 import com.kaltura.playkit.plugins.ads.AdCuePoints
@@ -62,6 +61,7 @@ import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import com.kaltura.tvplayer.config.TVPlayerParams
 import com.kaltura.tvplayer.playlist.*
+import com.npaw.youbora.lib6.plugin.Options
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -96,13 +96,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var searchView: SearchView? = null
     private var tracksSelectionController: TracksSelectionController? = null
     private var appPlayerInitConfig: PlayerConfig? = null
+    private var updateParams: UpdateParams? = null
     private var currentPlayedMediaIndex = 0
     private var playbackControlsView: PlaybackControlsView? = null
     private var adCuePoints: AdCuePoints? = null
-    private var allAdsCompeted: Boolean = false
+    private var allAdsCompleted: Boolean = false
     private var playbackControlsManager: PlaybackControlsManager? = null
     private var isFirstOnResume = true
     private var isPlayingOnPause: Boolean = false
+    var pkLowLatencyConfig: PKLowLatencyConfig? = null
 
     private var networkChangeReceiver: NetworkChangeReceiver? = null
 
@@ -130,12 +132,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
         appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig::class.java)
 
         appPlayerInitConfig?.let {
-            if (appPlayerInitConfig?.requestConfiguration != null) {
-                APIOkRequestsExecutor.getSingleton().requestConfiguration = appPlayerInitConfig?.requestConfiguration
+            if (it.requestConfiguration != null) {
+                APIOkRequestsExecutor.getSingleton().requestConfiguration = it.requestConfiguration
                 APIOkRequestsExecutor.getSingleton().setNetworkErrorEventListener { errorElement -> log.d("XXX NetworkError code = " + errorElement.code + " " + errorElement.message) }
             }
 
-            val playerType = appPlayerInitConfig?.playerType
+            this.updateParams = it.updateParams
+
+            val playerType = it.playerType
             when {
                 KalturaPlayer.Type.basic == playerType -> {
                     buildPlayer(it, currentPlayedMediaIndex, playerType)
@@ -149,6 +153,50 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         } ?: run {
             showMessage(R.string.error_empty_input)
+        }
+
+        checkUpdateParamsAndShowSnackbar()
+    }
+
+    /**
+     * Checks the updatable prameters in JSON
+     */
+    fun checkUpdateParamsAndShowSnackbar() {
+        updateParams?.let { params ->
+            params.timerForSnackbar?.let { delay ->
+                Timer().schedule(object : TimerTask() {
+                    override fun run() {
+                        var snackbar: Snackbar? = null
+
+                        if (params.isUpdateABRSettings != null && params.isUpdateABRSettings!!) {
+                            snackbar = Snackbar.make(findViewById(android.R.id.content), "UpdateABRSettings", Snackbar.LENGTH_INDEFINITE)
+                            snackbar.setAction("Update") {
+                                player?.let { player ->
+                                    params.updatedABRSettings?.let { updatedABR ->
+                                        player.updateABRSettings(updatedABR)
+                                    }
+                                }
+                            }
+                        } else if (params.isResetABRSettings != null && params.isResetABRSettings!!) {
+                            snackbar = Snackbar.make(findViewById(android.R.id.content), "ResetABRSettings", Snackbar.LENGTH_INDEFINITE)
+                            snackbar.setAction("Reset") {
+                                player?.resetABRSettings()
+                            }
+                        } else if (params.isUpdatePkLowLatencyConfig != null && params.updatePkLowLatencyConfig != null) {
+                            snackbar = Snackbar.make(findViewById(android.R.id.content), "UpdateLowLatency", Snackbar.LENGTH_INDEFINITE)
+                            snackbar.setAction("Update") {
+                                pkLowLatencyConfig = params.updatePkLowLatencyConfig
+                                player?.updatePKLowLatencyConfig(pkLowLatencyConfig)
+                            }
+                        }
+
+                        snackbar?.let {
+                            it.setActionTextColor(Color.YELLOW)
+                            it.show()
+                        }
+                    }
+                }, delay)
+            }
         }
     }
 
@@ -173,7 +221,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             }
         }
-
     }
 
     fun playPrev() {
@@ -287,7 +334,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun addSearchListener() {
-        searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String): Boolean {
 
@@ -325,6 +372,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //        }
         mediaList = appPlayerInitConfig.mediaList
 
+        // For Low Latency Test; don't uncomment it because config will come from json
+        //appPlayerInitConfig.pkLowLatencyConfig = PKLowLatencyConfig().setTargetOffsetMs(15000L).setMaxOffsetMs(12000L).setMaxPlaybackSpeed(1.5f)
+
+        appPlayerInitConfig.pkLowLatencyConfig?.let {
+            pkLowLatencyConfig = it
+        }
+
         val partnerId = if (appPlayerInitConfig.partnerId != null) Integer.valueOf(appPlayerInitConfig.partnerId) else null
         initOptions = PlayerInitOptions(partnerId)
                 .setAutoPlay(appPlayerInitConfig.autoPlay)
@@ -342,12 +396,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setAllowClearLead(appPlayerInitConfig.allowClearLead)
                 .setEnableDecoderFallback(appPlayerInitConfig.enableDecoderFallback)
                 .setAdAutoPlayOnResume(appPlayerInitConfig.adAutoPlayOnResume)
+                .setCea608CaptionsEnabled(appPlayerInitConfig.cea608CaptionsEnabled)
                 .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
                 .setVRSettings(appPlayerInitConfig.vrSettings)
+                .setPKLowLatencyConfig(pkLowLatencyConfig)
                 .setIsVideoViewHidden(appPlayerInitConfig.isVideoViewHidden)
                 .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
                 .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
                 .forceSinglePlayerEngine(appPlayerInitConfig.forceSinglePlayerEngine)
+                .forceWidevineL3Playback(appPlayerInitConfig.forceWidevineL3Playback)
                 .setTunneledAudioPlayback(appPlayerInitConfig.isTunneledAudioPlayback)
                 .setMaxAudioBitrate(appPlayerInitConfig.maxAudioBitrate)
                 .setMaxAudioChannelCount(appPlayerInitConfig.maxAudioChannelCount)
@@ -398,9 +455,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 player?.loadMedia(ovpMediaOptions) { entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error Extra = " + error.getExtra())
-                        Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
-                        playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
-                        playbackControlsManager?.showControls(View.VISIBLE)
+                        runOnUiThread(Runnable {
+                            Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
+                            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                            playbackControlsManager?.showControls(View.VISIBLE)
+                        })
                     } else {
                         log.d("OVPMedia onEntryLoadComplete entry =" + entry.getId())
                     }
@@ -438,11 +497,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 player?.loadMedia(ottMediaOptions) { entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error Extra = " + error.getExtra())
-                        Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
-                        playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
-                        if (playbackControlsView != null) {
+                        runOnUiThread(Runnable {
+                            Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
+                            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
                             playbackControlsManager?.showControls(View.VISIBLE)
-                        }
+                        })
                     } else {
                         log.d("OTTMedia onEntryLoadComplete  entry = " + entry.getId())
                     }
@@ -556,8 +615,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
                 } else {
                     setCurrentPlayedMediaIndex(ovpPlaylistIdOptions.startIndex)
-                    playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
-                    playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
+                    runOnUiThread(Runnable {
+                        playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
+                        playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
+                    })
                 }
             }
         } else {
@@ -578,7 +639,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             player?.loadPlaylist(ovpPlaylistOptions) { playlistController, error ->
                 if (error != null) {
-                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                    runOnUiThread(Runnable {
+                        Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                    })
                 } else {
                     setCurrentPlayedMediaIndex(ovpPlaylistOptions.startIndex)
                     //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
@@ -596,7 +659,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         mediaList.forEach {
             var ovpMediaAsset = OVPMediaAsset()
-            ovpMediaAsset.entryId = it.entryId
+            ovpMediaAsset.entryId = it.entryId ?: ""
+            ovpMediaAsset.referenceId = it.referenceId ?: ""
             ovpMediaAsset.ks = it.ks
             ovpMediaAsset.referrer = it.referrer
 
@@ -628,7 +692,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.loadPlaylist(ottPlaylistIdOptions) { playlistController, error ->
             if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                runOnUiThread(Runnable {
+                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                })
             } else {
                 setCurrentPlayedMediaIndex(ottPlaylistIdOptions.startIndex)
                 //playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
@@ -654,6 +720,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ottMediaAsset.assetType = it.assetType
             ottMediaAsset.ks = it.ks
             ottMediaAsset.referrer = it.referrer
+            ottMediaAsset.adapterData = it.adapterData
 
             var mediaFilesList = mutableListOf<String>()
             it.fileIds.let {
@@ -707,7 +774,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.loadPlaylist(basicPlaylistOptions) { playlistController, error ->
             if (error != null) {
-                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                runOnUiThread(Runnable {
+                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                })
             } else {
                 log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistOptions.playlistMetadata.name)
                 setCurrentPlayedMediaIndex(basicPlaylistOptions.startIndex)
@@ -724,7 +793,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         mediaList.forEach {
             var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, it.countDownOptions)
-
 
             basicMediasOptionsList.add(basicMediaOptions)
         }
@@ -743,6 +811,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         ottMediaAsset.ks = ottMedia.ks
         ottMediaAsset.urlType = ottMedia.getUrlType()
         ottMediaAsset.streamerType = ottMedia.getStreamerType()
+        ottMediaAsset.adapterData = ottMedia.adapterData
 
         if (ottMedia.format != null) {
             ottMediaAsset.setFormats(listOf(ottMedia.format))
@@ -763,6 +832,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         var ovpMediaAsset = OVPMediaAsset()
         ovpMediaAsset.entryId = ovpMedia.entryId
+        ovpMediaAsset.referenceId = ovpMedia.referenceId
         ovpMediaAsset.ks = ovpMedia.ks
         val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
 
@@ -806,8 +876,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, AdEvent.allAdsCompleted) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD ALL_ADS_COMPLETED")
-            playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
-            allAdsCompeted = true
+            if (playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError) {
+                playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
+            }
+            allAdsCompleted = true
             if (isPlaybackEndedState()) {
                 progressBar?.setVisibility(View.GONE)
                 playbackControlsManager?.showControls(View.VISIBLE)
@@ -832,7 +904,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, AdEvent.contentResumeRequested) { event ->
             updateEventsLogsList("ad:\n" + event.eventType().name)
             log.d("AD CONTENT_RESUME_REQUESTED")
-            playbackControlsManager?.setAdPlayerState(AdEvent.Type.CONTENT_RESUME_REQUESTED)
+            if (playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError) {
+                playbackControlsManager?.setAdPlayerState(AdEvent.Type.CONTENT_RESUME_REQUESTED)
+            }
             playbackControlsManager?.showControls(View.INVISIBLE)
         }
 
@@ -848,7 +922,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.setAdPlayerState(AdEvent.Type.STARTED)
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
 
-            allAdsCompeted = false
+            allAdsCompleted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
             adCuePoints?.let {
                 if (!initOptions.autoplay && IMADAIPlugin.factory.name != it.getAdPluginName()) {
@@ -905,6 +979,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, AdEvent.adBufferEnd) { event ->
             log.d("AD_BUFFER_END pos = " + event.adPosition)
             progressBar?.setVisibility(View.INVISIBLE)
+        }
+
+        player?.addListener(this, AdEvent.adBreakFetchError) { event ->
+            playbackControlsManager?.setAdPlayerState(event.eventType())
+            updateEventsLogsList("ad:\n" + event.eventType().name)
+            log.d("AD_BREAK_FETCH_ERROR")
         }
 
         /////// PLAYER EVENTS
@@ -964,6 +1044,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlayerEvent.ended) { event ->
             log.d("PLAYER ENDED")
+            playbackControlsManager?.setContentPlayerState(event.eventType())
             if (player?.playlistController != null) {
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                         ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
@@ -1039,7 +1120,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
             var message = "playlistCountDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
-            log.d("PLAYLIST $message" )
+            log.d("PLAYLIST $message")
             showMessage(message)
             //Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
@@ -1273,12 +1354,19 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (YouboraPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     if (pluginDescriptor.params != null) {
                         var youboraPluginConfig: YouboraConfig? = null
+                        var youboraPluginBundle: Bundle? = null
+                        val isBundle = pluginDescriptor.isBundle
                         when (pluginDescriptor.params) {
                             is JsonObject -> {
                                 youboraPluginConfig = gson.fromJson((pluginDescriptor.params as JsonObject).get("options"), YouboraConfig::class.java)
+                                youboraPluginConfig?.let {
+                                    if (isBundle == true) {
+                                        youboraPluginBundle = getYouboraBundle(it)
+                                    }
+                                }
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1293,18 +1381,24 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 config?.let {
                                     youboraPluginConfig = gson.fromJson(config, YouboraConfig::class.java)
                                 }
+
+                                youboraPluginConfig?.let {
+                                    if (isBundle == true) {
+                                        youboraPluginBundle = getYouboraBundle(it)
+                                    }
+                                }
                             }
                         }
                         youboraPluginConfig?.let {
                             if (setPlugin) {
-                                pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, it.toJson())
+                                pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, if (isBundle == true) youboraPluginBundle else it.toJson())
                             } else {
-                                player?.updatePluginConfig(YouboraPlugin.factory.name, it.toJson())
+                                player?.updatePluginConfig(YouboraPlugin.factory.name, if (isBundle == true) youboraPluginBundle else it.toJson())
                             }
                         }
                     }
                 } else if (KavaAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
-                    val kavaPluginConfig = gson.fromJson(pluginDescriptor.params, KavaAnalyticsConfig::class.java)
+                    val kavaPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, KavaAnalyticsConfig::class.java)
                     pkPluginConfigs.setPluginConfig(KavaAnalyticsPlugin.factory.name, kavaPluginConfig.toJson())
                 } else if (IMAPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     if (pluginDescriptor.params != null) {
@@ -1314,7 +1408,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 imaPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMAConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1348,7 +1442,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 imaDaiPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMADAIConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1381,7 +1475,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params as JsonObject, PhoenixAnalyticsConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1414,7 +1508,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 fbInstreamPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, FBInstreamConfig::class.java)
                             }
 
-                            is JsonArray-> {
+                            is JsonArray -> {
                                 var config: JsonElement? = null
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
@@ -1443,6 +1537,60 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
         return pkPluginConfigs
+    }
+
+    private fun getYouboraBundle(youboraPluginConfig: YouboraConfig): Bundle {
+
+        val optBundle = Bundle()
+
+        //Youbora config bundle. Main config goes here.
+        optBundle.putString(Options.KEY_ACCOUNT_CODE, youboraPluginConfig.accountCode)
+        optBundle.putString(Options.KEY_USERNAME, youboraPluginConfig.username)
+        optBundle.putBoolean(Options.KEY_ENABLED, true)
+        optBundle.putString(Options.KEY_APP_NAME, "TestApp");
+        optBundle.putString(Options.KEY_APP_RELEASE_VERSION, "v1.0");
+
+        //Media entry bundle.
+        optBundle.putString(Options.KEY_CONTENT_TITLE, youboraPluginConfig.media?.title)
+
+        //Optional - Device bundle o/w youbora will decide by its own.
+        optBundle.putString(Options.KEY_DEVICE_CODE, youboraPluginConfig.device?.deviceCode)
+        optBundle.putString(Options.KEY_DEVICE_BRAND, youboraPluginConfig.device?.brand)
+        optBundle.putString(Options.KEY_DEVICE_MODEL, youboraPluginConfig.device?.model)
+        optBundle.putString(Options.KEY_DEVICE_TYPE, youboraPluginConfig.device?.type)
+        optBundle.putString(Options.KEY_DEVICE_OS_NAME, youboraPluginConfig.device?.osName)
+        optBundle.putString(Options.KEY_DEVICE_OS_VERSION, youboraPluginConfig.device?.osVersion)
+
+        //Youbora ads configuration bundle.
+        optBundle.putString(Options.KEY_AD_CAMPAIGN, youboraPluginConfig.ads?.campaign)
+
+        //Configure custom properties here:
+        optBundle.putString(Options.KEY_CONTENT_GENRE, youboraPluginConfig.properties?.genre)
+        optBundle.putString(Options.KEY_CONTENT_TYPE, youboraPluginConfig.properties?.type)
+        optBundle.putString(Options.KEY_CONTENT_TRANSACTION_CODE, youboraPluginConfig.properties?.transactionType)
+        optBundle.putString(Options.KEY_CONTENT_CDN, youboraPluginConfig.properties?.contentCdnCode)
+
+        optBundle.putString(Options.KEY_CONTENT_PRICE, youboraPluginConfig.properties?.price)
+        optBundle.putString(Options.KEY_CONTENT_ENCODING_AUDIO_CODEC, youboraPluginConfig.properties?.audioType)
+        optBundle.putString(Options.KEY_CONTENT_CHANNEL, youboraPluginConfig.properties?.audioChannels)
+
+        val contentMetadataBundle = Bundle()
+
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_YEAR, youboraPluginConfig.properties?.year)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_CAST, youboraPluginConfig.properties?.cast)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_DIRECTOR, youboraPluginConfig.properties?.director)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_OWNER, youboraPluginConfig.properties?.owner)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_PARENTAL, youboraPluginConfig.properties?.parental)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_RATING, youboraPluginConfig.properties?.rating)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_QUALITY, youboraPluginConfig.properties?.quality)
+
+        optBundle.putBundle(Options.KEY_CONTENT_METADATA, contentMetadataBundle)
+
+        //You can add some extra params here:
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, youboraPluginConfig.extraParams?.param1)
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, youboraPluginConfig.extraParams?.param2)
+
+        return optBundle
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -1496,7 +1644,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val container = findViewById<ViewGroup>(R.id.player_container_layout)
         playbackControlsView = findViewById(R.id.player_controls)
         playbackControlsView?.setVisibility(View.INVISIBLE)
-        container.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
+        playbackControlsView?.seekBar?.setPlayedColor(resources.getColor(R.color.colorAccent))
+        playbackControlsView?.seekBar?.setBufferedColor(resources.getColor(R.color.greyPrimary))
+        playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_60))
+        playbackControlsView?.seekBar?.setScrubberColor(resources.getColor(R.color.colorAccent))
+
+        container.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 container.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 val screenHeight = getDeviceHeight()
@@ -1538,7 +1691,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun isPlaybackEndedState(): Boolean {
-        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || allAdsCompeted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
+        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError && allAdsCompleted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
     }
 
     private fun isPostrollAvailableInAdCuePoint(): Boolean {
@@ -1588,6 +1741,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager?.showControls(View.VISIBLE)
         }
+
+        playbackControlsManager?.let {
+            it.removeLiveInfoHandler();
+        }
+
+        playbackControlsView?.release()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {

@@ -1,8 +1,7 @@
 package com.kaltura.playkitdemo
 
 import com.kaltura.playkit.PKMediaFormat
-
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by tehilarozin on 15/11/2016.

@@ -38,6 +38,7 @@ import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsConfig
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsEvent
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin
+import com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig.*
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
@@ -51,13 +52,37 @@ import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_LIVE
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_LIVE_1
 import com.kaltura.playkitdemo.PartnersConfig.OVP_ENTRY_ID_VR
 import com.kaltura.playkitdemo.PartnersConfig.OVP_FIRST_ENTRY_ID
+import com.kaltura.playkitdemo.PartnersConfig.OVP_PARTNER_ID_HLS
 import com.kaltura.playkitdemo.PartnersConfig.OVP_SECOND_ENTRY_ID
 import com.kaltura.playkitdemo.PartnersConfig.inLinePreAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preMidPostAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preMidPostSingleAdTagUrl
 import com.kaltura.playkitdemo.PartnersConfig.preSkipAdTagUrl
 import com.kaltura.tvplayer.*
-import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ACCOUNT_CODE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_AD_CAMPAIGN
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_NAME
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_APP_RELEASE_VERSION
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_CDN
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_CHANNEL
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_ENCODING_AUDIO_CODEC
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_GENRE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_METADATA
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_PRICE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_TITLE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_TRANSACTION_CODE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CONTENT_TYPE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CUSTOM_DIMENSION_1
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_CUSTOM_DIMENSION_2
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_BRAND
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_CODE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_MODEL
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_OS_NAME
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_OS_VERSION
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_DEVICE_TYPE
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_ENABLED
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USERNAME
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USER_EMAIL
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -95,6 +120,40 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
     private val IMA_PLUGIN = "IMA"
     private val DAI_PLUGIN = "DAI"
     private var READ_EXTERNAL_STORAGE_PERMISSIONS_REQUEST = 123
+
+    //Youbora analytics Constants - https://developer.nicepeopleatwork.com/apidocs/js6/youbora.Options.html
+    private val ACCOUNT_CODE = "kalturatest"
+    private val UNIQUE_USER_NAME = "a@a.com"
+    private val MEDIA_TITLE = "your_media_title"
+    private val IS_LIVE = false
+    private val ENABLE_SMART_ADS = true
+    private val CAMPAIGN = "your_campaign_name"
+    private val EXTRA_PARAM_1 = "playKitPlayer"
+    private val EXTRA_PARAM_2 = ""
+    private val GENRE = "your_genre"
+    private val TYPE = "your_type"
+    private val TRANSACTION_TYPE = "your_transaction_type"
+    private val YEAR = "your_year"
+    private val CAST = "your_cast"
+    private val DIRECTOR = "your_director"
+    private val OWNER = "your_owner"
+    private val PARENTAL = "your_parental"
+    private val PRICE = "your_price"
+    private val RATING = "your_rating"
+    private val AUDIO_TYPE = "your_audio_type"
+    private val AUDIO_CHANNELS = "your_audio_channels"
+    private val DEVICE = "your_device"
+    private val QUALITY = "your_quality"
+
+    /**
+    Follow this {@link http://mapi.youbora.com:8081/cdns}
+     */
+    val CONTENT_CDN_CODE = "your_cdn_code"
+
+    /**
+    Follow this {@link http://mapi.youbora.com:8081/devices}
+     */
+    val DEVICE_CODE = "your_device_code"
 
     private val daiConfig6: IMADAIConfig
         get() {
@@ -250,8 +309,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         // OTT Playkit Player
         //loadKalturaPlayer(OTT_PARTNER_ID, KalturaPlayer.Type.ott, pkPluginConfigs);
         loadKalturaPlayer(3009, KalturaPlayer.Type.ott, pkPluginConfigs)
-
-
+        
         // OVP Playkit Player
         //loadKalturaPlayer(OVP_PARTNER_ID_HLS, KalturaPlayer.Type.ovp, pkPluginConfigs);
     }
@@ -680,7 +738,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         val pluginEntry = getYouboraJsonObject(title)
 
         //Set plugin entry to the plugin configs.
-        pluginConfigs.setPluginConfig(YouboraPlugin.factory.name, pluginEntry)
+        //pluginConfigs.setPluginConfig(YouboraPlugin.factory.name, pluginEntry) // JsonObject
+        pluginConfigs.setPluginConfig(YouboraPlugin.factory.name, getYouboraBundle()) // Bundle
     }
 
     private fun getYouboraJsonObject(title: String): JsonObject {
@@ -695,7 +754,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
         //Optional - Device json o/w youbora will decide by its own.
         val deviceJson = JsonObject()
-        deviceJson.addProperty("deviceCode", "AndroidTV")
+        deviceJson.addProperty("deviceCode", DEVICE_CODE)
         deviceJson.addProperty("brand", "Xiaomi")
         deviceJson.addProperty("model", "Mii3")
         deviceJson.addProperty("type", "TvBox")
@@ -729,6 +788,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         propertiesJson.addProperty("audioChannels", "")
         propertiesJson.addProperty("device", "")
         propertiesJson.addProperty("quality", "")
+        propertiesJson.addProperty("contentCdnCode", CONTENT_CDN_CODE)
 
         //You can add some extra params here:
         val extraParamJson = JsonObject()
@@ -742,6 +802,66 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         pluginEntry.add("properties", propertiesJson)
         pluginEntry.add("extraParams", extraParamJson)
         return pluginEntry
+    }
+
+    /**
+     * Youbora options Bundle (Recommended)
+     *
+     * Will create [PKPluginConfigs] object with [YouboraPlugin].
+     *
+     * @return - the pluginConfig object that should be passed as parameter when loading the player.
+     */
+    private fun getYouboraBundle(): Bundle? {
+        val optBundle = Bundle()
+
+        //Youbora config bundle. Main config goes here.
+        optBundle.putString(KEY_ACCOUNT_CODE, ACCOUNT_CODE)
+        optBundle.putString(KEY_USERNAME, UNIQUE_USER_NAME)
+        optBundle.putString(KEY_USER_EMAIL, UNIQUE_USER_NAME)
+        optBundle.putString(KEY_APP_NAME, "TestApp")
+        optBundle.putString(KEY_APP_RELEASE_VERSION, "v1.0")
+        optBundle.putBoolean(KEY_ENABLED, true)
+        //Media entry bundle.
+        optBundle.putString(KEY_CONTENT_TITLE, MEDIA_TITLE)
+
+        //Optional - Device bundle o/w youbora will decide by its own.
+        optBundle.putString(KEY_DEVICE_CODE, DEVICE_CODE)
+        optBundle.putString(KEY_DEVICE_BRAND, "Xiaomi")
+        optBundle.putString(KEY_DEVICE_MODEL, "Mii3")
+        optBundle.putString(KEY_DEVICE_TYPE, "TvBox")
+        optBundle.putString(KEY_DEVICE_OS_NAME, "Android/Oreo")
+        optBundle.putString(KEY_DEVICE_OS_VERSION, "8.1")
+
+        //Youbora ads configuration bundle.
+        optBundle.putString(KEY_AD_CAMPAIGN, CAMPAIGN)
+        optBundle.putString(KEY_HOUSEHOLD_ID, "householdId")
+
+        //Configure custom properties here:
+        optBundle.putString(KEY_CONTENT_GENRE, GENRE)
+        optBundle.putString(KEY_CONTENT_TYPE, TYPE)
+        optBundle.putString(KEY_CONTENT_TRANSACTION_CODE, TRANSACTION_TYPE) // NEED TO CHECK
+        optBundle.putString(KEY_CONTENT_CDN, CONTENT_CDN_CODE)
+
+        // Create Content Metadata bundle
+        val contentMetaDataBundle = Bundle()
+        contentMetaDataBundle.putString(KEY_CONTENT_METADATA_YEAR, YEAR)
+        contentMetaDataBundle.putString(KEY_CONTENT_METADATA_CAST, CAST)
+        contentMetaDataBundle.putString(KEY_CONTENT_METADATA_DIRECTOR, DIRECTOR)
+        contentMetaDataBundle.putString(KEY_CONTENT_METADATA_OWNER, OWNER)
+        contentMetaDataBundle.putString(KEY_CONTENT_METADATA_PARENTAL, PARENTAL)
+        contentMetaDataBundle.putString(KEY_CONTENT_METADATA_RATING, RATING)
+        contentMetaDataBundle.putString(KEY_CONTENT_METADATA_QUALITY, QUALITY)
+
+        // Add Content Metadata bundle to the main Options bundle
+        optBundle.putBundle(KEY_CONTENT_METADATA, contentMetaDataBundle)
+        optBundle.putString(KEY_CONTENT_PRICE, PRICE)
+        optBundle.putString(KEY_CONTENT_ENCODING_AUDIO_CODEC, AUDIO_TYPE) // NEED TO CHECK
+        optBundle.putString(KEY_CONTENT_CHANNEL, AUDIO_CHANNELS) // NEED TO CHECK
+
+        //You can add some extra params here:
+        optBundle.putString(KEY_CUSTOM_DIMENSION_1, EXTRA_PARAM_1)
+        optBundle.putString(KEY_CUSTOM_DIMENSION_2, EXTRA_PARAM_2)
+        return optBundle
     }
 
     private fun addPhoenixAnalyticsPluginConfig(config: PKPluginConfigs) {

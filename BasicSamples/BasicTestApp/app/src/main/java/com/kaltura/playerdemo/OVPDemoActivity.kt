@@ -3,7 +3,6 @@ package com.kaltura.playerdemo
 import android.content.Intent
 import android.net.Uri
 import android.widget.FrameLayout
-
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.kaltura.netkit.utils.GsonParser
@@ -11,14 +10,11 @@ import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.Utils
 import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.KalturaOvpPlayer
-import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-
 import java.io.IOException
 import java.net.URL
 

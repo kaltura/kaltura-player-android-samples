@@ -132,16 +132,16 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         if (!dragging && position != C.POSITION_UNSET.toLong() && duration != C.TIME_UNSET) {
             //log.d("updateProgress Set Position:" + position);
             tvCurTime.text = stringForTime(position)
-            seekBar.setPosition(progressBarValue(position).toLong())
-            seekBar.setDuration(progressBarValue(duration).toLong())
+            seekBar.setPosition(position)
+            seekBar.setDuration(duration)
         }
 
-        seekBar.setBufferedPosition(progressBarValue(bufferedPosition).toLong())
+        seekBar.setBufferedPosition(bufferedPosition)
         // Remove scheduled updates.
         removeCallbacks(updateProgressAction)
         // Schedule an update if necessary.
         if (playerState != PlayerState.IDLE) {
-            val delayMs: Long = 500
+            val delayMs: Long = 1000
             postDelayed(updateProgressAction, delayMs)
         }
     }
@@ -157,12 +157,16 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
 
         override fun onScrubMove(timeBar: TimeBar, position: Long) {
             previewImage.visibility = View.GONE
+            var positionInPercentage = 0
 
-            // position.toFloat() - Gives seek percent
-            // seekBar?.width - Seekbar width which changes based on device width
+            player?.let {
+                positionInPercentage = Math.round((position * PROGRESS_BAR_MAX / it.duration).toFloat())
+            }
+
+            // positionInPercentage.toFloat() - Gives seek percent
+            // seekBar?.width - SeekBar width which changes based on device width
             // leftMargin - Gives the margin from left of the screen
-            val leftMargin: Float = (seekBar.width.times(position.toFloat())).div(MainActivity.slicesCount ?: 100)
-
+            val leftMargin: Float = (seekBar.width.times(positionInPercentage.toFloat())).div(MainActivity.slicesCount ?: 100)
 
             // Move preview image from left till leftMargin is equal to (screen size - Preview image width )
             if (leftMargin < (seekBar.width + (4 * tvCurTime.paddingLeft) - (MainActivity.previewImageWidth ?: 90) - tvCurTime.width)) {
@@ -170,7 +174,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
             }
 
             if (!previewImageHashMap.isNullOrEmpty()) {
-                val previewBitmap: Bitmap? = previewImageHashMap?.get(position.toString())
+                val previewBitmap: Bitmap? = previewImageHashMap?.get(positionInPercentage.toString())
                 previewBitmap?.let {
                     previewImage.visibility = View.VISIBLE
                     previewImage.setImageBitmap(it)
@@ -178,17 +182,14 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
             }
 
             player?.let {
-                tvCurTime.text = stringForTime(position * it.duration / PROGRESS_BAR_MAX)
+                tvCurTime.text = stringForTime(position)
             }
         }
 
         override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
             dragging = false
             previewImage.visibility = View.GONE
-
-            player?.let {
-                it.seekTo(position * it.duration / PROGRESS_BAR_MAX)
-            }
+            player?.seekTo(position)
         }
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
