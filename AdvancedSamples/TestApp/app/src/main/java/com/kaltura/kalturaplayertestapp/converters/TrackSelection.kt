@@ -1,7 +1,5 @@
 package com.kaltura.kalturaplayertestapp.converters
 
-import com.google.gson.JsonElement
-
 
 class TrackSelection {
     var textSelectionMode: String? = null

@@ -1,7 +1,6 @@
 package com.kaltura.kalturaplayertestapp.tracks
 
 import android.content.Context
-import android.content.DialogInterface
 import android.text.TextUtils
 import android.util.SparseArray
 import android.view.LayoutInflater
