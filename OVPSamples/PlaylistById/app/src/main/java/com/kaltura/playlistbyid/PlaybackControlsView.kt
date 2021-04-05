@@ -206,8 +206,8 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
     override fun onClick(v: View) {
         when (v.id) {
             R.id.kexo_play -> {
+                log.d("entry id" + player?.mediaEntry?.id);
                 player?.play()
-                Log.d(TAG, "entry id" + player?.mediaEntry?.id);
             }
             R.id.kexo_pause ->
                 player?.pause()
