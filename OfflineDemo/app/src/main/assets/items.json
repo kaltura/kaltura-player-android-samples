@@ -49,6 +49,21 @@
         }
     },
     {
+        "title": "OTTMedia",
+        "id": "548576",
+        "partnerId": 3009,
+        "ott": true,
+        "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        },
+        "ottParams": {
+            "format": "Mobile_Main",
+            "protocol": "http"
+        }
+    },
+    {
         "title": "DRM: Prod 1",
         "id": "1_f93tepsn",
         "partnerId": 2222401,

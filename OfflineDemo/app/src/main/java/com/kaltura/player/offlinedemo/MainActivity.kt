@@ -45,7 +45,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 //        setSupportActionBar(toolbar)
 
-
         val itemsJson = Utils.readAssetToString(this, "items.json")
 
         val gson = Gson()
@@ -54,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         val testItems = items.map { it.toItem() }
 
         manager = OfflineManager.getInstance(this)
-//        manager.setPreferredMediaFormat(PKMediaFormat.hls)
         manager.setOfflineManagerSettings(OfflineManagerSettings().setDefaultHlsAudioBitrateEstimation(64000))
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
@@ -142,16 +140,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showActionsDialog(item: Item) {
-        val items = arrayOf("Prepare", "Start", "Pause", "Play", "Remove", "Status", "Update")
+        val items = arrayOf("Prepare", "Start", "Pause", "Play-Offline", "Play-Online", "Remove", "Status", "Update")
         AlertDialog.Builder(this).setItems(items) { _, i ->
             when (i) {
                 0 -> doPrepare(item)
                 1 -> doStart(item)
                 2 -> doPause(item)
-                3 -> doPlay(item)
-                4 -> doRemove(item)
-                5 -> doStatus(item)
-                6 -> updateItemStatus(item)
+                3 -> doPlayOffline(item)
+                4 -> doPlayOnline(item)
+                5 -> doRemove(item)
+                6 -> doStatus(item)
+                7 -> updateItemStatus(item)
             }
         }.show()
     }
@@ -199,10 +198,14 @@ class MainActivity : AppCompatActivity() {
         updateItemStatus(item)
     }
 
-    private fun doPlay(item: Item) {
+    private fun doPlayOffline(item: Item) {
         startActivity(Intent(this, PlayActivity::class.java).apply {
             data = Uri.parse(item.assetInfo?.assetId ?: return)
         })
+    }
+
+    private fun doPlayOnline(item: Item) {
+        //TODO: Support Online Playback
     }
 
     private fun doPause(item: Item) {
@@ -221,7 +224,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun doPrepare(item: Item) {
 
-        if (item is KalturaItem) {
+        if (item is OTTItem) {
+            manager.setKalturaParams(KalturaPlayer.Type.ott, item.partnerId)
+            manager.setKalturaServerUrl(item.serverUrl)
+        }
+
+        if (item is OVPItem){
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             manager.setKalturaServerUrl(item.serverUrl)
         }

@@ -35,8 +35,6 @@ class PlayActivity : AppCompatActivity() {
     private var currentTextTrack: TextTrack? = null
     private var currentAudioTrack: AudioTrack? = null
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_play)
@@ -53,7 +51,6 @@ class PlayActivity : AppCompatActivity() {
         player = KalturaBasicPlayer.create(this, options)
         player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         playerRoot.addView(player.playerView)
-
 
         val manager = OfflineManager.getInstance(this)
 
@@ -95,6 +92,7 @@ class PlayActivity : AppCompatActivity() {
         val tracks = (if (audio) audioTracks else textTracks) ?: return
         val trackTitles = arrayListOf<String>()
         val trackIds = arrayListOf<String>()
+
         for (track in tracks) {
             val language =
                 if (audio) (track as AudioTrack).language else (track as TextTrack).language
@@ -103,6 +101,7 @@ class PlayActivity : AppCompatActivity() {
                 trackTitles.add(language)
             }
         }
+
         if (trackIds.size < 1) {
             Toast.makeText(this, "No tracks to select from", LENGTH_LONG).show()
             return
@@ -124,8 +123,6 @@ class PlayActivity : AppCompatActivity() {
     }
 
     private fun addPlayerEventListeners() {
-
-
         player.addListener(this, playing) {
             updatePlayPauseButton(true)
         }
@@ -169,13 +166,11 @@ class PlayActivity : AppCompatActivity() {
 
     private fun updatePlayPauseButton(isPlaying: Boolean) {
         val next = if (isPlaying) pauseDrawable else playDrawable
-
         fab_playpause.setImageDrawable(next)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-
         player.destroy()
     }
 }
