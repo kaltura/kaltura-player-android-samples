@@ -21,6 +21,7 @@ class PlayerConfig {
     var autoPlay: Boolean? = null
     var preload: Boolean? = null
     val allowCrossProtocolEnabled: Boolean? = null
+    val playerRequestConfig: PlayerRequestConfig? = null
     var preferredFormat: PKMediaFormat? = null
     var allowClearLead: Boolean? = null
     var enableDecoderFallback: Boolean? = null
