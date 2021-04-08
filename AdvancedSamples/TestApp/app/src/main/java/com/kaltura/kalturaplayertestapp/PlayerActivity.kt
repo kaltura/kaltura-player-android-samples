@@ -182,7 +182,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
      * Checks the updatable prameters in JSON
      */
     fun checkUpdateParamsAndShowSnackbar(params: UpdateParams) {
-
         if (params.isUpdateABRSettings != null && params.isUpdateABRSettings!!) {
             player?.let { player ->
                 params.updatedABRSettings?.let { updatedABR ->
@@ -195,24 +194,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             pkLowLatencyConfig = params.updatePkLowLatencyConfig
             player?.updatePKLowLatencyConfig(pkLowLatencyConfig)
         }
-
-
-//        updateParams?.let { params ->
-//            params.timerForSnackbar?.let { delay ->
-//                Timer().schedule(object : TimerTask() {
-//                    override fun run() {
-//                        var snackbar: Snackbar? = null
-//
-//
-//
-//                        snackbar?.let {
-//                            it.setActionTextColor(Color.YELLOW)
-//                            it.show()
-//                        }
-//                    }
-//                }, delay)
-//            }
-//        }
     }
 
     fun playNext() {
