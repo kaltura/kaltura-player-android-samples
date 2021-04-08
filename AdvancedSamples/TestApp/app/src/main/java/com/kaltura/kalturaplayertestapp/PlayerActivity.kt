@@ -170,7 +170,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         return when (item.itemId) {
             R.id.action_menu_update -> {
                 updateParams?.let { params ->
-                    checkUpdateParamsAndShowSnackbar(params)
+                    doUpdateConfig(params)
                 }
                 true
             }
@@ -181,7 +181,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     /**
      * Checks the updatable prameters in JSON
      */
-    fun checkUpdateParamsAndShowSnackbar(params: UpdateParams) {
+    fun doUpdateConfig(params: UpdateParams) {
         if (params.isUpdateABRSettings != null && params.isUpdateABRSettings!!) {
             player?.let { player ->
                 params.updatedABRSettings?.let { updatedABR ->
