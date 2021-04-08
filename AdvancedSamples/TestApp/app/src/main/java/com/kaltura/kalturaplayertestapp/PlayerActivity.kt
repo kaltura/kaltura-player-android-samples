@@ -1167,7 +1167,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlayerEvent.videoTrackChanged) { event ->
-            log.d("PLAYER videoTrackChanged " + event.newTrack.bitrate)
+            log.d("PLAYER videoTrackChanged")
             tracksSelectionController?.tracks?.let {
                 for (i in 0 .. it.videoTracks.size - 1) {
                     if (event.newTrack.getUniqueId() == it.videoTracks[i].uniqueId) {
