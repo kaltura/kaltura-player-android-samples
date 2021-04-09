@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         assetList.adapter = this.itemArrayAdapter
 
         assetList.setOnItemClickListener { av: AdapterView<*>, _: View, pos: Int, _: Long ->
-            showActionsDialog(av.getItemAtPosition(pos) as Item)
+            showActionsDialog(av.getItemAtPosition(pos) as Item, pos)
         }
 
         manager.start {
@@ -139,15 +139,15 @@ class MainActivity : AppCompatActivity() {
         updateItemStatus(itemMap[assetId] ?: return)
     }
 
-    private fun showActionsDialog(item: Item) {
+    private fun showActionsDialog(item: Item, position: Int) {
         val items = arrayOf("Prepare", "Start", "Pause", "Play-Offline", "Play-Online", "Remove", "Status", "Update")
         AlertDialog.Builder(this).setItems(items) { _, i ->
             when (i) {
                 0 -> doPrepare(item)
                 1 -> doStart(item)
                 2 -> doPause(item)
-                3 -> doPlayOffline(item)
-                4 -> doPlayOnline(item)
+                3 -> doOfflinePlayback(item)
+                4 -> doOnlinePlayback(position)
                 5 -> doRemove(item)
                 6 -> doStatus(item)
                 7 -> updateItemStatus(item)
@@ -198,19 +198,31 @@ class MainActivity : AppCompatActivity() {
         updateItemStatus(item)
     }
 
-    private fun doPlayOffline(item: Item) {
+    private fun doOfflinePlayback(item: Item) {
         startActivity(Intent(this, PlayActivity::class.java).apply {
             data = Uri.parse(item.assetInfo?.assetId ?: return)
         })
     }
 
-    private fun doPlayOnline(item: Item) {
-        //TODO: Support Online Playback
+    private fun doOnlinePlayback(position: Int ) {
+        val intent = Intent(this, PlayActivity::class.java)
+
+        val bundle = Bundle()
+        bundle.putBoolean("isOnlinePlayback", true)
+        bundle.putInt("position", position)
+
+        intent.putExtra("assetBundle", bundle)
+
+        startActivity(intent)
     }
 
-    private fun doPause(item: Item) {
-        manager.pauseAssetDownload(item.id())
-        updateItemStatus(item)
+    private fun doPause(item: Item?) {
+        item?.let { it ->
+            it.id()?.let { itemId ->
+                manager.pauseAssetDownload(itemId)
+                updateItemStatus(it)
+            }
+        }
     }
 
     private fun doStart(item: Item) {
@@ -223,7 +235,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doPrepare(item: Item) {
-
         if (item is OTTItem) {
             manager.setKalturaParams(KalturaPlayer.Type.ott, item.partnerId)
             manager.setKalturaServerUrl(item.serverUrl)
