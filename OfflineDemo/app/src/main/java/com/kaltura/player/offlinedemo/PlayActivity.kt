@@ -49,6 +49,7 @@ class PlayActivity : AppCompatActivity() {
         val bundle = intent.getBundleExtra("assetBundle")
         val isOnlinePlayback = bundle?.getBoolean("isOnlinePlayback") ?: false
         val position = bundle?.getInt("position") ?: -1
+        val partnerId = bundle?.getInt("partnerId")
 
         if (isOnlinePlayback) {
             val itemsJson = Utils.readAssetToString(this, "items.json")
@@ -57,7 +58,7 @@ class PlayActivity : AppCompatActivity() {
             testItems = items.map { it.toItem() }
         }
 
-        val options = PlayerInitOptions(3009).apply {
+        val options = PlayerInitOptions(partnerId).apply {
             autoplay = true
             allowCrossProtocolEnabled = true
         }

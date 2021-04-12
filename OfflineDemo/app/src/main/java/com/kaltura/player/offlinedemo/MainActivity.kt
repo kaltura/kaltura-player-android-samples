@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity() {
                 1 -> doStart(item)
                 2 -> doPause(item)
                 3 -> doOfflinePlayback(item)
-                4 -> doOnlinePlayback(position)
+                4 -> doOnlinePlayback(item, position)
                 5 -> doRemove(item)
                 6 -> doStatus(item)
                 7 -> updateItemStatus(item)
@@ -204,12 +204,20 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun doOnlinePlayback(position: Int ) {
+    private fun doOnlinePlayback(item: Item, position: Int) {
         val intent = Intent(this, PlayActivity::class.java)
 
         val bundle = Bundle()
         bundle.putBoolean("isOnlinePlayback", true)
         bundle.putInt("position", position)
+
+        if (item is OTTItem) {
+            bundle.putInt("partnerId", item.partnerId)
+        }
+
+        if (item is OVPItem) {
+            bundle.putInt("partnerId", item.partnerId)
+        }
 
         intent.putExtra("assetBundle", bundle)
 
