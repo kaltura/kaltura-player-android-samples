@@ -24,7 +24,7 @@
 //project(':netkit').projectDir = new File('../../netkit-android/netkit')
 
 //include ':broadpeak'
-//project(':broadpeak').projectDir = new File(settingsDir,'../../../playkit-android-broadpeak-smartlib/broadpeakplugin')
+//project(':broadpeak').projectDir = new File(settingsDir,'../../playkit-android-broadpeak-smartlib/broadpeakplugin')
 
 // Sample apps
 def samples = [
