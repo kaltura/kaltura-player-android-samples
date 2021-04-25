@@ -22,6 +22,10 @@
 //project(':fbads').projectDir = new File('../../playkit-android-fb-ads/fbadsplugin')
 //include ':netkit'
 //project(':netkit').projectDir = new File('../../netkit-android/netkit')
+
+//include ':broadpeak'
+//project(':broadpeak').projectDir = new File(settingsDir,'../../playkit-android-broadpeak-smartlib/broadpeakplugin')
+
 // Sample apps
 def samples = [
         'TestApp',
