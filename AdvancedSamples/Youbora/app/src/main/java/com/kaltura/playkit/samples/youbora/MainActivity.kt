@@ -54,6 +54,7 @@ import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_SWITCH_HEADE
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_CDN_TTL
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_PARSE_MANIFEST
 import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USERNAME
+import com.npaw.youbora.lib6.plugin.Options.Companion.KEY_USER_EMAIL
 
 class MainActivity: AppCompatActivity() {
 
@@ -76,6 +77,7 @@ class MainActivity: AppCompatActivity() {
     //Youbora analytics Constants
     val ACCOUNT_CODE = "your_account_code"
     val UNIQUE_USER_NAME = "your_app_logged_in_user_email_or_userId"
+    val USER_EMAIL = "user_email"
     val MEDIA_TITLE = "your_media_title"
     val ENABLE_SMART_ADS = true
 
@@ -88,7 +90,7 @@ class MainActivity: AppCompatActivity() {
 
     val CAMPAIGN = "your_campaign_name"
     val EXTRA_PARAM_1 = "playKitPlayer"
-    val EXTRA_PARAM_2 = ""
+    val EXTRA_PARAM_2 = "zzzz"
     val GENRE = "your_genre"
     val TYPE = "your_type"
     val TRANSACTION_TYPE = "your_trasnsaction_type"
@@ -107,7 +109,7 @@ class MainActivity: AppCompatActivity() {
     Follow this {@link http://mapi.youbora.com:8081/cdns}
      */
     val CONTENT_CDN_CODE = "your_cdn_code"
-
+    val PROGRAM = "your_program"
     /**
     Follow this {@link http://mapi.youbora.com:8081/devices}
      */
@@ -222,6 +224,7 @@ class MainActivity: AppCompatActivity() {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
+
         playerInitOptions.setAllowCrossProtocolEnabled(true)
 
         // Youbora Configuration
@@ -229,6 +232,8 @@ class MainActivity: AppCompatActivity() {
         val youboraConfigJson = getYouboraConfig()
 
         pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, getYouboraBundle())
+        //pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, youboraConfigJson)
+
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
 
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
@@ -265,6 +270,7 @@ class MainActivity: AppCompatActivity() {
         ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
         ottMediaAsset.ks = null
         ottMediaAsset.formats = listOf("Mobile_Main")
+
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
 
         ottMediaOptions.startPosition = START_POSITION
@@ -283,17 +289,26 @@ class MainActivity: AppCompatActivity() {
         val youboraConfigJson = JsonObject()
         youboraConfigJson.addProperty("accountCode", ACCOUNT_CODE)
         youboraConfigJson.addProperty("username", UNIQUE_USER_NAME)
+        youboraConfigJson.addProperty("userEmail", USER_EMAIL)
 
         youboraConfigJson.addProperty("haltOnError", true)
         youboraConfigJson.addProperty("enableAnalytics", true)
         youboraConfigJson.addProperty("enableSmartAds", ENABLE_SMART_ADS)
         youboraConfigJson.addProperty("appName", "TestApp")
         youboraConfigJson.addProperty("appReleaseVersion", "v1.0")
-
+        youboraConfigJson.addProperty("userObfuscateIp", true)
+        //youboraConfigJson.addProperty("httpSecure", false)
 
         //Media entry json.
         val mediaEntryJson = JsonObject()
         mediaEntryJson.addProperty("title", MEDIA_TITLE)
+        mediaEntryJson.addProperty("contentIsLiveNoSeek", true)
+        mediaEntryJson.addProperty("contentCdnCode", CONTENT_CDN_CODE)
+        mediaEntryJson.addProperty("contentGenre", GENRE)
+        mediaEntryJson.addProperty("contentEpisodeTitle", "xxxxxxx")
+        mediaEntryJson.addProperty("contentPrice", PRICE)
+        mediaEntryJson.addProperty("contentTransactionCode", TRANSACTION_TYPE)
+        mediaEntryJson.addProperty("contentProgram", PROGRAM)
 
         //Optional - Parse
         val parseJson = JsonObject()
@@ -319,26 +334,41 @@ class MainActivity: AppCompatActivity() {
 
         //Youbora ads configuration json.
         val adsJson = JsonObject()
-        adsJson.addProperty("adsExpected", true)
         adsJson.addProperty("campaign", CAMPAIGN)
+        adsJson.addProperty("adExpectedBreaks", 1)
+
+
+
+        val appJson = JsonObject()
+        appJson.addProperty("appName", "MyTestApp")
+
+        val errorsJson = JsonObject()
+        val errorJsonArray = JsonArray()
+        errorJsonArray.add("exception1")
+        errorJsonArray.add("exception2")
+
+        errorsJson.add("errorsIgnore", errorJsonArray)
+
+
+        val networkJson = JsonObject()
+        networkJson.addProperty("networkIP", "1.1.1.1")
 
         //Configure custom properties here:
         val propertiesJson = JsonObject()
-        propertiesJson.addProperty("genre", GENRE)
-        propertiesJson.addProperty("type", TYPE)
-        propertiesJson.addProperty("transactionType", TRANSACTION_TYPE)
+
+
         propertiesJson.addProperty("year", YEAR)
         propertiesJson.addProperty("cast", CAST)
         propertiesJson.addProperty("director", DIRECTOR)
         propertiesJson.addProperty("owner", OWNER)
         propertiesJson.addProperty("parental", PARENTAL)
-        propertiesJson.addProperty("price", PRICE)
+
         propertiesJson.addProperty("rating", RATING)
         propertiesJson.addProperty("audioType", AUDIO_TYPE)
         propertiesJson.addProperty("audioChannels", AUDIO_CHANNELS)
         propertiesJson.addProperty("device", DEVICE)
         propertiesJson.addProperty("quality", QUALITY)
-        propertiesJson.addProperty("contentCdnCode", CONTENT_CDN_CODE)
+
 
         //You can add some extra params here:
         val extraParamJson = JsonObject()
@@ -347,8 +377,11 @@ class MainActivity: AppCompatActivity() {
 
         //Add all the json objects created before to the pluginEntry json.
         youboraConfigJson.add("media", mediaEntryJson)
+        youboraConfigJson.add("app", appJson)
         youboraConfigJson.add("parse", parseJson)
+        youboraConfigJson.add("network", networkJson)
         youboraConfigJson.add("device", deviceJson)
+        youboraConfigJson.add("errors", errorsJson)
         youboraConfigJson.add("ads", adsJson)
         youboraConfigJson.add("properties", propertiesJson)
         youboraConfigJson.add("extraParams", extraParamJson)
@@ -367,6 +400,8 @@ class MainActivity: AppCompatActivity() {
         //Youbora config bundle. Main config goes here.
         optBundle.putString(KEY_ACCOUNT_CODE, ACCOUNT_CODE)
         optBundle.putString(KEY_USERNAME, UNIQUE_USER_NAME)
+        optBundle.putString(KEY_USER_EMAIL, USER_EMAIL)
+
         optBundle.putBoolean(KEY_ENABLED, true)
         optBundle.putString(KEY_APP_NAME, "TestApp");
         optBundle.putString(KEY_APP_RELEASE_VERSION, "v1.0");
@@ -423,6 +458,4 @@ class MainActivity: AppCompatActivity() {
 
         return optBundle
     }
-
-
 }
