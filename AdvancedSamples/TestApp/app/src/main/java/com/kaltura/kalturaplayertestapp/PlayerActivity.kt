@@ -3,7 +3,6 @@ package com.kaltura.kalturaplayertestapp
 import AppOVPMediaOptions
 import android.content.IntentFilter
 import android.content.res.Configuration
-import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
@@ -104,6 +103,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var playbackControlsManager: PlaybackControlsManager? = null
     private var isFirstOnResume = true
     private var isPlayingOnPause: Boolean = false
+    private var updateMenuItem: MenuItem? = null
     var pkLowLatencyConfig: PKLowLatencyConfig? = null
 
     private var networkChangeReceiver: NetworkChangeReceiver? = null
@@ -154,49 +154,45 @@ class PlayerActivity: AppCompatActivity(), Observer {
         } ?: run {
             showMessage(R.string.error_empty_input)
         }
+    }
 
-        checkUpdateParamsAndShowSnackbar()
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_update_param, menu)
+        updateMenuItem = menu?.findItem(R.id.action_menu_update)
+        updateMenuItem?.setVisible(false)
+        updateParams?.let { params ->
+            updateMenuItem?.setVisible(true)
+        }
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_menu_update -> {
+                updateParams?.let { params ->
+                    doUpdateConfig(params)
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     /**
      * Checks the updatable prameters in JSON
      */
-    fun checkUpdateParamsAndShowSnackbar() {
-        updateParams?.let { params ->
-            params.timerForSnackbar?.let { delay ->
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        var snackbar: Snackbar? = null
-
-                        if (params.isUpdateABRSettings != null && params.isUpdateABRSettings!!) {
-                            snackbar = Snackbar.make(findViewById(android.R.id.content), "UpdateABRSettings", Snackbar.LENGTH_INDEFINITE)
-                            snackbar.setAction("Update") {
-                                player?.let { player ->
-                                    params.updatedABRSettings?.let { updatedABR ->
-                                        player.updateABRSettings(updatedABR)
-                                    }
-                                }
-                            }
-                        } else if (params.isResetABRSettings != null && params.isResetABRSettings!!) {
-                            snackbar = Snackbar.make(findViewById(android.R.id.content), "ResetABRSettings", Snackbar.LENGTH_INDEFINITE)
-                            snackbar.setAction("Reset") {
-                                player?.resetABRSettings()
-                            }
-                        } else if (params.isUpdatePkLowLatencyConfig != null && params.updatePkLowLatencyConfig != null) {
-                            snackbar = Snackbar.make(findViewById(android.R.id.content), "UpdateLowLatency", Snackbar.LENGTH_INDEFINITE)
-                            snackbar.setAction("Update") {
-                                pkLowLatencyConfig = params.updatePkLowLatencyConfig
-                                player?.updatePKLowLatencyConfig(pkLowLatencyConfig)
-                            }
-                        }
-
-                        snackbar?.let {
-                            it.setActionTextColor(Color.YELLOW)
-                            it.show()
-                        }
-                    }
-                }, delay)
+    fun doUpdateConfig(params: UpdateParams) {
+        if (params.isUpdateABRSettings != null && params.isUpdateABRSettings!!) {
+            player?.let { player ->
+                params.updatedABRSettings?.let { updatedABR ->
+                    player.updateABRSettings(updatedABR)
+                }
             }
+        } else if (params.isResetABRSettings != null && params.isResetABRSettings!!) {
+            player?.resetABRSettings()
+        } else if (params.isUpdatePkLowLatencyConfig != null && params.updatePkLowLatencyConfig != null) {
+            pkLowLatencyConfig = params.updatePkLowLatencyConfig
+            player?.updatePKLowLatencyConfig(pkLowLatencyConfig)
         }
     }
 

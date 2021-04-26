@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.annotation.WorkerThread
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.kaltura.kalturaplayertestapp.models.Configuration
 import java.util.*
 import java.util.concurrent.*
