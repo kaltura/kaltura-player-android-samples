@@ -302,7 +302,7 @@ class MainActivity: AppCompatActivity() {
         //Media entry json.
         val mediaEntryJson = JsonObject()
         mediaEntryJson.addProperty("title", MEDIA_TITLE)
-         mediaEntryJson.addProperty("contentIsLiveNoSeek", true)
+        mediaEntryJson.addProperty("contentIsLiveNoSeek", true)
         mediaEntryJson.addProperty("contentCdnCode", CONTENT_CDN_CODE)
         mediaEntryJson.addProperty("contentGenre", GENRE)
         mediaEntryJson.addProperty("contentEpisodeTitle", "xxxxxxx")
