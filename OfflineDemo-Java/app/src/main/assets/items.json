@@ -1,6 +1,9 @@
 [
     {
-        "title": "Clear: Kaltura", "id": "1_sf5ovm7u", "partnerId": 243342,
+        "title": "Clear: Kaltura",
+        "id": "1_sf5ovm7u",
+        "partnerId": 243342,
+        "env": "http://cdnapisec.kaltura.com",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
@@ -40,12 +43,37 @@
         }
     },
     {
+        "title": "OVP Test Media",
+        "id": "1_w9zx2eti",
+        "partnerId": 2215841,
+        "env": "http://cdnapisec.kaltura.com",
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        }
+    },
+    {
         "title": "bunny",
         "id": "bunny",
         "url": "https://noamtamim.com/hls-bunny/index.m3u8",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
+        }
+    },
+    {
+        "title": "OTT Test Media",
+        "id": "548576",
+        "partnerId": 3009,
+        "ott": true,
+        "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        },
+        "ottParams": {
+            "format": "Mobile_Main",
+            "protocol": "http"
         }
     },
     {
@@ -84,7 +112,7 @@
         "url": "http://cdntesting.qa.mkaltura.com/p/1091/sp/109100/playManifest/entryId/0_mskmqcit/flavorIds/0_et3i1dux,0_pa4k1rn9/format/applehttp/protocol/http/a.m3u8",
         "options": {
             "audioLangs": ["en", "es"],
-            "textLangs": ["en", "nl"]
+            "textLangs": ["en", "ru"]
         }
     },
     {
@@ -92,13 +120,13 @@
         "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",
         "options": {
             "videoHeight": 360
-        }        
+        }
     },
     {
         "title": "Kaltura 720p", "id": "k-720p",
         "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",
         "options": {
             "videoHeight": 720
-        }        
+        }
     }
 ]
