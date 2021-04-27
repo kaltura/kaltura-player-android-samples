@@ -364,7 +364,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
     private fun buildPlayer(appPlayerInitConfig: PlayerConfig, playListMediaIndex: Int, playerType: KalturaPlayer.Type) {
         var player: KalturaPlayer
-        var pkRequestConfiguration: PKRequestConfiguration? = null
 
         val appPluginConfigJsonObject = appPlayerInitConfig.plugins
         //        int playerUiConfId = -1;
@@ -380,22 +379,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             pkLowLatencyConfig = it
         }
 
-        appPlayerInitConfig.playerRequestConfig?.let {
-            pkRequestConfiguration = PKRequestConfiguration()
-
-            it.crossProtocolRedirectEnabled?.let { isEnabled ->
-                pkRequestConfiguration?.crossProtocolRedirectEnabled = isEnabled
-            }
-
-            it.readTimeoutMs?.let { readTimeout ->
-                pkRequestConfiguration?.readTimeoutMs = readTimeout
-            }
-
-            it.connectTimeoutMs?.let { connectTimeout ->
-                pkRequestConfiguration?.connectTimeoutMs = connectTimeout
-            }
-        }
-
         val partnerId = if (appPlayerInitConfig.partnerId != null) Integer.valueOf(appPlayerInitConfig.partnerId) else null
         initOptions = PlayerInitOptions(partnerId)
                 .setAutoPlay(appPlayerInitConfig.autoPlay)
@@ -403,7 +386,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setPreload(appPlayerInitConfig.preload)
                 .setReferrer(appPlayerInitConfig.referrer)
                 .setAllowCrossProtocolEnabled(appPlayerInitConfig.allowCrossProtocolEnabled)
-                .setPKRequestConfig(pkRequestConfiguration)
+                .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
                 .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
                 .setSecureSurface(appPlayerInitConfig.secureSurface)
                 .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode)
