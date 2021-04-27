@@ -11,7 +11,6 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.2'
         classpath 'com.google.gms:google-services:3.2.1'
-        classpath 'com.novoda:bintray-release:0.8.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -23,6 +22,7 @@ allprojects {
             url "https://maven.google.com" // Google's Maven repository
         }
         jcenter()
+        maven { url  "https://npaw.jfrog.io/artifactory/youbora/" }
         maven { url "https://jitpack.io" }
 //        maven {
 //            credentials {

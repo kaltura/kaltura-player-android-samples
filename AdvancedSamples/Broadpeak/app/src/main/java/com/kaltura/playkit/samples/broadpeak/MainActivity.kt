@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity() {
         val pkPluginConfigs = PKPluginConfigs()
         val broadpeakConfig = BroadpeakConfig().apply {
             analyticsAddress = "https://analytics.kaltura.com/api_v3/index.php"
-            nanoCDNHost = "cdnapisec.kaltura.com"
+            nanoCDNHost = ""
             broadpeakDomainNames = "*"
         }
 

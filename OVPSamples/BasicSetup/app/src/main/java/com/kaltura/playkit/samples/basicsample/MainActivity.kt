@@ -142,6 +142,7 @@ class MainActivity : AppCompatActivity() {
         val ovpMediaAsset = OVPMediaAsset()
         ovpMediaAsset.entryId = ENTRY_ID
         ovpMediaAsset.ks = null
+        ovpMediaAsset.redirectFromEntryId = true
         val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
         ovpMediaOptions.startPosition = START_POSITION
 
