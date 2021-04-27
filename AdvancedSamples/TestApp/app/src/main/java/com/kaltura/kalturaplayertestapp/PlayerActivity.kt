@@ -382,6 +382,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setPreload(appPlayerInitConfig.preload)
                 .setReferrer(appPlayerInitConfig.referrer)
                 .setAllowCrossProtocolEnabled(appPlayerInitConfig.allowCrossProtocolEnabled)
+                .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
                 .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
                 .setSecureSurface(appPlayerInitConfig.secureSurface)
                 .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode)

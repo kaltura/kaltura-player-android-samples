@@ -4,6 +4,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.kaltura.netkit.connect.request.RequestConfiguration
 import com.kaltura.playkit.PKMediaFormat
+import com.kaltura.playkit.PKRequestConfiguration
 import com.kaltura.playkit.PKRequestParams
 import com.kaltura.playkit.PKSubtitlePreference
 import com.kaltura.playkit.player.*
@@ -21,6 +22,7 @@ class PlayerConfig {
     var autoPlay: Boolean? = null
     var preload: Boolean? = null
     val allowCrossProtocolEnabled: Boolean? = null
+    val playerRequestConfig: PKRequestConfiguration? = null
     var preferredFormat: PKMediaFormat? = null
     var allowClearLead: Boolean? = null
     var enableDecoderFallback: Boolean? = null
