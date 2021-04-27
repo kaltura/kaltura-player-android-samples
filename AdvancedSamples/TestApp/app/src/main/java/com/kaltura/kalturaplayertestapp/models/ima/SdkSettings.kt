@@ -8,4 +8,5 @@ data class SdkSettings(var numRedirects: Int = 4,
                        var debugMode: Boolean = false,
                        var playerVersion: String = "kaltura-vp-android",
                        var playerType: String = PlayKitManager.VERSION_STRING,
-                       @Transient var language: String = "en")
+                       @Transient var language: String = "en",
+                       var sessionId: String? = null)
