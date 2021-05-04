@@ -31,11 +31,11 @@ android {
 dependencies {
 
     //implementation 'com.github.kaltura:playkit-android-broadpeak-smartlib:develop-SNAPSHOT'
-    api 'com.kaltura.playkit:broadpeakplugin:4.13.0'
+   // api 'com.kaltura.playkit:broadpeakplugin:4.13.0'
 
 
-//    implementation project(':tvplayer')
-//    implementation project(':broadpeak')
+    implementation project(':tvplayer')
+    implementation project(':broadpeak')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0')
