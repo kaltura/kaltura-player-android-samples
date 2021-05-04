@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     //Tag for logging.
     private val TAG = MainActivity::class.java.simpleName
 
-    private val START_POSITION = 0L // position for start playback in msec.
+    private val START_POSITION = -1L // position for start playback in msec.
 
     companion object {
         const val SERVER_URL = "phoenixUrl"
