@@ -1584,8 +1584,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         optBundle.putBundle(Options.KEY_CONTENT_METADATA, contentMetadataBundle)
 
         //You can add some extra params here:
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, youboraPluginConfig.customDimensions?.customDimension1)
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, youboraPluginConfig.customDimensions?.customDimension2)
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, youboraPluginConfig.contentCustomDimensions?.contentCustomDimension1)
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, youboraPluginConfig.contentCustomDimensions?.contentCustomDimension2)
 
         return optBundle
     }
