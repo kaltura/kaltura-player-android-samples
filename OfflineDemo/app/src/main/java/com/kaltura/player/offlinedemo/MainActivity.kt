@@ -14,7 +14,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.kaltura.playkit.*
@@ -59,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         val testItems = items.map { it.toItem() }
 
         manager = OfflineManager.getInstance(this)
-        manager.setOfflineManagerSettings(OfflineManagerSettings().setDefaultHlsAudioBitrateEstimation(64000))
+        manager.setOfflineManagerSettings(OfflineManagerSettings().setHlsAudioBitrateEstimation(64000))
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
 

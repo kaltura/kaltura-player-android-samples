@@ -43,9 +43,10 @@
         }
     },
     {
-        "title": "OVP Test Media",
+        "title": "Prefetch OVP Test Media",
         "id": "1_w9zx2eti",
         "partnerId": 2215841,
+        "isPrefetch": true,
         "env": "http://cdnapisec.kaltura.com",
         "options": {
             "allAudioLangs": true,
@@ -53,8 +54,9 @@
         }
     },
     {
-        "title": "bunny",
+        "title": "Prefetch bunny",
         "id": "bunny",
+        "isPrefetch": true,
         "url": "https://noamtamim.com/hls-bunny/index.m3u8",
         "options": {
             "allAudioLangs": true,
