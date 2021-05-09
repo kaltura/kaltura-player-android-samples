@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">DashThumbnailSample</string>
+    <string name="play_text">Play</string>
+    <string name="pause_text">Pause</string>
+    <string name="change_media">Change Media</string>
+    <string name="preview">Preview Image Download Status</string>
+    <string name="downloading">Preview Downloading…</string>
+    <string name="donwload_complete">Preview Download Complete.</string>
+</resources>

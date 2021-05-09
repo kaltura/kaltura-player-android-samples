@@ -2,26 +2,18 @@ package com.kaltura.player.offlinedemo;
 
 import android.app.Application;
 
-import com.kaltura.tvplayer.OfflineManager;
+import com.kaltura.tvplayer.KalturaOttPlayer;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 
-import java.io.IOException;
-
-public class DemoApplication extends Application implements OfflineManager.ManagerStartCallback {
-
-    public boolean offlineManagerStarted = false;
+public class DemoApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
-        try {
-            OfflineManager.getInstance(this).start(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onStarted() {
-        offlineManagerStarted = true;
+        KalturaOttPlayer.initialize(this, 3009, "https://rest-us.ott.kaltura.com/v4_5/");
+        KalturaOvpPlayer.initialize(this, 2215841, "https://cdnapisec.kaltura.com");
+        KalturaOvpPlayer.initialize(this, 243342, "https://cdnapisec.kaltura.com");
+        KalturaOvpPlayer.initialize(this, 2222401, "https://cdnapisec.kaltura.com");
+        KalturaOvpPlayer.initialize(this, 4171, "https://cdnapisec.kaltura.com");
     }
 }

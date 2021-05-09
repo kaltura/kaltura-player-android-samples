@@ -23,7 +23,10 @@ import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.exo.PrefetchConfig
-import com.kaltura.tvplayer.offline.exo.PrefetchManager
+import com.kaltura.tvplayer.KalturaPlayer
+import com.kaltura.tvplayer.MediaOptions
+import com.kaltura.tvplayer.OfflineManager
+import com.kaltura.tvplayer.offline.OfflineManagerSettings
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import java.util.*
@@ -48,8 +51,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 //        setSupportActionBar(toolbar)
-        KalturaOttPlayer.initialize(this, MainActivity.PARTNER_ID, MainActivity.SERVER_URL);
-
         val itemsJson = Utils.readAssetToString(this, "items.json")
 
         val gson = Gson()
@@ -58,8 +59,7 @@ class MainActivity : AppCompatActivity() {
         val testItems = items.map { it.toItem() }
 
         manager = OfflineManager.getInstance(this)
-//        manager.setPreferredMediaFormat(PKMediaFormat.hls)
-        manager.setEstimatedHlsAudioBitrate(64000)
+        manager.setOfflineManagerSettings(OfflineManagerSettings().setDefaultHlsAudioBitrateEstimation(64000))
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
 
@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
         assetList.adapter = this.itemArrayAdapter
 
         assetList.setOnItemClickListener { av: AdapterView<*>, _: View, pos: Int, _: Long ->
-            showActionsDialog(av.getItemAtPosition(pos) as Item)
+            showActionsDialog(av.getItemAtPosition(pos) as Item, pos)
         }
 
         manager.start {
@@ -172,8 +172,9 @@ class MainActivity : AppCompatActivity() {
         updateItemStatus(itemMap[assetId] ?: return)
     }
 
-    private fun showActionsDialog(item: Item) {
-        val items = arrayOf("Prepare", "Start", "Pause", "Play", "Status", "Update", "Remove")
+
+    private fun showActionsDialog(item: Item, position: Int) {
+        val items = arrayOf("Prepare", "Start", "Pause", "Play-Offline", "Play-Online", "Remove", "Status", "Update")
         AlertDialog.Builder(this).setItems(items) { _, i ->
             when (i) {
                 0 -> if (item.isPrefetch) {
@@ -183,10 +184,11 @@ class MainActivity : AppCompatActivity() {
                     }
                 1 -> doStart(item)
                 2 -> doPause(item)
-                3 -> doPlay(item)
-                4 -> doStatus(item)
-                5 -> updateItemStatus(item)
-                6 -> doRemove(item)
+                3 -> doOfflinePlayback(item)
+                4 -> doOnlinePlayback(item, position)
+                5 -> doRemove(item)
+                6 -> doStatus(item)
+                7 -> updateItemStatus(item)
             }
         }.show()
     }
@@ -233,15 +235,39 @@ class MainActivity : AppCompatActivity() {
         updateItemStatus(item)
     }
 
-    private fun doPlay(item: Item) {
+    private fun doOfflinePlayback(item: Item) {
         startActivity(Intent(this, PlayActivity::class.java).apply {
             data = Uri.parse(item.assetInfo?.assetId ?: return)
         })
     }
 
-    private fun doPause(item: Item) {
-        manager.pauseAssetDownload(item.id())
-        updateItemStatus(item)
+    private fun doOnlinePlayback(item: Item, position: Int) {
+        val intent = Intent(this, PlayActivity::class.java)
+
+        val bundle = Bundle()
+        bundle.putBoolean("isOnlinePlayback", true)
+        bundle.putInt("position", position)
+
+        if (item is OTTItem) {
+            bundle.putInt("partnerId", item.partnerId)
+        }
+
+        if (item is OVPItem) {
+            bundle.putInt("partnerId", item.partnerId)
+        }
+
+        intent.putExtra("assetBundle", bundle)
+
+        startActivity(intent)
+    }
+
+    private fun doPause(item: Item?) {
+        item?.let { it ->
+            it.id()?.let { itemId ->
+                manager.pauseAssetDownload(itemId)
+                updateItemStatus(it)
+            }
+        }
     }
 
     private fun doStart(item: Item) {
@@ -270,8 +296,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doPrepare(item: Item) {
+        if (item is OTTItem) {
+            manager.setKalturaParams(KalturaPlayer.Type.ott, item.partnerId)
+            manager.setKalturaServerUrl(item.serverUrl)
+        }
 
-        if (item is KalturaItem) {
+        if (item is OVPItem){
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             manager.setKalturaServerUrl(item.serverUrl)
         }

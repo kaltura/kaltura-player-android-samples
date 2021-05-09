@@ -97,7 +97,7 @@ public class ItemJSON {
         if (partnerId != null) {
             if (this.ott) {
                 // OTT
-                return new OTTItem(partnerId, this.id, env, ottParams.getFormat(), options.toPrefs(), title);
+                return new OTTItem(partnerId, this.id, env, ottParams.getFormat(), ottParams.getProtocol(), options.toPrefs(), title);
             } else {
                 // OVP
                 return new OVPItem(partnerId, id, env, options.toPrefs(), title);

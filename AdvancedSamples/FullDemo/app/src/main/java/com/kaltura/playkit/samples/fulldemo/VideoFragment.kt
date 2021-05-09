@@ -1,6 +1,7 @@
 package com.kaltura.playkit.samples.fulldemo
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.text.TextUtils
@@ -129,13 +130,13 @@ class VideoFragment : Fragment() {
         fun onVideoFragmentViewCreated()
     }
 
-    override fun onAttach(activity: Activity?) {
+    override fun onAttach(activity: Context) {
         firstLaunch = true
         try {
             mViewCreatedCallback = activity as OnVideoFragmentViewCreatedListener?
 
         } catch (e: ClassCastException) {
-            throw ClassCastException(activity!!.toString()
+            throw ClassCastException(activity.toString()
                     + " must implement " + OnVideoFragmentViewCreatedListener::class.java.name)
         }
 

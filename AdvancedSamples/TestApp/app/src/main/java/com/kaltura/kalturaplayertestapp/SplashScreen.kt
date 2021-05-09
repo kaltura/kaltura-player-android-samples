@@ -2,7 +2,6 @@ package com.kaltura.kalturaplayertestapp
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -27,6 +26,7 @@ class SplashScreen: Activity() {
         if (isPlayServicesAvailable) {
             KalturaOvpPlayer.initialize(this, 4171, "http://qa-apache-php7.dev.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 1091, "http://qa-apache-php7.dev.kaltura.com/")
+            KalturaOvpPlayer.initialize(this, 2506752, "https://cdnapisec.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 27017, "https://cdnapisec.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 243342, "https://cdnapisec.kaltura.com/")
             KalturaOvpPlayer.initialize(this, 1804331, "https://cdnapisec.kaltura.com/")

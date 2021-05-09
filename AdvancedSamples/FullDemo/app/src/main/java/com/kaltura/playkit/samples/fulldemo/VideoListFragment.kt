@@ -2,6 +2,7 @@ package com.kaltura.playkit.samples.fulldemo
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -73,19 +74,19 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
         fun onVideoListFragmentResumed()
     }
 
-    override fun onAttach(activity: Activity?) {
+    override fun onAttach(activity: Context) {
         super.onAttach(activity)
         try {
             mSelectedCallback = activity as OnVideoSelectedListener?
         } catch (e: ClassCastException) {
-            throw ClassCastException(activity?.toString()
+            throw ClassCastException(activity.toString()
                     + " must implement " + OnVideoSelectedListener::class.java.name)
         }
 
         try {
             mResumeCallback = activity as OnVideoListFragmentResumedListener?
         } catch (e: ClassCastException) {
-            throw ClassCastException(activity?.toString()
+            throw ClassCastException(activity.toString()
                     + " must implement " + OnVideoListFragmentResumedListener::class.java.name)
         }
 

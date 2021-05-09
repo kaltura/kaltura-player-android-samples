@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId "com.kaltura.playkit.samples.imasample"
         minSdkVersion 17
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         multiDexEnabled  true
@@ -37,12 +37,12 @@ configurations.all {
 
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.9.0'
-    implementation 'com.kaltura.playkit:youboraplugin:4.9.0'
-    implementation 'com.kaltura.playkit:imaplugin:4.9.0'
-    implementation 'com.kaltura.playkit:googlecast:4.9.0'
-    implementation 'com.kaltura.playkit:vrplugin:4.9.0'
-    implementation 'com.kaltura.playkit:fbadsplugin:4.9.0'
+    implementation 'com.kaltura.player:tvplayer:4.13.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.13.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.13.0'
+    implementation 'com.kaltura.playkit:googlecast:4.13.0'
+    implementation 'com.kaltura.playkit:vrplugin:4.13.0'
+    implementation 'com.kaltura.playkit:fbadsplugin:4.13.0'
 
 //    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
 //    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'

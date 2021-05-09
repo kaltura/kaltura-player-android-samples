@@ -19,10 +19,10 @@ include ':youbora'
 project(':youbora').projectDir = new File('../../playkit-android-youbora/youboraplugin')
 include ':googlecast'
 project(':googlecast').projectDir = new File('../../playkit-android-googlecast/googlecast')
-include ':MD360'
-project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
-include ':netkit'
-project(':netkit').projectDir = new File('../../netkit-android/netkit')
+//include ':MD360'
+//project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
+//include ':netkit'
+//project(':netkit').projectDir = new File('../../netkit-android/netkit')
 include ':playkitvr'
 project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr')
 

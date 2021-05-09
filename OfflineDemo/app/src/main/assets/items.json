@@ -1,6 +1,9 @@
 [
     {
-        "title": "Clear: Kaltura", "id": "1_sf5ovm7u", "partnerId": 243342,
+        "title": "Clear: Kaltura",
+        "id": "1_sf5ovm7u",
+        "partnerId": 243342,
+        "env": "http://cdnapisec.kaltura.com",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
@@ -40,30 +43,10 @@
         }
     },
     {
-        "title": "JW2",
-        "id": "JW2",
-        "isPrefetch": true,
-        "url": "https://rest-as.ott.kaltura.com/api_v3/service/assetFile/action/playManifest/partnerId/225/assetId/853309/assetType/media/assetFileId/9547693/contextType/PLAYBACK/a.m3u8",
-        "options": {
-            "allAudioLangs": true,
-            "allTextLangs": true
-        }
-    },
-    {
-        "title": "JW1",
-        "id": "JW1",
-        "isPrefetch": true,
-        "url": "http://cdnapi.kaltura.com/p/2254732/sp/225473200/playManifest/entryId/1_8imv40i1/format/applehttp/tags/mobile/protocol/http/f/a.m3u8",
-        "options": {
-            "allAudioLangs": true,
-            "allTextLangs": true
-        }
-    },
-    {
-        "title": "JW",
-        "id": "JW",
-        "isPrefetch": true,
-        "url": "https://playertest.longtailvideo.com/adaptive/eleph-audio/playlist.m3u8",
+        "title": "OVP Test Media",
+        "id": "1_w9zx2eti",
+        "partnerId": 2215841,
+        "env": "http://cdnapisec.kaltura.com",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
@@ -79,35 +62,19 @@
         }
     },
     {
-        "title": "full_Voot0",
-        "id": "631387",
-        "isPrefetch": false,
-        "partnerId": 225,
 
-        "ottParams" : {
-            "format": "dash Main"
-        },
-        "env": "https://rest-as.ott.kaltura.com/v5_2_8/api_v3/",
+        "title": "OTT Test Media",
+        "id": "548576",
+        "partnerId": 3009,
         "ott": true,
+        "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
-        }
-    },
-    {
-        "title": "prefetch_Voot0",
-        "id": "631387",
-        "isPrefetch": true,
-        "partnerId": 225,
-
-        "ottParams" : {
-            "format": "dash Main"
         },
-        "env": "https://rest-as.ott.kaltura.com/v5_2_8/api_v3/",
-        "ott": true,
-        "options": {
-            "allAudioLangs": true,
-            "allTextLangs": true
+        "ottParams": {
+            "format": "Mobile_Main",
+            "protocol": "http"
         }
     },
     {

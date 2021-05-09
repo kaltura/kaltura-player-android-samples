@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class UiConfFormatIMADAIConfig {
@@ -33,6 +32,7 @@ public class UiConfFormatIMADAIConfig {
     public static final String AD_COUNTDOWN_UIELEMENT   = "adCountDown";
     public static final String AD_LOAD_TIMEOUT          = "adLoadTimeOut";
     public static final String AD_ENABLE_DEBUG_MODE     = "enableDebugMode";
+    public static final String AD_SESSION_ID            = "sessionId";
     public static final String AD_ALWAYES_START_WITH_PREROLL = "alwaysStartWithPreroll";
     public static final String AD_ADTAG_PARAMS = "adTagParams";
     public static final String AD_STREAM_ACTIVITY_MONITOR_ID = "streamActivityMonitorId";
@@ -132,6 +132,7 @@ public class UiConfFormatIMADAIConfig {
         jsonObject.addProperty(AD_COUNTDOWN_UIELEMENT, getAdsRenderingSettings().getUiElements().getAdCountDown());
         jsonObject.addProperty(AD_LOAD_TIMEOUT, getAdsRenderingSettings().getLoadVideoTimeout());
         jsonObject.addProperty(AD_ENABLE_DEBUG_MODE, getSdkSettings().getDebugMode());
+        jsonObject.addProperty(AD_SESSION_ID, getSdkSettings().getSessionId());
         jsonObject.addProperty(AD_ALWAYES_START_WITH_PREROLL , alwaysStartWithPreroll);
 
         if (adTagParams != null) {

@@ -99,6 +99,7 @@ class OTTItem(
     private val ottAssetId: String,
     serverUrl: String,
     private val format: String?,
+    private val protocol: String?,
     prefs: SelectionPrefs? = null,
     title: String? = null,
     isPrefetch: Boolean = false
@@ -111,6 +112,7 @@ class OTTItem(
 
         ottMediaAsset.assetId = ottAssetId
         ottMediaAsset.formats = listOf(format)
+        ottMediaAsset.protocol = protocol
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = 0L

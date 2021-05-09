@@ -5,7 +5,8 @@ import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
 
 
 data class ItemOTTParamsJSON(
-    val format: String?
+    val format: String?,
+    val protocol: String?
 )
 
 data class ItemJSON(
@@ -29,7 +30,7 @@ fun ItemJSON.toItem() : Item {
 
         if (this.ott) {
             // OTT
-            OTTItem(partnerId, this.id, env!!, ottParams?.format, options?.toPrefs(), title, isPrefetch)
+            OTTItem(partnerId, this.id, env!!, ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, isPrefetch)
         } else {
             // OVP
             OVPItem(partnerId, id, env, options?.toPrefs(), title, isPrefetch)
