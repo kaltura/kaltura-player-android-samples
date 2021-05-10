@@ -111,11 +111,11 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
-        if (player != null) {
+        player?.let {
             if (playPauseButton != null) {
                 playPauseButton?.setText(R.string.pause_text)
             }
-            player?.onApplicationPaused()
+            it.onApplicationPaused()
         }
     }
 
@@ -127,6 +127,11 @@ class MainActivity : AppCompatActivity() {
             player?.onApplicationResumed()
             player?.play()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.destroy()
     }
 
     fun loadPlaykitPlayer() {
@@ -141,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         optionalParams.put("OPTION_PARAM_KEY_1", "OPTION_PARAM_VALUE_1")
         optionalParams.put("OPTION_PARAM_KEY_2", "OPTION_PARAM_VALUE_2")
 
-        val smartSwitchConfig = SmartSwitchConfig("YOUR_ACCOUNT_CODEE", "YOUR_ORIGIN_CODE", optionalParams)
+        val smartSwitchConfig = SmartSwitchConfig("YOUR_ACCOUNT_CODE", "YOUR_ORIGIN_CODE", optionalParams)
         pkPluginConfigs.setPluginConfig(SmartSwitchPlugin.factory.name, smartSwitchConfig)
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
