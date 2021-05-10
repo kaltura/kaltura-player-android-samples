@@ -31,7 +31,7 @@ android {
 dependencies {
 
     //implementation 'com.github.kaltura:playkit-android-broadpeak-smartlib:develop-SNAPSHOT'
-    api 'com.kaltura.playkit:broadpeakplugin:4.11.2'
+    api 'com.kaltura.playkit:broadpeakplugin:4.13.0'
 
 
 //    implementation project(':tvplayer')

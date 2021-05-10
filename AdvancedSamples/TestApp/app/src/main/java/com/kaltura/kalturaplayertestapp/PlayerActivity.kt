@@ -3,7 +3,6 @@ package com.kaltura.kalturaplayertestapp
 import AppOVPMediaOptions
 import android.content.IntentFilter
 import android.content.res.Configuration
-import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
@@ -104,6 +103,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var playbackControlsManager: PlaybackControlsManager? = null
     private var isFirstOnResume = true
     private var isPlayingOnPause: Boolean = false
+    private var updateMenuItem: MenuItem? = null
     var pkLowLatencyConfig: PKLowLatencyConfig? = null
 
     private var networkChangeReceiver: NetworkChangeReceiver? = null
@@ -154,49 +154,45 @@ class PlayerActivity: AppCompatActivity(), Observer {
         } ?: run {
             showMessage(R.string.error_empty_input)
         }
+    }
 
-        checkUpdateParamsAndShowSnackbar()
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_update_param, menu)
+        updateMenuItem = menu?.findItem(R.id.action_menu_update)
+        updateMenuItem?.setVisible(false)
+        updateParams?.let { params ->
+            updateMenuItem?.setVisible(true)
+        }
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_menu_update -> {
+                updateParams?.let { params ->
+                    doUpdateConfig(params)
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     /**
      * Checks the updatable prameters in JSON
      */
-    fun checkUpdateParamsAndShowSnackbar() {
-        updateParams?.let { params ->
-            params.timerForSnackbar?.let { delay ->
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        var snackbar: Snackbar? = null
-
-                        if (params.isUpdateABRSettings != null && params.isUpdateABRSettings!!) {
-                            snackbar = Snackbar.make(findViewById(android.R.id.content), "UpdateABRSettings", Snackbar.LENGTH_INDEFINITE)
-                            snackbar.setAction("Update") {
-                                player?.let { player ->
-                                    params.updatedABRSettings?.let { updatedABR ->
-                                        player.updateABRSettings(updatedABR)
-                                    }
-                                }
-                            }
-                        } else if (params.isResetABRSettings != null && params.isResetABRSettings!!) {
-                            snackbar = Snackbar.make(findViewById(android.R.id.content), "ResetABRSettings", Snackbar.LENGTH_INDEFINITE)
-                            snackbar.setAction("Reset") {
-                                player?.resetABRSettings()
-                            }
-                        } else if (params.isUpdatePkLowLatencyConfig != null && params.updatePkLowLatencyConfig != null) {
-                            snackbar = Snackbar.make(findViewById(android.R.id.content), "UpdateLowLatency", Snackbar.LENGTH_INDEFINITE)
-                            snackbar.setAction("Update") {
-                                pkLowLatencyConfig = params.updatePkLowLatencyConfig
-                                player?.updatePKLowLatencyConfig(pkLowLatencyConfig)
-                            }
-                        }
-
-                        snackbar?.let {
-                            it.setActionTextColor(Color.YELLOW)
-                            it.show()
-                        }
-                    }
-                }, delay)
+    fun doUpdateConfig(params: UpdateParams) {
+        if (params.isUpdateABRSettings != null && params.isUpdateABRSettings!!) {
+            player?.let { player ->
+                params.updatedABRSettings?.let { updatedABR ->
+                    player.updateABRSettings(updatedABR)
+                }
             }
+        } else if (params.isResetABRSettings != null && params.isResetABRSettings!!) {
+            player?.resetABRSettings()
+        } else if (params.isUpdatePkLowLatencyConfig != null && params.updatePkLowLatencyConfig != null) {
+            pkLowLatencyConfig = params.updatePkLowLatencyConfig
+            player?.updatePKLowLatencyConfig(pkLowLatencyConfig)
         }
     }
 
@@ -386,6 +382,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setPreload(appPlayerInitConfig.preload)
                 .setReferrer(appPlayerInitConfig.referrer)
                 .setAllowCrossProtocolEnabled(appPlayerInitConfig.allowCrossProtocolEnabled)
+                .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
                 .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
                 .setSecureSurface(appPlayerInitConfig.secureSurface)
                 .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode)
@@ -661,6 +658,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             var ovpMediaAsset = OVPMediaAsset()
             ovpMediaAsset.entryId = it.entryId ?: ""
             ovpMediaAsset.referenceId = it.referenceId ?: ""
+            ovpMediaAsset.redirectFromEntryId = it.redirectFromEntryId ?: true
             ovpMediaAsset.ks = it.ks
             ovpMediaAsset.referrer = it.referrer
 
@@ -833,6 +831,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         var ovpMediaAsset = OVPMediaAsset()
         ovpMediaAsset.entryId = ovpMedia.entryId
         ovpMediaAsset.referenceId = ovpMedia.referenceId
+        ovpMediaAsset.redirectFromEntryId = ovpMedia.redirectFromEntryId
         ovpMediaAsset.ks = ovpMedia.ks
         val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
 
@@ -931,9 +930,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             if (adCuePoints?.adPluginName != IMADAIPlugin.factory.name) {
-                if (!initOptions.autoplay) {
-                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
-                } else {
+                if (initOptions.autoplay) {
                     playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
                 }
             }
@@ -1551,18 +1548,18 @@ class PlayerActivity: AppCompatActivity(), Observer {
         optBundle.putString(Options.KEY_APP_RELEASE_VERSION, "v1.0");
 
         //Media entry bundle.
-        optBundle.putString(Options.KEY_CONTENT_TITLE, youboraPluginConfig.media?.title)
+        optBundle.putString(Options.KEY_CONTENT_TITLE, youboraPluginConfig.content?.contentTitle)
 
         //Optional - Device bundle o/w youbora will decide by its own.
         optBundle.putString(Options.KEY_DEVICE_CODE, youboraPluginConfig.device?.deviceCode)
-        optBundle.putString(Options.KEY_DEVICE_BRAND, youboraPluginConfig.device?.brand)
-        optBundle.putString(Options.KEY_DEVICE_MODEL, youboraPluginConfig.device?.model)
-        optBundle.putString(Options.KEY_DEVICE_TYPE, youboraPluginConfig.device?.type)
-        optBundle.putString(Options.KEY_DEVICE_OS_NAME, youboraPluginConfig.device?.osName)
-        optBundle.putString(Options.KEY_DEVICE_OS_VERSION, youboraPluginConfig.device?.osVersion)
+        optBundle.putString(Options.KEY_DEVICE_BRAND, youboraPluginConfig.device?.deviceBrand)
+        optBundle.putString(Options.KEY_DEVICE_MODEL, youboraPluginConfig.device?.deviceModel)
+        optBundle.putString(Options.KEY_DEVICE_TYPE, youboraPluginConfig.device?.deviceType)
+        optBundle.putString(Options.KEY_DEVICE_OS_NAME, youboraPluginConfig.device?.deviceOsName)
+        optBundle.putString(Options.KEY_DEVICE_OS_VERSION, youboraPluginConfig.device?.deviceOsVersion)
 
         //Youbora ads configuration bundle.
-        optBundle.putString(Options.KEY_AD_CAMPAIGN, youboraPluginConfig.ads?.campaign)
+        optBundle.putString(Options.KEY_AD_CAMPAIGN, youboraPluginConfig.ads?.adCampaign)
 
         //Configure custom properties here:
         optBundle.putString(Options.KEY_CONTENT_GENRE, youboraPluginConfig.properties?.genre)
@@ -1587,8 +1584,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         optBundle.putBundle(Options.KEY_CONTENT_METADATA, contentMetadataBundle)
 
         //You can add some extra params here:
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, youboraPluginConfig.extraParams?.param1)
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, youboraPluginConfig.extraParams?.param2)
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, youboraPluginConfig.contentCustomDimensions?.contentCustomDimension1)
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, youboraPluginConfig.contentCustomDimensions?.contentCustomDimension2)
 
         return optBundle
     }

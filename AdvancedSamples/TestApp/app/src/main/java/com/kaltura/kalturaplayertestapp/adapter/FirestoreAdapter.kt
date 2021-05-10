@@ -3,7 +3,8 @@ package com.kaltura.kalturaplayertestapp.adapter
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.*
-import java.util.ArrayList
+import com.google.firebase.firestore.EventListener
+import java.util.*
 
 
 /**

@@ -13,16 +13,18 @@ public class OTTItem extends KalturaItem {
     private String ottAssetId;
     private String serverUrl;
     private String format;
+    private String protocol;
     private OfflineManager.SelectionPrefs prefs;
     private String title;
 
-    public OTTItem(int partnerId, String ottAssetId, String serverUrl, String format, OfflineManager.SelectionPrefs prefs, String title) {
+    public OTTItem(int partnerId, String ottAssetId, String serverUrl, String format, String protocol, OfflineManager.SelectionPrefs prefs, String title) {
         super(partnerId, serverUrl, prefs, title);
 
         this.ottAssetId = ottAssetId;
         this.partnerId = partnerId;
         this.serverUrl = serverUrl;
         this.format = format;
+        this.protocol = protocol;
         this.prefs = prefs;
         this.title = title;
     }
@@ -31,6 +33,7 @@ public class OTTItem extends KalturaItem {
     MediaOptions mediaOptions() {
         OTTMediaAsset ottMediaAsset = new OTTMediaAsset();
         ottMediaAsset.setAssetId(ottAssetId);
+        ottMediaAsset.setProtocol(protocol);
         ottMediaAsset.setFormats(Collections.singletonList(format));
         OTTMediaOptions ottMediaOptions = new OTTMediaOptions(ottMediaAsset);
 
@@ -80,6 +83,14 @@ public class OTTItem extends KalturaItem {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     @Override

@@ -1,12 +1,9 @@
 package com.kaltura.playkit.samples.broadpeak
 
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
@@ -20,65 +17,67 @@ import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
     //Tag for logging.
     private val TAG = MainActivity::class.java.simpleName
 
-    private val START_POSITION = 0L // position for start playback in msec.
+    private val START_POSITION = -1L // position for start playback in seconds.
 
     companion object {
         const val SERVER_URL = "phoenixUrl"
-        const val ASSET_ID = "assetId"
-        const val PARTNER_ID = 111111111
-        const val KS = ""
+        const val FIRST_ASSET_ID = "assetId-1"
+        const val SECOND_ASSET_ID = "assetId-2"
+        const val PARTNER_ID = 11111111
+        const val KS = "KS"
         const val MEDIA_FORMAT = "FORMAT"
     }
 
     private var player: KalturaPlayer? = null
-    private var playPauseButton: Button? = null
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
+    private var currentlyPlayingAsset: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         loadPlaykitPlayer()
 
-        findViewById<View>(R.id.activity_main).setOnClickListener { v ->
+        activity_main.setOnClickListener {
             if (isFullScreen) {
                 showSystemUI()
             } else {
                 hideSystemUI()
             }
         }
+
+        change_media_button.setOnClickListener {
+            currentlyPlayingAsset?.let {
+                if (it == FIRST_ASSET_ID) {
+                    loadSecondOttMedia()
+                } else {
+                    loadFirstOttMedia()
+                }
+            }
+        }
     }
 
     private fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
-        } else {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
 
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                or View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
 
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE)
-        }
+                or View.SYSTEM_UI_FLAG_IMMERSIVE)
         isFullScreen = true
     }
 
     private fun showSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        } else {
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        }
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         isFullScreen = false
     }
 
@@ -86,17 +85,14 @@ class MainActivity : AppCompatActivity() {
      * Just add a simple button which will start/pause playback.
      */
     private fun addPlayPauseButton() {
-        //Get reference to the play/pause button.
-        playPauseButton = this.findViewById<View>(R.id.play_pause_button) as Button
-        //Add clickListener.
-        playPauseButton?.setOnClickListener {
+        play_pause_button.setOnClickListener {
             if (player!!.isPlaying) {
                 //If player is playing, change text of the button and pause.
-                playPauseButton?.setText(R.string.play_text)
+                play_pause_button.setText(R.string.play_text)
                 player?.pause()
             } else {
                 //If player is not playing, change text of the button and play.
-                playPauseButton?.setText(R.string.pause_text)
+                play_pause_button.setText(R.string.pause_text)
                 player?.play()
             }
         }
@@ -112,11 +108,9 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
-        if (player != null) {
-            if (playPauseButton != null) {
-                playPauseButton?.setText(R.string.pause_text)
-            }
-            player?.onApplicationPaused()
+        player?.let {
+            play_pause_button.setText(R.string.pause_text)
+            it.onApplicationPaused()
         }
     }
 
@@ -130,6 +124,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy")
+        super.onDestroy()
+        player?.destroy()
+    }
+
     fun loadPlaykitPlayer() {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity() {
         val pkPluginConfigs = PKPluginConfigs()
         val broadpeakConfig = BroadpeakConfig().apply {
             analyticsAddress = "https://analytics.kaltura.com/api_v3/index.php"
-            nanoCDNHost = "cdnapisec.kaltura.com"
+            nanoCDNHost = ""
             broadpeakDomainNames = "*"
         }
 
@@ -159,14 +159,8 @@ class MainActivity : AppCompatActivity() {
 
         val container = findViewById<ViewGroup>(R.id.player_root)
         container.addView(player?.playerView)
-        val ottMediaOptions = buildOttMediaOptions()
-        player?.loadMedia(ottMediaOptions) { entry, loadError ->
-            if (loadError != null) {
-                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_SHORT).show()
-            } else {
-                Log.i(TAG, "OTTMedia onEntryLoadComplete  entry = " + entry.id)
-            }
-        }
+
+        loadFirstOttMedia()
 
         //Add simple play/pause button.
         addPlayPauseButton()
@@ -176,9 +170,10 @@ class MainActivity : AppCompatActivity() {
         addPlayerStateListener()
     }
 
-    private fun buildOttMediaOptions(): OTTMediaOptions {
+    private fun buildOttMediaOptions(assetId: String): OTTMediaOptions {
+        currentlyPlayingAsset = assetId
         val ottMediaAsset = OTTMediaAsset()
-        ottMediaAsset.assetId = ASSET_ID
+        ottMediaAsset.assetId = assetId
         ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
         ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
         ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
@@ -187,11 +182,30 @@ class MainActivity : AppCompatActivity() {
         ottMediaAsset.streamerType = APIDefines.KalturaStreamerType.Mpegdash
         ottMediaAsset.ks = KS
         ottMediaAsset.formats = listOf(MEDIA_FORMAT)
-        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+        return OTTMediaOptions(ottMediaAsset)
+    }
 
+    private fun loadFirstOttMedia() {
+        val ottMediaOptions = buildOttMediaOptions(FIRST_ASSET_ID)
         ottMediaOptions.startPosition = START_POSITION
+        player?.loadMedia(ottMediaOptions) { entry, loadError ->
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_SHORT).show()
+            } else {
+                Log.i(TAG, "OTTMedia onEntryLoadComplete entry = " + entry.id)
+            }
+        }
+    }
 
-
-        return ottMediaOptions
+    private fun loadSecondOttMedia() {
+        val ottMediaOptions = buildOttMediaOptions(SECOND_ASSET_ID)
+        ottMediaOptions.startPosition = START_POSITION
+        player?.loadMedia(ottMediaOptions) { entry, loadError ->
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_SHORT).show()
+            } else {
+                Log.i(TAG, "OTTMedia onEntryLoadComplete entry = " + entry.id)
+            }
+        }
     }
 }
