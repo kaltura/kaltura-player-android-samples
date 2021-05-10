@@ -104,14 +104,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAssetPrefetchComplete(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
-                log.d("onAssetPrefetchComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
+                log.d("onAssetPrefetchComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}");
 
                 if (downloadType == OfflineManager.DownloadType.FULL) {
                     toast("Complete");
                 } else {
                     toast("Prefetched id =  $assetId");
                 }
-                updateItemStatus(assetId)
+                updateItemStatus(assetId);
             }
 
             @Override
