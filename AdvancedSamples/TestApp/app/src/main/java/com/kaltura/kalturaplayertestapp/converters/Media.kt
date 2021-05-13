@@ -8,6 +8,7 @@ import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 class Media {
     var entryId: String? = null   // ovp
     var referenceId: String? = null // ovp
+    var redirectFromEntryId:  Boolean = true // ovp
     var ks: String? = null        // ovp or ott
     var assetId: String? = null   // ott
     var format: String? = null    // ott

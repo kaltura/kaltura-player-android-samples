@@ -28,6 +28,7 @@ allprojects {
             url "https://maven.google.com" // Google's Maven repository
         }
         jcenter()
+        maven { url  "https://npaw.jfrog.io/artifactory/youbora/" }
     }
 }
 

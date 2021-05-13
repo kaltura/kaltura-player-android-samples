@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         manager = OfflineManager.getInstance(this);
-//        manager.setPreferredMediaFormat(PKMediaFormat.hls)
         manager.setOfflineManagerSettings(new OfflineManagerSettings().setDefaultHlsAudioBitrateEstimation(64000));
 
         manager.setAssetStateListener(new OfflineManager.AssetStateListener() {
@@ -147,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         assetListView.setAdapter(itemArrayAdapter);
 
         assetListView.setOnItemClickListener((parent, view, position, id) -> {
-            showActionsDialog((Item)parent.getItemAtPosition(position));
+            showActionsDialog((Item)parent.getItemAtPosition(position), position);
         });
 
         try {
@@ -174,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showActionsDialog(Item item) {
-        String[] items = new String[]{"Prepare", "Start", "Pause", "Play", "Remove", "Status", "Update"};
+    private void showActionsDialog(Item item, int position) {
+        String[] items = new String[]{"Prepare", "Start", "Pause", "Play-Offline", "Play-Online", "Remove", "Status", "Update"};
 
         new AlertDialog.Builder(MainActivity.this).setItems(items, (dialog, which) -> {
             switch (which) {
@@ -189,15 +188,18 @@ public class MainActivity extends AppCompatActivity {
                     doPause(item);
                     break;
                 case 3:
-                    doPlay(item);
+                    doOfflinePlayback(item);
                     break;
                 case 4:
-                    doRemove(item);
+                    doOnlinePlayback(item, position);
                     break;
                 case 5:
-                    doStatus(item);
+                    doRemove(item);
                     break;
                 case 6:
+                    doStatus(item);
+                    break;
+                case 7:
                     updateItemStatus(item);
                     break;
             }
@@ -252,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
         updateItemStatus(item);
     }
 
-    private void doPlay(Item item) {
+    private void doOfflinePlayback(Item item) {
         Intent playerActivityIntent = new Intent(this, PlayActivity.class);
         if (item.getAssetInfo() != null) {
             playerActivityIntent.setData(Uri.parse(item.getAssetInfo().getAssetId()));
@@ -260,9 +262,29 @@ public class MainActivity extends AppCompatActivity {
         startActivity(playerActivityIntent);
     }
 
+    private void doOnlinePlayback(Item item, int position) {
+        Intent intent = new Intent(this, PlayActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("isOnlinePlayback", true);
+        bundle.putInt("position", position);
+        if (item instanceof OTTItem) {
+            bundle.putInt("partnerId", ((OTTItem) item).getPartnerId());
+        }
+
+        if (item instanceof OVPItem) {
+            bundle.putInt("partnerId", ((OVPItem) item).getPartnerId());
+        }
+
+        intent.putExtra("assetBundle", bundle);
+
+        startActivity(intent);
+    }
+
     private void doPause(Item item) {
-        manager.pauseAssetDownload(item.id());
-        updateItemStatus(item);
+        if (item != null && item.id() != null) {
+            manager.pauseAssetDownload(item.id());
+            updateItemStatus(item);
+        }
     }
 
     private void doStart(Item item) {
@@ -280,7 +302,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void doPrepare(Item item) {
 
-        if (item instanceof KalturaItem) {
+        if (item instanceof OTTItem) {
+            manager.setKalturaParams(KalturaPlayer.Type.ott, ((OTTItem) item).getPartnerId());
+            manager.setKalturaServerUrl(((OTTItem) item).getServerUrl());
+        }
+
+        if (item instanceof OVPItem) {
             manager.setKalturaParams(KalturaPlayer.Type.ovp, ((KalturaItem) item).getPartnerId());
             manager.setKalturaServerUrl(((KalturaItem) item).getServerUrl());
         }

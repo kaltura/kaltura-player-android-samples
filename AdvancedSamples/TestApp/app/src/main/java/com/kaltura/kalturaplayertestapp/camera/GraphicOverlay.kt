@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.View
 import com.google.android.gms.vision.CameraSource
+import com.kaltura.kalturaplayertestapp.camera.GraphicOverlay.Graphic
 import java.util.*
 
 /**

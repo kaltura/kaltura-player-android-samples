@@ -17,6 +17,8 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url  "https://npaw.jfrog.io/artifactory/youbora/" }
+
         maven { url "https://jitpack.io" }
     }
 }

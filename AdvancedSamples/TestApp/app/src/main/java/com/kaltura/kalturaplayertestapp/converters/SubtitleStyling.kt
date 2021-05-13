@@ -2,7 +2,6 @@ package com.kaltura.kalturaplayertestapp.converters
 
 import android.graphics.Color
 import android.text.Layout
-import com.kaltura.playkit.player.PKSubtitlePosition
 import com.kaltura.playkit.player.SubtitleStyleSettings
 
 class SubtitleStyling {

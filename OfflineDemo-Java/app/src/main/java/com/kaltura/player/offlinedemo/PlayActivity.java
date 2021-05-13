@@ -12,19 +12,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKMediaEntry;
 import com.kaltura.playkit.PlayerEvent;
+import com.kaltura.playkit.Utils;
 import com.kaltura.playkit.player.AudioTrack;
 import com.kaltura.playkit.player.BaseTrack;
 import com.kaltura.playkit.player.PKTracks;
 import com.kaltura.playkit.player.TextTrack;
 import com.kaltura.tvplayer.KalturaBasicPlayer;
+import com.kaltura.tvplayer.KalturaOttPlayer;
+import com.kaltura.tvplayer.KalturaOvpPlayer;
 import com.kaltura.tvplayer.KalturaPlayer;
+import com.kaltura.tvplayer.OTTMediaOptions;
+import com.kaltura.tvplayer.OVPMediaOptions;
 import com.kaltura.tvplayer.OfflineManager;
 import com.kaltura.tvplayer.PlayerInitOptions;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +51,7 @@ public class PlayActivity extends AppCompatActivity {
 
     private List<AudioTrack> audioTracks;
     private List<TextTrack> textTracks;
+    private List<Item> testItems;
 
     private TextTrack currentTextTrack;
     private AudioTrack currentAudioTrack;
@@ -56,25 +66,46 @@ public class PlayActivity extends AppCompatActivity {
         playDrawable = ContextCompat.getDrawable(PlayActivity.this, R.drawable.ic_play_arrow_white_24dp);
         pauseDrawable = ContextCompat.getDrawable(PlayActivity.this, R.drawable.ic_pause_white_24dp);
 
-        PlayerInitOptions options = new PlayerInitOptions().setAutoPlay(true);
+        Bundle bundle = getIntent().getBundleExtra("assetBundle");
+        boolean isOnlinePlayback = bundle != null && bundle.getBoolean("isOnlinePlayback", false);
+        int position = bundle != null ? bundle.getInt("position", -1) : -1;
+        int partnerId = bundle != null ? bundle.getInt("partnerId") : -1;
 
-        player = KalturaBasicPlayer.create(this, options);
+        if (isOnlinePlayback) {
+            String itemsJson = Utils.readAssetToString(this, "items.json");
+            Gson gson = new Gson();
+            Type itemJsonType = new TypeToken<ArrayList<ItemJSON>>(){}.getType();
+            List<ItemJSON> itemJson = gson.fromJson(itemsJson, itemJsonType);
+            testItems = new ArrayList<>();
+            for (int index = 0; index < itemJson.size(); index++) {
+                testItems.add(itemJson.get(index).toItem());
+            }
+        }
+
+        PlayerInitOptions options = new PlayerInitOptions(partnerId).setAutoPlay(true).setAllowCrossProtocolEnabled(true);
+
+        if (isOnlinePlayback && testItems != null && !testItems.isEmpty()) {
+            playAssetOnline(testItems, position, options);
+        } else {
+            player = KalturaBasicPlayer.create(this, options);
+            OfflineManager manager = OfflineManager.getInstance(this);
+            if (getIntent().getDataString() != null) {
+                PKMediaEntry entry = null;
+                try {
+                    entry = manager.getLocalPlaybackEntry(getIntent().getDataString());
+                    player.setMedia(entry);
+                } catch (IOException e) {
+                    runOnUiThread(() -> Toast.makeText(this, "No asset id given", LENGTH_LONG).show());
+                    e.printStackTrace();
+                }
+            } else {
+                runOnUiThread(() -> Toast.makeText(this, "No asset id given", LENGTH_LONG).show());
+            }
+        }
+
         player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         ((ConstraintLayout)findViewById(R.id.playerRoot)).addView(player.getPlayerView());
 
-        OfflineManager manager = OfflineManager.getInstance(this);
-
-        if (getIntent().getDataString() != null) {
-            PKMediaEntry entry = null;
-            try {
-                entry = manager.getLocalPlaybackEntry(getIntent().getDataString());
-                player.setMedia(entry);
-            } catch (IOException e) {
-                runOnUiThread(() -> Toast.makeText(this, "No asset id given", LENGTH_LONG).show());
-                e.printStackTrace();
-            }
-
-        }
 
         findViewById(R.id.fab_playpause).setOnClickListener(v -> togglePlayPause());
 
@@ -91,8 +122,47 @@ public class PlayActivity extends AppCompatActivity {
         addPlayerEventListeners();
     }
 
-    private void selectPlayerTrack(boolean audio) {
+    private void playAssetOnline(List<Item> itemList, int position, PlayerInitOptions options) {
+        Item item = itemList.get(position);
+        if (item instanceof OTTItem) {
+            player = KalturaOttPlayer.create(this, options);
+            player.loadMedia((OTTMediaOptions) ((OTTItem) item).mediaOptions(), (entry, error) -> {
+                if (error != null) {
+                    log.d("OTTMedia Error Extra = " + error.getExtra());
+                    runOnUiThread(() -> Snackbar.make(
+                            findViewById(android.R.id.content),
+                            error.getMessage(),
+                            Snackbar.LENGTH_LONG
+                    ).show());
+                } else {
+                    log.d("OTTMediaAsset onEntryLoadComplete entry =" + entry.getId());
+                }
+            });
+        } else if (item instanceof OVPItem) {
+            player = KalturaOvpPlayer.create(this, options);
+            player.loadMedia((OVPMediaOptions) ((OVPItem) item).mediaOptions(), (entry, error) -> {
+                if (error != null) {
+                    log.d("OVPMedia Error Extra = " + error.getExtra());
+                    runOnUiThread(() -> Snackbar.make(
+                            findViewById(android.R.id.content),
+                            error.getMessage(),
+                            Snackbar.LENGTH_LONG
+                    ).show());
+                } else {
+                    log.d("OVPMediaAsset onEntryLoadComplete entry =" + entry.getId());
+                }
+            });
+        } else if (item instanceof BasicItem){
+            if (item.getEntry() != null) {
+                player = KalturaBasicPlayer.create(this, options);
+                player.setMedia(item.getEntry());
+            }
+        } else {
+            Toast.makeText(this, "No Player Type found", LENGTH_LONG).show();
+        }
+    }
 
+    private void selectPlayerTrack(boolean audio) {
         List<String> trackTitles = new ArrayList<>();
         List<String> trackIds = new ArrayList<>();
 
