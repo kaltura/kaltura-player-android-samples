@@ -117,7 +117,7 @@ class PlayActivity : AppCompatActivity() {
         when (val item: Item = itemList[position]) {
             is OTTItem -> {
                 player = KalturaOttPlayer.create(this, options)
-                player.loadMedia(item.mediaOptions()) { entry, error ->
+                player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error Extra = " + error.extra)
                         runOnUiThread {
@@ -134,7 +134,7 @@ class PlayActivity : AppCompatActivity() {
             }
             is OVPItem -> {
                 player = KalturaOvpPlayer.create(this, options)
-                player.loadMedia(item.mediaOptions()) { entry, error ->
+                player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error Extra = " + error.extra)
                         runOnUiThread {
