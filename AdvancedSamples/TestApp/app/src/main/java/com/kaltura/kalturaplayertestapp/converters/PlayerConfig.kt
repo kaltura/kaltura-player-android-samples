@@ -10,6 +10,7 @@ import com.kaltura.playkit.PKSubtitlePreference
 import com.kaltura.playkit.player.*
 import com.kaltura.playkit.player.vr.VRSettings
 import com.kaltura.tvplayer.KalturaPlayer
+import com.kaltura.tvplayer.config.MediaEntryCacheConfig
 
 
 class PlayerConfig {
@@ -40,6 +41,8 @@ class PlayerConfig {
     var maxVideoSize: PKMaxVideoSize? = null
     var handleAudioBecomingNoisyEnabled: Boolean? = null
     var subtitlePreference: PKSubtitlePreference? = null
+    var multicastSettings: MulticastSettings? = null
+    var mediaEntryCacheConfig: MediaEntryCacheConfig? = null
 
     var setSubtitleStyle: SubtitleStyleSettings? = null
     var aspectRatioResizeMode: PKAspectRatioResizeMode? = null

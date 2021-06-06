@@ -6,15 +6,13 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
-import com.kaltura.playkit.PKMediaEntry
-import com.kaltura.playkit.PKMediaFormat
-import com.kaltura.playkit.PKMediaSource
-import com.kaltura.playkit.PKPluginConfigs
+import com.kaltura.playkit.*
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
+import com.kaltura.tvplayer.config.MediaEntryCacheConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -325,6 +323,7 @@ class MainActivity : AppCompatActivity() {
     fun loadPlaykitPlayer() {
         val playerInitOptions = PlayerInitOptions()
         playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.mediaEntryCacheConfig = MediaEntryCacheConfig(true, 10, 60000)
         playerInitOptions.setAutoPlay(true)
 
         player = KalturaBasicPlayer.create(this@MainActivity, playerInitOptions)
