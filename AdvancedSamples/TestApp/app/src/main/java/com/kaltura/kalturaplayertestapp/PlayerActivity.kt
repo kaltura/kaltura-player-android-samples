@@ -409,6 +409,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setMaxVideoSize(appPlayerInitConfig.maxVideoSize)
                 .setHandleAudioBecomingNoisy(appPlayerInitConfig.handleAudioBecomingNoisyEnabled)
                 .setSubtitlePreference(appPlayerInitConfig.subtitlePreference)
+                .setMulticastSettings(appPlayerInitConfig.multicastSettings)
+                .setMediaEntryCacheConfig(appPlayerInitConfig.mediaEntryCacheConfig)
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject, true))
 
         appPlayerInitConfig.trackSelection?.let {
