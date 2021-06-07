@@ -302,9 +302,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private fun handleOnEntryLoadComplete(error: ErrorElement?) {
         if (error != null) {
             log.d("Load Error Extra = " + error.extra)
-            Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
-            playbackControlsView?.playPauseToggle?.setBackgroundResource(R.drawable.play)
-            playbackControlsManager?.showControls(View.VISIBLE)
+            runOnUiThread(Runnable {
+                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                playbackControlsView?.playPauseToggle?.setBackgroundResource(R.drawable.play)
+                playbackControlsManager?.showControls(View.VISIBLE)
+            })
         } else {
             if (!initOptions.autoplay) {
                 playbackControlsManager?.showControls(View.VISIBLE)
