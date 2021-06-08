@@ -30,7 +30,10 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
-        const val ASSET_ID = "548576"
+        const val FIRST_ASSET_ID = "548576"
+        const val SECOND_ASSET_ID = "548575"
+        const val MEDIA_FORMAT = "Mobile_Main"
+
         const val PARTNER_ID = 3009
         const val KS = ""
     }
@@ -39,10 +42,15 @@ class MainActivity : AppCompatActivity() {
     private var playPauseButton: Button? = null
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
+    private var currentlyPlayingAsset: String? = null
+    private var change_media_button: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        change_media_button = findViewById(R.id.change_media_button)
+
+
         loadPlaykitPlayer()
 
         findViewById<View>(R.id.activity_main).setOnClickListener { v ->
@@ -50,6 +58,16 @@ class MainActivity : AppCompatActivity() {
                 showSystemUI()
             } else {
                 hideSystemUI()
+            }
+        }
+
+        change_media_button?.setOnClickListener {
+            currentlyPlayingAsset?.let {
+                if (it == FIRST_ASSET_ID) {
+                    loadSecondOttMedia()
+                } else {
+                    loadFirstOttMedia()
+                }
             }
         }
     }
@@ -164,7 +182,7 @@ class MainActivity : AppCompatActivity() {
 
         val container = findViewById<ViewGroup>(R.id.player_root)
         container.addView(player?.playerView)
-        val ottMediaOptions = buildOttMediaOptions()
+        val ottMediaOptions = buildOttMediaOptions(FIRST_ASSET_ID)
         player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_SHORT).show()
@@ -181,20 +199,40 @@ class MainActivity : AppCompatActivity() {
         addPlayerStateListener()
     }
 
-    private fun buildOttMediaOptions(): OTTMediaOptions {
+    private fun buildOttMediaOptions(assetId: String): OTTMediaOptions {
+        currentlyPlayingAsset = assetId
         val ottMediaAsset = OTTMediaAsset()
-        ottMediaAsset.assetId = ASSET_ID
+        ottMediaAsset.assetId = assetId
         ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
         ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
         ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
         ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaAsset.ks = null
-        ottMediaAsset.formats = listOf("Mobile_Main")
-        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+        ottMediaAsset.ks = KS
+        ottMediaAsset.formats = listOf(MEDIA_FORMAT)
+        return OTTMediaOptions(ottMediaAsset)
+    }
 
+    private fun loadFirstOttMedia() {
+        val ottMediaOptions = buildOttMediaOptions(FIRST_ASSET_ID)
         ottMediaOptions.startPosition = START_POSITION
+        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError ->
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_SHORT).show()
+            } else {
+                Log.i(TAG, "OTTMedia onEntryLoadComplete entry = " + entry.id)
+            }
+        }
+    }
 
-
-        return ottMediaOptions
+    private fun loadSecondOttMedia() {
+        val ottMediaOptions = buildOttMediaOptions(SECOND_ASSET_ID)
+        ottMediaOptions.startPosition = START_POSITION
+        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError ->
+            if (loadError != null) {
+                Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_SHORT).show()
+            } else {
+                Log.i(TAG, "OTTMedia onEntryLoadComplete entry = " + entry.id)
+            }
+        }
     }
 }
