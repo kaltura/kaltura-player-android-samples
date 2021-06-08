@@ -423,7 +423,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         ottMediaOptions.startPosition = START_POSITION
 
 
-        player?.loadMedia(ottMediaOptions) { entry, error ->
+        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -440,7 +440,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
         ovpMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ovpMediaOptions) { entry, error ->
+        player?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
