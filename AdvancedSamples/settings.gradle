@@ -12,16 +12,22 @@
 //project(':youbora').projectDir = new File('../../playkit-android-youbora/youboraplugin')
 //include ':googlecast'
 //project(':googlecast').projectDir = new File(settingsDir,'../../playkit-android-googlecast/googlecast')
-//include ':MD360'
-//project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
 //include ':playkitvr'
 //project(':playkitvr').projectDir = new File('../../playkit-android-vr/playkitvr')
 //include ':dtglib'
 //project(':dtglib').projectDir = new File('../../playkit-dtg-android/dtglib')
 //include ':fbads'
 //project(':fbads').projectDir = new File('../../playkit-android-fb-ads/fbadsplugin')
+//include ':MD360'
+//project(':MD360').projectDir = new File('../../MD360Player4Android/vrlib')
 //include ':netkit'
 //project(':netkit').projectDir = new File('../../netkit-android/netkit')
+
+//include ':smartswitch'
+//project(':smartswitch').projectDir = new File(settingsDir,'../../playkit-android-smartSwitch/smartswitchplugin')
+//include ':broadpeak'
+//project(':broadpeak').projectDir = new File(settingsDir,'../../playkit-android-broadpeak-smartlib/broadpeakplugin')
+
 // Sample apps
 def samples = [
         'TestApp',
@@ -38,7 +44,8 @@ def samples = [
         'VRBasicSubtitles',
 	    'MediaPreviewSample',
         'RecyclerViewSample',
-        'DashThumbnailSample'
+        'DashThumbnailSample',
+        'SmartSwitch'
 ]
 
 samples.each {

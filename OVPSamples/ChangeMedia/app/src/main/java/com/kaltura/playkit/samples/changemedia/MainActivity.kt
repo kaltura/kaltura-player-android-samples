@@ -15,6 +15,7 @@ import com.kaltura.tvplayer.KalturaOvpPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
+import com.kaltura.tvplayer.config.MediaEntryCacheConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import android.util.Log
 
@@ -128,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
         ovpMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ovpMediaOptions) { entry, error ->
+        player?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -147,7 +148,7 @@ class MainActivity : AppCompatActivity() {
         val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
         ovpMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ovpMediaOptions) { entry, error ->
+        player?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -211,6 +212,7 @@ class MainActivity : AppCompatActivity() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
         playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.mediaEntryCacheConfig = MediaEntryCacheConfig(true, 10, 60000)
         player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
 
         player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)

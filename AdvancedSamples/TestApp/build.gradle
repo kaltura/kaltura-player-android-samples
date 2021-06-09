@@ -2,7 +2,7 @@
 
 buildscript {
 
-    ext.kotlin_version = '1.4.10'
+    ext.kotlin_version = '1.4.32'
     repositories {
         google()
         maven {
@@ -28,6 +28,7 @@ allprojects {
             url "https://maven.google.com" // Google's Maven repository
         }
         jcenter()
+        maven { url  "https://npaw.jfrog.io/artifactory/youbora/" }
     }
 }
 

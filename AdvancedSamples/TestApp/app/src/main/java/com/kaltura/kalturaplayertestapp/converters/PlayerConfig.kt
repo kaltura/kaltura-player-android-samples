@@ -4,11 +4,13 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.kaltura.netkit.connect.request.RequestConfiguration
 import com.kaltura.playkit.PKMediaFormat
+import com.kaltura.playkit.PKRequestConfig
 import com.kaltura.playkit.PKRequestParams
 import com.kaltura.playkit.PKSubtitlePreference
 import com.kaltura.playkit.player.*
 import com.kaltura.playkit.player.vr.VRSettings
 import com.kaltura.tvplayer.KalturaPlayer
+import com.kaltura.tvplayer.config.MediaEntryCacheConfig
 
 
 class PlayerConfig {
@@ -21,6 +23,7 @@ class PlayerConfig {
     var autoPlay: Boolean? = null
     var preload: Boolean? = null
     val allowCrossProtocolEnabled: Boolean? = null
+    val playerRequestConfig: PKRequestConfig? = null
     var preferredFormat: PKMediaFormat? = null
     var allowClearLead: Boolean? = null
     var enableDecoderFallback: Boolean? = null
@@ -38,6 +41,8 @@ class PlayerConfig {
     var maxVideoSize: PKMaxVideoSize? = null
     var handleAudioBecomingNoisyEnabled: Boolean? = null
     var subtitlePreference: PKSubtitlePreference? = null
+    var multicastSettings: MulticastSettings? = null
+    var mediaEntryCacheConfig: MediaEntryCacheConfig? = null
 
     var setSubtitleStyle: SubtitleStyleSettings? = null
     var aspectRatioResizeMode: PKAspectRatioResizeMode? = null
