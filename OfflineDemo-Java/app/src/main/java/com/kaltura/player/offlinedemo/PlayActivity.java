@@ -126,7 +126,7 @@ public class PlayActivity extends AppCompatActivity {
         Item item = itemList.get(position);
         if (item instanceof OTTItem) {
             player = KalturaOttPlayer.create(this, options);
-            player.loadMedia((OTTMediaOptions) ((OTTItem) item).mediaOptions(), (entry, error) -> {
+            player.loadMedia((OTTMediaOptions) ((OTTItem) item).mediaOptions(), (mediaOptions, entry, error) -> {
                 if (error != null) {
                     log.d("OTTMedia Error Extra = " + error.getExtra());
                     runOnUiThread(() -> Snackbar.make(
@@ -140,7 +140,7 @@ public class PlayActivity extends AppCompatActivity {
             });
         } else if (item instanceof OVPItem) {
             player = KalturaOvpPlayer.create(this, options);
-            player.loadMedia((OVPMediaOptions) ((OVPItem) item).mediaOptions(), (entry, error) -> {
+            player.loadMedia((OVPMediaOptions) ((OVPItem) item).mediaOptions(), (mediaOptions, entry, error) -> {
                 if (error != null) {
                     log.d("OVPMedia Error Extra = " + error.getExtra());
                     runOnUiThread(() -> Snackbar.make(
