@@ -132,7 +132,7 @@ class PlayActivity : AppCompatActivity() {
                 player = KalturaOttPlayer.create(this, options)
                 player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
-                        log.d("OTTMedia Error Extra = " + error.extra)
+                        log.d("OTTMedia Error error = " + error.message + " Extra = " + error.extra)
                         runOnUiThread {
                             Snackbar.make(
                                 findViewById<View>(android.R.id.content),
@@ -149,7 +149,7 @@ class PlayActivity : AppCompatActivity() {
                 player = KalturaOvpPlayer.create(this, options)
                 player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
-                        log.d("OVPMedia Error Extra = " + error.extra)
+                        log.d("OVPMedia Error error = " + error.message + " Extra = " + error.extra)
                         runOnUiThread {
                             Snackbar.make(
                                 findViewById<View>(android.R.id.content),
