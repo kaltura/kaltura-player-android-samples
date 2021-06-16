@@ -1087,7 +1087,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.addPlaylistButtonsListener()
         }
 
-        player ?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
+        player?.addListener(this, PlaylistEvent.playlistLoopStateChanged) { event ->
             log.d("PLAYLIST playlistLoopStateChanged " + event.mode)
         }
 
