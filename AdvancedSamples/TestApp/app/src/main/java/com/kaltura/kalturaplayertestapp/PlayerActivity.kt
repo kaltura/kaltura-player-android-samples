@@ -883,6 +883,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
             }
             allAdsCompleted = true
+
+            player?.playlistController?.let {
+                if (it.currentMediaIndex < it.playlist.mediaList.size - 1 && it.isAutoContinueEnabled) {
+                    progressBar?.visibility = View.VISIBLE
+                    return@addListener
+                }
+            }
+            
             if (isPlaybackEndedState()) {
                 progressBar?.setVisibility(View.GONE)
                 playbackControlsManager?.showControls(View.VISIBLE)
