@@ -263,7 +263,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (KalturaPlayer.Type.ovp == appPlayerInitConfig?.playerType) {
                 val ovpMediaOptions = buildOvpMediaOptions(0L, currentPlayedMediaIndex) ?: return
 
-                player?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, error ->
+                player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
                     var entryId = ""
                     if (entry != null) {
                         entryId = entry.getId()
@@ -274,7 +274,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             } else if (KalturaPlayer.Type.ott == appPlayerInitConfig?.playerType) {
                 val ottMediaOptions = buildOttMediaOptions(0L, currentPlayedMediaIndex) ?: return
 
-                player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, error ->
+                player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
                     var entryId = ""
                     if (entry != null) {
                         entryId = entry.getId()
@@ -453,7 +453,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             val ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ovpMediaOptions != null) {
-                player?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, error ->
+                player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error Extra = " + error.getExtra())
                         runOnUiThread(Runnable {
@@ -495,7 +495,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             setPlayer(player)
             val ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ottMediaOptions != null) {
-                player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, error ->
+                player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error Extra = " + error.getExtra())
                         runOnUiThread(Runnable {

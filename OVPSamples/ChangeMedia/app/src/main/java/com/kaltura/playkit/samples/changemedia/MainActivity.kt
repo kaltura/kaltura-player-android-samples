@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity() {
 
         ovpMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, error ->
+        player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
         ovpMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, error ->
+        player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
