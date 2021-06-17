@@ -104,7 +104,7 @@ class OVPDemoActivity : BaseDemoActivity() {
         ovpMediaAsset.entryId = currentItem?.id
         val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
 
-        player.loadMedia(ovpMediaOptions) { entry, loadError -> log.d("onEntryLoadComplete; $entry; $loadError") }
+        player.loadMedia(ovpMediaOptions) { mediaOptions, entry, loadError -> log.d("onEntryLoadComplete; $entry; $loadError") }
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, 600)
         playerActivity.setPlayer(player)
     }

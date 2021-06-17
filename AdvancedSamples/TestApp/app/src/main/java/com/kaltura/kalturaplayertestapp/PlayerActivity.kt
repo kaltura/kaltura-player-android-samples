@@ -263,7 +263,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (KalturaPlayer.Type.ovp == appPlayerInitConfig?.playerType) {
                 val ovpMediaOptions = buildOvpMediaOptions(0L, currentPlayedMediaIndex) ?: return
 
-                player?.loadMedia(ovpMediaOptions) { entry, error ->
+                player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
                     var entryId = ""
                     if (entry != null) {
                         entryId = entry.getId()
@@ -274,7 +274,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             } else if (KalturaPlayer.Type.ott == appPlayerInitConfig?.playerType) {
                 val ottMediaOptions = buildOttMediaOptions(0L, currentPlayedMediaIndex) ?: return
 
-                player?.loadMedia(ottMediaOptions) { entry, error ->
+                player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
                     var entryId = ""
                     if (entry != null) {
                         entryId = entry.getId()
@@ -302,9 +302,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private fun handleOnEntryLoadComplete(error: ErrorElement?) {
         if (error != null) {
             log.d("Load Error Extra = " + error.extra)
-            Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
-            playbackControlsView?.playPauseToggle?.setBackgroundResource(R.drawable.play)
-            playbackControlsManager?.showControls(View.VISIBLE)
+            runOnUiThread(Runnable {
+                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                playbackControlsView?.playPauseToggle?.setBackgroundResource(R.drawable.play)
+                playbackControlsManager?.showControls(View.VISIBLE)
+            })
         } else {
             if (!initOptions.autoplay) {
                 playbackControlsManager?.showControls(View.VISIBLE)
@@ -409,6 +411,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setMaxVideoSize(appPlayerInitConfig.maxVideoSize)
                 .setHandleAudioBecomingNoisy(appPlayerInitConfig.handleAudioBecomingNoisyEnabled)
                 .setSubtitlePreference(appPlayerInitConfig.subtitlePreference)
+                .setMulticastSettings(appPlayerInitConfig.multicastSettings)
+                .setMediaEntryCacheConfig(appPlayerInitConfig.mediaEntryCacheConfig)
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject, true))
 
         appPlayerInitConfig.trackSelection?.let {
@@ -449,7 +453,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             val ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ovpMediaOptions != null) {
-                player?.loadMedia(ovpMediaOptions) { entry, error ->
+                player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error Extra = " + error.getExtra())
                         runOnUiThread(Runnable {
@@ -491,7 +495,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             setPlayer(player)
             val ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ottMediaOptions != null) {
-                player?.loadMedia(ottMediaOptions) { entry, error ->
+                player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error Extra = " + error.getExtra())
                         runOnUiThread(Runnable {
@@ -879,6 +883,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
             }
             allAdsCompleted = true
+
+            player?.playlistController?.let {
+                if (it.currentMediaIndex < it.playlist.mediaList.size - 1 && it.isAutoContinueEnabled) {
+                    progressBar?.visibility = View.VISIBLE
+                    return@addListener
+                }
+            }
+
             if (isPlaybackEndedState()) {
                 progressBar?.setVisibility(View.GONE)
                 playbackControlsManager?.showControls(View.VISIBLE)
@@ -1034,7 +1046,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("PLAYER STOPPED")
             updateEventsLogsList("player:\n" + event.eventType().name)
             if (player?.playlistController == null || (player?.playlistController?.isAutoContinueEnabled ?: true)) {
-                playbackControlsManager?.showControls(View.INVISIBLE)
+                if (playbackControlsManager?.playerState != PlayerEvent.Type.ERROR) {
+                    playbackControlsManager?.showControls(View.INVISIBLE)
+                }
             }
             playbackControlsManager?.setContentPlayerState(event.eventType())
         }
@@ -1095,7 +1109,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlaylistEvent.playListError) { event ->
-            log.d("PLAYLIST playListError")
+            val errorMessage = event.error.message ?: ""
+            log.d("PLAYLIST playListError error = ${errorMessage}")
+            playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
+            player?.playlistController.let {
+                if (it != null && !it.isRecoverOnError) {
+                    progressBar?.setVisibility(View.GONE)
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                    playbackControlsManager?.showControls(View.VISIBLE)
+                }
+            }
             Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
         }
 

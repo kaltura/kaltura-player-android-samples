@@ -17,6 +17,7 @@ import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
+import com.kaltura.tvplayer.config.MediaEntryCacheConfig
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -132,7 +133,7 @@ class MainActivity : AppCompatActivity() {
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ottMediaOptions) { entry, error ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -156,7 +157,7 @@ class MainActivity : AppCompatActivity() {
 
         ottMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ottMediaOptions) { entry, error ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -219,6 +220,7 @@ class MainActivity : AppCompatActivity() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
         playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.mediaEntryCacheConfig = MediaEntryCacheConfig(true, 10, 60000)
 
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
         player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
