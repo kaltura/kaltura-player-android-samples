@@ -90,7 +90,7 @@ class OTTDemoActivity : BaseDemoActivity() {
         ottMediaAsset.protocol = currentItem?.protocol
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
 
-        player.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError -> log.d("onEntryLoadComplete; $entry; $loadError") }
+        player.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError -> log.d("onEntryLoadComplete; $entry; $loadError") }
         player.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, 600)
         playerActivity.setPlayer(player)
     }
