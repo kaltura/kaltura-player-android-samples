@@ -883,6 +883,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
             }
             allAdsCompleted = true
+
+            player?.playlistController?.let {
+                if (it.currentMediaIndex < it.playlist.mediaList.size - 1 && it.isAutoContinueEnabled) {
+                    progressBar?.visibility = View.VISIBLE
+                    return@addListener
+                }
+            }
+
             if (isPlaybackEndedState()) {
                 progressBar?.setVisibility(View.GONE)
                 playbackControlsManager?.showControls(View.VISIBLE)
@@ -1038,7 +1046,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("PLAYER STOPPED")
             updateEventsLogsList("player:\n" + event.eventType().name)
             if (player?.playlistController == null || (player?.playlistController?.isAutoContinueEnabled ?: true)) {
-                playbackControlsManager?.showControls(View.INVISIBLE)
+                if (playbackControlsManager?.playerState != PlayerEvent.Type.ERROR) {
+                    playbackControlsManager?.showControls(View.INVISIBLE)
+                }
             }
             playbackControlsManager?.setContentPlayerState(event.eventType())
         }
@@ -1099,7 +1109,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlaylistEvent.playListError) { event ->
-            log.d("PLAYLIST playListError")
+            val errorMessage = event.error.message ?: ""
+            log.d("PLAYLIST playListError error = ${errorMessage}")
+            playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
+            player?.playlistController.let {
+                if (it != null && !it.isRecoverOnError) {
+                    progressBar?.setVisibility(View.GONE)
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                    playbackControlsManager?.showControls(View.VISIBLE)
+                }
+            }
             Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
         }
 
