@@ -465,7 +465,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         container.addView(player?.playerView)
 
         val ottMediaOptions = buildOttMediaOptions()
-        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {

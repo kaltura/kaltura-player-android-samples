@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, error ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity() {
 
         ottMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, error ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
             if (error != null) {
                 Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
             } else {
