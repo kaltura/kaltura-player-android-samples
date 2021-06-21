@@ -27,7 +27,6 @@ class Media {
     var streamerType: String? = null
     var adapterData: Map<String,String>? = null
     var externalSubtitles: List<PKExternalSubtitle>? = null
-    var playbackRate: Float? = null
 
     fun getAssetType(): APIDefines.KalturaAssetType? {
         if (assetType == null) {

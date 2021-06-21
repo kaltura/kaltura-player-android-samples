@@ -562,14 +562,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
-    private fun setPlaybackRate(playListMediaIndex: Int) {
-        mediaList?.let {
-            it[playListMediaIndex].playbackRate?.let { rate ->
-                player?.playbackRate = rate
-            }
-        }
-    }
-
     private fun getSubtitleStyleSettings(subtitleStyleList: List<SubtitleStyling>, subtitlePosition: Int): SubtitleStyleSettings? {
         var subtitleStyleSettings: SubtitleStyleSettings? = null
 
@@ -1213,10 +1205,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
             if (tracks.getVideoTracks().size > 0) {
                 log.d("Default video isAdaptive = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).isAdaptive() + " bitrate = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).getBitrate())
-            }
-
-            runOnUiThread {
-                setPlaybackRate(currentPlayedMediaIndex)
             }
         }
 
