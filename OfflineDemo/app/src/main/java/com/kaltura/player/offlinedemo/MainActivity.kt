@@ -21,11 +21,11 @@ import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.*
-import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
+import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import java.util.*
@@ -129,8 +129,6 @@ class MainActivity : AppCompatActivity() {
             ) {
                 toast("Error Asset Was Not Removed")
             }
-
-
         })
 
         manager.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
@@ -300,7 +298,7 @@ class MainActivity : AppCompatActivity() {
             manager.setKalturaServerUrl(item.serverUrl)
         }
 
-        if (item is OVPItem){
+        if (item is OVPItem) {
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             manager.setKalturaServerUrl(item.serverUrl)
         }
@@ -321,7 +319,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPrepareError(assetId: String, error: Exception) {
-                toastLong("onPrepareError: $error")
+                runOnUiThread() {
+                    toastLong("onPrepareError: $error")
+                }
             }
 
             override fun onMediaEntryLoadError(error: Exception) {
@@ -329,7 +329,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
-               // reduceLicenseDuration(mediaEntry, 300)
+                toastLong("onMediaEntryLoaded: ${mediaEntry.name}")
+                // reduceLicenseDuration(mediaEntry, 300)
             }
 
             override fun onSourceSelected(
@@ -392,6 +393,10 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPrepareError(assetId: String, error: java.lang.Exception) {
                 TODO("Not yet implemented")
+            }
+
+            override fun onMediaEntryLoadError(error: Exception) {
+                toastLong("onMediaEntryLoadError: $error")
             }
         }
 
@@ -491,7 +496,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun toast(msg: String) = runOnUiThread { Toast.makeText(this, msg, Toast.LENGTH_SHORT).show() }
 
-    private fun toastLong(msg: String) = runOnUiThread { Toast.makeText(this, msg, Toast.LENGTH_LONG).show() }
+    private fun toastLong(msg: String) = runOnUiThread {
+        log.d("$msg")
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
