@@ -71,9 +71,9 @@ class MainActivity : AppCompatActivity() {
                 log.d("onAssetDownloadComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
 
                 if (downloadType == OfflineManager.DownloadType.FULL) {
-                    toast("Complete")
+                    toast("Complete " + assetId)
                 } else {
-                    toast("Prefetched")
+                    toast("Prefetched" + assetId)
                 }
                 updateItemStatus(assetId)
             }
