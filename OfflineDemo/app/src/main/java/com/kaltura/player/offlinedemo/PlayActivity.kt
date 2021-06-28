@@ -71,6 +71,7 @@ class PlayActivity : AppCompatActivity() {
         val options = PlayerInitOptions(partnerId).apply {
             autoplay = true
             allowCrossProtocolEnabled = true
+            offlineProvider = OfflineManager.OfflineProvider.EXO
         }
         isOnlinePlayback.let {
             if (it) {
@@ -128,7 +129,7 @@ class PlayActivity : AppCompatActivity() {
     }
 
     private fun playAssetOffline(assetId: String, options: PlayerInitOptions) {
-        val manager = OfflineManager.getInstance(this)
+        val manager = OfflineManager.getInstance(this, options.offlineProvider)
         player = KalturaBasicPlayer.create(this, options)
         val entry = manager.getLocalPlaybackEntry(assetId)
         player.setMedia(entry)

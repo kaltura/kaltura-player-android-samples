@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
         val testItems = items.map { it.toItem() }
 
-        manager = OfflineManager.getInstance(this)
+        manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
         manager.setOfflineManagerSettings(OfflineManagerSettings().setHlsAudioBitrateEstimation(64000))
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
