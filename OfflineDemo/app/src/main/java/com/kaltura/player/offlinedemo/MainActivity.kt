@@ -177,7 +177,7 @@ class MainActivity : AppCompatActivity() {
                 0 -> if (item.isPrefetch) {
                       doPrefetch(item)
                     } else {
-                      doPrepare(item)
+                        doPrepare(item)
                     }
                 1 -> doStart(item)
                 2 -> doPause(item)
@@ -217,7 +217,7 @@ class MainActivity : AppCompatActivity() {
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             manager.renewDrmAssetLicense(item.id(), item.mediaOptions(), object: OfflineManager.MediaEntryCallback {
                 override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
-                   // reduceLicenseDuration(mediaEntry, 300)
+                    // reduceLicenseDuration(mediaEntry, 300)
                 }
 
                 override fun onMediaEntryLoadError(error: Exception) {
@@ -244,7 +244,6 @@ class MainActivity : AppCompatActivity() {
         val bundle = Bundle()
         bundle.putBoolean("isOnlinePlayback", true)
         bundle.putInt("position", position)
-
         if (item is OTTItem) {
             bundle.putInt("partnerId", item.partnerId)
         }
@@ -254,7 +253,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         intent.putExtra("assetBundle", bundle)
-
+        val assetId = item.assetInfo?.assetId ?: ""
+        if (!assetId.isEmpty()) {
+            intent.data = Uri.parse(assetId)
+        }
         startActivity(intent)
     }
 
@@ -319,9 +321,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPrepareError(assetId: String, error: Exception) {
-                runOnUiThread() {
-                    toastLong("onPrepareError: $error")
-                }
+
+                toastLong("onPrepareError: $error")
             }
 
             override fun onMediaEntryLoadError(error: Exception) {
@@ -338,7 +339,7 @@ class MainActivity : AppCompatActivity() {
                 source: PKMediaSource,
                 drmParams: PKDrmParams?
             ) {
-
+                toastLong("onSourceSelected ")
             }
         }
 
@@ -388,7 +389,7 @@ class MainActivity : AppCompatActivity() {
                 assetList.invalidateViews()            }
 
             override fun onPrefetchError(assetId: String, error: Exception) {
-                toastLong("onPrepareError: $error")
+                toastLong("onPrefetchError: $error")
             }
 
             override fun onPrepareError(assetId: String, error: java.lang.Exception) {
@@ -439,7 +440,7 @@ class MainActivity : AppCompatActivity() {
 //            pm.prefetchByMediaOptionsList(entries, PrefetchConfig())
         } else {
             item.entry?.let { entry ->
-                 manager.prefetchAsset(entry, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+                manager.prefetchAsset(entry, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
 
 //                var m1 = PKMediaEntry()
 //                m1.duration = 10000
@@ -498,7 +499,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun toastLong(msg: String) = runOnUiThread {
         log.d("$msg")
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+        runOnUiThread() {
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -25,6 +25,7 @@ import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.PlayerInitOptions
 import com.kaltura.tvplayer.*
+import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import kotlinx.android.synthetic.main.activity_play.*
 import kotlinx.android.synthetic.main.content_play.*
 
@@ -71,18 +72,18 @@ class PlayActivity : AppCompatActivity() {
             autoplay = true
             allowCrossProtocolEnabled = true
         }
-
         isOnlinePlayback.let {
             if (it) {
-                testItems?.let { itemList ->
-                    playAssetOnline(itemList, position, options)
+                intent.dataString?.let {
+                    playAssetOffline(it, options)
+                } ?: run {
+                    testItems?.let { itemList ->
+                        playAssetOnline(itemList, position, options)
+                    }
                 }
             } else {
-                player = KalturaBasicPlayer.create(this, options)
-                val manager = OfflineManager.getInstance(this)
                 intent.dataString?.let {
-                    val entry = manager.getLocalPlaybackEntry(it)
-                    player.setMedia(entry)
+                    playAssetOffline(it, options)
                 } ?: run {
                     Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
                 }
@@ -126,10 +127,18 @@ class PlayActivity : AppCompatActivity() {
         addPlayerEventListeners()
     }
 
+    private fun playAssetOffline(assetId: String, options: PlayerInitOptions) {
+        val manager = OfflineManager.getInstance(this)
+        player = KalturaBasicPlayer.create(this, options)
+        val entry = manager.getLocalPlaybackEntry(assetId)
+        player.setMedia(entry)
+    }
+
     private fun playAssetOnline(itemList: List<Item>, position: Int, options: PlayerInitOptions) {
         when (val item: Item = itemList[position]) {
             is OTTItem -> {
                 player = KalturaOttPlayer.create(this, options)
+                
                 player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error error = " + error.message + " Extra = " + error.extra)
