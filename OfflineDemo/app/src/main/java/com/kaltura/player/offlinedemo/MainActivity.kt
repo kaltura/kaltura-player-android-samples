@@ -60,6 +60,17 @@ class MainActivity : AppCompatActivity() {
         manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
         manager.setOfflineManagerSettings(OfflineManagerSettings().setHlsAudioBitrateEstimation(64000))
 
+        val offlineAssets = manager.getAllAssets() // manager.getAssetsInState(OfflineManager.AssetDownloadState.started)
+
+        for (testItem in testItems) {
+            for (offlineAsset in offlineAssets) {
+                if (offlineAsset != null && testItem.id() == offlineAsset.assetId) {
+                    testItem.assetInfo = offlineAsset
+                    break
+                }
+            }
+        }
+
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
 
             override fun onAssetDownloadFailed(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
@@ -192,7 +203,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateItemStatus(item: Item) {
         item.assetInfo = manager.getAssetInfo(item.id())
-        runOnUiThread { assetList.invalidateViews() }
+        runOnUiThread {
+            assetList.invalidateViews()
+        }
     }
 
     private fun doStatus(item: Item) {
@@ -289,7 +302,7 @@ class MainActivity : AppCompatActivity() {
         ottMediaAsset.formats = listOf("Mobile_Main")
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
 
-        ottMediaOptions.startPosition = 0L;
+        ottMediaOptions.startPosition = 0L
 
         return ottMediaOptions
     }
@@ -321,7 +334,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPrepareError(assetId: String, error: Exception) {
-
                 toastLong("onPrepareError: $error")
             }
 
@@ -386,7 +398,8 @@ class MainActivity : AppCompatActivity() {
                 selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
             ) {
                 item.assetInfo = assetInfo
-                assetList.invalidateViews()            }
+                assetList.invalidateViews()
+            }
 
             override fun onPrefetchError(assetId: String, error: Exception) {
                 toastLong("onPrefetchError: $error")
