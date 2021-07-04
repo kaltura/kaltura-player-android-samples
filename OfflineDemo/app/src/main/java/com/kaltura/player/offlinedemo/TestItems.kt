@@ -16,6 +16,7 @@ data class ItemJSON(
     val ks: String?,
     val env: String?,
     val url: String?,
+    val licenseUrl: String?,
     val isPrefetch: Boolean = false,
     val options: OptionsJSON?,
     val expected: ExpectedValues?,
@@ -36,7 +37,7 @@ fun ItemJSON.toItem() : Item {
             OVPItem(partnerId, id, env, options?.toPrefs(), title, isPrefetch)
         }
     } else {
-        BasicItem(id, url!!, options?.toPrefs(), title, isPrefetch)
+        BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, isPrefetch)
     }
 }
 

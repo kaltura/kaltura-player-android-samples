@@ -1,8 +1,11 @@
 package com.kaltura.player.offlinedemo
 
+import android.text.TextUtils
 import android.util.Log
+import com.kaltura.playkit.PKDrmParams
 import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaSource
+import com.kaltura.playkit.plugins.googlecast.caf.basic.DrmData
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OTTMediaOptions
@@ -44,6 +47,7 @@ abstract class Item (val selectionPrefs: SelectionPrefs?, val title: String?, va
 class BasicItem(
     private val id: String,
     private val url: String,
+    private var licenseUrl: String?,
     prefs: SelectionPrefs? = null,
     title: String? = null,
     isPrefetch: Boolean = false
@@ -56,6 +60,11 @@ class BasicItem(
             sources = listOf(PKMediaSource().apply {
                 id = this@BasicItem.id
                 url = this@BasicItem.url
+                licenseUrl = licenseUrl ?: ""
+                if (!TextUtils.isEmpty(this@BasicItem.licenseUrl)) {
+                    drmData = mutableListOf()
+                    drmData.add(PKDrmParams(this@BasicItem.licenseUrl, PKDrmParams.Scheme.WidevineCENC))
+                }
             })
         }
 
