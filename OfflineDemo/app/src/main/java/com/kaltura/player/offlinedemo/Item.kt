@@ -31,6 +31,11 @@ abstract class Item (val selectionPrefs: SelectionPrefs?, val title: String?, va
         return "%.3f".fmt(sizeBytes.toFloat() / (1000*1000)) + "mb"
     }
 
+    fun getDownloadPercentage(): String {
+        val state = assetInfo?.state ?: OfflineManager.AssetDownloadState.none
+        return if (percentDownloaded != null && state == OfflineManager.AssetDownloadState.started) "%.1f".fmt(percentDownloaded) + "% / " + sizeMB() else "--" + sizeMB()
+    }
+
     override fun toString(): String {
         val state = assetInfo?.state ?: OfflineManager.AssetDownloadState.none
 

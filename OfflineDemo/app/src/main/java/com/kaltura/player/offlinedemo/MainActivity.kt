@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +26,7 @@ import com.kaltura.tvplayer.offline.OfflineManagerSettings
 import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
+import kotlinx.android.synthetic.main.layout_prefetch.*
 import java.util.*
 
 fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
@@ -35,9 +37,9 @@ object NULL : KalturaItem(0, "", null, null) {
     override fun mediaOptions(): MediaOptions = TODO()
 }
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemClickListener {
 
-    private lateinit var itemArrayAdapter: ArrayAdapter<Item>
+    private lateinit var rvOfflineAssetsAdapter: RvOfflineAssetsAdapter
     private lateinit var manager: OfflineManager
     private val itemMap = mutableMapOf<String, Item>()
 
@@ -47,6 +49,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 //        setSupportActionBar(toolbar)
+
+        cb_is_prefetch_enable.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) cb_is_prefetch_enable.text = getString(R.string.disable_prefetch) else cb_is_prefetch_enable.text = getString(R.string.enable_prefetch)
+        }
+
         val itemsJson = Utils.readAssetToString(this, "items.json")
 
         val gson = Gson()
@@ -66,7 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         manager.setOfflineManagerSettings(offlineSettings)
 
-        val offlineAssets = manager.getAllAssets() // manager.getAssetsInState(OfflineManager.AssetDownloadState.started)
+        val offlineAssets = manager.allAssets // manager.getAssetsInState(OfflineManager.AssetDownloadState.started)
 
         for (testItem in testItems) {
             for (offlineAsset in offlineAssets) {
@@ -155,22 +162,18 @@ class MainActivity : AppCompatActivity() {
             item.percentDownloaded = percentDownloaded
 
             runOnUiThread {
-                assetList.invalidateViews()
+                rvOfflineAssetsAdapter.notifyDataSetChanged()
             }
         }
 
-        itemArrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1)
-
         testItems.filter { it != NULL }.forEach {
-            itemArrayAdapter.add(it)
             itemMap[it.id()] = it
         }
 
-        assetList.adapter = this.itemArrayAdapter
+        rvOfflineAssetsAdapter = RvOfflineAssetsAdapter(testItems, this)
 
-        assetList.setOnItemClickListener { av: AdapterView<*>, _: View, pos: Int, _: Long ->
-            showActionsDialog(av.getItemAtPosition(pos) as Item, pos)
-        }
+        assetList.adapter = rvOfflineAssetsAdapter
+        assetList.isNestedScrollingEnabled = false
 
         manager.start {
             log.d("manager started")
@@ -178,14 +181,19 @@ class MainActivity : AppCompatActivity() {
                 it.assetInfo = manager.getAssetInfo(it.id())
             }
 
-            runOnUiThread(assetList::invalidateViews)
+            runOnUiThread {
+                rvOfflineAssetsAdapter.notifyDataSetChanged()
+            }
         }
+    }
+
+    override fun onItemClick(position: Int) {
+        showActionsDialog(rvOfflineAssetsAdapter.getItemAtPosition(position), position)
     }
 
     private fun updateItemStatus(assetId: String) {
         updateItemStatus(itemMap[assetId] ?: return)
     }
-
 
     private fun showActionsDialog(item: Item, position: Int) {
         val items = arrayOf("Prepare", "Start", "Pause", "Play-Offline", "Play-Online", "Remove", "Status", "Update")
@@ -210,7 +218,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateItemStatus(item: Item) {
         item.assetInfo = manager.getAssetInfo(item.id())
         runOnUiThread {
-            assetList.invalidateViews()
+            rvOfflineAssetsAdapter.notifyDataSetChanged()
         }
     }
 
@@ -335,7 +343,9 @@ class MainActivity : AppCompatActivity() {
                     snackbar("Prepared", "Start") {
                         doStart(item)
                     }
-                    assetList.invalidateViews()
+                    runOnUiThread {
+                        rvOfflineAssetsAdapter.notifyDataSetChanged()
+                    }
                 }
             }
 
@@ -404,7 +414,9 @@ class MainActivity : AppCompatActivity() {
                 selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
             ) {
                 item.assetInfo = assetInfo
-                assetList.invalidateViews()
+                runOnUiThread {
+                    rvOfflineAssetsAdapter.notifyDataSetChanged()
+                }
             }
 
             override fun onPrefetchError(assetId: String, error: Exception) {

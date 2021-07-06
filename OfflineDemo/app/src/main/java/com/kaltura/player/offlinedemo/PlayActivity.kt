@@ -138,6 +138,16 @@ class PlayActivity : AppCompatActivity() {
     private fun playAssetOnline(itemList: List<Item>, position: Int, options: PlayerInitOptions) {
         when (val item: Item = itemList[position]) {
             is OTTItem -> {
+                if (options.partnerId == 225) {
+                    val phoenixTVPlayerParams = PhoenixTVPlayerParams()
+                    phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
+                    phoenixTVPlayerParams.ovpPartnerId = 1982551
+                    phoenixTVPlayerParams.partnerId = 225
+                    phoenixTVPlayerParams.serviceUrl = "https://rest-as.ott.kaltura.com/v5_2_8/"
+                    phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
+                    options.tvPlayerParams = phoenixTVPlayerParams
+                }
+
                 player = KalturaOttPlayer.create(this, options)
                 
                 player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->

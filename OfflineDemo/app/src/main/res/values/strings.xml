@@ -9,4 +9,7 @@
 
     <string name="title_activity_play">Player</string>
     <string name="title_asset_status">Status</string>
+
+    <string name="enable_prefetch">Enable Prefetch</string>
+    <string name="disable_prefetch">Disable Prefetch</string>
 </resources>
