@@ -10,9 +10,9 @@ import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AlertDialog.Builder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.kaltura.dtg.DownloadItem
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
+import com.kaltura.dtg.DownloadItem
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent.*
 import com.kaltura.playkit.Utils
@@ -20,10 +20,6 @@ import com.kaltura.playkit.player.AudioTrack
 import com.kaltura.playkit.player.PKTracks
 import com.kaltura.playkit.player.TextTrack
 import com.kaltura.playkit.player.VideoTrack
-import com.kaltura.tvplayer.KalturaBasicPlayer
-import com.kaltura.tvplayer.KalturaPlayer
-import com.kaltura.tvplayer.OfflineManager
-import com.kaltura.tvplayer.PlayerInitOptions
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import kotlinx.android.synthetic.main.activity_play.*

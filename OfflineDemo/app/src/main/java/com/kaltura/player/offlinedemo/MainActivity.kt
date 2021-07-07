@@ -1,6 +1,5 @@
 package com.kaltura.player.offlinedemo
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,33 +8,24 @@ import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson
 import com.kaltura.playkit.*
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
+import com.kaltura.tvplayer.offline.Prefetch
 import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_prefetch.*
 import java.util.*
-
-fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
-
-@SuppressLint("ParcelCreator")
-object NULL : KalturaItem(0, "", null, null) {
-    override fun id(): String = TODO()
-    override fun mediaOptions(): MediaOptions = TODO()
-}
 
 class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemClickListener {
 
@@ -48,142 +38,44 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        setSupportActionBar(toolbar)
 
-        cb_is_prefetch_enable.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (isChecked) cb_is_prefetch_enable.text = getString(R.string.disable_prefetch) else cb_is_prefetch_enable.text = getString(R.string.enable_prefetch)
-        }
-
-        val itemsJson = Utils.readAssetToString(this, "items.json")
-
-        val gson = Gson()
-        val items = gson.fromJson(itemsJson, Array<ItemJSON>::class.java)
-
-        val testItems = items.map { it.toItem() }
+        val testItems = loadItemsFromJson(this).map { it.toItem() }
 
         manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
-        var offlineSettings = OfflineManagerSettings()
-        offlineSettings.setHlsAudioBitrateEstimation(64000)
+        val offlineSettings = OfflineManagerSettings()
+        offlineSettings.hlsAudioBitrateEstimation = 64000
 
-//        val customAdapterData =
-//            "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48S2V5T1NBdXRoZW50aWNhdGlvblhNTD48RGF0YT48V2lkZXZpbmVQb2xpY3kgZmxfQ2FuUGVyc2lzdD0idHJ1ZSIgZmxfQ2FuUGxheT0idHJ1ZSI+PFBsYXliYWNrRHVyYXRpb24+MTcyODAwPC9QbGF5YmFja0R1cmF0aW9uPjxMaWNlbnNlRHVyYXRpb24+MTcyODAwPC9MaWNlbnNlRHVyYXRpb24+PC9XaWRldmluZVBvbGljeT48V2lkZXZpbmVDb250ZW50S2V5U3BlYyBUcmFja1R5cGU9IkhEIj48U2VjdXJpdHlMZXZlbD4xPC9TZWN1cml0eUxldmVsPjwvV2lkZXZpbmVDb250ZW50S2V5U3BlYz48RmFpclBsYXlQb2xpY3kgcGVyc2lzdGVudD0idHJ1ZSI+PFBlcnNpc3RlbmNlU2Vjb25kcz4xNzI4MDA8L1BlcnNpc3RlbmNlU2Vjb25kcz48L0ZhaXJQbGF5UG9saWN5PjxMaWNlbnNlIHR5cGU9InNpbXBsZSI+PFBvbGljeT48aWQ+NzA0YzlmYjAxMThhNDAzOWJjNzFlODU4MmUzNGE2ODU8L2lkPjwvUG9saWN5PjxQbGF5PjxpZD44OWE4YTBmNGUzNGY0NmFhOGE4ZjdiMzc5ZDM3N2ZiODwvaWQ+PC9QbGF5PjwvTGljZW5zZT48UG9saWN5IGlkPSI3MDRjOWZiMDExOGE0MDM5YmM3MWU4NTgyZTM0YTY4NSIgcGVyc2lzdGVudD0idHJ1ZSI+PE1pbmltdW1TZWN1cml0eUxldmVsPjIwMDA8L01pbmltdW1TZWN1cml0eUxldmVsPjxFeHBpcmF0aW9uQWZ0ZXJGaXJzdFBsYXk+MTcyODAwPC9FeHBpcmF0aW9uQWZ0ZXJGaXJzdFBsYXk+PC9Qb2xpY3k+PFBsYXkgaWQ9Ijg5YThhMGY0ZTM0ZjQ2YWE4YThmN2IzNzlkMzc3ZmI4Ij48RW5hYmxlcnM+PGlkPjc4NjYyN0Q4LUMyQTYtNDRCRS04Rjg4LTA4QUUyNTVCMDFBNzwvaWQ+PGlkPkQ2ODUwMzBCLTBGNEYtNDNBNi1CQkFELTM1NkYxRUEwMDQ5QTwvaWQ+PGlkPjAwMkY5NzcyLTM4QTAtNDNFNS05Rjc5LTBGNjM2MURDQzYyQTwvaWQ+PC9FbmFibGVycz48T3V0cHV0UHJvdGVjdGlvbnM+PE9QTD48Q29tcHJlc3NlZERpZ2l0YWxBdWRpbz4zMDA8L0NvbXByZXNzZWREaWdpdGFsQXVkaW8+PFVuY29tcHJlc3NlZERpZ2l0YWxBdWRpbz4zMDA8L1VuY29tcHJlc3NlZERpZ2l0YWxBdWRpbz48Q29tcHJlc3NlZERpZ2l0YWxWaWRlbz41MDA8L0NvbXByZXNzZWREaWdpdGFsVmlkZW8+PFVuY29tcHJlc3NlZERpZ2l0YWxWaWRlbz4zMDA8L1VuY29tcHJlc3NlZERpZ2l0YWxWaWRlbz48QW5hbG9nVmlkZW8+MjAwPC9BbmFsb2dWaWRlbz48L09QTD48L091dHB1dFByb3RlY3Rpb25zPjwvUGxheT48S2V5SURMaXN0PjxLZXlJRD5lYjkxNDg4MS1kMjM3LTQ2YzYtYjVkMC1mNjY0MjM1ZjJkNDg8L0tleUlEPjwvS2V5SURMaXN0PjxHZW5lcmF0aW9uVGltZT4yMDIxLTA2LTIzIDEzOjU2OjQ1LjcxNzwvR2VuZXJhdGlvblRpbWU+PEV4cGlyYXRpb25UaW1lPjIwMjEtMDctMDMgMTM6NTY6NDUuNzE3PC9FeHBpcmF0aW9uVGltZT48VW5pcXVlSWQ+Zjk1YTI2YjQ4YmFiNDliY2IyNmZkZmYwNTlhZjU2MjI8L1VuaXF1ZUlkPjxSU0FQdWJLZXlJZD5iYTc4ZmFjNGM3NmNlMDAzNzAwY2FhYWFlODAwNTc4MjwvUlNBUHViS2V5SWQ+PC9EYXRhPjxTaWduYXR1cmU+czNVSm1uMDRnUU4yMXdzK1ZwNWVrUzNTOXdnY21RQlkwNEVxQnhNaEE1Mmxmb3RjYVh6Y2xPZVhWdWprRUtpcFJYS1N3eStwQ1pwYjZXeFo2QndsNVptcThMeDJkQTBpQWd5TFk5N1ljSWhSMm1RYjVrVWQ5SDZzMSt6NTRlMDBhWG5mODU0U1hjSGd6U0dhQW4vZDh2bUIvQ0lZUWI1b3pVTGdoTFl5MHJ1WCtyb253dmwzYzBzTW5nVFIySXVvam5tWWc1TUw0N0thL1Z4YkYxRVAzV0FDZTh6eUdDb1ozVlNCbGtwRmEvRkNrQWRuc0ZhRVR6dGpBZ0VzRCtZSlI0cE82MVZpTlpqcFRyR1FKaVJDR3ByOW1aOS9PMXBtb1pKbWh2ODVnbHZFa1lneXB1cUlvRnlDTVR3MXFpYlpORkkvTHpyRHVXelJmRFdnbDA4Tzd3PT08L1NpZ25hdHVyZT48L0tleU9TQXV0aGVudGljYXRpb25YTUw+"
+//        val customAdapterData = "CUSTOM_DATA"
 //        var licenseRequestAdapter = DRMAdapter()
 //        DRMAdapter.customData = customAdapterData
 //        manager.setLicenseRequestAdapter(licenseRequestAdapter)
 
         manager.setOfflineManagerSettings(offlineSettings)
 
-        val offlineAssets = manager.allAssets // manager.getAssetsInState(OfflineManager.AssetDownloadState.started)
-
-        for (testItem in testItems) {
-            for (offlineAsset in offlineAssets) {
-                if (offlineAsset != null && testItem.id() == offlineAsset.assetId) {
-                    testItem.assetInfo = offlineAsset
-                    break
-                }
-            }
-        }
-
-        manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
-
-            override fun onAssetDownloadFailed(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
-                toastLong("Download of $assetId, ${downloadType.name} failed: $error")
-                updateItemStatus(assetId)
-            }
-
-            override fun onAssetDownloadComplete(assetId: String, downloadType: OfflineManager.DownloadType) {
-                log.d("onAssetDownloadComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
-
-                if (downloadType == OfflineManager.DownloadType.FULL) {
-                    toast("Complete " + assetId)
-                } else {
-                    toast("Prefetched" + assetId)
-                }
-                updateItemStatus(assetId)
-            }
-
-            override fun onAssetPrefetchComplete(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType
-            ) {
-                log.d("onAssetPrefetchComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
-
-                if (downloadType == OfflineManager.DownloadType.FULL) {
-                    toast("Complete")
-                } else {
-                    toast("Prefetched id =  $assetId")
-                }
-                updateItemStatus(assetId)
-            }
-
-            override fun onAssetDownloadPending(assetId: String, downloadType: OfflineManager.DownloadType) {
-                //toast("Pending - onAssetDownloadPending")
-                updateItemStatus(assetId)
-            }
-
-            override fun onAssetDownloadPaused(assetId: String, downloadType: OfflineManager.DownloadType) {
-                toast("Paused - onAssetDownloadPaused")
-                updateItemStatus(assetId)
-            }
-
-            override fun onRegistered(assetId: String, drmStatus: OfflineManager.DrmStatus) {
-                toast("onRegistered: ${drmStatus.currentRemainingTime} seconds left")
-                updateItemStatus(assetId)
-            }
-
-            override fun onRegisterError(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
-                toastLong("onRegisterError: $assetId, ${downloadType.name}, $error ")
-                updateItemStatus(assetId)
-            }
-
-            override fun onStateChanged(assetId: String, downloadType: OfflineManager.DownloadType, assetInfo: OfflineManager.AssetInfo) {
-                toast("onStateChanged state = " + assetInfo.state.name)
-                updateItemStatus(assetId)
-            }
-
-            override fun onAssetRemoved(assetId: String, downloadType: OfflineManager.DownloadType) {
-                toast("onAssetRemoved")
-                updateItemStatus(assetId)
-            }
-
-            override fun onAssetRemoveError(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType,
-                error: java.lang.Exception
-            ) {
-                toast("Error Asset Was Not Removed")
-            }
-        })
-
-        manager.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
-            log.d("[progress] $assetId: ${bytesDownloaded / 1000} / ${totalBytesEstimated / 1000}")
-            val item = itemMap[assetId] ?: return@setDownloadProgressListener
-            item.bytesDownloaded = bytesDownloaded
-            item.percentDownloaded = percentDownloaded
-
-            runOnUiThread {
-                rvOfflineAssetsAdapter.notifyDataSetChanged()
-            }
-        }
+        addAssetStateListener(manager)
 
         testItems.filter { it != NULL }.forEach {
             itemMap[it.id()] = it
         }
 
         rvOfflineAssetsAdapter = RvOfflineAssetsAdapter(testItems, this)
+        rvAssetList.adapter = rvOfflineAssetsAdapter
+        rvAssetList.isNestedScrollingEnabled = false
 
-        assetList.adapter = rvOfflineAssetsAdapter
-        assetList.isNestedScrollingEnabled = false
+        manager.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
+            log.d("[progress] $assetId: ${bytesDownloaded / 1000} / ${totalBytesEstimated / 1000}")
+            val item = itemMap[assetId] ?: return@setDownloadProgressListener
+            item.bytesDownloaded = bytesDownloaded
+            item.percentDownloaded = percentDownloaded
+            updateRecyclerViewAdapter()
+        }
 
         manager.start {
             log.d("manager started")
             itemMap.values.forEach {
                 it.assetInfo = manager.getAssetInfo(it.id())
             }
-
-            runOnUiThread {
-                rvOfflineAssetsAdapter.notifyDataSetChanged()
-            }
+            updateRecyclerViewAdapter()
         }
     }
 
@@ -191,35 +83,48 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
         showActionsDialog(rvOfflineAssetsAdapter.getItemAtPosition(position), position)
     }
 
-    private fun updateItemStatus(assetId: String) {
-        updateItemStatus(itemMap[assetId] ?: return)
+    private fun updateRecyclerViewAdapter() {
+        runOnUiThread {
+            rvOfflineAssetsAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun showProgressBar() {
+        runOnUiThread {
+            pbLoader.visibility = View.VISIBLE
+        }
+    }
+
+    private fun hideProgressBar() {
+        runOnUiThread {
+            if (pbLoader.isVisible) {
+                pbLoader.visibility = View.GONE
+            }
+        }
     }
 
     private fun showActionsDialog(item: Item, position: Int) {
-        val items = arrayOf("Prepare", "Start", "Pause", "Play-Offline", "Play-Online", "Remove", "Status", "Update")
+        val items = arrayOf(if (item.isPrefetch) "Prefetch" else "Prepare", "Start", "Pause", "Play-Offline", "Play-Online", "Remove", "Status")
         AlertDialog.Builder(this).setItems(items) { _, i ->
             when (i) {
-                0 -> if (item.isPrefetch) {
-                      doPrefetch(item)
+                0 -> {
+                    showProgressBar()
+                    if (item.isPrefetch) {
+                        doPrefetch(item)
                     } else {
                         doPrepare(item)
                     }
+                }
                 1 -> doStart(item)
                 2 -> doPause(item)
                 3 -> doOfflinePlayback(item)
                 4 -> doOnlinePlayback(item, position)
-                5 -> doRemove(item)
+                5 -> {
+                    doRemove(item)
+                }
                 6 -> doStatus(item)
-                7 -> updateItemStatus(item)
             }
         }.show()
-    }
-
-    private fun updateItemStatus(item: Item) {
-        item.assetInfo = manager.getAssetInfo(item.id())
-        runOnUiThread {
-            rvOfflineAssetsAdapter.notifyDataSetChanged()
-        }
     }
 
     private fun doStatus(item: Item) {
@@ -255,8 +160,12 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     }
 
     private fun doRemove(item: Item) {
-        manager.removeAsset(item.assetInfo?.assetId ?: return)
-        updateItemStatus(item)
+        item.assetInfo?.assetId?.let {
+            showProgressBar()
+            manager.removeAsset(it)
+            updateItemStatus(item)
+        }
+
     }
 
     private fun doOfflinePlayback(item: Item) {
@@ -305,20 +214,13 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
         updateItemStatus(item)
     }
 
-    private fun buildOttMediaOptions(): OTTMediaOptions {
-        val ottMediaAsset = OTTMediaAsset()
-        ottMediaAsset.assetId = ASSET_ID
-        ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
-        ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
-        ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaAsset.ks = null
-        ottMediaAsset.formats = listOf("Mobile_Main")
-        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+    private fun updateItemStatus(assetId: String) {
+        updateItemStatus(itemMap[assetId] ?: return)
+    }
 
-        ottMediaOptions.startPosition = 0L
-
-        return ottMediaOptions
+    private fun updateItemStatus(item: Item) {
+        item.assetInfo = manager.getAssetInfo(item.id())
+        updateRecyclerViewAdapter()
     }
 
     private fun doPrepare(item: Item) {
@@ -333,6 +235,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
         }
 
         val prepareCallback = object : OfflineManager.PrepareCallback {
+
             override fun onPrepared(
                 assetId: String,
                 assetInfo: OfflineManager.AssetInfo,
@@ -340,24 +243,26 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
             ) {
                 item.assetInfo = assetInfo
                 runOnUiThread {
+                    hideProgressBar()
                     snackbar("Prepared", "Start") {
                         doStart(item)
                     }
-                    runOnUiThread {
-                        rvOfflineAssetsAdapter.notifyDataSetChanged()
-                    }
+                    updateRecyclerViewAdapter()
                 }
             }
 
             override fun onPrepareError(assetId: String, error: Exception) {
+                hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
             override fun onMediaEntryLoadError(error: Exception) {
+                hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")
             }
 
             override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
+                hideProgressBar()
                 toastLong("onMediaEntryLoaded: ${mediaEntry.name}")
                 // reduceLicenseDuration(mediaEntry, 300)
             }
@@ -367,6 +272,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
                 source: PKMediaSource,
                 drmParams: PKDrmParams?
             ) {
+               // hideProgressBar()
                 toastLong("onSourceSelected ")
             }
         }
@@ -399,38 +305,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
             manager.setKalturaServerUrl(item.serverUrl)
         }
 
-        val prefetchCallback = object : OfflineManager.PrefetchCallback {
-            override fun onPrefetched(
-                assetId: String,
-                assetInfo: OfflineManager.AssetInfo,
-                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
-            ) {
-
-            }
-
-            override fun onPrepared(
-                assetId: String,
-                assetInfo: OfflineManager.AssetInfo,
-                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
-            ) {
-                item.assetInfo = assetInfo
-                runOnUiThread {
-                    rvOfflineAssetsAdapter.notifyDataSetChanged()
-                }
-            }
-
-            override fun onPrefetchError(assetId: String, error: Exception) {
-                toastLong("onPrefetchError: $error")
-            }
-
-            override fun onPrepareError(assetId: String, error: java.lang.Exception) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onMediaEntryLoadError(error: Exception) {
-                toastLong("onMediaEntryLoadError: $error")
-            }
-        }
+        val prefetchCallback = addPrefetchCallback(item)
 
         //val ottMediaOptions = buildOttMediaOptions();
         //manager.prefetchAsset(ottMediaOptions, PrefetchConfig(), prefetchCallback)
@@ -444,13 +319,13 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
             allowInefficientCodecs = false
         }
 
-        var pm = manager.getPrefetchManager()
+        val prefetchManager = manager.prefetchManager
         if (item is KalturaItem) {
             if (!TextUtils.isEmpty(item.serverUrl)) {
                 manager.setKalturaServerUrl(item.serverUrl);
             }
 
-            manager.prefetchAsset(item.mediaOptions(), PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+            prefetchManager.prefetchAsset(item.mediaOptions(), PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
 
 //            var ms1 = OTTMediaAsset()
 //            ms1.assetId = "610715"
@@ -471,7 +346,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
 //            pm.prefetchByMediaOptionsList(entries, PrefetchConfig())
         } else {
             item.entry?.let { entry ->
-                manager.prefetchAsset(entry, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+                prefetchManager.prefetchAsset(entry, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
 
 //                var m1 = PKMediaEntry()
 //                m1.duration = 10000
@@ -505,6 +380,131 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
         }
     }
 
+    private fun buildOttMediaOptions(): OTTMediaOptions {
+        val ottMediaAsset = OTTMediaAsset()
+        ottMediaAsset.assetId = ASSET_ID
+        ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
+        ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
+        ottMediaAsset.ks = null
+        ottMediaAsset.formats = listOf("Mobile_Main")
+        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+
+        ottMediaOptions.startPosition = 0L
+
+        return ottMediaOptions
+    }
+
+    private fun addAssetStateListener(manager: OfflineManager) {
+
+        manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
+
+            override fun onAssetDownloadFailed(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
+                toastLong("Download of $assetId, ${downloadType.name} failed: $error")
+                updateItemStatus(assetId)
+            }
+
+            override fun onAssetDownloadComplete(assetId: String, downloadType: OfflineManager.DownloadType) {
+                log.d("onAssetDownloadComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
+
+                if (downloadType == OfflineManager.DownloadType.FULL) {
+                    toast("Complete $assetId")
+                } else {
+                    toast("Prefetched $assetId")
+                }
+                updateItemStatus(assetId)
+            }
+
+            override fun onAssetPrefetchComplete(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType
+            ) {
+                log.d("onAssetPrefetchComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
+
+                if (downloadType == OfflineManager.DownloadType.FULL) {
+                    toast("Complete")
+                } else {
+                    toast("Prefetched id =  $assetId")
+                }
+                updateItemStatus(assetId)
+            }
+
+            override fun onAssetDownloadPending(assetId: String, downloadType: OfflineManager.DownloadType) {
+                //toast("Pending - onAssetDownloadPending")
+                updateItemStatus(assetId)
+            }
+
+            override fun onAssetDownloadPaused(assetId: String, downloadType: OfflineManager.DownloadType) {
+                toast("Paused - onAssetDownloadPaused")
+                updateItemStatus(assetId)
+            }
+
+            override fun onRegistered(assetId: String, drmStatus: OfflineManager.DrmStatus) {
+                toast("onRegistered: ${drmStatus.currentRemainingTime} seconds left")
+                updateItemStatus(assetId)
+            }
+
+            override fun onRegisterError(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
+                toastLong("onRegisterError: $assetId, ${downloadType.name}, $error ")
+                updateItemStatus(assetId)
+            }
+
+            override fun onStateChanged(assetId: String, downloadType: OfflineManager.DownloadType, assetInfo: OfflineManager.AssetInfo) {
+                toast("onStateChanged state = " + assetInfo.state.name)
+                updateItemStatus(assetId)
+            }
+
+            override fun onAssetRemoved(assetId: String, downloadType: OfflineManager.DownloadType) {
+                hideProgressBar()
+                toast("onAssetRemoved")
+                updateItemStatus(assetId)
+            }
+
+            override fun onAssetRemoveError(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: java.lang.Exception
+            ) {
+                hideProgressBar()
+                toast("Error Asset Was Not Removed")
+            }
+        })
+    }
+
+    private fun addPrefetchCallback(item: Item): Prefetch.PrefetchCallback {
+
+        return object : Prefetch.PrefetchCallback {
+
+            override fun onPrefetched(
+                assetId: String,
+                assetInfo: OfflineManager.AssetInfo,
+                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?) {
+
+            }
+
+            override fun onPrepared(
+                assetId: String,
+                assetInfo: OfflineManager.AssetInfo,
+                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?) {
+                item.assetInfo = assetInfo
+                updateRecyclerViewAdapter()
+            }
+
+            override fun onPrefetchError(assetId: String, error: Exception) {
+                toastLong("onPrefetchError: $error")
+            }
+
+            override fun onPrepareError(assetId: String, error: java.lang.Exception) {
+                toastLong("onPrepareError: $error")
+            }
+
+            override fun onMediaEntryLoadError(error: Exception) {
+                toastLong("onMediaEntryLoadError: $error")
+            }
+        }
+    }
+
     @Suppress("SameParameterValue")
     private fun reduceLicenseDuration(mediaEntry: PKMediaEntry, seconds: Int) {
         for (source in mediaEntry.sources) {
@@ -517,7 +517,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     }
 
     private fun snackbar(msg: String, next: String, nextAction: () -> Unit) = runOnUiThread {
-        Snackbar.make(assetList, msg, Snackbar.LENGTH_LONG).apply {
+        Snackbar.make(rvAssetList, msg, BaseTransientBottomBar.LENGTH_LONG).apply {
             duration = 5000
             setAction(next) {
                 nextAction()

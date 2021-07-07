@@ -1,17 +1,18 @@
 package com.kaltura.player.offlinedemo
 
+import android.annotation.SuppressLint
 import android.text.TextUtils
 import android.util.Log
 import com.kaltura.playkit.PKDrmParams
 import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaSource
-import com.kaltura.playkit.plugins.googlecast.caf.basic.DrmData
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
+import java.util.*
 
 abstract class Item (val selectionPrefs: SelectionPrefs?, val title: String?, val isPrefetch: Boolean = false) {
     var entry: PKMediaEntry? = null
@@ -47,6 +48,14 @@ abstract class Item (val selectionPrefs: SelectionPrefs?, val title: String?, va
 
         return string
     }
+}
+
+fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
+
+@SuppressLint("ParcelCreator")
+object NULL : KalturaItem(0, "", null, null) {
+    override fun id(): String = TODO()
+    override fun mediaOptions(): MediaOptions = TODO()
 }
 
 class BasicItem(

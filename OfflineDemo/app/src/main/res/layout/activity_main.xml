@@ -8,16 +8,28 @@
     tools:context=".MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/assetList"
+        android:id="@+id/rvAssetList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"/>
 
+    <ProgressBar
+        android:id="@+id/pbLoader"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:background="@android:color/transparent"
+        android:backgroundTint="@android:color/transparent"
+        android:layout_gravity="center" />
+
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end">
+        android:layout_gravity="bottom|end"
+        android:visibility="gone">
 
         <include layout="@layout/layout_prefetch" />
 

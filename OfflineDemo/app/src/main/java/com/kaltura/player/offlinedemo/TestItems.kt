@@ -1,5 +1,8 @@
 package com.kaltura.player.offlinedemo
 
+import android.content.Context
+import com.google.gson.Gson
+import com.kaltura.playkit.Utils
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
 
@@ -108,4 +111,9 @@ private fun tagToCodec(tag: String): OfflineManager.TrackCodec? {
         in "hevc", "hvc1" -> OfflineManager.TrackCodec.HEVC
         else -> null
     }
+}
+
+fun loadItemsFromJson(context: Context): Array<ItemJSON> {
+    val itemsJson = Utils.readAssetToString(context, "items.json")
+    return Gson().fromJson(itemsJson, Array<ItemJSON>::class.java)
 }
