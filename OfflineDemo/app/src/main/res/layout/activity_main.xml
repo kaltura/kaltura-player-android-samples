@@ -14,16 +14,25 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"/>
 
-    <ProgressBar
+    <FrameLayout
         android:id="@+id/pbLoader"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:visibility="gone"
-        android:background="@android:color/transparent"
-        android:backgroundTint="@android:color/transparent"
-        android:layout_gravity="center" />
+        android:clickable="true"
+        android:focusable="true">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="visible"
+            android:background="@android:color/transparent"
+            android:backgroundTint="@android:color/transparent"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
 
     <FrameLayout
         android:layout_width="wrap_content"

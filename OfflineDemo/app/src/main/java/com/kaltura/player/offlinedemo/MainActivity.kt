@@ -215,6 +215,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     }
 
     private fun updateItemStatus(assetId: String) {
+        hideProgressBar()
         updateItemStatus(itemMap[assetId] ?: return)
     }
 
@@ -224,6 +225,14 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     }
 
     private fun doPrepare(item: Item) {
+
+        val assetInfo = manager.getAssetInfo(item.id())
+        if (assetInfo?.state == OfflineManager.AssetDownloadState.completed) {
+            hideProgressBar()
+            toast("Asset already downloaded")
+            return
+        }
+
         if (item is OTTItem) {
             manager.setKalturaParams(KalturaPlayer.Type.ott, item.partnerId)
             manager.setKalturaServerUrl(item.serverUrl)
@@ -300,6 +309,14 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
 
     private fun doPrefetch(item: Item) {
 
+        val prefetchManager = manager.prefetchManager
+
+        if (prefetchManager.isPrefetched(item.id())) {
+            hideProgressBar()
+            toast("Asset already prefetched")
+            return
+        }
+
         if (item is KalturaItem) {
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             manager.setKalturaServerUrl(item.serverUrl)
@@ -319,7 +336,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
             allowInefficientCodecs = false
         }
 
-        val prefetchManager = manager.prefetchManager
+
         if (item is KalturaItem) {
             if (!TextUtils.isEmpty(item.serverUrl)) {
                 manager.setKalturaServerUrl(item.serverUrl);
@@ -480,26 +497,30 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
                 assetId: String,
                 assetInfo: OfflineManager.AssetInfo,
                 selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?) {
-
+                hideProgressBar()
             }
 
             override fun onPrepared(
                 assetId: String,
                 assetInfo: OfflineManager.AssetInfo,
                 selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?) {
+                hideProgressBar()
                 item.assetInfo = assetInfo
                 updateRecyclerViewAdapter()
             }
 
             override fun onPrefetchError(assetId: String, error: Exception) {
+                hideProgressBar()
                 toastLong("onPrefetchError: $error")
             }
 
             override fun onPrepareError(assetId: String, error: java.lang.Exception) {
+                hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
             override fun onMediaEntryLoadError(error: Exception) {
+                hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")
             }
         }
