@@ -22,7 +22,9 @@ import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
+import com.kaltura.tvplayer.offline.Prefetch
 import com.kaltura.tvplayer.offline.exo.PrefetchConfig
+import com.kaltura.tvplayer.offline.exo.PrefetchManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import java.util.*
@@ -389,7 +391,7 @@ class MainActivity : AppCompatActivity() {
             manager.setKalturaServerUrl(item.serverUrl)
         }
 
-        val prefetchCallback = object : OfflineManager.PrefetchCallback {
+        val prefetchCallback = object : Prefetch.PrefetchCallback {
             override fun onPrefetched(
                 assetId: String,
                 assetInfo: OfflineManager.AssetInfo,
@@ -438,7 +440,7 @@ class MainActivity : AppCompatActivity() {
                 manager.setKalturaServerUrl(item.serverUrl);
             }
 
-            manager.prefetchAsset(item.mediaOptions(), PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+            manager.prefetchManager.prefetchAsset(item.mediaOptions(), PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
 
 //            var ms1 = OTTMediaAsset()
 //            ms1.assetId = "610715"
@@ -459,7 +461,7 @@ class MainActivity : AppCompatActivity() {
 //            pm.prefetchByMediaOptionsList(entries, PrefetchConfig())
         } else {
             item.entry?.let { entry ->
-                manager.prefetchAsset(entry, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+                manager.prefetchManager.prefetchAsset(entry, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
 
 //                var m1 = PKMediaEntry()
 //                m1.duration = 10000
