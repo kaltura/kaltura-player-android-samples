@@ -440,7 +440,9 @@ class MainActivity : AppCompatActivity() {
                 manager.setKalturaServerUrl(item.serverUrl);
             }
 
-            manager.prefetchManager.prefetchAsset(item.mediaOptions(), PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+
+
+            manager.prefetchManager.prefetchAsset(item.mediaOptions(), defaultPrefs, prefetchCallback)
 
 //            var ms1 = OTTMediaAsset()
 //            ms1.assetId = "610715"
@@ -461,7 +463,7 @@ class MainActivity : AppCompatActivity() {
 //            pm.prefetchByMediaOptionsList(entries, PrefetchConfig())
         } else {
             item.entry?.let { entry ->
-                manager.prefetchManager.prefetchAsset(entry, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+                manager.prefetchManager.prefetchAsset(entry, defaultPrefs, prefetchCallback)
 
 //                var m1 = PKMediaEntry()
 //                m1.duration = 10000
