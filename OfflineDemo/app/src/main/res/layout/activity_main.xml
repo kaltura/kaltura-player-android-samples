@@ -35,10 +35,12 @@
     </FrameLayout>
 
     <FrameLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/provider_frame"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:visibility="gone">
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/margin_10dp"
+        android:visibility="visible">
 
         <include layout="@layout/layout_prefetch" />
 
