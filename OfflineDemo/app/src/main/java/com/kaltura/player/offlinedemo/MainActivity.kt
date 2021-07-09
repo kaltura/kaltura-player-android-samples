@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.*
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
@@ -21,7 +20,6 @@ import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
 import com.kaltura.tvplayer.offline.Prefetch
-import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_prefetch.*
@@ -29,11 +27,13 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemClickListener {
 
-    private lateinit var rvOfflineAssetsAdapter: RvOfflineAssetsAdapter
-    private lateinit var manager: OfflineManager
+    private var rvOfflineAssetsAdapter: RvOfflineAssetsAdapter? = null
     private val itemMap = mutableMapOf<String, Item>()
+    private var startTime = 0L
+    private var prefetchManager: Prefetch? = null
 
-    var startTime = 0L
+    private lateinit var dtgManager: OfflineManager
+    private lateinit var exoManager: OfflineManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +41,17 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
 
         val testItems = loadItemsFromJson(this).map { it.toItem() }
 
-        manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
+        cb_is_prefetch_enable.setOnCheckedChangeListener { _ , isChecked ->
+            isOfflineProviderExo = isChecked
+            rvOfflineAssetsAdapter?.let {
+                rvOfflineAssetsAdapter?.isPrefetchEnabled(isOfflineProviderExo)
+                updateRecyclerViewAdapter()
+            }
+        }
+
+        dtgManager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
+        exoManager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
+
         val offlineSettings = OfflineManagerSettings()
         offlineSettings.hlsAudioBitrateEstimation = 64000
 
@@ -50,19 +60,21 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
 //        DRMAdapter.customData = customAdapterData
 //        manager.setLicenseRequestAdapter(licenseRequestAdapter)
 
-        manager.setOfflineManagerSettings(offlineSettings)
+        dtgManager.setOfflineManagerSettings(offlineSettings)
 
-        addAssetStateListener(manager)
+        addAssetStateListener(dtgManager)
+        addAssetStateListener(exoManager)
 
         testItems.filter { it != NULL }.forEach {
             itemMap[it.id()] = it
         }
 
         rvOfflineAssetsAdapter = RvOfflineAssetsAdapter(testItems, this)
+        rvOfflineAssetsAdapter?.isPrefetchEnabled(isOfflineProviderExo)
         rvAssetList.adapter = rvOfflineAssetsAdapter
         rvAssetList.isNestedScrollingEnabled = false
 
-        manager.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
+        dtgManager.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
             log.d("[progress] $assetId: ${bytesDownloaded / 1000} / ${totalBytesEstimated / 1000}")
             val item = itemMap[assetId] ?: return@setDownloadProgressListener
             item.bytesDownloaded = bytesDownloaded
@@ -70,22 +82,40 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
             updateRecyclerViewAdapter()
         }
 
-        manager.start {
+        dtgManager.start {
             log.d("manager started")
             itemMap.values.forEach {
-                it.assetInfo = manager.getAssetInfo(it.id())
+                it.assetInfo = dtgManager.getAssetInfo(it.id())
+            }
+            updateRecyclerViewAdapter()
+        }
+
+        exoManager.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
+            log.d("[progress] $assetId: ${bytesDownloaded / 1000} / ${totalBytesEstimated / 1000}")
+            val item = itemMap[assetId] ?: return@setDownloadProgressListener
+            item.bytesDownloaded = bytesDownloaded
+            item.percentDownloaded = percentDownloaded
+            updateRecyclerViewAdapter()
+        }
+
+        exoManager.start {
+            log.d("manager started")
+            itemMap.values.forEach {
+                it.assetInfo = exoManager.getAssetInfo(it.id())
             }
             updateRecyclerViewAdapter()
         }
     }
 
     override fun onItemClick(position: Int) {
-        showActionsDialog(rvOfflineAssetsAdapter.getItemAtPosition(position), position)
+        rvOfflineAssetsAdapter?.let {
+            showActionsDialog(it.getItemAtPosition(position), position)
+        }
     }
 
     private fun updateRecyclerViewAdapter() {
         runOnUiThread {
-            rvOfflineAssetsAdapter.notifyDataSetChanged()
+            rvOfflineAssetsAdapter?.notifyDataSetChanged()
         }
     }
 
@@ -104,12 +134,12 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     }
 
     private fun showActionsDialog(item: Item, position: Int) {
-        val items = arrayOf(if (item.isPrefetch) "Prefetch" else "Prepare", "Start", "Pause", "Play-Offline", "Play-Online", "Remove", "Status")
+        val items = arrayOf(if (item.isPrefetch && isOfflineProviderExo) "Prefetch" else "Prepare", "Start", "Pause", "Play-Offline", "Play-Online", "Remove", "Status")
         AlertDialog.Builder(this).setItems(items) { _, i ->
             when (i) {
                 0 -> {
                     showProgressBar()
-                    if (item.isPrefetch) {
+                    if (item.isPrefetch && isOfflineProviderExo) {
                         doPrefetch(item)
                     } else {
                         doPrepare(item)
@@ -133,7 +163,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
             return
         }
 
-        val drmStatus = manager.getDrmStatus(item.id())
+        val drmStatus = if (isOfflineProviderExo) exoManager.getDrmStatus(item.id()) else dtgManager.getDrmStatus(item.id())
 
         if (drmStatus.isClear) {
             toastLong("Clear")
@@ -146,8 +176,16 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
         }
 
         snackbar(msg, "Renew") {
-            manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
-            manager.renewDrmAssetLicense(item.id(), item.mediaOptions(), object: OfflineManager.MediaEntryCallback {
+            val offlineManager: OfflineManager
+            if (isOfflineProviderExo) {
+                offlineManager = exoManager
+                exoManager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            } else {
+                offlineManager = dtgManager
+                dtgManager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            }
+
+            offlineManager.renewDrmAssetLicense(item.id(), item.mediaOptions(), object: OfflineManager.MediaEntryCallback {
                 override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
                     // reduceLicenseDuration(mediaEntry, 300)
                 }
@@ -162,7 +200,13 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     private fun doRemove(item: Item) {
         item.assetInfo?.assetId?.let {
             showProgressBar()
-            manager.removeAsset(it)
+            if (isOfflineProviderExo && exoManager.getAssetInfo(item.id()) != null) {
+                exoManager.removeAsset(it)
+            } else if (dtgManager.getAssetInfo(item.id()) != null){
+                dtgManager.removeAsset(it)
+            } else {
+                hideProgressBar()
+            }
             updateItemStatus(item)
         }
 
@@ -199,7 +243,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     private fun doPause(item: Item?) {
         item?.let { it ->
             it.id()?.let { itemId ->
-                manager.pauseAssetDownload(itemId)
+                if (isOfflineProviderExo) exoManager.pauseAssetDownload(itemId) else dtgManager.pauseAssetDownload(itemId)
                 updateItemStatus(it)
             }
         }
@@ -210,7 +254,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
         val assetInfo = item.assetInfo ?: return
 
         startTime = SystemClock.elapsedRealtime()
-        manager.startAssetDownload(assetInfo)
+        if (isOfflineProviderExo) exoManager.startAssetDownload(assetInfo) else dtgManager.startAssetDownload(assetInfo)
         updateItemStatus(item)
     }
 
@@ -220,27 +264,24 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     }
 
     private fun updateItemStatus(item: Item) {
-        item.assetInfo = manager.getAssetInfo(item.id())
+        item.assetInfo = if (isOfflineProviderExo) exoManager.getAssetInfo(item.id()) else dtgManager.getAssetInfo(item.id())
         updateRecyclerViewAdapter()
     }
 
     private fun doPrepare(item: Item) {
 
-        val assetInfo = manager.getAssetInfo(item.id())
-        if (assetInfo?.state == OfflineManager.AssetDownloadState.completed) {
-            hideProgressBar()
-            toast("Asset already downloaded")
+        if (isAssetDiscardRequired(item)) {
             return
         }
 
         if (item is OTTItem) {
-            manager.setKalturaParams(KalturaPlayer.Type.ott, item.partnerId)
-            manager.setKalturaServerUrl(item.serverUrl)
+            dtgManager.setKalturaParams(KalturaPlayer.Type.ott, item.partnerId)
+            dtgManager.setKalturaServerUrl(item.serverUrl)
         }
 
         if (item is OVPItem) {
-            manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
-            manager.setKalturaServerUrl(item.serverUrl)
+            dtgManager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            dtgManager.setKalturaServerUrl(item.serverUrl)
         }
 
         val prepareCallback = object : OfflineManager.PrepareCallback {
@@ -281,7 +322,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
                 source: PKMediaSource,
                 drmParams: PKDrmParams?
             ) {
-               // hideProgressBar()
+                // hideProgressBar()
                 toastLong("onSourceSelected ")
             }
         }
@@ -297,29 +338,45 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
 
         if (item is KalturaItem) {
             if (!TextUtils.isEmpty(item.serverUrl)) {
-                manager.setKalturaServerUrl(item.serverUrl);
+                dtgManager.setKalturaServerUrl(item.serverUrl);
             }
-            manager.prepareAsset(item.mediaOptions(), item.selectionPrefs ?: defaultPrefs, prepareCallback)
+            dtgManager.prepareAsset(item.mediaOptions(), item.selectionPrefs ?: defaultPrefs, prepareCallback)
         } else {
             item.entry?.let {
-                    entry -> manager.prepareAsset(entry, item.selectionPrefs ?: defaultPrefs, prepareCallback)
+                    entry -> dtgManager.prepareAsset(entry, item.selectionPrefs ?: defaultPrefs, prepareCallback)
             }
         }
     }
 
+    private fun isAssetDiscardRequired(item: Item): Boolean {
+        if (prefetchManager?.isPrefetched(item.id()) == true) {
+            hideProgressBar()
+            toastLong("Asset already prefetched. Please remove it then prepare the offline download.")
+            return true
+        }
+
+        val assetInfo = dtgManager.getAssetInfo(item.id())
+        if (assetInfo?.state == OfflineManager.AssetDownloadState.completed) {
+            hideProgressBar()
+            toast("Asset already downloaded. Please remove it then prepare the prefetch.")
+            return true
+        }
+
+        return false
+    }
+
     private fun doPrefetch(item: Item) {
 
-        val prefetchManager = manager.prefetchManager
+        prefetchManager = exoManager.prefetchManager
+        //    prefetchManager.setPrefetchConfig(PrefetchConfig())
 
-        if (prefetchManager.isPrefetched(item.id())) {
-            hideProgressBar()
-            toast("Asset already prefetched")
+        if (isAssetDiscardRequired(item)) {
             return
         }
 
         if (item is KalturaItem) {
-            manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
-            manager.setKalturaServerUrl(item.serverUrl)
+            exoManager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            exoManager.setKalturaServerUrl(item.serverUrl)
         }
 
         val prefetchCallback = addPrefetchCallback(item)
@@ -336,34 +393,33 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
             allowInefficientCodecs = false
         }
 
-
         if (item is KalturaItem) {
             if (!TextUtils.isEmpty(item.serverUrl)) {
-                manager.setKalturaServerUrl(item.serverUrl);
+                exoManager.setKalturaServerUrl(item.serverUrl);
             }
 
-            prefetchManager.prefetchAsset(item.mediaOptions(), PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+            prefetchManager?.prefetchAsset(item.mediaOptions(), defaultPrefs, prefetchCallback)
 
-//            var ms1 = OTTMediaAsset()
+//            val ms1 = OTTMediaAsset()
 //            ms1.assetId = "610715"
 //            ms1.formats = Collections.singletonList("Tablet Main")
 //            ms1.protocol = PhoenixMediaProvider.HttpProtocol.Https
-//            var mo1 = OTTMediaOptions(ms1)
+//            val mo1 = OTTMediaOptions(ms1)
 //
-//            var ms2 = OTTMediaAsset()
+//            val ms2 = OTTMediaAsset()
 //            ms2.assetId = "924187"
 //            ms2.formats = Collections.singletonList("Tablet Main")
 //            ms2.protocol = PhoenixMediaProvider.HttpProtocol.Https
-//            var mo2 = OTTMediaOptions(ms2)
+//            val mo2 = OTTMediaOptions(ms2)
 //
-//            var entries = mutableListOf<MediaOptions>()
+//            val entries = mutableListOf<MediaOptions>()
 //            entries.add(mo1)
 //            entries.add(mo2)
 //            entries.add(item.mediaOptions())
-//            pm.prefetchByMediaOptionsList(entries, PrefetchConfig())
+//            prefetchManager.prefetchByMediaOptionsList(entries, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
         } else {
             item.entry?.let { entry ->
-                prefetchManager.prefetchAsset(entry, PrefetchConfig().setSelectionPrefs(defaultPrefs), prefetchCallback)
+                prefetchManager?.prefetchAsset(entry, defaultPrefs, prefetchCallback)
 
 //                var m1 = PKMediaEntry()
 //                m1.duration = 10000
@@ -538,7 +594,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     }
 
     private fun snackbar(msg: String, next: String, nextAction: () -> Unit) = runOnUiThread {
-        Snackbar.make(rvAssetList, msg, BaseTransientBottomBar.LENGTH_LONG).apply {
+        Snackbar.make(rvAssetList, msg, Snackbar.LENGTH_LONG).apply {
             duration = 5000
             setAction(next) {
                 nextAction()
@@ -574,18 +630,32 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
 
     override fun onDestroy() {
         super.onDestroy()
-        manager.let {
-            // Removing listeners by setting it to null
-            manager.setAssetStateListener(null)
-            manager.setDownloadProgressListener(null)
-            manager.stop()
+        if (isOfflineProviderExo) {
+            exoManager?.let {
+                // Removing listeners by setting it to null
+                it.setAssetStateListener(null)
+                it.setDownloadProgressListener(null)
+                it.stop()
+            }
+
+        } else {
+            dtgManager?.let {
+                // Removing listeners by setting it to null
+                it.setAssetStateListener(null)
+                it.setDownloadProgressListener(null)
+                it.stop()
+            }
+
         }
+        dtgManager.stop()
+        exoManager.stop()
     }
 
-    private companion object {
+    companion object {
         val log = PKLog.get("MainActivity")
         val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
         private val ASSET_ID = "548576"
         val PARTNER_ID = 3009
+        var isOfflineProviderExo: Boolean = false
     }
 }

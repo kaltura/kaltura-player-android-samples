@@ -13,6 +13,8 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>,
         fun onItemClick(position: Int)
     }
 
+    private var isPrefetchEnable: Boolean = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OfflineAssetViewHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
@@ -32,7 +34,7 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>,
             offlineAssetViewHolder.tvItemDownloadPerct.visibility = View.VISIBLE
             offlineAssetViewHolder.tvItemDownloadPerct.text = itemList[position].getDownloadPercentage()
         }
-        if (itemList[position].isPrefetch) {
+        if (itemList[position].isPrefetch && isPrefetchEnable) {
             offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.VISIBLE
             offlineAssetViewHolder.tvItemIsPrefetch.text = "Prefetch Available"
         } else {
@@ -46,5 +48,9 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>,
 
     fun getItemAtPosition(position: Int): Item {
         return itemList.get(position)
+    }
+
+    fun isPrefetchEnabled(isPrefetchEnable: Boolean) {
+        this.isPrefetchEnable = isPrefetchEnable
     }
 }

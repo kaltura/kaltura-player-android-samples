@@ -67,7 +67,7 @@ class PlayActivity : AppCompatActivity() {
         val options = PlayerInitOptions(partnerId).apply {
             autoplay = true
             allowCrossProtocolEnabled = true
-            offlineProvider = OfflineManager.OfflineProvider.EXO
+            offlineProvider = if (MainActivity.isOfflineProviderExo) OfflineManager.OfflineProvider.EXO else OfflineManager.OfflineProvider.DTG
         }
         isOnlinePlayback.let {
             if (it) {
