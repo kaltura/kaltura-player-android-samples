@@ -6,18 +6,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.kaltura.tvplayer.OfflineManager
 
-class RvOfflineAssetsAdapter(private val itemList: List<Item>,
-                             private var onItemClickListener: OnAdapterItemClickListener): RecyclerView.Adapter<OfflineAssetViewHolder>() {
-
-    interface OnAdapterItemClickListener {
-        fun onItemClick(position: Int)
-    }
+class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (Int) -> Unit): RecyclerView.Adapter<OfflineAssetViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OfflineAssetViewHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val itemView = inflater.inflate(R.layout.view_item, parent, false)
-        return OfflineAssetViewHolder(itemView, onItemClickListener)
+        return OfflineAssetViewHolder(itemView, itemClick)
     }
 
     override fun onBindViewHolder(offlineAssetViewHolder: OfflineAssetViewHolder, position: Int) {

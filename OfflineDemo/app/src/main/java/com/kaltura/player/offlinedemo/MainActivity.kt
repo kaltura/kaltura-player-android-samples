@@ -31,7 +31,7 @@ import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_prefetch.*
 import java.util.*
 
-class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemClickListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var rvOfflineAssetsAdapter: RvOfflineAssetsAdapter
     private var manager: OfflineManager? = null
@@ -47,9 +47,13 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
         testItems.filter { it != NULL }.forEach {
             itemMap[it.id()] = it
         }
-        rvOfflineAssetsAdapter = RvOfflineAssetsAdapter(testItems, this)
+        rvOfflineAssetsAdapter = RvOfflineAssetsAdapter(testItems) {
+            showActionsDialog(rvOfflineAssetsAdapter.getItemAtPosition(it), it)
+        }
+
         rvAssetList.adapter = rvOfflineAssetsAdapter
         rvAssetList.isNestedScrollingEnabled = false
+        rvAssetList.setHasFixedSize(true)
 
         cb_is_exo_enable.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -100,10 +104,6 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
             }
             updateRecyclerViewAdapter()
         }
-    }
-
-    override fun onItemClick(position: Int) {
-        showActionsDialog(rvOfflineAssetsAdapter.getItemAtPosition(position), position)
     }
 
     private fun updateRecyclerViewAdapter() {
@@ -575,7 +575,7 @@ class MainActivity : AppCompatActivity(), RvOfflineAssetsAdapter.OnAdapterItemCl
     private fun toast(msg: String) = runOnUiThread { Toast.makeText(this, msg, Toast.LENGTH_SHORT).show() }
 
     private fun toastLong(msg: String) = runOnUiThread {
-        log.d("$msg")
+        log.d(msg)
         runOnUiThread() {
             Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
         }
