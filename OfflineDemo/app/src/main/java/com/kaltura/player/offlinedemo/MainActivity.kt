@@ -28,7 +28,7 @@ import com.kaltura.tvplayer.offline.exo.ExoOfflineManager
 import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
-import kotlinx.android.synthetic.main.layout_prefetch.*
+import kotlinx.android.synthetic.main.layout_provider_chooser.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {

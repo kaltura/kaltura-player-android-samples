@@ -42,7 +42,7 @@
         android:layout_marginBottom="@dimen/margin_10dp"
         android:visibility="visible">
 
-        <include layout="@layout/layout_prefetch" />
+        <include layout="@layout/layout_provider_chooser" />
 
     </FrameLayout>
 
