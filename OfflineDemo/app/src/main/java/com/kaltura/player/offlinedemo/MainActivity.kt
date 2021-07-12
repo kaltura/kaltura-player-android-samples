@@ -23,8 +23,6 @@ import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
 import com.kaltura.tvplayer.offline.Prefetch
-import com.kaltura.tvplayer.offline.exo.PrefetchConfig
-import com.kaltura.tvplayer.offline.exo.PrefetchManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import java.util.*
@@ -374,7 +372,7 @@ class MainActivity : AppCompatActivity() {
 
         if (item is KalturaItem) {
             if (!TextUtils.isEmpty(item.serverUrl)) {
-                manager.setKalturaServerUrl(item.serverUrl);
+                manager.setKalturaServerUrl(item.serverUrl)
             }
             manager.prepareAsset(item.mediaOptions(), item.selectionPrefs ?: defaultPrefs, prepareCallback)
         } else {

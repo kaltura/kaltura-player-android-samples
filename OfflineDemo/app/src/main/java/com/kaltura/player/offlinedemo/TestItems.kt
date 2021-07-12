@@ -57,6 +57,7 @@ data class OptionsJSON(
     val audioCodecs: List<String>?,
     val videoWidth: Int?,
     val videoHeight: Int?,
+    val videoBitrate: Int?,
     val videoBitrates: Map<String, Int>?,
     val allowInefficientCodecs: Boolean?
 )
@@ -67,6 +68,7 @@ fun OptionsJSON.toPrefs() : SelectionPrefs {
     opts.audioLanguages = audioLangs
     opts.allTextLanguages = allTextLangs ?: false
     opts.textLanguages = textLangs
+    opts.videoBitrate = videoBitrate
     opts.allowInefficientCodecs = allowInefficientCodecs ?: false
 
     audioCodecs?.let {
