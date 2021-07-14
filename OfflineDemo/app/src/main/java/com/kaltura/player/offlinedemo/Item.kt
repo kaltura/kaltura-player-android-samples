@@ -14,7 +14,14 @@ import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
 import java.util.*
 
-abstract class Item (val selectionPrefs: SelectionPrefs?, val title: String?, val isPrefetch: Boolean = false) {
+abstract class Item (val selectionPrefs: SelectionPrefs?,
+                     val title: String?,
+                     val isPrefetch:
+                     Boolean = false,
+                     var position: Int = -1,
+                     var isDrmRegistered: Boolean? = true // Just to understand if the asset has failed with drm registration
+                    ) {
+
     var entry: PKMediaEntry? = null
     var assetInfo: OfflineManager.AssetInfo? = null
     var percentDownloaded: Float? = null

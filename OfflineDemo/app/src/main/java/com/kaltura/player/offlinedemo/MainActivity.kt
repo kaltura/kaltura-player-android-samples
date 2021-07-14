@@ -48,12 +48,13 @@ class MainActivity : AppCompatActivity() {
             itemMap[it.id()] = it
         }
         rvOfflineAssetsAdapter = RvOfflineAssetsAdapter(testItems) {
-            showActionsDialog(rvOfflineAssetsAdapter.getItemAtPosition(it), it)
+            showActionsDialog(rvOfflineAssetsAdapter.getItemAtPosition(it).apply { position = it }, it)
         }
 
         rvAssetList.adapter = rvOfflineAssetsAdapter
         rvAssetList.isNestedScrollingEnabled = false
         rvAssetList.setHasFixedSize(true)
+        rvAssetList.itemAnimator = null
 
         cb_is_exo_enable.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -94,21 +95,21 @@ class MainActivity : AppCompatActivity() {
             val item = itemMap[assetId] ?: return@setDownloadProgressListener
             item.bytesDownloaded = bytesDownloaded
             item.percentDownloaded = percentDownloaded
-            updateRecyclerViewAdapter()
+            updateRecyclerViewAdapter(item.position)
         }
 
         manager?.start {
             log.d("manager started")
             itemMap.values.forEach {
                 it.assetInfo = manager?.getAssetInfo(it.id())
+                updateRecyclerViewAdapter(it.position)
             }
-            updateRecyclerViewAdapter()
         }
     }
 
-    private fun updateRecyclerViewAdapter() {
+    private fun updateRecyclerViewAdapter(position: Int) {
         runOnUiThread {
-            rvOfflineAssetsAdapter.notifyDataSetChanged()
+            rvOfflineAssetsAdapter.notifyItemChanged(position)
         }
     }
 
@@ -145,11 +146,11 @@ class MainActivity : AppCompatActivity() {
             when (i) {
                 0 -> {
                     showProgressBar()
-                    if (item.isPrefetch && manager is ExoOfflineManager) {
+//                    if (item.isPrefetch && manager is ExoOfflineManager) {
                         doPrefetch(item)
-                    } else {
-                        doPrepare(item)
-                    }
+//                    } else {
+                     //   doPrepare(item)
+                  //  }
                 }
                 1 -> doStart(item)
                 2 -> doPause(item)
@@ -203,7 +204,9 @@ class MainActivity : AppCompatActivity() {
             showProgressBar()
             manager?.removeAsset(it)
             updateItemStatus(item)
+            return
         }
+        toast("This asset is not prepared.")
     }
 
     private fun doOfflinePlayback(item: Item) {
@@ -259,7 +262,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateItemStatus(item: Item) {
         item.assetInfo = manager?.getAssetInfo(item.id())
-        updateRecyclerViewAdapter()
+        updateRecyclerViewAdapter(item.position)
     }
 
     private fun doPrepare(item: Item) {
@@ -294,7 +297,7 @@ class MainActivity : AppCompatActivity() {
                     snackbar("Prepared", "Start") {
                         doStart(item)
                     }
-                    updateRecyclerViewAdapter()
+                    updateRecyclerViewAdapter(item.position)
                 }
             }
 
@@ -325,12 +328,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         val defaultPrefs = OfflineManager.SelectionPrefs().apply {
-            videoHeight = 300
-            videoBitrate = 600000
-            videoWidth = 400
+          //  videoHeight = 500
+           // videoBitrate = 300000
+           // videoWidth = 3000
             allAudioLanguages = true
             allTextLanguages = true
-            allowInefficientCodecs = false
+           // videoCodecs = mutableListOf()
+          //  videoCodecs.also { it?.add(OfflineManager.TrackCodec.AVC1) }
+            //allowInefficientCodecs = false
         }
 
         if (item is KalturaItem) {
@@ -349,6 +354,14 @@ class MainActivity : AppCompatActivity() {
                 prepareCallback
             )
             }
+            //val mediaEntries = mutableListOf<PKMediaEntry?>()
+//            for (i:Int in 0 until 12) {
+//                val adapterItem = rvOfflineAssetsAdapter.getItemAtPosition(i).apply { position = i }
+//               // mediaEntries.add(adapterItem.entry)
+//                adapterItem.entry?.let {
+//                    manager?.prepareAsset(it, defaultPrefs, prepareCallback)
+//                }
+//            }
         }
     }
 
@@ -389,10 +402,21 @@ class MainActivity : AppCompatActivity() {
             prefetchManager?.prefetchAsset(item.mediaOptions(), defaultPrefs, prefetchCallback)
             //prefetchManager?.prefetchByMediaEntryList(mediaOptions, defaultPrefs, prefetchCallback)
         } else {
-            item.entry?.let { entry ->
+            val mediaEntries = mutableListOf<PKMediaEntry?>()
+            for (i:Int in 0 until 12) {
+                val adapterItem = rvOfflineAssetsAdapter.getItemAtPosition(i).apply { position = i }
+                mediaEntries.add(adapterItem.entry)
+            }
+
+            prefetchManager?.prefetchByMediaEntryList(mediaEntries, defaultPrefs, prefetchCallback)
+//            item.entry?.let {
+//                prefetchManager?.prefetchAsset(it, defaultPrefs, prefetchCallback)
+//            }
+
+           /* item.entry?.let { entry ->
                 prefetchManager?.prefetchAsset(entry, defaultPrefs, prefetchCallback)
                 //prefetchManager?.prefetchByMediaEntryList(mediaEntries, defaultPrefs, prefetchCallback)
-            }
+            }*/
         }
     }
 
@@ -480,7 +504,10 @@ class MainActivity : AppCompatActivity() {
                 error: Exception
             ) {
                 toastLong("onRegisterError: $assetId, ${downloadType.name}, $error ")
-                updateItemStatus(assetId)
+             //   updateItemStatus(assetId)
+                val item = itemMap[assetId] ?: return
+                item.isDrmRegistered = false
+                updateRecyclerViewAdapter(item.position)
             }
 
             override fun onStateChanged(
@@ -531,7 +558,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 hideProgressBar()
                 item.assetInfo = assetInfo
-                updateRecyclerViewAdapter()
+                updateRecyclerViewAdapter(item.position)
             }
 
             override fun onPrefetchError(assetId: String, error: Exception) {
