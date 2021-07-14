@@ -34,7 +34,7 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var rvOfflineAssetsAdapter: RvOfflineAssetsAdapter
-    private var manager: OfflineManager? = null
+    private var offlineManager: OfflineManager? = null
     private val itemMap = mutableMapOf<String, Item>()
 
     var startTime = 0L
@@ -58,25 +58,25 @@ class MainActivity : AppCompatActivity() {
 
         cb_is_exo_enable.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
+                offlineManager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
             }
-            setupManager(manager)
+            setupManager(offlineManager)
             hideProviderFrame()
         }
 
         cb_is_dtg_enable.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
+                offlineManager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
             }
-            setupManager(manager)
+            setupManager(offlineManager)
             hideProviderFrame()
         }
     }
 
     private fun setupManager(offlineManager: OfflineManager?) {
-        manager = offlineManager
+        this.offlineManager = offlineManager
 
-        if (manager is DTGOfflineManager) {
+        if (this.offlineManager is DTGOfflineManager) {
             val offlineSettings = OfflineManagerSettings()
             offlineSettings.hlsAudioBitrateEstimation = 64000
 
@@ -85,12 +85,12 @@ class MainActivity : AppCompatActivity() {
 //        DRMAdapter.customData = customAdapterData
 //        manager.setLicenseRequestAdapter(licenseRequestAdapter)
 
-            manager?.setOfflineManagerSettings(offlineSettings)
+            this.offlineManager?.setOfflineManagerSettings(offlineSettings)
         }
 
-        addAssetStateListener(manager)
+        addAssetStateListener(this.offlineManager)
 
-        manager?.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
+        this.offlineManager?.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
             log.d("[progress] $assetId: ${bytesDownloaded / 1000} / ${totalBytesEstimated / 1000}")
             val item = itemMap[assetId] ?: return@setDownloadProgressListener
             item.bytesDownloaded = bytesDownloaded
@@ -98,10 +98,10 @@ class MainActivity : AppCompatActivity() {
             updateRecyclerViewAdapter(item.position)
         }
 
-        manager?.start {
+        this.offlineManager?.start {
             log.d("manager started")
             itemMap.values.forEach {
-                it.assetInfo = manager?.getAssetInfo(it.id())
+                it.assetInfo = this.offlineManager?.getAssetInfo(it.id())
                 updateRecyclerViewAdapter(it.position)
             }
         }
@@ -128,13 +128,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showActionsDialog(item: Item, position: Int) {
-        if (manager == null) {
+        if (offlineManager == null) {
             toastLong("Please select one Offline Provider. You can select once in app session.")
             return
         }
 
         val items = arrayOf(
-            if (item.isPrefetch && manager is ExoOfflineManager) "Prefetch" else "Prepare",
+            if (item.isPrefetch && offlineManager is ExoOfflineManager) "Prefetch" else "Prepare",
             "Start",
             "Pause",
             "Play-Offline",
@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val drmStatus = manager?.getDrmStatus(item.id())
+        val drmStatus = offlineManager?.getDrmStatus(item.id())
 
         if (drmStatus?.isClear == true) {
             toastLong("Clear")
@@ -183,8 +183,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         snackbar(msg, "Renew") {
-            manager?.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
-            manager?.renewDrmAssetLicense(
+            offlineManager?.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            offlineManager?.renewDrmAssetLicense(
                 item.id(),
                 item.mediaOptions(),
                 object : OfflineManager.MediaEntryCallback {
@@ -202,7 +202,7 @@ class MainActivity : AppCompatActivity() {
     private fun doRemove(item: Item) {
         item.assetInfo?.assetId?.let {
             showProgressBar()
-            manager?.removeAsset(it)
+            offlineManager?.removeAsset(it)
             updateItemStatus(item)
             return
         }
@@ -240,7 +240,7 @@ class MainActivity : AppCompatActivity() {
     private fun doPause(item: Item?) {
         item?.let { it ->
             it.id()?.let { itemId ->
-                manager?.pauseAssetDownload(itemId)
+                offlineManager?.pauseAssetDownload(itemId)
                 updateItemStatus(it)
             }
         }
@@ -251,7 +251,7 @@ class MainActivity : AppCompatActivity() {
         val assetInfo = item.assetInfo ?: return
 
         startTime = SystemClock.elapsedRealtime()
-        manager?.startAssetDownload(assetInfo)
+        offlineManager?.startAssetDownload(assetInfo)
         updateItemStatus(item)
     }
 
@@ -261,13 +261,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateItemStatus(item: Item) {
-        item.assetInfo = manager?.getAssetInfo(item.id())
+        item.assetInfo = offlineManager?.getAssetInfo(item.id())
         updateRecyclerViewAdapter(item.position)
     }
 
     private fun doPrepare(item: Item) {
 
-        val assetInfo = manager?.getAssetInfo(item.id())
+        val assetInfo = offlineManager?.getAssetInfo(item.id())
         if (assetInfo?.state == OfflineManager.AssetDownloadState.completed) {
             hideProgressBar()
             toast("Asset already downloaded")
@@ -275,13 +275,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (item is OTTItem) {
-            manager?.setKalturaParams(KalturaPlayer.Type.ott, item.partnerId)
-            manager?.setKalturaServerUrl(item.serverUrl)
+            offlineManager?.setKalturaParams(KalturaPlayer.Type.ott, item.partnerId)
+            offlineManager?.setKalturaServerUrl(item.serverUrl)
         }
 
         if (item is OVPItem) {
-            manager?.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
-            manager?.setKalturaServerUrl(item.serverUrl)
+            offlineManager?.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            offlineManager?.setKalturaServerUrl(item.serverUrl)
         }
 
         val prepareCallback = object : OfflineManager.PrepareCallback {
@@ -340,15 +340,15 @@ class MainActivity : AppCompatActivity() {
 
         if (item is KalturaItem) {
             if (!TextUtils.isEmpty(item.serverUrl)) {
-                manager?.setKalturaServerUrl(item.serverUrl);
+                offlineManager?.setKalturaServerUrl(item.serverUrl);
             }
-            manager?.prepareAsset(
+            offlineManager?.prepareAsset(
                 item.mediaOptions(),
                 item.selectionPrefs ?: defaultPrefs,
                 prepareCallback
             )
         } else {
-            item.entry?.let { entry -> manager?.prepareAsset(
+            item.entry?.let { entry -> offlineManager?.prepareAsset(
                 entry,
                 item.selectionPrefs ?: defaultPrefs,
                 prepareCallback
@@ -366,7 +366,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doPrefetch(item: Item) {
-        val prefetchManager = manager?.prefetchManager
+        val prefetchManager = offlineManager?.prefetchManager
         prefetchManager?.setPrefetchConfig(PrefetchConfig())
 
         if (prefetchManager?.isPrefetched(item.id()) == true) {
@@ -376,8 +376,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (item is KalturaItem) {
-            manager?.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
-            manager?.kalturaServerUrl = item.serverUrl
+            offlineManager?.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            offlineManager?.kalturaServerUrl = item.serverUrl
         }
 
         val prefetchCallback = addPrefetchCallback(item)
@@ -396,7 +396,7 @@ class MainActivity : AppCompatActivity() {
 
         if (item is KalturaItem) {
             if (!TextUtils.isEmpty(item.serverUrl)) {
-                manager?.setKalturaServerUrl(item.serverUrl);
+                offlineManager?.setKalturaServerUrl(item.serverUrl);
             }
 
             prefetchManager?.prefetchAsset(item.mediaOptions(), defaultPrefs, prefetchCallback)
@@ -637,7 +637,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        manager?.let {
+        offlineManager?.let {
             // Removing listeners by setting it to null
             it.setAssetStateListener(null)
             it.setDownloadProgressListener(null)
