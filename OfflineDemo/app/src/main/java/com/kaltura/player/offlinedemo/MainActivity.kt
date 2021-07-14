@@ -506,7 +506,7 @@ class MainActivity : AppCompatActivity() {
                 toastLong("onRegisterError: $assetId, ${downloadType.name}, $error ")
              //   updateItemStatus(assetId)
                 val item = itemMap[assetId] ?: return
-                item.isDrmRegistered = false
+                item.drmNotRegistered = true
                 updateRecyclerViewAdapter(item.position)
             }
 

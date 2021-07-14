@@ -18,9 +18,8 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
     override fun onBindViewHolder(offlineAssetViewHolder: OfflineAssetViewHolder, position: Int) {
         offlineAssetViewHolder.tvItemName.text = itemList[position].title()
         val assetStatus = itemList[position].assetInfo?.state ?: OfflineManager.AssetDownloadState.none
-        val isDrmRegistered = itemList[position].isDrmRegistered
-        offlineAssetViewHolder.tvItemStatus.text = "Asset Status: $assetStatus ".plus(isDrmRegistered?.let {
-            return@let if (!it) { "(Drm Not Registered)" } else { "" }
+        offlineAssetViewHolder.tvItemStatus.text = "Asset Status: $assetStatus ".plus(itemList[position].drmNotRegistered?.let {
+            return@let if (it) { "(Drm Not Registered)" } else { "" }
         })
         if (assetStatus == OfflineManager.AssetDownloadState.none ||
             assetStatus == OfflineManager.AssetDownloadState.completed ||

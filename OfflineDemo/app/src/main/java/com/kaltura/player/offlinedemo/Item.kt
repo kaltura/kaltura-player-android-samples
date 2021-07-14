@@ -19,7 +19,7 @@ abstract class Item (val selectionPrefs: SelectionPrefs?,
                      val isPrefetch:
                      Boolean = false,
                      var position: Int = -1,
-                     var isDrmRegistered: Boolean? = true // Just to understand if the asset has failed with drm registration
+                     var drmNotRegistered: Boolean? = false // Just to understand if the asset has failed with drm registration
                     ) {
 
     var entry: PKMediaEntry? = null
