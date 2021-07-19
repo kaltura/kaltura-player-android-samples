@@ -1,5 +1,6 @@
 package com.kaltura.player.offlinedemo
 
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,5 +44,15 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
 
     fun getItemAtPosition(position: Int): Item {
         return itemList[position]
+    }
+
+    fun getPositionOfItem(assetId: String): Int {
+        for (index in itemList.indices) {
+            if (TextUtils.equals(itemList[index].id(), assetId)) {
+                return index
+            }
+        }
+
+        return -1
     }
 }

@@ -95,7 +95,15 @@ class MainActivity : AppCompatActivity() {
             val item = itemMap[assetId] ?: return@setDownloadProgressListener
             item.bytesDownloaded = bytesDownloaded
             item.percentDownloaded = percentDownloaded
-            updateRecyclerViewAdapter(item.position)
+            if (item.position == -1) {
+                item.position = rvOfflineAssetsAdapter.getPositionOfItem(assetId)
+            }
+            if (item.position != -1) {
+                updateRecyclerViewAdapter(item.position)
+            } else {
+                // In worst case, update the whole recycler view.
+                rvOfflineAssetsAdapter.notifyDataSetChanged()
+            }
         }
 
         this.offlineManager?.start {
@@ -147,9 +155,9 @@ class MainActivity : AppCompatActivity() {
                 0 -> {
                     showProgressBar()
 //                    if (item.isPrefetch && manager is ExoOfflineManager) {
-                        doPrefetch(item)
+//                        doPrefetch(item)
 //                    } else {
-                     //   doPrepare(item)
+                        doPrepare(item)
                   //  }
                 }
                 1 -> doStart(item)
@@ -329,7 +337,7 @@ class MainActivity : AppCompatActivity() {
 
         val defaultPrefs = OfflineManager.SelectionPrefs().apply {
           //  videoHeight = 500
-           // videoBitrate = 300000
+            videoBitrate = 300000
            // videoWidth = 3000
             allAudioLanguages = true
             allTextLanguages = true
@@ -354,12 +362,12 @@ class MainActivity : AppCompatActivity() {
                 prepareCallback
             )
             }
-            //val mediaEntries = mutableListOf<PKMediaEntry?>()
-//            for (i:Int in 0 until 12) {
+//            val mediaEntries = mutableListOf<PKMediaEntry?>()
+//            for (i:Int in 0 until 5) {
 //                val adapterItem = rvOfflineAssetsAdapter.getItemAtPosition(i).apply { position = i }
 //               // mediaEntries.add(adapterItem.entry)
 //                adapterItem.entry?.let {
-//                    manager?.prepareAsset(it, defaultPrefs, prepareCallback)
+//                    offlineManager?.prepareAsset(it, defaultPrefs, prepareCallback)
 //                }
 //            }
         }
