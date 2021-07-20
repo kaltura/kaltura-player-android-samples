@@ -196,11 +196,11 @@ class MainActivity : AppCompatActivity() {
                 item.id(),
                 item.mediaOptions(),
                 object : OfflineManager.MediaEntryCallback {
-                    override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
+                    override fun onMediaEntryLoaded(assetId: String, downloadType: OfflineManager.DownloadType , mediaEntry: PKMediaEntry) {
                         // reduceLicenseDuration(mediaEntry, 300)
                     }
 
-                    override fun onMediaEntryLoadError(error: Exception) {
+                    override fun onMediaEntryLoadError(downloadType: OfflineManager.DownloadType, error: Exception) {
                         toastLong("onMediaEntryLoadError: $error")
                     }
                 })
@@ -309,17 +309,17 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onPrepareError(assetId: String, error: Exception) {
+            override fun onPrepareError(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
                 hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
-            override fun onMediaEntryLoadError(error: Exception) {
+            override fun onMediaEntryLoadError(downloadType: OfflineManager.DownloadType, error: Exception) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")
             }
 
-            override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
+            override fun onMediaEntryLoaded(assetId: String, downloadType: OfflineManager.DownloadType, mediaEntry: PKMediaEntry) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoaded: ${mediaEntry.name}")
                 // reduceLicenseDuration(mediaEntry, 300)
@@ -547,17 +547,9 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun addPrefetchCallback(item: Item): Prefetch.PrefetchCallback {
+    private fun addPrefetchCallback(item: Item): OfflineManager.PrepareCallback {
 
-        return object : Prefetch.PrefetchCallback {
-
-            override fun onPrefetched(
-                assetId: String,
-                assetInfo: OfflineManager.AssetInfo,
-                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
-            ) {
-                hideProgressBar()
-            }
+        return object : OfflineManager.PrepareCallback {
 
             override fun onPrepared(
                 assetId: String,
@@ -569,17 +561,12 @@ class MainActivity : AppCompatActivity() {
                 updateRecyclerViewAdapter(item.position)
             }
 
-            override fun onPrefetchError(assetId: String, error: Exception) {
-                hideProgressBar()
-                toastLong("onPrefetchError: $error")
-            }
-
-            override fun onPrepareError(assetId: String, error: java.lang.Exception) {
+            override fun onPrepareError(assetId: String, downloadType: OfflineManager.DownloadType, error: java.lang.Exception) {
                 hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
-            override fun onMediaEntryLoadError(error: Exception) {
+            override fun onMediaEntryLoadError(downloadType: OfflineManager.DownloadType, error: Exception) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")
             }
