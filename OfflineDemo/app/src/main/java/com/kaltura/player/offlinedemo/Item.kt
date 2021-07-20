@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.text.TextUtils
 import android.util.Log
 import com.kaltura.playkit.PKDrmParams
+import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaSource
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
@@ -74,6 +75,8 @@ class BasicItem(
     isPrefetch: Boolean = false
 ): Item(prefs, title, isPrefetch) {
 
+    val log = PKLog.get("BasicItem")
+
     init {
         this.entry = PKMediaEntry().apply {
             id = this@BasicItem.id
@@ -89,7 +92,7 @@ class BasicItem(
             })
         }
 
-        Log.d("Item", entry.toString())
+        log.d(entry?.id.toString())
     }
 
     override fun id() = id
