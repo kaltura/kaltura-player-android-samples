@@ -58,6 +58,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.kaltura.player.offlinedemo.MainActivity" />
         </activity>
+
+        <receiver android:name=".OfflineNotificationReceiver"/>
+
     </application>
 
 </manifest>

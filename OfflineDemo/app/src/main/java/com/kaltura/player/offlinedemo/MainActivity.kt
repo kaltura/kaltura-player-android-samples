@@ -22,7 +22,6 @@ import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
-import com.kaltura.tvplayer.offline.Prefetch
 import com.kaltura.tvplayer.offline.dtg.DTGOfflineManager
 import com.kaltura.tvplayer.offline.exo.ExoOfflineManager
 import com.kaltura.tvplayer.offline.exo.PrefetchConfig
@@ -30,6 +29,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_provider_chooser.*
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -48,7 +48,10 @@ class MainActivity : AppCompatActivity() {
             itemMap[it.id()] = it
         }
         rvOfflineAssetsAdapter = RvOfflineAssetsAdapter(testItems) {
-            showActionsDialog(rvOfflineAssetsAdapter.getItemAtPosition(it).apply { position = it }, it)
+            showActionsDialog(
+                rvOfflineAssetsAdapter.getItemAtPosition(it).apply { position = it },
+                it
+            )
         }
 
         rvAssetList.adapter = rvOfflineAssetsAdapter
@@ -58,15 +61,25 @@ class MainActivity : AppCompatActivity() {
 
         cb_is_exo_enable.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                offlineManager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
+                offlineManager = OfflineManager.getInstance(
+                    this,
+                    OfflineManager.OfflineProvider.EXO
+                )
             }
+
+            offlineManager?.setForegroundNotification(
+                OfflineCustomNotification(this)
+            )
             setupManager(offlineManager)
             hideProviderFrame()
         }
 
         cb_is_dtg_enable.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                offlineManager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
+                offlineManager = OfflineManager.getInstance(
+                    this,
+                    OfflineManager.OfflineProvider.DTG
+                )
             }
             setupManager(offlineManager)
             hideProviderFrame()
@@ -74,6 +87,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupManager(offlineManager: OfflineManager?) {
+
         this.offlineManager = offlineManager
 
         if (this.offlineManager is DTGOfflineManager) {
@@ -157,8 +171,8 @@ class MainActivity : AppCompatActivity() {
 //                    if (item.isPrefetch && manager is ExoOfflineManager) {
 //                        doPrefetch(item)
 //                    } else {
-                        doPrepare(item)
-                  //  }
+                    doPrepare(item)
+                    //  }
                 }
                 1 -> doStart(item)
                 2 -> doPause(item)
@@ -196,11 +210,18 @@ class MainActivity : AppCompatActivity() {
                 item.id(),
                 item.mediaOptions(),
                 object : OfflineManager.MediaEntryCallback {
-                    override fun onMediaEntryLoaded(assetId: String, downloadType: OfflineManager.DownloadType , mediaEntry: PKMediaEntry) {
+                    override fun onMediaEntryLoaded(
+                        assetId: String,
+                        downloadType: OfflineManager.DownloadType,
+                        mediaEntry: PKMediaEntry
+                    ) {
                         // reduceLicenseDuration(mediaEntry, 300)
                     }
 
-                    override fun onMediaEntryLoadError(downloadType: OfflineManager.DownloadType, error: Exception) {
+                    override fun onMediaEntryLoadError(
+                        downloadType: OfflineManager.DownloadType,
+                        error: Exception
+                    ) {
                         toastLong("onMediaEntryLoadError: $error")
                     }
                 })
@@ -309,17 +330,28 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onPrepareError(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
+            override fun onPrepareError(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
+            ) {
                 hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
-            override fun onMediaEntryLoadError(downloadType: OfflineManager.DownloadType, error: Exception) {
+            override fun onMediaEntryLoadError(
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
+            ) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")
             }
 
-            override fun onMediaEntryLoaded(assetId: String, downloadType: OfflineManager.DownloadType, mediaEntry: PKMediaEntry) {
+            override fun onMediaEntryLoaded(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                mediaEntry: PKMediaEntry
+            ) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoaded: ${mediaEntry.name}")
                 // reduceLicenseDuration(mediaEntry, 300)
@@ -330,19 +362,19 @@ class MainActivity : AppCompatActivity() {
                 source: PKMediaSource,
                 drmParams: PKDrmParams?
             ) {
-               // hideProgressBar()
+                // hideProgressBar()
                 toastLong("onSourceSelected ")
             }
         }
 
         val defaultPrefs = OfflineManager.SelectionPrefs().apply {
-          //  videoHeight = 500
+            //  videoHeight = 500
             videoBitrate = 300000
-           // videoWidth = 3000
+            // videoWidth = 3000
             allAudioLanguages = true
             allTextLanguages = true
-           // videoCodecs = mutableListOf()
-          //  videoCodecs.also { it?.add(OfflineManager.TrackCodec.AVC1) }
+            // videoCodecs = mutableListOf()
+            //  videoCodecs.also { it?.add(OfflineManager.TrackCodec.AVC1) }
             //allowInefficientCodecs = false
         }
 
@@ -421,10 +453,10 @@ class MainActivity : AppCompatActivity() {
 //                prefetchManager?.prefetchAsset(it, defaultPrefs, prefetchCallback)
 //            }
 
-           /* item.entry?.let { entry ->
-                prefetchManager?.prefetchAsset(entry, defaultPrefs, prefetchCallback)
-                //prefetchManager?.prefetchByMediaEntryList(mediaEntries, defaultPrefs, prefetchCallback)
-            }*/
+            /* item.entry?.let { entry ->
+                 prefetchManager?.prefetchAsset(entry, defaultPrefs, prefetchCallback)
+                 //prefetchManager?.prefetchByMediaEntryList(mediaEntries, defaultPrefs, prefetchCallback)
+             }*/
         }
     }
 
@@ -512,7 +544,7 @@ class MainActivity : AppCompatActivity() {
                 error: Exception
             ) {
                 toastLong("onRegisterError: $assetId, ${downloadType.name}, $error ")
-             //   updateItemStatus(assetId)
+                //   updateItemStatus(assetId)
                 val item = itemMap[assetId] ?: return
                 item.drmNotRegistered = true
                 updateRecyclerViewAdapter(item.position)
@@ -561,12 +593,19 @@ class MainActivity : AppCompatActivity() {
                 updateRecyclerViewAdapter(item.position)
             }
 
-            override fun onPrepareError(assetId: String, downloadType: OfflineManager.DownloadType, error: java.lang.Exception) {
+            override fun onPrepareError(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: java.lang.Exception
+            ) {
                 hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
-            override fun onMediaEntryLoadError(downloadType: OfflineManager.DownloadType, error: Exception) {
+            override fun onMediaEntryLoadError(
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
+            ) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")
             }
@@ -607,7 +646,10 @@ class MainActivity : AppCompatActivity() {
         val anim = TranslateAnimation(0f, 800f, 0f, 0f)
         anim.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation?) {}
-            override fun onAnimationEnd(animation: Animation?) {provider_frame.visibility = View.GONE }
+            override fun onAnimationEnd(animation: Animation?) {
+                provider_frame.visibility = View.GONE
+            }
+
             override fun onAnimationRepeat(animation: Animation?) {}
         })
         anim.duration = 1000
