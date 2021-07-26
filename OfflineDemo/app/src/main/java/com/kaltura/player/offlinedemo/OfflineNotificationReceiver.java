@@ -14,12 +14,15 @@ public class OfflineNotificationReceiver extends BroadcastReceiver {
         // app can create the notification on its own.
         OfflineManager offlineManager = OfflineManager.getInstance(context, OfflineManager.OfflineProvider.EXO);
         if (intent != null) {
-            String pauseId = intent.getStringExtra("pause");
-            String playId = intent.getStringExtra("play");
-            if (pauseId != null) {
-                offlineManager.pauseAssetDownload(pauseId);
-            } else if (playId != null) {
-                offlineManager.resumeAssetDownload(playId);
+            String action = intent.getAction();
+            if (action != null) {
+                String pauseId = intent.getStringExtra("pause");
+                String removeId = intent.getStringExtra("remove");
+                if (action.equals("PauseButton") && pauseId != null) {
+                    offlineManager.pauseAssetDownload(pauseId);
+                } else if (action.equals("RemoveButton") && removeId != null) {
+                    offlineManager.removeAsset(removeId);
+                }
             }
         }
     }

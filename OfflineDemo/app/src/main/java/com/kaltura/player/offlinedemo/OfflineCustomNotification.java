@@ -14,12 +14,14 @@ import com.kaltura.android.exoplayer2.C;
 import com.kaltura.android.exoplayer2.offline.Download;
 import com.kaltura.android.exoplayer2.offline.DownloadManager;
 import com.kaltura.playkit.PKLog;
+import com.kaltura.playkit.utils.Consts;
 import com.kaltura.tvplayer.OfflineManager;
 import com.kaltura.tvplayer.offline.exo.ExoOfflineNotificationHelper;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Random;
 
 class OfflineCustomNotification extends ExoOfflineNotificationHelper {
 
@@ -28,14 +30,16 @@ class OfflineCustomNotification extends ExoOfflineNotificationHelper {
     private final NotificationManagerCompat notificationManager;
     private final NotificationCompat.Builder notificationBuilder;
     private boolean areActionButtonsAdded;
-    private final Intent offlineIntent;
+    private final Intent pauseIntent;
+    private final Intent removeIntent;
 
-    public OfflineCustomNotification(Context context) {
-        super(context);
+    public OfflineCustomNotification(Context context, String channelId) {
+        super(context, channelId);
         notificationManager = NotificationManagerCompat.from(context);
         notificationBuilder = new NotificationCompat.Builder(context.getApplicationContext(), getChannelID());
         notificationBuilder.setAllowSystemGeneratedContextualActions(false);
-        offlineIntent = new Intent(context, OfflineNotificationReceiver.class);
+        pauseIntent = new Intent(context, OfflineNotificationReceiver.class).setAction("PauseButton");
+        removeIntent = new Intent(context, OfflineNotificationReceiver.class).setAction("RemoveButton");
         notificationBuilder.setSmallIcon(R.drawable.ic_cloud_download_black_24dp);
         notificationBuilder.setContentIntent(null);
     }
@@ -92,11 +96,12 @@ class OfflineCustomNotification extends ExoOfflineNotificationHelper {
         notificationBuilder.setShowWhen(false);
 
         if (download != null && !areActionButtonsAdded) {
-            offlineIntent.putExtra("pause", download.request.id);
-            offlineIntent.putExtra("play", download.request.id);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, offlineIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            notificationBuilder.addAction(R.drawable.pause, "Pause", pendingIntent);
-            notificationBuilder.addAction(R.drawable.play, "Resume", pendingIntent);
+            pauseIntent.putExtra("pause", download.request.id);
+            removeIntent.putExtra("remove", download.request.id);
+            PendingIntent pausePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent removePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), removeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            notificationBuilder.addAction(R.drawable.pause, "Pause", pausePendingIntent);
+            notificationBuilder.addAction(R.drawable.ic_dialog_close_dark, "Remove", removePendingIntent);
             areActionButtonsAdded = true;
         }
 
