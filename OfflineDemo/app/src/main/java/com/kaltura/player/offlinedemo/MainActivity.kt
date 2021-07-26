@@ -20,6 +20,7 @@ import com.kaltura.playkit.*
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.playkit.utils.Consts
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
 import com.kaltura.tvplayer.offline.dtg.DTGOfflineManager
@@ -68,7 +69,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             offlineManager?.setForegroundNotification(
-                OfflineCustomNotification(this)
+                OfflineCustomNotification(this, Consts.EXO_DOWNLOAD_CHANNEL_ID)
             )
             setupManager(offlineManager)
             hideProviderFrame()
