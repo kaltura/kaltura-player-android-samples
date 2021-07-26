@@ -68,9 +68,11 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
-            offlineManager?.setForegroundNotification(
-                OfflineCustomNotification(this, Consts.EXO_DOWNLOAD_CHANNEL_ID)
-            )
+            // Show the custom notification
+//            offlineManager?.setForegroundNotification(
+//                OfflineCustomNotification(this, Consts.EXO_DOWNLOAD_CHANNEL_ID)
+//            )
+
             setupManager(offlineManager)
             hideProviderFrame()
         }
@@ -169,11 +171,11 @@ class MainActivity : AppCompatActivity() {
             when (i) {
                 0 -> {
                     showProgressBar()
-//                    if (item.isPrefetch && manager is ExoOfflineManager) {
-//                        doPrefetch(item)
-//                    } else {
-                    doPrepare(item)
-                    //  }
+                    if (item.isPrefetch && offlineManager is ExoOfflineManager) {
+                        doPrefetch(item)
+                    } else {
+                        doPrepare(item)
+                    }
                 }
                 1 -> doStart(item)
                 2 -> doPause(item)
@@ -370,7 +372,7 @@ class MainActivity : AppCompatActivity() {
 
         val defaultPrefs = OfflineManager.SelectionPrefs().apply {
             //  videoHeight = 500
-            videoBitrate = 300000
+            // videoBitrate = 300000
             // videoWidth = 3000
             allAudioLanguages = true
             allTextLanguages = true
@@ -389,20 +391,22 @@ class MainActivity : AppCompatActivity() {
                 prepareCallback
             )
         } else {
-            item.entry?.let { entry -> offlineManager?.prepareAsset(
-                entry,
-                item.selectionPrefs ?: defaultPrefs,
-                prepareCallback
-            )
+            item.entry?.let { entry ->
+                offlineManager?.prepareAsset(
+                    entry,
+                    item.selectionPrefs ?: defaultPrefs,
+                    prepareCallback
+                )
             }
-//            val mediaEntries = mutableListOf<PKMediaEntry?>()
-//            for (i:Int in 0 until 5) {
-//                val adapterItem = rvOfflineAssetsAdapter.getItemAtPosition(i).apply { position = i }
-//               // mediaEntries.add(adapterItem.entry)
-//                adapterItem.entry?.let {
-//                    offlineManager?.prepareAsset(it, defaultPrefs, prepareCallback)
-//                }
-//            }
+
+            /*val mediaEntries = mutableListOf<PKMediaEntry?>()
+            for (i:Int in 0 until 5) {
+                val adapterItem = rvOfflineAssetsAdapter.getItemAtPosition(i).apply { position = i }
+               // mediaEntries.add(adapterItem.entry)
+                adapterItem.entry?.let {
+                    offlineManager?.prepareAsset(it, defaultPrefs, prepareCallback)
+                }
+            }*/
         }
     }
 
@@ -428,7 +432,7 @@ class MainActivity : AppCompatActivity() {
 
         val defaultPrefs = OfflineManager.SelectionPrefs().apply {
             //videoHeight = 300
-            videoBitrate = 600000
+            // videoBitrate = 600000
             //videoWidth = 400
             allAudioLanguages = true
             allTextLanguages = true
@@ -443,20 +447,15 @@ class MainActivity : AppCompatActivity() {
             prefetchManager?.prefetchAsset(item.mediaOptions(), defaultPrefs, prefetchCallback)
             //prefetchManager?.prefetchByMediaEntryList(mediaOptions, defaultPrefs, prefetchCallback)
         } else {
-            val mediaEntries = mutableListOf<PKMediaEntry?>()
-            for (i:Int in 0 until 12) {
-                val adapterItem = rvOfflineAssetsAdapter.getItemAtPosition(i).apply { position = i }
-                mediaEntries.add(adapterItem.entry)
+
+            item.entry?.let {
+                prefetchManager?.prefetchAsset(it, defaultPrefs, prefetchCallback)
             }
 
-            prefetchManager?.prefetchByMediaEntryList(mediaEntries, defaultPrefs, prefetchCallback)
-//            item.entry?.let {
-//                prefetchManager?.prefetchAsset(it, defaultPrefs, prefetchCallback)
-//            }
-
-            /* item.entry?.let { entry ->
-                 prefetchManager?.prefetchAsset(entry, defaultPrefs, prefetchCallback)
-                 //prefetchManager?.prefetchByMediaEntryList(mediaEntries, defaultPrefs, prefetchCallback)
+            // Pass a list of mediaEntries
+            /* val mediaEntries = mutableListOf<PKMediaEntry?>()
+             item.entry?.let { entry ->
+                 prefetchManager?.prefetchByMediaEntryList(mediaEntries, defaultPrefs, prefetchCallback)
              }*/
         }
     }
