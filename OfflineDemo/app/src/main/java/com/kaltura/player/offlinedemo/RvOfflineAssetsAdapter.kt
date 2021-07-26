@@ -20,7 +20,7 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
         offlineAssetViewHolder.tvItemName.text = itemList[position].title()
         val assetStatus = itemList[position].assetInfo?.state ?: OfflineManager.AssetDownloadState.none
         offlineAssetViewHolder.tvItemStatus.text = "Asset Status: $assetStatus ".plus(itemList[position].drmNotRegistered?.let {
-            return@let if (it) { "(Drm Not Registered)" } else { "" }
+            return@let if (it && assetStatus != OfflineManager.AssetDownloadState.none) { "(Drm Not Registered)" } else { "" }
         })
         if (assetStatus == OfflineManager.AssetDownloadState.none ||
             assetStatus == OfflineManager.AssetDownloadState.completed ||
