@@ -34,6 +34,8 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    val log = PKLog.get("MainActivity")
+
     private lateinit var rvOfflineAssetsAdapter: RvOfflineAssetsAdapter
     private var offlineManager: OfflineManager? = null
     private val itemMap = mutableMapOf<String, Item>()
@@ -62,9 +64,10 @@ class MainActivity : AppCompatActivity() {
 
         cb_is_exo_enable.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
+                offlineProvider =  OfflineManager.OfflineProvider.EXO
                 offlineManager = OfflineManager.getInstance(
                     this,
-                    OfflineManager.OfflineProvider.EXO
+                    offlineProvider
                 )
             }
 
@@ -79,9 +82,10 @@ class MainActivity : AppCompatActivity() {
 
         cb_is_dtg_enable.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
+                offlineProvider =  OfflineManager.OfflineProvider.DTG
                 offlineManager = OfflineManager.getInstance(
                     this,
-                    OfflineManager.OfflineProvider.DTG
+                    offlineProvider
                 )
             }
             setupManager(offlineManager)
@@ -242,9 +246,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doOfflinePlayback(item: Item) {
-        startActivity(Intent(this, PlayActivity::class.java).apply {
-            data = Uri.parse(item.assetInfo?.assetId ?: return)
-        })
+        item.assetInfo?.assetId?.let {
+            startActivity(Intent(this, PlayActivity::class.java).apply {
+                data = Uri.parse(it)
+            })
+            return
+        }
+        toast("This asset is not downloaded.")
     }
 
     private fun doOnlinePlayback(item: Item, position: Int) {
@@ -652,7 +660,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onAnimationRepeat(animation: Animation?) {}
         })
-        anim.duration = 1000
+        anim.duration = 500
         provider_frame.startAnimation(anim)
     }
 
@@ -682,10 +690,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private companion object {
-        val log = PKLog.get("MainActivity")
+    companion object {
         val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
         private val ASSET_ID = "548576"
         val PARTNER_ID = 3009
+        var offlineProvider: OfflineManager.OfflineProvider? = null
     }
 }

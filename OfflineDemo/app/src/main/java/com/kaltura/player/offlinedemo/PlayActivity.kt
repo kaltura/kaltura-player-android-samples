@@ -67,23 +67,22 @@ class PlayActivity : AppCompatActivity() {
         val options = PlayerInitOptions(partnerId).apply {
             autoplay = true
             allowCrossProtocolEnabled = true
-            offlineProvider = OfflineManager.OfflineProvider.EXO
+            offlineProvider = MainActivity.offlineProvider
         }
-        isOnlinePlayback.let {
-            if (it) {
-                intent.dataString?.let {
-                    playAssetOffline(it, options)
-                } ?: run {
-                    testItems?.let { itemList ->
-                        playAssetOnline(itemList, position, options)
-                    }
+
+        if (isOnlinePlayback) {
+            intent.dataString?.let {
+                playAssetOffline(it, options)
+            } ?: run {
+                testItems?.let { itemList ->
+                    playAssetOnline(itemList, position, options)
                 }
-            } else {
-                intent.dataString?.let {
-                    playAssetOffline(it, options)
-                } ?: run {
-                    Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
-                }
+            }
+        } else {
+            intent.dataString?.let {
+                playAssetOffline(it, options)
+            } ?: run {
+                Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
             }
         }
 
@@ -145,7 +144,7 @@ class PlayActivity : AppCompatActivity() {
                 }
 
                 player = KalturaOttPlayer.create(this, options)
-                
+
                 player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error error = " + error.message + " Extra = " + error.extra)
