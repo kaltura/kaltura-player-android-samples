@@ -1,18 +1,59 @@
 [
     {
-        "title": "Clear: Kaltura",
-        "id": "1_sf5ovm7u",
-        "partnerId": 243342,
-        "env": "http://cdnapisec.kaltura.com",
+        "title": "Gilad HEVC HLS",
+        "id": "Gilad_Hevc_HLS",
+        "url": "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_zhpdyrr2/protocol/https/format/applehttp/flavorIds/1_3nudljkx,1_8sk0np7s,1_ntkon8wy,1_j2lglql3,1_rt9w2vwh,1_2lps5mcy,1_lf6l8e4n,1_xyjf6mch/a.m3u8",
+        "options": {
+            "videoBitrate": 200000,
+            "allowInefficientCodecs": true,
+            "allAudioLangs": true,
+            "allTextLangs": true
+        }
+    },
+    {
+        "title": "Gilad HEVC DASH",
+        "id": "Gilad_Hevc_DASH",
+        "url": "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_zhpdyrr2/protocol/https/format/mpegdash/flavorIds/1_3nudljkx,1_8sk0np7s,1_ntkon8wy,1_j2lglql3,1_2lps5mcy,1_lf6l8e4n,1_xyjf6mch/a.mpd"
+    },
+    {
+        "title": "Gilad",
+        "id": "Gilad",
+        "url": "https://cdnapisec.kaltura.com/p/243342/sp/243342/playManifest/entryId/1_sf5ovm7u/flavorIds/1_d2uwy7vv,1_jl7y56al/deliveryProfileId/13952/protocol/https/format/applehttp/a.m3u8",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
-        },
-        "expected": {
-            "estimatedSize": 0,
-            "downloadedSize": 0,
-            "audioLangs": ["en"],
-            "textLangs": []
+        }
+    },
+    {
+        "title": "hls-crossProtocol",
+        "id": "hls-crossProtocol",
+        "url": "https://rest-us.ott.kaltura.com/api_v3/service/assetFile/action/playManifest/partnerId/3009/assetId/548579/assetType/media/assetFileId/1199761/contextType/PLAYBACK/a.m3u8",
+        "isPrefetch": true,
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        }
+    },
+    {
+        "title": "zee",
+        "id": "zee",
+        "url": "https://zee5vod.akamaized.net/drm1/elemental/dash/ORIGINALS/ACTION/HINDI/URI/BQC_URI_HINDI_MOVIE_UHD_50MBPS_R2_hi_d87eed6bdfeac7d5cfb881ca570467fa/manifest.mpd?c3.ri=6913885343629884945",
+        "licenseUrl" : "https://wv-keyos-aps1.licensekeyserver.com",
+        "isPrefetch": false,
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        }
+    },
+    {
+        "title": "drmLocal",
+        "id": "drmLocal",
+        "url": "https://cdnapisec.kaltura.com/p/2222401/sp/222240100/playManifest/entryId/1_f93tepsn/protocol/https/format/mpegdash/flavorIds/1_7cgwjy2a,1_xc3jlgr7,1_cn83nztu,1_pgoeohrs/a.mpd",
+        "licenseUrl": "https://udrmv3.kaltura.com//cenc/widevine/license?custom_data=eyJjYV9zeXN0ZW0iOiJPVlAiLCJ1c2VyX3Rva2VuIjoiZGpKOE1qSXlNalF3TVh5LTJEX0ZlX085ZzlfLXZkV3p0Uk1GVWdVOEY2MDROcVllM0Etak9VdThIdC1KTU1QLWYzbWVraGEzRUtLaVRteUtIamh4cjlVRmhWc1dtR1pxZFlsLWhrRkg0R0x3cXJMVWoxTFRETjhlaVE9PSIsImFjY291bnRfaWQiOjIyMjI0MDEsImNvbnRlbnRfaWQiOiIxX2Y5M3RlcHNuIiwiZmlsZXMiOiIxXzdjZ3dqeTJhLDFfeGMzamxncjcsMV9jbjgzbnp0dSwxX3Bnb2VvaHJzIn0%3D&signature=o1Kx%2FT0A48Fq0%2FU09m9zJR%2B8Kv0%3D",
+        "isPrefetch": false,
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
         }
     },
     {
@@ -43,18 +84,46 @@
         }
     },
     {
-        "title": "OVP Test Media",
-        "id": "1_w9zx2eti",
-        "partnerId": 2215841,
-        "env": "http://cdnapisec.kaltura.com",
+        "title": "QA multi/multi",
+        "id": "0_mskmqcit",
+        "url": "http://cdntesting.qa.mkaltura.com/p/1091/sp/109100/playManifest/entryId/0_mskmqcit/flavorIds/0_et3i1dux,0_pa4k1rn9/format/applehttp/protocol/http/a.m3u8",
+        "options": {
+            "audioLangs": ["es"],
+            "textLangs": ["en"]
+        }
+    },
+    {
+        "title": "QA multi/multi All",
+        "id": "all0_mskmqcit",
+        "url": "http://cdntesting.qa.mkaltura.com/p/1091/sp/109100/playManifest/entryId/0_mskmqcit/flavorIds/0_et3i1dux,0_pa4k1rn9/format/applehttp/protocol/http/a.m3u8",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
         }
     },
     {
-        "title": "bunny",
+        "title": "Kaltura 360p", "id": "k-360p",
+        "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",
+        "options": {
+            "videoHeight": 360
+        }
+    },
+    {
+        "title": "Kaltura 720p", "id": "k-720p",
+        "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",
+        "options": {
+            "videoHeight": 720
+        }
+    },
+    {
+        "title": "Kaltura mp4", "id": "k-mp4",
+        "isPrefetch": false,
+        "url": "http://qa-apache-php7.dev.kaltura.com/p/1091/sp/1091/playManifest/entryId/0_rccv43zr/flavorIds/0_qm8yk6bg,0_5artpfqc,0_ee3vdk7h,0_jkit9w6a,0_8qt13atw,0_rgajlpf4/deliveryProfileId/261/protocol/http/format/url/name/a.mp4"
+    },
+    {
+        "title": "Prefetch bunny",
         "id": "bunny",
+        "isPrefetch": true,
         "url": "https://noamtamim.com/hls-bunny/index.m3u8",
         "options": {
             "allAudioLangs": true,
@@ -62,9 +131,70 @@
         }
     },
     {
-        "title": "OTT Test Media",
+        "title": "prefetch_Voot0",
+        "id": "922976",
+        "isPrefetch": true,
+        "partnerId": 225,
+
+        "ottParams" : {
+            "format": "dash Main"
+        },
+        "env": "https://rest-as.ott.kaltura.com/v5_2_8/api_v3/",
+        "ott": true,
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        }
+    },
+    {
+        "title": "Voot0",
+        "id": "922975",
+        "isPrefetch": false,
+        "partnerId": 225,
+
+        "ottParams" : {
+            "format": "dash Main"
+        },
+        "env": "https://rest-as.ott.kaltura.com/v5_2_8/api_v3/",
+        "ott": true,
+        "options": {
+            "allAudioLangs": false,
+            "textLangs": ["en"]
+        }
+    },
+    {
+        "title": "Clear: Kaltura",
+        "id": "1_sf5ovm7u",
+        "partnerId": 243342,
+        "env": "http://cdnapisec.kaltura.com",
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        },
+        "expected": {
+            "estimatedSize": 0,
+            "downloadedSize": 0,
+            "audioLangs": ["en"],
+            "textLangs": []
+        }
+    },
+    {
+        "title": "Prefetch OVP Test Media",
+        "id": "1_w9zx2eti",
+        "partnerId": 2215841,
+        "isPrefetch": true,
+        "env": "http://cdnapisec.kaltura.com",
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        }
+    },
+    {
+
+        "title": "Prefetch OTT Test Media",
         "id": "548576",
         "partnerId": 3009,
+        "isPrefetch": true,
         "ott": true,
         "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
         "options": {
@@ -105,28 +235,6 @@
             "allAudioLangs": true,
             "allTextLangs": true
         }
-    },
-    {
-        "title": "QA multi/multi",
-        "id": "0_mskmqcit",
-        "url": "http://cdntesting.qa.mkaltura.com/p/1091/sp/109100/playManifest/entryId/0_mskmqcit/flavorIds/0_et3i1dux,0_pa4k1rn9/format/applehttp/protocol/http/a.m3u8",
-        "options": {
-            "audioLangs": ["en", "es"],
-            "textLangs": ["en", "ru"]
-        }
-    },
-    {
-        "title": "Kaltura 360p", "id": "k-360p",
-        "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",
-        "options": {
-            "videoHeight": 360
-        }        
-    },
-    {
-        "title": "Kaltura 720p", "id": "k-720p",
-        "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",
-        "options": {
-            "videoHeight": 720
-        }        
     }
 ]
+
