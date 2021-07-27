@@ -3,7 +3,7 @@ package com.kaltura.playkit.samples.prefetchsample
 import com.kaltura.playkit.PKRequestParams
 import com.kaltura.playkit.Player
 
-//Example for Custom Licens Adapter
+//Example for Custom License Adapter
 internal class DRMAdapter : PKRequestParams.Adapter {
     override fun adapt(requestParams: PKRequestParams): PKRequestParams {
         requestParams.headers["customData"] = customData
