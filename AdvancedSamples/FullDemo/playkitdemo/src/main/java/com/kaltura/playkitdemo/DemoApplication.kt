@@ -28,13 +28,13 @@ class DemoApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         KalturaOttPlayer.initialize(this, OTT_PARTNER_ID, OTT_SERVER_URL)
-        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID, OVP_SERVER_URL)
-        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_HLS, OVP_SERVER_URL_HLS)
-        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_DRM, OVP_SERVER_URL_DRM)
-        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_VR, OVP_SERVER_URL_VR)
-        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_CLEAR, OVP_SERVER_URL_CLEAR)
-        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_LIVE, OVP_SERVER_URL_LIVE)
-        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_LIVE_1, OVP_SERVER_URL_LIVE_1)
+//        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID, OVP_SERVER_URL)
+//        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_HLS, OVP_SERVER_URL_HLS)
+//        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_DRM, OVP_SERVER_URL_DRM)
+//        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_VR, OVP_SERVER_URL_VR)
+//        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_CLEAR, OVP_SERVER_URL_CLEAR)
+//        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_LIVE, OVP_SERVER_URL_LIVE)
+//        KalturaOvpPlayer.initialize(this, OVP_PARTNER_ID_LIVE_1, OVP_SERVER_URL_LIVE_1)
         doConnectionsWarmup()
     }
 
