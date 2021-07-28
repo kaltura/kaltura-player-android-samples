@@ -28,6 +28,7 @@ import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_provider_chooser.*
+import java.lang.IllegalArgumentException
 import java.util.*
 
 
@@ -290,7 +291,12 @@ class MainActivity : AppCompatActivity() {
         val assetInfo = item.assetInfo ?: return
 
         startTime = SystemClock.elapsedRealtime()
-        offlineManager?.startAssetDownload(assetInfo)
+        try {
+            offlineManager?.startAssetDownload(assetInfo)
+        } catch (e: IllegalArgumentException){
+            hideProgressBar()
+        }
+
         updateItemStatus(item)
     }
 
