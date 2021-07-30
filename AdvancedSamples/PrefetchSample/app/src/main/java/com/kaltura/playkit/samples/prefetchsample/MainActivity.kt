@@ -100,6 +100,7 @@ class MainActivity : AppCompatActivity() {
                 rvOfflineAssetsAdapter.isOfflineProviderExo(true)
                 rvOfflineAssetsAdapter.notifyDataSetChanged()
             }
+            toastLong(getString(R.string.message_enable_prefetch))
         }
 
         val offlineSettings = OfflineManagerSettings()
