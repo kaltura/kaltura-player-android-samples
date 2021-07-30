@@ -70,7 +70,7 @@ class PlayActivity : AppCompatActivity() {
                 }
             } else {
                 player = KalturaBasicPlayer.create(this, options)
-                val manager = OfflineManager.getInstance(this)
+                val manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
                 intent.dataString?.let {
                     val entry = manager.getLocalPlaybackEntry(it)
                     player.setMedia(entry)

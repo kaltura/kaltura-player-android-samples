@@ -52,16 +52,16 @@ class MainActivity : AppCompatActivity() {
 
         val testItems = items.map { it.toItem() }
 
-        manager = OfflineManager.getInstance(this)
-        manager.setOfflineManagerSettings(OfflineManagerSettings().setDefaultHlsAudioBitrateEstimation(64000))
+        manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
+        manager.setOfflineManagerSettings(OfflineManagerSettings().setHlsAudioBitrateEstimation(64000))
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
-            override fun onAssetDownloadFailed(assetId: String, error: Exception) {
+            override fun onAssetDownloadFailed(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
                 toastLong("Download of $error failed: $error")
                 updateItemStatus(assetId)
             }
 
-            override fun onAssetDownloadComplete(assetId: String) {
+            override fun onAssetDownloadComplete(assetId: String, downloadType: OfflineManager.DownloadType, ) {
                 log.d("onAssetDownloadComplete")
 
                 log.d("onAssetDownloadComplete: ${SystemClock.elapsedRealtimeNanos() - startTime}")
@@ -69,11 +69,11 @@ class MainActivity : AppCompatActivity() {
                 updateItemStatus(assetId)
             }
 
-            override fun onAssetDownloadPending(assetId: String) {
+            override fun onAssetDownloadPending(assetId: String, downloadType: OfflineManager.DownloadType, ) {
                 updateItemStatus(assetId)
             }
 
-            override fun onAssetDownloadPaused(assetId: String) {
+            override fun onAssetDownloadPaused(assetId: String, downloadType: OfflineManager.DownloadType, ) {
                 toast("Paused")
                 updateItemStatus(assetId)
             }
@@ -83,21 +83,34 @@ class MainActivity : AppCompatActivity() {
                 updateItemStatus(assetId)
             }
 
-            override fun onRegisterError(assetId: String, error: Exception) {
+            override fun onRegisterError(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
                 toastLong("onRegisterError: $assetId $error")
                 updateItemStatus(assetId)
             }
 
-            override fun onStateChanged(assetId: String, assetInfo: OfflineManager.AssetInfo) {
+            override fun onStateChanged(assetId: String, downloadType: OfflineManager.DownloadType, assetInfo: OfflineManager.AssetInfo) {
                 toast("onStateChanged")
                 updateItemStatus(assetId)
             }
 
-            override fun onAssetRemoved(assetId: String) {
+            override fun onAssetRemoved(assetId: String, downloadType: OfflineManager.DownloadType, ) {
                 toast("onAssetRemoved")
                 updateItemStatus(assetId)
             }
 
+            override fun onAssetRemoveError(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: java.lang.Exception
+            ) {
+                toast("Error Asset Was Not Removed")
+            }
+
+            override fun onAssetPrefetchComplete(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType
+            ) {
+            }
         })
 
         manager.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
@@ -182,11 +195,11 @@ class MainActivity : AppCompatActivity() {
         snackbar(msg, "Renew") {
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             manager.renewDrmAssetLicense(item.id(), item.mediaOptions(), object: OfflineManager.MediaEntryCallback {
-                override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
-                    reduceLicenseDuration(mediaEntry, 300)
+                override fun onMediaEntryLoaded(assetId: String, downloadType: OfflineManager.DownloadType, mediaEntry: PKMediaEntry) {
+                   // reduceLicenseDuration(mediaEntry, 300)
                 }
 
-                override fun onMediaEntryLoadError(error: Exception) {
+                override fun onMediaEntryLoadError(downloadType: OfflineManager.DownloadType, error: Exception) {
                     toastLong("onMediaEntryLoadError: $error")
                 }
             })
@@ -268,16 +281,16 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onPrepareError(assetId: String, error: Exception) {
+            override fun onPrepareError(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {
                 toastLong("onPrepareError: $error")
             }
 
-            override fun onMediaEntryLoadError(error: Exception) {
+            override fun onMediaEntryLoadError(downloadType: OfflineManager.DownloadType, error: Exception) {
                 toastLong("onMediaEntryLoadError: $error")
             }
 
-            override fun onMediaEntryLoaded(assetId: String, mediaEntry: PKMediaEntry) {
-                reduceLicenseDuration(mediaEntry, 300)
+            override fun onMediaEntryLoaded(assetId: String, downloadType: OfflineManager.DownloadType, mediaEntry: PKMediaEntry) {
+                //reduceLicenseDuration(mediaEntry, 300)
             }
 
             override fun onSourceSelected(
