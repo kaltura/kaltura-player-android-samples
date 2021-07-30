@@ -1,8 +1,6 @@
 package com.kaltura.playkit.samples.prefetchsample.api.adapter
 
 import com.kaltura.dtg.DownloadRequestParams
-import com.kaltura.playkit.PKRequestParams
-import com.kaltura.playkit.Player
 
 //Example for Custom License Adapter
 internal class DownloadRequestAdapter : DownloadRequestParams.Adapter {

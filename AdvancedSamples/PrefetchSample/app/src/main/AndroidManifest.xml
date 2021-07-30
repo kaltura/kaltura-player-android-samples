@@ -49,7 +49,7 @@
         </activity>
 
         <activity
-            android:name=".PlayActivity"
+            android:name=".ui.PlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_play"
             android:parentActivityName=".MainActivity"

@@ -20,6 +20,7 @@ import com.kaltura.playkit.*
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.playkit.samples.prefetchsample.ui.PlayActivity
 import com.kaltura.playkit.samples.prefetchsample.ui.adapter.RvOfflineAssetsAdapter
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
@@ -28,7 +29,6 @@ import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_provider_chooser.*
-import java.lang.IllegalArgumentException
 import java.util.*
 
 
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 //        DRMAdapter.customData = customAdapterData
 //        manager.setLicenseRequestAdapter(licenseRequestAdapter)
 
-     //   offlineSettings.downloadRequestAdapter = DownloadRequestAdapter()
+        //   offlineSettings.downloadRequestAdapter = DownloadRequestAdapter()
 
         this.offlineManager?.setOfflineManagerSettings(offlineSettings)
 

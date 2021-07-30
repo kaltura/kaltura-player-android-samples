@@ -20,6 +20,8 @@ import com.kaltura.playkit.player.AudioTrack
 import com.kaltura.playkit.player.PKTracks
 import com.kaltura.playkit.player.TextTrack
 import com.kaltura.playkit.player.VideoTrack
+import com.kaltura.playkit.samples.prefetchsample.*
+import com.kaltura.playkit.samples.prefetchsample.R
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import kotlinx.android.synthetic.main.activity_play.*
@@ -87,8 +89,8 @@ class PlayActivity : AppCompatActivity() {
         }
 
         player.setPlayerView(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
         )
         playerRoot.addView(player.playerView)
 
@@ -149,9 +151,9 @@ class PlayActivity : AppCompatActivity() {
                         log.d("OTTMedia Error error = " + error.message + " Extra = " + error.extra)
                         runOnUiThread {
                             Snackbar.make(
-                                findViewById<View>(android.R.id.content),
-                                error.message,
-                                Snackbar.LENGTH_LONG
+                                    findViewById<View>(android.R.id.content),
+                                    error.message,
+                                    Snackbar.LENGTH_LONG
                             ).show()
                         }
                     } else {
@@ -166,9 +168,9 @@ class PlayActivity : AppCompatActivity() {
                         log.d("OVPMedia Error error = " + error.message + " Extra = " + error.extra)
                         runOnUiThread {
                             Snackbar.make(
-                                findViewById<View>(android.R.id.content),
-                                error.message,
-                                Snackbar.LENGTH_LONG
+                                    findViewById<View>(android.R.id.content),
+                                    error.message,
+                                    Snackbar.LENGTH_LONG
                             ).show()
                         }
                     } else {
@@ -214,18 +216,18 @@ class PlayActivity : AppCompatActivity() {
 
                 val currentTrack = currentAudioTrack
                 val currentIndex =
-                    if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
+                        if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
                 val selected = intArrayOf(currentIndex)
                 Builder(this)
-                    .setTitle("Select track")
-                    .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
-                        selected[0] = i
-                    }
-                    .setPositiveButton("OK") { _, _ ->
-                        if (selected[0] >= 0) {
-                            player.changeTrack(trackIds[selected[0]])
+                        .setTitle("Select track")
+                        .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
+                            selected[0] = i
                         }
-                    }.show()
+                        .setPositiveButton("OK") { _, _ ->
+                            if (selected[0] >= 0) {
+                                player.changeTrack(trackIds[selected[0]])
+                            }
+                        }.show()
             }
             DownloadItem.TrackType.TEXT -> {
                 val tracks = textTracks
@@ -247,18 +249,18 @@ class PlayActivity : AppCompatActivity() {
 
                 val currentTrack = currentTextTrack
                 val currentIndex =
-                    if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
+                        if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
                 val selected = intArrayOf(currentIndex)
                 Builder(this)
-                    .setTitle("Select track")
-                    .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
-                        selected[0] = i
-                    }
-                    .setPositiveButton("OK") { _, _ ->
-                        if (selected[0] >= 0) {
-                            player.changeTrack(trackIds[selected[0]])
+                        .setTitle("Select track")
+                        .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
+                            selected[0] = i
                         }
-                    }.show()
+                        .setPositiveButton("OK") { _, _ ->
+                            if (selected[0] >= 0) {
+                                player.changeTrack(trackIds[selected[0]])
+                            }
+                        }.show()
             }
             DownloadItem.TrackType.VIDEO -> {
                 val tracks = videoTracks
@@ -284,18 +286,18 @@ class PlayActivity : AppCompatActivity() {
 
                 val currentTrack = currentVideoTrack
                 val currentIndex =
-                    if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
+                        if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
                 val selected = intArrayOf(currentIndex)
                 Builder(this)
-                    .setTitle("Select track")
-                    .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
-                        selected[0] = i
-                    }
-                    .setPositiveButton("OK") { _, _ ->
-                        if (selected[0] >= 0) {
-                            player.changeTrack(trackIds[selected[0]])
+                        .setTitle("Select track")
+                        .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
+                            selected[0] = i
                         }
-                    }.show()
+                        .setPositiveButton("OK") { _, _ ->
+                            if (selected[0] >= 0) {
+                                player.changeTrack(trackIds[selected[0]])
+                            }
+                        }.show()
             }
         }
     }
