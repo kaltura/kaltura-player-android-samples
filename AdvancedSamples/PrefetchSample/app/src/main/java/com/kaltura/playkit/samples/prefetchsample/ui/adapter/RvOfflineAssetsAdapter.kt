@@ -17,7 +17,16 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val itemView = inflater.inflate(R.layout.view_item, parent, false)
-        return OfflineAssetViewHolder(itemView, itemClick)
+        return OfflineAssetViewHolder(itemView, itemClick, { position, isChecked, checkBoxView, prefetchTextView ->
+            if (isChecked) {
+                itemList[position].isPrefetch = true
+                prefetchTextView.visibility = View.VISIBLE
+                prefetchTextView.text = "Prefetch Available"
+            } else {
+                itemList[position].isPrefetch = false
+                prefetchTextView.visibility = View.GONE
+            }
+        })
     }
 
     override fun onBindViewHolder(offlineAssetViewHolder: OfflineAssetViewHolder, position: Int) {
@@ -27,8 +36,8 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
             return@let if (it && assetStatus != OfflineManager.AssetDownloadState.none) { "(Drm Not Registered)" } else { "" }
         })
         if (assetStatus == OfflineManager.AssetDownloadState.none ||
-            assetStatus == OfflineManager.AssetDownloadState.completed ||
-            assetStatus == OfflineManager.AssetDownloadState.prefetched) {
+                assetStatus == OfflineManager.AssetDownloadState.completed ||
+                assetStatus == OfflineManager.AssetDownloadState.prefetched) {
             offlineAssetViewHolder.tvItemDownloadPerct.visibility = View.GONE
         } else {
             offlineAssetViewHolder.tvItemDownloadPerct.visibility = View.VISIBLE
@@ -37,24 +46,15 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
 
         if (isOfflineProviderExo) {
             offlineAssetViewHolder.cbItemIsPrefetch.visibility = View.VISIBLE
-            if (assetStatus == OfflineManager.AssetDownloadState.prefetched) {
-                offlineAssetViewHolder.cbItemIsPrefetch.isChecked = true
-                offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.VISIBLE
-                offlineAssetViewHolder.tvItemIsPrefetch.text = "Prefetch Available"
-            }
-
-            offlineAssetViewHolder.cbItemIsPrefetch.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    itemList[position].isPrefetch = true
-                    offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.VISIBLE
-                    offlineAssetViewHolder.tvItemIsPrefetch.text = "Prefetch Available"
-                } else {
-                    itemList[position].isPrefetch = false
-                    offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.GONE
-                }
-            }
         } else {
             offlineAssetViewHolder.cbItemIsPrefetch.visibility = View.GONE
+        }
+
+        if (assetStatus == OfflineManager.AssetDownloadState.prefetched || itemList[position].isPrefetch) {
+            offlineAssetViewHolder.cbItemIsPrefetch.isChecked = true
+            offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.VISIBLE
+            offlineAssetViewHolder.tvItemIsPrefetch.text = "Prefetch Available"
+        } else {
             offlineAssetViewHolder.cbItemIsPrefetch.isChecked = false
             offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.GONE
         }

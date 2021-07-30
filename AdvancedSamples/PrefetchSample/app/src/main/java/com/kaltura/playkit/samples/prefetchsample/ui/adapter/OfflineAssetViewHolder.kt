@@ -6,7 +6,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.kaltura.playkit.samples.prefetchsample.R
 
-class OfflineAssetViewHolder(itemView: View, val itemClick: (Int) -> Unit): RecyclerView.ViewHolder(itemView) {
+class OfflineAssetViewHolder(itemView: View, val itemClick: (Int) -> Unit, val checkBoxClicked: (Int, Boolean, CheckBox, TextView) -> Unit): RecyclerView.ViewHolder(itemView) {
 
     internal var tvItemName: TextView
     internal var tvItemStatus: TextView
@@ -20,7 +20,10 @@ class OfflineAssetViewHolder(itemView: View, val itemClick: (Int) -> Unit): Recy
         tvItemDownloadPerct = itemView.findViewById(R.id.tv_item_download_perct)
         tvItemIsPrefetch = itemView.findViewById(R.id.tv_item_is_prefetch)
         cbItemIsPrefetch = itemView.findViewById(R.id.cb_item_prefetch)
-        itemView.setOnClickListener{ itemClick(adapterPosition) }
+        itemView.setOnClickListener { itemClick(adapterPosition) }
         cbItemIsPrefetch.visibility = View.GONE
+        cbItemIsPrefetch.setOnCheckedChangeListener { _, isChecked ->
+            checkBoxClicked(adapterPosition, isChecked, cbItemIsPrefetch, tvItemIsPrefetch)
+        }
     }
 }
