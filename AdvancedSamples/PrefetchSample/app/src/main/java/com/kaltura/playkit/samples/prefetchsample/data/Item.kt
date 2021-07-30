@@ -17,11 +17,10 @@ import java.util.*
 
 abstract class Item (val selectionPrefs: SelectionPrefs?,
                      val title: String?,
-                     val isPrefetch:
-                     Boolean = false,
+                     var isPrefetch: Boolean = false,
                      var position: Int = -1,
-                     var drmNotRegistered: Boolean? = false // Just to understand if the asset has failed with drm registration
-                    ) {
+                     var drmNotRegistered: Boolean? = false, // Just to understand if the asset has failed with drm registration
+                     var isOfflineProviderExo: Boolean = false) {
 
     var entry: PKMediaEntry? = null
     var assetInfo: OfflineManager.AssetInfo? = null

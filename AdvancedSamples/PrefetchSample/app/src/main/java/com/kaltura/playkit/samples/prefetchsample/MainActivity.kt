@@ -75,9 +75,8 @@ class MainActivity : AppCompatActivity() {
 //            offlineManager?.setForegroundNotification(
 //                OfflineCustomNotification(this, Consts.EXO_DOWNLOAD_CHANNEL_ID)
 //            )
-
-            setupManager(offlineManager)
             hideProviderFrame()
+            setupManager(offlineManager)
         }
 
         cb_is_dtg_enable.setOnCheckedChangeListener { _, isChecked ->
@@ -88,14 +87,20 @@ class MainActivity : AppCompatActivity() {
                         offlineProvider
                 )
             }
-            setupManager(offlineManager)
             hideProviderFrame()
+            setupManager(offlineManager)
         }
     }
 
     private fun setupManager(offlineManager: OfflineManager?) {
-
         this.offlineManager = offlineManager
+
+        runOnUiThread {
+            if (this.offlineManager is ExoOfflineManager) {
+                rvOfflineAssetsAdapter.isOfflineProviderExo(true)
+                rvOfflineAssetsAdapter.notifyDataSetChanged()
+            }
+        }
 
         val offlineSettings = OfflineManagerSettings()
         offlineSettings.hlsAudioBitrateEstimation = 64000
@@ -131,12 +136,13 @@ class MainActivity : AppCompatActivity() {
             log.d("manager started")
             itemMap.values.forEach {
                 it.assetInfo = this.offlineManager?.getAssetInfo(it.id())
+                if (it.position == -1) {
+                    it.position = rvOfflineAssetsAdapter.getPositionOfItem(it.id())
+                }
                 updateRecyclerViewAdapter(it.position)
             }
         }
     }
-
-
 
     private fun updateRecyclerViewAdapter(position: Int) {
         runOnUiThread {
@@ -427,7 +433,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun doPrefetch(item: Item) {
         val prefetchManager = offlineManager?.prefetchManager
-        prefetchManager?.setPrefetchConfig(PrefetchConfig())
+        prefetchManager?.setPrefetchConfig(PrefetchConfig().apply {
+            isRemoveCacheOnDestroy = false
+        })
 
         if (prefetchManager?.isPrefetched(item.id()) == true) {
             hideProgressBar()

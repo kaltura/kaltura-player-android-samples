@@ -11,6 +11,8 @@ import com.kaltura.tvplayer.OfflineManager
 
 class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (Int) -> Unit): RecyclerView.Adapter<OfflineAssetViewHolder>() {
 
+    private var isOfflineProviderExo: Boolean = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OfflineAssetViewHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
@@ -32,10 +34,28 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
             offlineAssetViewHolder.tvItemDownloadPerct.visibility = View.VISIBLE
             offlineAssetViewHolder.tvItemDownloadPerct.text = itemList[position].getDownloadPercentage()
         }
-        if (itemList[position].isPrefetch) {
-            offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.VISIBLE
-            offlineAssetViewHolder.tvItemIsPrefetch.text = "Prefetch Available"
+
+        if (isOfflineProviderExo) {
+            offlineAssetViewHolder.cbItemIsPrefetch.visibility = View.VISIBLE
+            if (assetStatus == OfflineManager.AssetDownloadState.prefetched) {
+                offlineAssetViewHolder.cbItemIsPrefetch.isChecked = true
+                offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.VISIBLE
+                offlineAssetViewHolder.tvItemIsPrefetch.text = "Prefetch Available"
+            }
+
+            offlineAssetViewHolder.cbItemIsPrefetch.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    itemList[position].isPrefetch = true
+                    offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.VISIBLE
+                    offlineAssetViewHolder.tvItemIsPrefetch.text = "Prefetch Available"
+                } else {
+                    itemList[position].isPrefetch = false
+                    offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.GONE
+                }
+            }
         } else {
+            offlineAssetViewHolder.cbItemIsPrefetch.visibility = View.GONE
+            offlineAssetViewHolder.cbItemIsPrefetch.isChecked = false
             offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.GONE
         }
     }
@@ -46,6 +66,10 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
 
     fun getItemAtPosition(position: Int): Item {
         return itemList[position]
+    }
+
+    fun isOfflineProviderExo(isExoProvider: Boolean) {
+        isOfflineProviderExo = isExoProvider
     }
 
     fun getPositionOfItem(assetId: String): Int {
