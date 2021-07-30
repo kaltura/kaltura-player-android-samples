@@ -15,6 +15,23 @@
         android:orientation="vertical"/>
 
     <FrameLayout
+        android:id="@+id/fl_prefetch_settings"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/margin_30dp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true">
+
+        <include
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            layout="@layout/view_prefetch_config"
+            android:layout_gravity="center_vertical"/>
+
+    </FrameLayout>
+
+    <FrameLayout
         android:id="@+id/pbLoader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

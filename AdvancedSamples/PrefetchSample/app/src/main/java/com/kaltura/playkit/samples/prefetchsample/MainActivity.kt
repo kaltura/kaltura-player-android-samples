@@ -24,11 +24,14 @@ import com.kaltura.playkit.samples.prefetchsample.ui.PlayActivity
 import com.kaltura.playkit.samples.prefetchsample.ui.adapter.RvOfflineAssetsAdapter
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
+import com.kaltura.tvplayer.offline.dtg.DTGOfflineManager
 import com.kaltura.tvplayer.offline.exo.ExoOfflineManager
 import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_provider_chooser.*
+import kotlinx.android.synthetic.main.view_item.*
+import kotlinx.android.synthetic.main.view_prefetch_config.*
 import java.util.*
 
 
@@ -39,6 +42,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rvOfflineAssetsAdapter: RvOfflineAssetsAdapter
     private var offlineManager: OfflineManager? = null
     private val itemMap = mutableMapOf<String, Item>()
+
+    private var prefetchSettingMaxItemCountInCache: Int = 20
+    private var prefetchSettingAssetPrefetchSize: Int = 2 // IN MB
+    private var prefetchSettingRemoveCacheOnDestroy: Boolean = true
 
     var startTime = 0L
 
@@ -55,6 +62,26 @@ class MainActivity : AppCompatActivity() {
                     rvOfflineAssetsAdapter.getItemAtPosition(it).apply { position = it },
                     it
             )
+        }
+
+        btn_sumbit_prefetch_settings.setOnClickListener {
+            (et_ps_item_in_cache.text).toString()?.let {
+                if (it.isNotEmpty()) {
+                    prefetchSettingMaxItemCountInCache = it.toInt()
+                }
+            }
+
+            (et_ps_asset_size.text).toString()?.let {
+                if (it.isNotEmpty()) {
+                    prefetchSettingAssetPrefetchSize = it.toInt()
+                }
+            }
+
+            prefetchSettingRemoveCacheOnDestroy = cb_ps_remove_on_destroy.isChecked
+
+            fl_prefetch_settings.visibility = View.GONE
+
+            toast(getString(R.string.prefetch_settings))
         }
 
         rvAssetList.adapter = rvOfflineAssetsAdapter
@@ -435,7 +462,9 @@ class MainActivity : AppCompatActivity() {
     private fun doPrefetch(item: Item) {
         val prefetchManager = offlineManager?.prefetchManager
         prefetchManager?.setPrefetchConfig(PrefetchConfig().apply {
-            isRemoveCacheOnDestroy = false
+            isRemoveCacheOnDestroy = prefetchSettingRemoveCacheOnDestroy
+            maxItemCountInCache = prefetchSettingMaxItemCountInCache
+            assetPrefetchSize = prefetchSettingAssetPrefetchSize
         })
 
         if (prefetchManager?.isPrefetched(item.id()) == true) {
@@ -683,7 +712,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
-        return false
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -691,7 +720,30 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                if (offlineManager == null) {
+                    toastLong(getString(R.string.no_offline_provider))
+                    return false
+                }
+
+                if (offlineManager is DTGOfflineManager) {
+                    toastLong(getString(R.string.no_prefetch_for_dtg))
+                    return false
+                }
+
+                if (fl_prefetch_settings.visibility == View.VISIBLE)
+                    fl_prefetch_settings.visibility = View.GONE
+                else {
+                    if (offlineManager is ExoOfflineManager) {
+                        et_ps_item_in_cache.setText(prefetchSettingMaxItemCountInCache.toString())
+                        et_ps_asset_size.setText(prefetchSettingAssetPrefetchSize.toString())
+                        cb_ps_remove_on_destroy.isChecked = prefetchSettingRemoveCacheOnDestroy
+                    }
+                    fl_prefetch_settings.visibility = View.VISIBLE
+                }
+
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

@@ -1,4 +1,11 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="margin_10dp">10dp</dimen>
+    <dimen name="margin_20dp">10dp</dimen>
+    <dimen name="margin_30dp">30dp</dimen>
+    <dimen name="margin_40dp">40dp</dimen>
+    <dimen name="margin_50dp">50dp</dimen>
+
+    <dimen name="tsize_20sp">20sp</dimen>
+    <dimen name="tsize_14sp">14sp</dimen>
 </resources>
