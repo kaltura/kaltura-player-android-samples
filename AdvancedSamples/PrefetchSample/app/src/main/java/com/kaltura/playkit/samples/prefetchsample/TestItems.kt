@@ -22,7 +22,6 @@ data class ItemJSON(
     val licenseUrl: String?,
     val isPrefetch: Boolean = false,
     val options: OptionsJSON?,
-    val expected: ExpectedValues?,
     val ott: Boolean = false,
     val ottParams: ItemOTTParamsJSON?
 )
@@ -43,13 +42,6 @@ fun ItemJSON.toItem() : Item {
         BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, isPrefetch)
     }
 }
-
-data class ExpectedValues(
-    val estimatedSize: Long?,
-    val downloadedSize: Long?,
-    val audioLangs: List<String>?,
-    val textLangs: List<String>?
-)
 
 data class OptionsJSON(
     val audioLangs: List<String>?,

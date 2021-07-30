@@ -144,7 +144,6 @@ class PlayActivity : AppCompatActivity() {
                 }
 
                 player = KalturaOttPlayer.create(this, options)
-
                 player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error error = " + error.message + " Extra = " + error.extra)

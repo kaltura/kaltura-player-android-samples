@@ -52,8 +52,8 @@ class MainActivity : AppCompatActivity() {
         }
         rvOfflineAssetsAdapter = RvOfflineAssetsAdapter(testItems) {
             showActionsDialog(
-                rvOfflineAssetsAdapter.getItemAtPosition(it).apply { position = it },
-                it
+                    rvOfflineAssetsAdapter.getItemAtPosition(it).apply { position = it },
+                    it
             )
         }
 
@@ -66,8 +66,8 @@ class MainActivity : AppCompatActivity() {
             if (isChecked) {
                 offlineProvider =  OfflineManager.OfflineProvider.EXO
                 offlineManager = OfflineManager.getInstance(
-                    this,
-                    offlineProvider
+                        this,
+                        offlineProvider
                 )
             }
 
@@ -84,8 +84,8 @@ class MainActivity : AppCompatActivity() {
             if (isChecked) {
                 offlineProvider =  OfflineManager.OfflineProvider.DTG
                 offlineManager = OfflineManager.getInstance(
-                    this,
-                    offlineProvider
+                        this,
+                        offlineProvider
                 )
             }
             setupManager(offlineManager)
@@ -97,17 +97,17 @@ class MainActivity : AppCompatActivity() {
 
         this.offlineManager = offlineManager
 
-        if (this.offlineManager is DTGOfflineManager) {
-            val offlineSettings = OfflineManagerSettings()
-            offlineSettings.hlsAudioBitrateEstimation = 64000
+        val offlineSettings = OfflineManagerSettings()
+        offlineSettings.hlsAudioBitrateEstimation = 64000
 
 //        val customAdapterData = "CUSTOM_DATA"
 //        var licenseRequestAdapter = DRMAdapter()
 //        DRMAdapter.customData = customAdapterData
 //        manager.setLicenseRequestAdapter(licenseRequestAdapter)
 
-            this.offlineManager?.setOfflineManagerSettings(offlineSettings)
-        }
+     //   offlineSettings.downloadRequestAdapter = DownloadRequestAdapter()
+
+        this.offlineManager?.setOfflineManagerSettings(offlineSettings)
 
         addAssetStateListener(this.offlineManager)
 
@@ -136,6 +136,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
     private fun updateRecyclerViewAdapter(position: Int) {
         runOnUiThread {
             rvOfflineAssetsAdapter.notifyItemChanged(position)
@@ -158,18 +160,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun showActionsDialog(item: Item, position: Int) {
         if (offlineManager == null) {
-            toastLong("Please select one Offline Provider. You can select once in app session.")
+            toast(getString(R.string.no_offline_provider))
             return
         }
 
         val items = arrayOf(
-            if (item.isPrefetch && offlineManager is ExoOfflineManager) "Prefetch" else "Prepare",
-            "Start",
-            "Pause",
-            "Play-Offline",
-            "Play-Online",
-            "Remove",
-            "Status"
+                if (item.isPrefetch && offlineManager is ExoOfflineManager) "Prefetch" else "Prepare",
+                "Start",
+                "Pause",
+                "Play-Offline",
+                "Play-Online",
+                "Remove",
+                "Status"
         )
         AlertDialog.Builder(this).setItems(items) { _, i ->
             when (i) {
@@ -214,24 +216,24 @@ class MainActivity : AppCompatActivity() {
         snackbar(msg, "Renew") {
             offlineManager?.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             offlineManager?.renewDrmAssetLicense(
-                item.id(),
-                item.mediaOptions(),
-                object : OfflineManager.MediaEntryCallback {
-                    override fun onMediaEntryLoaded(
-                        assetId: String,
-                        downloadType: OfflineManager.DownloadType,
-                        mediaEntry: PKMediaEntry
-                    ) {
-                        // reduceLicenseDuration(mediaEntry, 300)
-                    }
+                    item.id(),
+                    item.mediaOptions(),
+                    object : OfflineManager.MediaEntryCallback {
+                        override fun onMediaEntryLoaded(
+                                assetId: String,
+                                downloadType: OfflineManager.DownloadType,
+                                mediaEntry: PKMediaEntry
+                        ) {
+                            // reduceLicenseDuration(mediaEntry, 300)
+                        }
 
-                    override fun onMediaEntryLoadError(
-                        downloadType: OfflineManager.DownloadType,
-                        error: Exception
-                    ) {
-                        toastLong("onMediaEntryLoadError: $error")
-                    }
-                })
+                        override fun onMediaEntryLoadError(
+                                downloadType: OfflineManager.DownloadType,
+                                error: Exception
+                        ) {
+                            toastLong("onMediaEntryLoadError: $error")
+                        }
+                    })
         }
     }
 
@@ -332,9 +334,9 @@ class MainActivity : AppCompatActivity() {
         val prepareCallback = object : OfflineManager.PrepareCallback {
 
             override fun onPrepared(
-                assetId: String,
-                assetInfo: OfflineManager.AssetInfo,
-                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
+                    assetId: String,
+                    assetInfo: OfflineManager.AssetInfo,
+                    selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
             ) {
                 item.assetInfo = assetInfo
                 runOnUiThread {
@@ -347,26 +349,26 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPrepareError(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType,
-                error: Exception
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: Exception
             ) {
                 hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
             override fun onMediaEntryLoadError(
-                downloadType: OfflineManager.DownloadType,
-                error: Exception
+                    downloadType: OfflineManager.DownloadType,
+                    error: Exception
             ) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")
             }
 
             override fun onMediaEntryLoaded(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType,
-                mediaEntry: PKMediaEntry
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    mediaEntry: PKMediaEntry
             ) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoaded: ${mediaEntry.name}")
@@ -374,9 +376,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSourceSelected(
-                assetId: String,
-                source: PKMediaSource,
-                drmParams: PKDrmParams?
+                    assetId: String,
+                    source: PKMediaSource,
+                    drmParams: PKDrmParams?
             ) {
                 // hideProgressBar()
                 toastLong("onSourceSelected ")
@@ -399,16 +401,16 @@ class MainActivity : AppCompatActivity() {
                 offlineManager?.setKalturaServerUrl(item.serverUrl);
             }
             offlineManager?.prepareAsset(
-                item.mediaOptions(),
-                item.selectionPrefs ?: defaultPrefs,
-                prepareCallback
+                    item.mediaOptions(),
+                    item.selectionPrefs ?: defaultPrefs,
+                    prepareCallback
             )
         } else {
             item.entry?.let { entry ->
                 offlineManager?.prepareAsset(
-                    entry,
-                    item.selectionPrefs ?: defaultPrefs,
-                    prepareCallback
+                        entry,
+                        item.selectionPrefs ?: defaultPrefs,
+                        prepareCallback
                 )
             }
 
@@ -494,17 +496,17 @@ class MainActivity : AppCompatActivity() {
         manager?.setAssetStateListener(object : OfflineManager.AssetStateListener {
 
             override fun onAssetDownloadFailed(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType,
-                error: Exception
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: Exception
             ) {
                 toastLong("Download of $assetId, ${downloadType.name} failed: $error")
                 updateItemStatus(assetId)
             }
 
             override fun onAssetDownloadComplete(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
             ) {
                 log.d("onAssetDownloadComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
 
@@ -517,8 +519,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onAssetPrefetchComplete(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
             ) {
                 log.d("onAssetPrefetchComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
 
@@ -531,16 +533,16 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onAssetDownloadPending(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
             ) {
                 //toast("Pending - onAssetDownloadPending")
                 updateItemStatus(assetId)
             }
 
             override fun onAssetDownloadPaused(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
             ) {
                 toast("Paused - onAssetDownloadPaused")
                 updateItemStatus(assetId)
@@ -552,9 +554,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onRegisterError(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType,
-                error: Exception
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: Exception
             ) {
                 toastLong("onRegisterError: $assetId, ${downloadType.name}, $error ")
                 //   updateItemStatus(assetId)
@@ -564,17 +566,17 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onStateChanged(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType,
-                assetInfo: OfflineManager.AssetInfo
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    assetInfo: OfflineManager.AssetInfo
             ) {
                 toast("onStateChanged state = " + assetInfo.state.name)
                 updateItemStatus(assetId)
             }
 
             override fun onAssetRemoved(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
             ) {
                 hideProgressBar()
                 toast("onAssetRemoved")
@@ -582,9 +584,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onAssetRemoveError(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType,
-                error: java.lang.Exception
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: java.lang.Exception
             ) {
                 hideProgressBar()
                 toast("Error Asset Was Not Removed")
@@ -597,9 +599,9 @@ class MainActivity : AppCompatActivity() {
         return object : OfflineManager.PrepareCallback {
 
             override fun onPrepared(
-                assetId: String,
-                assetInfo: OfflineManager.AssetInfo,
-                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
+                    assetId: String,
+                    assetInfo: OfflineManager.AssetInfo,
+                    selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
             ) {
                 hideProgressBar()
                 item.assetInfo = assetInfo
@@ -607,17 +609,17 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPrepareError(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType,
-                error: java.lang.Exception
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: java.lang.Exception
             ) {
                 hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
             override fun onMediaEntryLoadError(
-                downloadType: OfflineManager.DownloadType,
-                error: Exception
+                    downloadType: OfflineManager.DownloadType,
+                    error: Exception
             ) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")

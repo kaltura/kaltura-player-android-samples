@@ -2,6 +2,8 @@
     <string name="app_name">Prefetch Sample</string>
     <string name="action_settings">Settings</string>
 
+    <string name="no_offline_provider">Please select one Offline Provider. You can select once in app session.</string>
+
     <string name="title_prepare_asset">Prepare</string>
     <string name="title_start_download">Start</string>
     <string name="title_play_local">Play</string>
