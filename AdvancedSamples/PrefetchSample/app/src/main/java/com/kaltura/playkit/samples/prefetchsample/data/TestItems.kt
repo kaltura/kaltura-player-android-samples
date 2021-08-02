@@ -3,6 +3,7 @@ package com.kaltura.playkit.samples.prefetchsample
 import android.content.Context
 import com.google.gson.Gson
 import com.kaltura.playkit.Utils
+import com.kaltura.playkit.samples.prefetchsample.data.AppConfig
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
 
@@ -108,7 +109,7 @@ private fun tagToCodec(tag: String): OfflineManager.TrackCodec? {
     }
 }
 
-fun loadItemsFromJson(context: Context): Array<ItemJSON> {
-    val itemsJson = Utils.readAssetToString(context, "items.json")
-    return Gson().fromJson(itemsJson, Array<ItemJSON>::class.java)
+fun loadItemsFromJson(context: Context): AppConfig {
+    val itemsJson = Utils.readAssetToString(context, "appConfig.json")
+    return Gson().fromJson(itemsJson, AppConfig::class.java)
 }

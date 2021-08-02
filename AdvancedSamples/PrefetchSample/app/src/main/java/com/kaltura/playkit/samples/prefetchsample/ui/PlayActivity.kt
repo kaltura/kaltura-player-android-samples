@@ -22,6 +22,7 @@ import com.kaltura.playkit.player.TextTrack
 import com.kaltura.playkit.player.VideoTrack
 import com.kaltura.playkit.samples.prefetchsample.*
 import com.kaltura.playkit.samples.prefetchsample.R
+import com.kaltura.playkit.samples.prefetchsample.data.AppConfig
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import kotlinx.android.synthetic.main.activity_play.*
@@ -61,10 +62,10 @@ class PlayActivity : AppCompatActivity() {
         val partnerId = bundle?.getInt("partnerId")
 
         if (isOnlinePlayback) {
-            val itemsJson = Utils.readAssetToString(this, "items.json")
+            val itemsJson = Utils.readAssetToString(this, "appConfig.json")
             val gson = Gson()
-            val items = gson.fromJson(itemsJson, Array<ItemJSON>::class.java)
-            testItems = items.map { it.toItem() }
+            val appConfig = gson.fromJson(itemsJson, AppConfig::class.java)
+            testItems = appConfig.items.map { it.toItem() }
         }
 
         val options = PlayerInitOptions(partnerId).apply {

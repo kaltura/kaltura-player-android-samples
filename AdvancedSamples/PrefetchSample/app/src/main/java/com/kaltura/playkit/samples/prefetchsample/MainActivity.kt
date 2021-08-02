@@ -53,7 +53,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val testItems = loadItemsFromJson(this).map { it.toItem() }
+        val appConfig = loadItemsFromJson(this)
+        val testItems = appConfig.items.map { it.toItem() }
         testItems.filter { it != NULL }.forEach {
             itemMap[it.id()] = it
         }
@@ -96,6 +97,7 @@ class MainActivity : AppCompatActivity() {
                         this,
                         offlineProvider
                 )
+                offlineManager?.setPreferredMediaFormat(appConfig.offlineConfig?.preferredFormat)
             }
 
             // Show the custom notification
@@ -113,6 +115,7 @@ class MainActivity : AppCompatActivity() {
                         this,
                         offlineProvider
                 )
+                offlineManager?.setPreferredMediaFormat(appConfig.offlineConfig?.preferredFormat)
             }
             hideProviderFrame()
             setupManager(offlineManager)
