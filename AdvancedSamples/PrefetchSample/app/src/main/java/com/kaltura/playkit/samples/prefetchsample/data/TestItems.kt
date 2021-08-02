@@ -19,6 +19,7 @@ data class ItemJSON(
     val ks: String?,
     val env: String?,
     val url: String?,
+    val startPosition: Long?,
     val licenseUrl: String?,
     val isPrefetch: Boolean = false,
     val options: OptionsJSON?,
@@ -33,13 +34,13 @@ fun ItemJSON.toItem() : Item {
 
         if (this.ott) {
             // OTT
-            OTTItem(partnerId, this.id, env!!, this.ks,  ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, isPrefetch)
+            OTTItem(partnerId, this.id, env!!, this.ks,  ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, startPosition, isPrefetch)
         } else {
             // OVP
-            OVPItem(partnerId, id, env, this.ks, options?.toPrefs(), title, isPrefetch)
+            OVPItem(partnerId, id, env, this.ks, options?.toPrefs(), title, startPosition, isPrefetch)
         }
     } else {
-        BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, isPrefetch)
+        BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, startPosition, isPrefetch)
     }
 }
 

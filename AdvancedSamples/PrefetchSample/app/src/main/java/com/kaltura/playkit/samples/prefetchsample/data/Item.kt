@@ -2,12 +2,12 @@ package com.kaltura.playkit.samples.prefetchsample
 
 import android.annotation.SuppressLint
 import android.text.TextUtils
-import android.util.Log
 import com.kaltura.playkit.PKDrmParams
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaSource
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -17,6 +17,7 @@ import java.util.*
 
 abstract class Item (val selectionPrefs: SelectionPrefs?,
                      val title: String?,
+                     val startPosition: Long?,
                      var isPrefetch: Boolean = false,
                      var position: Int = -1,
                      var drmNotRegistered: Boolean? = false, // Just to understand if the asset has failed with drm registration
@@ -71,8 +72,9 @@ class BasicItem(
     private var licenseUrl: String?,
     prefs: SelectionPrefs? = null,
     title: String? = null,
+    startPosition: Long?,
     isPrefetch: Boolean = false
-): Item(prefs, title, isPrefetch) {
+): Item(prefs, title, startPosition, isPrefetch) {
 
     val log = PKLog.get("BasicItem")
 
@@ -104,8 +106,9 @@ abstract class KalturaItem(
     val serverUrl: String,
     prefs: SelectionPrefs?,
     title: String?,
+    startPosition: Long? = null,
     isPrefetch: Boolean = false
-): Item(prefs, title, isPrefetch) {
+): Item(prefs, title, startPosition, isPrefetch) {
 
     abstract fun mediaOptions(): MediaOptions
 
@@ -119,12 +122,20 @@ class OVPItem(
     private val ks: String?,
     prefs: SelectionPrefs? = null,
     title: String? = null,
+    startPosition: Long? = null,
     isPrefetch: Boolean = false
-) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title, isPrefetch) {
+) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title, startPosition, isPrefetch) {
 
     override fun id() = assetInfo?.assetId ?: entryId
 
-    override fun mediaOptions() = OVPMediaOptions(entryId, ks)
+    override fun mediaOptions(): OVPMediaOptions  {
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = entryId
+        ovpMediaAsset.ks = ks
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
+        ovpMediaOptions.startPosition = startPosition
+        return ovpMediaOptions
+    }
 }
 
 class OTTItem(
@@ -136,8 +147,9 @@ class OTTItem(
     private val protocol: String?,
     prefs: SelectionPrefs? = null,
     title: String? = null,
+    startPosition: Long? = null,
     isPrefetch: Boolean = false
-) : KalturaItem(partnerId, serverUrl, prefs, title, isPrefetch) {
+) : KalturaItem(partnerId, serverUrl, prefs, title, startPosition, isPrefetch) {
 
     override fun id() = assetInfo?.assetId ?: ottAssetId
 
@@ -149,8 +161,9 @@ class OTTItem(
         ottMediaAsset.protocol = protocol
         ottMediaAsset.ks = ks
 
-        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
-        ottMediaOptions.startPosition = 0L
+
+        var ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+        ottMediaOptions.startPosition = startPosition
         return ottMediaOptions
     }
 }

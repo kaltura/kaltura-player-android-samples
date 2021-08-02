@@ -283,9 +283,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun doOfflinePlayback(item: Item) {
         item.assetInfo?.assetId?.let {
-            startActivity(Intent(this, PlayActivity::class.java).apply {
-                data = Uri.parse(it)
-            })
+            val intent = Intent(this, PlayActivity::class.java)
+            val bundle = Bundle()
+            bundle.putLong("startPosition", item.startPosition ?: -1)
+            intent.putExtra("assetBundle", bundle)
+            intent.data = Uri.parse(it)
+            startActivity(intent)
             return
         }
         toast("This asset is not downloaded.")
@@ -297,6 +300,7 @@ class MainActivity : AppCompatActivity() {
         val bundle = Bundle()
         bundle.putBoolean("isOnlinePlayback", true)
         bundle.putInt("position", position)
+        bundle.putLong("startPosition", item.startPosition ?: -1)
         if (item is OTTItem) {
             bundle.putInt("partnerId", item.partnerId)
         }

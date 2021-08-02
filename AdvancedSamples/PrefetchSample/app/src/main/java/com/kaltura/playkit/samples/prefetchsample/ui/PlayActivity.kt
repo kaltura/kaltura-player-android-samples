@@ -56,7 +56,8 @@ class PlayActivity : AppCompatActivity() {
 
         val bundle = intent.getBundleExtra("assetBundle")
         val isOnlinePlayback = bundle?.getBoolean("isOnlinePlayback") ?: false
-        val position = bundle?.getInt("position") ?: -1
+        val itemIndexPosition = bundle?.getInt("position") ?: -1
+        val startPosition = bundle?.getLong("startPosition") ?: -1
         val partnerId = bundle?.getInt("partnerId")
 
         if (isOnlinePlayback) {
@@ -74,15 +75,15 @@ class PlayActivity : AppCompatActivity() {
 
         if (isOnlinePlayback) {
             intent.dataString?.let {
-                playAssetOffline(it, options)
+                playAssetOffline(it, options, startPosition)
             } ?: run {
                 testItems?.let { itemList ->
-                    playAssetOnline(itemList, position, options)
+                    playAssetOnline(itemList, itemIndexPosition, options)
                 }
             }
         } else {
             intent.dataString?.let {
-                playAssetOffline(it, options)
+                playAssetOffline(it, options, startPosition)
             } ?: run {
                 Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
             }
@@ -125,11 +126,11 @@ class PlayActivity : AppCompatActivity() {
         addPlayerEventListeners()
     }
 
-    private fun playAssetOffline(assetId: String, options: PlayerInitOptions) {
+    private fun playAssetOffline(assetId: String, options: PlayerInitOptions, startPosition: Long?) {
         val manager = OfflineManager.getInstance(this, options.offlineProvider)
         player = KalturaBasicPlayer.create(this, options)
         val entry = manager.getLocalPlaybackEntry(assetId)
-        player.setMedia(entry)
+        player.setMedia(entry, startPosition)
     }
 
     private fun playAssetOnline(itemList: List<Item>, position: Int, options: PlayerInitOptions) {
@@ -181,7 +182,7 @@ class PlayActivity : AppCompatActivity() {
             is BasicItem -> {
                 item.entry?.let {
                     player = KalturaBasicPlayer.create(this, options)
-                    player.setMedia(it)
+                    player.setMedia(it, item.startPosition)
                 }
             }
             else -> {
