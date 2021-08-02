@@ -116,6 +116,7 @@ class OVPItem(
     partnerId: Int,
     private val entryId: String,
     serverUrl: String? = null,
+    private val ks: String?,
     prefs: SelectionPrefs? = null,
     title: String? = null,
     isPrefetch: Boolean = false
@@ -123,13 +124,14 @@ class OVPItem(
 
     override fun id() = assetInfo?.assetId ?: entryId
 
-    override fun mediaOptions() = OVPMediaOptions(entryId)
+    override fun mediaOptions() = OVPMediaOptions(entryId, ks)
 }
 
 class OTTItem(
     partnerId: Int,
     private val ottAssetId: String,
     serverUrl: String,
+    private val ks: String?,
     private val format: String?,
     private val protocol: String?,
     prefs: SelectionPrefs? = null,
@@ -145,6 +147,7 @@ class OTTItem(
         ottMediaAsset.assetId = ottAssetId
         ottMediaAsset.formats = listOf(format)
         ottMediaAsset.protocol = protocol
+        ottMediaAsset.ks = ks
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = 0L

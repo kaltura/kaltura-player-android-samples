@@ -33,10 +33,10 @@ fun ItemJSON.toItem() : Item {
 
         if (this.ott) {
             // OTT
-            OTTItem(partnerId, this.id, env!!, ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, isPrefetch)
+            OTTItem(partnerId, this.id, env!!, this.ks,  ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, isPrefetch)
         } else {
             // OVP
-            OVPItem(partnerId, id, env, options?.toPrefs(), title, isPrefetch)
+            OVPItem(partnerId, id, env, this.ks, options?.toPrefs(), title, isPrefetch)
         }
     } else {
         BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, isPrefetch)
