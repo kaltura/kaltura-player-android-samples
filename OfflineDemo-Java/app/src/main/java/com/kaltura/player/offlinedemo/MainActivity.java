@@ -66,17 +66,36 @@ public class MainActivity extends AppCompatActivity {
         }
 
         manager = OfflineManager.getInstance(this);
-        manager.setOfflineManagerSettings(new OfflineManagerSettings().setDefaultHlsAudioBitrateEstimation(64000));
+        manager.setOfflineManagerSettings(new OfflineManagerSettings().setHlsAudioBitrateEstimation(OfflineManagerSettings.DEFAULT_HLS_AUDIO_BITRATE_ESTIMATION));
 
         manager.setAssetStateListener(new OfflineManager.AssetStateListener() {
+
             @Override
-            public void onAssetDownloadFailed(@NonNull String assetId, @NonNull Exception error) {
+            public void onStateChanged(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull OfflineManager.AssetInfo assetInfo) {
+                toast("onStateChanged");
+                updateItemStatus(assetId);
+            }
+
+            @Override
+            public void onAssetRemoved(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
+                toast("onAssetRemoved");
+                updateItemStatus(assetId);
+            }
+
+            @Override
+            public void onAssetRemoveError(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
+                toast("onAssetRemoveError");
+                updateItemStatus(assetId);
+            }
+
+            @Override
+            public void onAssetDownloadFailed(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
                 toastLong("Download of" + error + "failed:" + error);
                 updateItemStatus(assetId);
             }
 
             @Override
-            public void onAssetDownloadComplete(@NonNull String assetId) {
+            public void onAssetDownloadComplete(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
                 log.d("onAssetDownloadComplete");
                 log.d("onAssetDownloadComplete:" + (SystemClock.elapsedRealtimeNanos() - startTime));
                 toast("Complete");
@@ -84,12 +103,24 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAssetDownloadPending(@NonNull String assetId) {
+            public void onAssetPrefetchComplete(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
+                log.d("onAssetPrefetchComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}");
+
+                if (downloadType == OfflineManager.DownloadType.FULL) {
+                    toast("Complete");
+                } else {
+                    toast("Prefetched id =  $assetId");
+                }
                 updateItemStatus(assetId);
             }
 
             @Override
-            public void onAssetDownloadPaused(@NonNull String assetId) {
+            public void onAssetDownloadPending(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
+                updateItemStatus(assetId);
+            }
+
+            @Override
+            public void onAssetDownloadPaused(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
                 toast("Paused");
                 updateItemStatus(assetId);
             }
@@ -101,20 +132,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onRegisterError(@NonNull String assetId, @NonNull Exception error) {
+            public void onRegisterError(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
                 toastLong("onRegisterError:" + assetId + " " + error);
-                updateItemStatus(assetId);
-            }
-
-            @Override
-            public void onStateChanged(@NonNull String assetId, @NonNull OfflineManager.AssetInfo assetInfo) {
-                toast("onStateChanged");
-                updateItemStatus(assetId);
-            }
-
-            @Override
-            public void onAssetRemoved(@NonNull String assetId) {
-                toast("onAssetRemoved");
                 updateItemStatus(assetId);
             }
         });

@@ -23,6 +23,14 @@
             android:orientation="horizontal">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_video_track"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:tag="play"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_audiotrack_white_24dp" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_audio_track"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

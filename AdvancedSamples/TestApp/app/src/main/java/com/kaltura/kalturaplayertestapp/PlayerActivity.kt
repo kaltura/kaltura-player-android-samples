@@ -208,7 +208,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             player?.playlistController?.playNext()
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
                     ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
-
+            
             val playerDuration =  player?.duration ?: 0
             player?.playlistController?.isAutoContinueEnabled?.let {
                 if (!it || playerDuration <= 0) {

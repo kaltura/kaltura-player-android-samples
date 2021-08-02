@@ -16,6 +16,8 @@ data class ItemJSON(
     val ks: String?,
     val env: String?,
     val url: String?,
+    val licenseUrl: String?,
+    val isPrefetch: Boolean = false,
     val options: OptionsJSON?,
     val expected: ExpectedValues?,
     val ott: Boolean = false,
@@ -29,13 +31,13 @@ fun ItemJSON.toItem() : Item {
 
         if (this.ott) {
             // OTT
-            OTTItem(partnerId, this.id, env!!, ottParams?.format, ottParams?.protocol, options?.toPrefs(), title)
+            OTTItem(partnerId, this.id, env!!, ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, isPrefetch)
         } else {
             // OVP
-            OVPItem(partnerId, id, env, options?.toPrefs(), title)
+            OVPItem(partnerId, id, env, options?.toPrefs(), title, isPrefetch)
         }
     } else {
-        BasicItem(id, url!!, options?.toPrefs(), title)
+        BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, isPrefetch)
     }
 }
 
@@ -55,6 +57,7 @@ data class OptionsJSON(
     val audioCodecs: List<String>?,
     val videoWidth: Int?,
     val videoHeight: Int?,
+    val videoBitrate: Int?,
     val videoBitrates: Map<String, Int>?,
     val allowInefficientCodecs: Boolean?
 )
@@ -65,6 +68,7 @@ fun OptionsJSON.toPrefs() : SelectionPrefs {
     opts.audioLanguages = audioLangs
     opts.allTextLanguages = allTextLangs ?: false
     opts.textLanguages = textLangs
+    opts.videoBitrate = videoBitrate
     opts.allowInefficientCodecs = allowInefficientCodecs ?: false
 
     audioCodecs?.let {
