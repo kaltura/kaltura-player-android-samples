@@ -57,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginBottom="@dimen/margin_10dp"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <include layout="@layout/layout_provider_chooser" />
 

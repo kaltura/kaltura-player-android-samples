@@ -1,6 +1,8 @@
 package com.kaltura.playkit.samples.prefetchsample
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
@@ -34,14 +36,17 @@ import kotlinx.android.synthetic.main.view_item.*
 import kotlinx.android.synthetic.main.view_prefetch_config.*
 import java.util.*
 
-
 class MainActivity : AppCompatActivity() {
 
     val log = PKLog.get("MainActivity")
 
     private lateinit var rvOfflineAssetsAdapter: RvOfflineAssetsAdapter
-    private var offlineManager: OfflineManager? = null
     private val itemMap = mutableMapOf<String, Item>()
+    private var offlineManager: OfflineManager? = null
+    private lateinit var offlineSharePref: SharedPreferences
+    private val KEY_PROVIDER: String = "KEY_OFFLINE_PROVIDER"
+    private val dtgOfflineProvider: Int = 1
+    private val exoOfflineProvider: Int = 2
 
     private var prefetchSettingMaxItemCountInCache: Int = 20
     private var prefetchSettingAssetPrefetchSize: Int = 2 // IN MB
@@ -52,6 +57,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        offlineSharePref = getPreferences(Context.MODE_PRIVATE)
 
         val testItems = loadItemsFromJson(this).map { it.toItem() }
         testItems.filter { it != NULL }.forEach {
@@ -89,6 +96,19 @@ class MainActivity : AppCompatActivity() {
         rvAssetList.setHasFixedSize(true)
         rvAssetList.itemAnimator = null
 
+        val provider = getOfflineProvider(KEY_PROVIDER)
+        if (provider > 0) {
+            provider_frame.visibility = View.GONE
+            offlineManager = if (provider == exoOfflineProvider) {
+                OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
+            } else {
+                OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
+            }
+            setupManager(offlineManager)
+        } else {
+            provider_frame.visibility = View.VISIBLE
+        }
+
         cb_is_exo_enable.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 offlineProvider =  OfflineManager.OfflineProvider.EXO
@@ -96,6 +116,7 @@ class MainActivity : AppCompatActivity() {
                         this,
                         offlineProvider
                 )
+                saveOfflineProvider(exoOfflineProvider)
             }
 
             // Show the custom notification
@@ -113,17 +134,18 @@ class MainActivity : AppCompatActivity() {
                         this,
                         offlineProvider
                 )
+                saveOfflineProvider(dtgOfflineProvider)
             }
             hideProviderFrame()
             setupManager(offlineManager)
         }
     }
 
-    private fun setupManager(offlineManager: OfflineManager?) {
-        this.offlineManager = offlineManager
+    private fun setupManager(manager: OfflineManager?) {
+        offlineManager = manager
 
         runOnUiThread {
-            if (this.offlineManager is ExoOfflineManager) {
+            if (offlineManager is ExoOfflineManager) {
                 rvOfflineAssetsAdapter.isOfflineProviderExo(true)
                 rvOfflineAssetsAdapter.notifyDataSetChanged()
             }
@@ -140,11 +162,11 @@ class MainActivity : AppCompatActivity() {
 
         //   offlineSettings.downloadRequestAdapter = DownloadRequestAdapter()
 
-        this.offlineManager?.setOfflineManagerSettings(offlineSettings)
+        offlineManager?.setOfflineManagerSettings(offlineSettings)
 
-        addAssetStateListener(this.offlineManager)
+        addAssetStateListener(offlineManager)
 
-        this.offlineManager?.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
+        offlineManager?.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
             log.d("[progress] $assetId: ${bytesDownloaded / 1000} / ${totalBytesEstimated / 1000}")
             val item = itemMap[assetId] ?: return@setDownloadProgressListener
             item.bytesDownloaded = bytesDownloaded
@@ -160,16 +182,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        this.offlineManager?.start {
+        offlineManager?.start {
             log.d("manager started")
             itemMap.values.forEach {
-                it.assetInfo = this.offlineManager?.getAssetInfo(it.id())
+                it.assetInfo = offlineManager?.getAssetInfo(it.id())
                 if (it.position == -1) {
                     it.position = rvOfflineAssetsAdapter.getPositionOfItem(it.id())
                 }
                 updateRecyclerViewAdapter(it.position)
             }
         }
+    }
+
+    private fun saveOfflineProvider(value: Int) {
+        saveToPref(KEY_PROVIDER, value)
     }
 
     private fun updateRecyclerViewAdapter(position: Int) {
@@ -237,6 +263,11 @@ class MainActivity : AppCompatActivity() {
 
         val drmStatus = offlineManager?.getDrmStatus(item.id())
 
+        if (drmStatus?.status == OfflineManager.DrmStatus.Status.unknown) {
+            toastLong("To check the status is invalid for this asset")
+            return
+        }
+
         if (drmStatus?.isClear == true) {
             toastLong("Clear")
             return
@@ -258,7 +289,7 @@ class MainActivity : AppCompatActivity() {
                                 downloadType: OfflineManager.DownloadType,
                                 mediaEntry: PKMediaEntry
                         ) {
-                            // reduceLicenseDuration(mediaEntry, 300)
+                            //   reduceLicenseDuration(mediaEntry, 300)
                         }
 
                         override fun onMediaEntryLoadError(
@@ -350,9 +381,13 @@ class MainActivity : AppCompatActivity() {
 
         val assetInfo = offlineManager?.getAssetInfo(item.id())
         if (assetInfo?.state == OfflineManager.AssetDownloadState.completed) {
-            hideProgressBar()
-            toast("Asset already downloaded")
-            return
+            offlineManager?.getDrmStatus(item.id())?.let {
+                if (it.isValid || it.status == OfflineManager.DrmStatus.Status.unknown){
+                    hideProgressBar()
+                    toast("Asset already downloaded")
+                    return
+                }
+            }
         }
 
         if (item is OTTItem) {
@@ -468,9 +503,13 @@ class MainActivity : AppCompatActivity() {
         })
 
         if (prefetchManager?.isPrefetched(item.id()) == true) {
-            hideProgressBar()
-            toast("Asset already prefetched")
-            return
+            offlineManager?.getDrmStatus(item.id())?.let {
+                if (it.isValid || it.status == OfflineManager.DrmStatus.Status.unknown) {
+                    hideProgressBar()
+                    toast("Asset already prefetched")
+                    return
+                }
+            }
         }
 
         if (item is KalturaItem) {
@@ -707,6 +746,17 @@ class MainActivity : AppCompatActivity() {
         })
         anim.duration = 500
         provider_frame.startAnimation(anim)
+    }
+
+    private fun saveToPref(key: String, value: Int) {
+        with (offlineSharePref.edit()) {
+            putInt(key, value)
+            apply()
+        }
+    }
+
+    private fun getOfflineProvider(key: String): Int {
+        return offlineSharePref.getInt(key, 0)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
