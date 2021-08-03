@@ -107,12 +107,79 @@
             "title": "DRM: Prod 1",
             "id": "1_f93tepsn",
             "partnerId": 2222401,
-            "startPosition": 10,
             "env": "http://cdnapisec.kaltura.com",
             "options": {
                 "allAudioLangs": true,
                 "allTextLangs": true
-            }
+            },
+            "plugins": [
+                {
+                    "pluginName": "ima",
+                    "params": {
+                        "adTagUrl": "\"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=",
+                        "adsRenderingSettings": {
+                            "bitrate": -1,
+                            "loadVideoTimeout": 8,
+                            "mimeTypes": [
+                                "video/mp4",
+                                "application/x-mpegURL"
+                            ],
+                            "uiElements": {
+                                "adAttribution": true,
+                                "adCountDown": true
+                            }
+                        },
+                        "sdkSettings": {
+                            "numRedirects": 4,
+                            "autoPlayAdBreaks": true,
+                            "debugMode": false,
+                            "enableBackgroundPlayback": false,
+                            "language": "en"
+                        }
+                    }
+                },
+                {
+                    "pluginName": "youbora",
+                    "params": {
+                        "options": {
+                            "accountCode": "kalturatest",
+                            "username": "TEST_DASH",
+                            "haltOnError": true,
+                            "enableAnalytics": true,
+                            "enableSmartAds": true,
+                            "media": {
+                                "isLive": false,
+                                "title": "media99"
+                            },
+                            "ads": {
+                                "title": "",
+                                "campaign": ""
+                            },
+                            "properties": {
+                                "genre": "action",
+                                "type": "video",
+                                "transaction_type": "",
+                                "year": 2000,
+                                "cast": "joe joe",
+                                "director": "henry",
+                                "owner": "",
+                                "parental": "",
+                                "price": "",
+                                "rating": "",
+                                "audioType": "",
+                                "audioChannels": "",
+                                "device": "",
+                                "quality": ""
+                            },
+                            "extraParams": {
+                                "param1": "",
+                                "param2": "",
+                                "param3": ""
+                            }
+                        }
+                    }
+                }
+            ]
         },
         {
             "title": "DRM: QA 1",

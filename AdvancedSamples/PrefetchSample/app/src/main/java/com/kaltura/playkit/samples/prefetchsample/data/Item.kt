@@ -2,6 +2,7 @@ package com.kaltura.playkit.samples.prefetchsample
 
 import android.annotation.SuppressLint
 import android.text.TextUtils
+import com.google.gson.JsonArray
 import com.kaltura.playkit.PKDrmParams
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKMediaEntry
@@ -19,6 +20,7 @@ abstract class Item (val selectionPrefs: SelectionPrefs?,
                      val title: String?,
                      val startPosition: Long?,
                      var isPrefetch: Boolean = false,
+                     var plugins: JsonArray?,
                      var position: Int = -1,
                      var drmNotRegistered: Boolean? = false, // Just to understand if the asset has failed with drm registration
                      var isOfflineProviderExo: Boolean = false) {
@@ -61,7 +63,7 @@ abstract class Item (val selectionPrefs: SelectionPrefs?,
 fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
 
 @SuppressLint("ParcelCreator")
-object NULL : KalturaItem(0, "", null, null) {
+object NULL : KalturaItem(0, "", null, null, null, false, null) {
     override fun id(): String = TODO()
     override fun mediaOptions(): MediaOptions = TODO()
 }
@@ -73,8 +75,9 @@ class BasicItem(
     prefs: SelectionPrefs? = null,
     title: String? = null,
     startPosition: Long?,
-    isPrefetch: Boolean = false
-): Item(prefs, title, startPosition, isPrefetch) {
+    isPrefetch: Boolean = false,
+    plugins: JsonArray?,
+): Item(prefs, title, startPosition, isPrefetch, plugins) {
 
     val log = PKLog.get("BasicItem")
 
@@ -107,8 +110,9 @@ abstract class KalturaItem(
     prefs: SelectionPrefs?,
     title: String?,
     startPosition: Long? = null,
-    isPrefetch: Boolean = false
-): Item(prefs, title, startPosition, isPrefetch) {
+    isPrefetch: Boolean = false,
+    plugins: JsonArray?
+): Item(prefs, title, startPosition, isPrefetch, plugins) {
 
     abstract fun mediaOptions(): MediaOptions
 
@@ -123,8 +127,9 @@ class OVPItem(
     prefs: SelectionPrefs? = null,
     title: String? = null,
     startPosition: Long? = null,
-    isPrefetch: Boolean = false
-) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title, startPosition, isPrefetch) {
+    isPrefetch: Boolean = false,
+    plugins: JsonArray?
+) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title, startPosition, isPrefetch, plugins) {
 
     override fun id() = assetInfo?.assetId ?: entryId
 
@@ -148,8 +153,9 @@ class OTTItem(
     prefs: SelectionPrefs? = null,
     title: String? = null,
     startPosition: Long? = null,
-    isPrefetch: Boolean = false
-) : KalturaItem(partnerId, serverUrl, prefs, title, startPosition, isPrefetch) {
+    isPrefetch: Boolean = false,
+    plugins: JsonArray?
+) : KalturaItem(partnerId, serverUrl, prefs, title, startPosition, isPrefetch, plugins) {
 
     override fun id() = assetInfo?.assetId ?: ottAssetId
 

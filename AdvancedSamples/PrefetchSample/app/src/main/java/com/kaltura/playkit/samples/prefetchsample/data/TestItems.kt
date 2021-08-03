@@ -2,6 +2,7 @@ package com.kaltura.playkit.samples.prefetchsample
 
 import android.content.Context
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.kaltura.playkit.Utils
 import com.kaltura.playkit.samples.prefetchsample.data.AppConfig
 import com.kaltura.tvplayer.OfflineManager
@@ -25,7 +26,8 @@ data class ItemJSON(
     val isPrefetch: Boolean = false,
     val options: OptionsJSON?,
     val ott: Boolean = false,
-    val ottParams: ItemOTTParamsJSON?
+    val ottParams: ItemOTTParamsJSON?,
+    var plugins: JsonArray?
 )
 
 fun ItemJSON.toItem() : Item {
@@ -35,13 +37,13 @@ fun ItemJSON.toItem() : Item {
 
         if (this.ott) {
             // OTT
-            OTTItem(partnerId, this.id, env!!, this.ks,  ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, startPosition, isPrefetch)
+            OTTItem(partnerId, this.id, env!!, this.ks,  ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
         } else {
             // OVP
-            OVPItem(partnerId, id, env, this.ks, options?.toPrefs(), title, startPosition, isPrefetch)
+            OVPItem(partnerId, id, env, this.ks, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
         }
     } else {
-        BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, startPosition, isPrefetch)
+        BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
     }
 }
 

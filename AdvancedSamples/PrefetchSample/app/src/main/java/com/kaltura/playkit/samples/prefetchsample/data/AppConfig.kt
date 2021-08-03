@@ -1,6 +1,5 @@
 package com.kaltura.playkit.samples.prefetchsample.data
 
-import com.kaltura.playkit.PKMediaFormat
 import com.kaltura.playkit.samples.prefetchsample.ItemJSON
 
 data class AppConfig(

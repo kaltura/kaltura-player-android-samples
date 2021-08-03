@@ -12,19 +12,33 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.kaltura.dtg.DownloadItem
 import com.kaltura.playkit.PKLog
+import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PlayerEvent.*
 import com.kaltura.playkit.Utils
 import com.kaltura.playkit.player.AudioTrack
 import com.kaltura.playkit.player.PKTracks
 import com.kaltura.playkit.player.TextTrack
 import com.kaltura.playkit.player.VideoTrack
+import com.kaltura.playkit.plugins.ima.IMAPlugin
+import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
+import com.kaltura.playkit.plugins.kava.KavaAnalyticsPlugin
+import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsConfig
+import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin
+import com.kaltura.playkit.plugins.youbora.YouboraPlugin
+import com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig
 import com.kaltura.playkit.samples.prefetchsample.*
 import com.kaltura.playkit.samples.prefetchsample.R
 import com.kaltura.playkit.samples.prefetchsample.data.AppConfig
+import com.kaltura.playkit.samples.prefetchsample.data.PluginDescriptor
+import com.kaltura.playkit.samples.prefetchsample.data.UiConfFormatIMAConfig
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
+import com.npaw.youbora.lib6.plugin.Options
 import kotlinx.android.synthetic.main.activity_play.*
 import kotlinx.android.synthetic.main.content_play.*
 
@@ -76,7 +90,8 @@ class PlayActivity : AppCompatActivity() {
 
         if (isOnlinePlayback) {
             intent.dataString?.let {
-                playAssetOffline(it, options, startPosition)
+                var testItem = testItems?.get(itemIndexPosition)
+                playAssetOffline(isOnlinePlayback, it, options, startPosition, testItem)
             } ?: run {
                 testItems?.let { itemList ->
                     playAssetOnline(itemList, itemIndexPosition, options)
@@ -84,7 +99,7 @@ class PlayActivity : AppCompatActivity() {
             }
         } else {
             intent.dataString?.let {
-                playAssetOffline(it, options, startPosition)
+                playAssetOffline(isOnlinePlayback, it, options, startPosition, null)
             } ?: run {
                 Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
             }
@@ -127,8 +142,206 @@ class PlayActivity : AppCompatActivity() {
         addPlayerEventListeners()
     }
 
-    private fun playAssetOffline(assetId: String, options: PlayerInitOptions, startPosition: Long?) {
+    private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray?, setPlugin: Boolean): PKPluginConfigs {
+        val pkPluginConfigs = PKPluginConfigs()
+        val pluginDescriptors = Gson().fromJson(pluginConfigs, Array<PluginDescriptor>::class.java)
+        val errorMessage = "plugin list size is less than the requested played media index."
+
+        if (pluginDescriptors != null) {
+            for (pluginDescriptor in pluginDescriptors) {
+                val pluginName = pluginDescriptor.pluginName
+                if (YouboraPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
+                    if (pluginDescriptor.params != null) {
+                        var youboraPluginConfig: YouboraConfig? = null
+                        var youboraPluginBundle: Bundle? = null
+                        val isBundle = pluginDescriptor.isBundle
+                        when (pluginDescriptor.params) {
+                            is JsonObject -> {
+                                youboraPluginConfig = Gson().fromJson((pluginDescriptor.params as JsonObject).get("options"), YouboraConfig::class.java)
+                                youboraPluginConfig?.let {
+                                    if (isBundle == true) {
+                                        youboraPluginBundle = getYouboraBundle(it)
+                                    }
+                                }
+                            }
+
+                            is JsonArray -> {
+                                var config: JsonElement? = null
+                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
+                                pluginValue?.let {
+                                    if (pluginValue.size() > 0) {
+                                        config = (pluginDescriptor.params as JsonArray).get(0).asJsonObject.get("config").asJsonObject.get("options")
+                                    } else {
+                                        config = null
+                                        log.e("$pluginName  $errorMessage")
+                                    }
+                                }
+
+                                config?.let {
+                                    youboraPluginConfig = Gson().fromJson(config, YouboraConfig::class.java)
+                                }
+
+                                youboraPluginConfig?.let {
+                                    if (isBundle == true) {
+                                        youboraPluginBundle = getYouboraBundle(it)
+                                    }
+                                }
+                            }
+                        }
+                        youboraPluginConfig?.let {
+                            if (setPlugin) {
+                                pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, if (isBundle == true) youboraPluginBundle else it.toJson())
+                            } else {
+                                player?.updatePluginConfig(YouboraPlugin.factory.name, if (isBundle == true) youboraPluginBundle else it.toJson())
+                            }
+                        }
+                    }
+                } else if (KavaAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
+                    val kavaPluginConfig = Gson().fromJson(pluginDescriptor.params as JsonObject, KavaAnalyticsConfig::class.java)
+                    pkPluginConfigs.setPluginConfig(KavaAnalyticsPlugin.factory.name, kavaPluginConfig.toJson())
+                } else if (IMAPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
+                    if (pluginDescriptor.params != null) {
+                        var imaPluginConfig: UiConfFormatIMAConfig? = null
+                        when (pluginDescriptor.params) {
+                            is JsonObject -> {
+                                imaPluginConfig = Gson().fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMAConfig::class.java)
+                            }
+
+                            is JsonArray -> {
+                                var config: JsonElement? = null
+                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
+                                pluginValue?.let {
+                                    if (pluginValue.size() > 0) {
+                                        config = (pluginDescriptor.params as JsonArray).get(0).asJsonObject.get("config")
+                                    } else {
+                                        config = null
+                                        log.e("$pluginName  $errorMessage")
+                                    }
+                                }
+
+                                config?.let {
+                                    imaPluginConfig = Gson().fromJson(config, UiConfFormatIMAConfig::class.java)
+                                }
+                            }
+                        }
+
+                        imaPluginConfig?.let {
+                            if (setPlugin) {
+                                pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, it.toJson())
+                            } else {
+                                player?.updatePluginConfig(IMAPlugin.factory.name, it.toJson())
+                            }
+                        }
+                    }
+                } else if (PhoenixAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
+                    if (pluginDescriptor.params != null) {
+                        var phoenixAnalyticsConfig: PhoenixAnalyticsConfig? = null
+                        when (pluginDescriptor.params) {
+                            is JsonObject -> {
+                                phoenixAnalyticsConfig = Gson().fromJson(pluginDescriptor.params as JsonObject, PhoenixAnalyticsConfig::class.java)
+                            }
+
+                            is JsonArray -> {
+                                var config: JsonElement? = null
+                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
+                                pluginValue?.let {
+                                    if (pluginValue.size() > 0) {
+                                        config = (pluginDescriptor.params as JsonArray).get(0)
+                                    } else {
+                                        config = null
+                                        log.e("$pluginName  $errorMessage")
+                                    }
+                                }
+
+                                config?.let {
+                                    phoenixAnalyticsConfig = Gson().fromJson(config, PhoenixAnalyticsConfig::class.java)
+                                }
+                            }
+                        }
+                        phoenixAnalyticsConfig?.let {
+                            if (setPlugin) {
+                                pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, it.toJson())
+                            } else {
+                                player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, it.toJson())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return pkPluginConfigs
+    }
+
+    private fun getYouboraBundle(youboraPluginConfig: YouboraConfig): Bundle {
+
+        val optBundle = Bundle()
+
+        //Youbora config bundle. Main config goes here.
+        optBundle.putString(Options.KEY_ACCOUNT_CODE, youboraPluginConfig.accountCode)
+        optBundle.putString(Options.KEY_USERNAME, youboraPluginConfig.username)
+        optBundle.putBoolean(Options.KEY_ENABLED, true)
+        optBundle.putString(Options.KEY_APP_NAME, "TestApp");
+        optBundle.putString(Options.KEY_APP_RELEASE_VERSION, "v1.0");
+
+        //Media entry bundle.
+        optBundle.putString(Options.KEY_CONTENT_TITLE, youboraPluginConfig.content?.contentTitle)
+
+        //Optional - Device bundle o/w youbora will decide by its own.
+        optBundle.putString(Options.KEY_DEVICE_CODE, youboraPluginConfig.device?.deviceCode)
+        optBundle.putString(Options.KEY_DEVICE_BRAND, youboraPluginConfig.device?.deviceBrand)
+        optBundle.putString(Options.KEY_DEVICE_MODEL, youboraPluginConfig.device?.deviceModel)
+        optBundle.putString(Options.KEY_DEVICE_TYPE, youboraPluginConfig.device?.deviceType)
+        optBundle.putString(Options.KEY_DEVICE_OS_NAME, youboraPluginConfig.device?.deviceOsName)
+        optBundle.putString(Options.KEY_DEVICE_OS_VERSION, youboraPluginConfig.device?.deviceOsVersion)
+
+        //Youbora ads configuration bundle.
+        optBundle.putString(Options.KEY_AD_CAMPAIGN, youboraPluginConfig.ads?.adCampaign)
+
+        //Configure custom properties here:
+        optBundle.putString(Options.KEY_CONTENT_GENRE, youboraPluginConfig.properties?.genre)
+        optBundle.putString(Options.KEY_CONTENT_TYPE, youboraPluginConfig.properties?.type)
+        optBundle.putString(Options.KEY_CONTENT_TRANSACTION_CODE, youboraPluginConfig.properties?.transactionType)
+        optBundle.putString(Options.KEY_CONTENT_CDN, youboraPluginConfig.properties?.contentCdnCode)
+
+        optBundle.putString(Options.KEY_CONTENT_PRICE, youboraPluginConfig.properties?.price)
+        optBundle.putString(Options.KEY_CONTENT_ENCODING_AUDIO_CODEC, youboraPluginConfig.properties?.audioType)
+        optBundle.putString(Options.KEY_CONTENT_CHANNEL, youboraPluginConfig.properties?.audioChannels)
+
+        val contentMetadataBundle = Bundle()
+
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_YEAR, youboraPluginConfig.properties?.year)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_CAST, youboraPluginConfig.properties?.cast)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_DIRECTOR, youboraPluginConfig.properties?.director)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_OWNER, youboraPluginConfig.properties?.owner)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_PARENTAL, youboraPluginConfig.properties?.parental)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_RATING, youboraPluginConfig.properties?.rating)
+        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_QUALITY, youboraPluginConfig.properties?.quality)
+
+        optBundle.putBundle(Options.KEY_CONTENT_METADATA, contentMetadataBundle)
+
+        //You can add some extra params here:
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, youboraPluginConfig.contentCustomDimensions?.contentCustomDimension1)
+        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, youboraPluginConfig.contentCustomDimensions?.contentCustomDimension2)
+
+        return optBundle
+    }
+
+    private fun addPlugins(item: Item?, playerInitOptions: PlayerInitOptions) {
+        if (item == null) {
+            return
+        }
+        val appPluginConfigJsonArray = item.plugins
+        if (item.plugins != null) {
+            val pkPluginConfigs = convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonArray, true)
+            playerInitOptions.setPluginConfigs(pkPluginConfigs)
+        }
+    }
+
+    private fun playAssetOffline(isOnlinePlayback: Boolean, assetId: String, options: PlayerInitOptions, startPosition: Long?, item: Item?) {
         val manager = OfflineManager.getInstance(this, options.offlineProvider)
+        if (isOnlinePlayback) {
+            addPlugins(item, options)
+        }
         player = KalturaBasicPlayer.create(this, options)
         val entry = manager.getLocalPlaybackEntry(assetId)
         player.setMedia(entry, startPosition)
@@ -146,7 +359,7 @@ class PlayActivity : AppCompatActivity() {
                     phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
                     options.tvPlayerParams = phoenixTVPlayerParams
                 }
-
+                addPlugins(item, options)
                 player = KalturaOttPlayer.create(this, options)
                 player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
@@ -164,6 +377,7 @@ class PlayActivity : AppCompatActivity() {
                 }
             }
             is OVPItem -> {
+                addPlugins(item, options)
                 player = KalturaOvpPlayer.create(this, options)
                 player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
@@ -182,6 +396,7 @@ class PlayActivity : AppCompatActivity() {
             }
             is BasicItem -> {
                 item.entry?.let {
+                    addPlugins(item, options)
                     player = KalturaBasicPlayer.create(this, options)
                     player.setMedia(it, item.startPosition)
                 }
