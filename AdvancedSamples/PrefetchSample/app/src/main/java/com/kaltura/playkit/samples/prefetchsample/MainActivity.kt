@@ -103,9 +103,11 @@ class MainActivity : AppCompatActivity() {
         if (provider > 0) {
             provider_frame.visibility = View.GONE
             offlineManager = if (provider == exoOfflineProvider) {
-                OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
+                offlineProvider = OfflineManager.OfflineProvider.EXO
+                OfflineManager.getInstance(this, offlineProvider)
             } else {
-                OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
+                offlineProvider = OfflineManager.OfflineProvider.DTG
+                OfflineManager.getInstance(this, offlineProvider)
             }
             setupManager(offlineManager, appConfig.offlineConfig)
         } else {
