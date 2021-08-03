@@ -2,7 +2,9 @@ package com.kaltura.playkit.samples.prefetchsample
 
 import android.content.Context
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.kaltura.playkit.Utils
+import com.kaltura.playkit.samples.prefetchsample.data.AppConfig
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
 
@@ -19,11 +21,13 @@ data class ItemJSON(
     val ks: String?,
     val env: String?,
     val url: String?,
+    val startPosition: Long?,
     val licenseUrl: String?,
     val isPrefetch: Boolean = false,
     val options: OptionsJSON?,
     val ott: Boolean = false,
-    val ottParams: ItemOTTParamsJSON?
+    val ottParams: ItemOTTParamsJSON?,
+    var plugins: JsonArray?
 )
 
 fun ItemJSON.toItem() : Item {
@@ -33,13 +37,13 @@ fun ItemJSON.toItem() : Item {
 
         if (this.ott) {
             // OTT
-            OTTItem(partnerId, this.id, env!!, this.ks,  ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, isPrefetch)
+            OTTItem(partnerId, this.id, env!!, this.ks,  ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
         } else {
             // OVP
-            OVPItem(partnerId, id, env, this.ks, options?.toPrefs(), title, isPrefetch)
+            OVPItem(partnerId, id, env, this.ks, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
         }
     } else {
-        BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, isPrefetch)
+        BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
     }
 }
 
@@ -107,7 +111,7 @@ private fun tagToCodec(tag: String): OfflineManager.TrackCodec? {
     }
 }
 
-fun loadItemsFromJson(context: Context): Array<ItemJSON> {
-    val itemsJson = Utils.readAssetToString(context, "items.json")
-    return Gson().fromJson(itemsJson, Array<ItemJSON>::class.java)
+fun loadItemsFromJson(context: Context): AppConfig {
+    val itemsJson = Utils.readAssetToString(context, "appConfig.json")
+    return Gson().fromJson(itemsJson, AppConfig::class.java)
 }

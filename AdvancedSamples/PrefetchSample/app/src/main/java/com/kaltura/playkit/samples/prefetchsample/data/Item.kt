@@ -2,12 +2,13 @@ package com.kaltura.playkit.samples.prefetchsample
 
 import android.annotation.SuppressLint
 import android.text.TextUtils
-import android.util.Log
+import com.google.gson.JsonArray
 import com.kaltura.playkit.PKDrmParams
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaSource
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.OVPMediaOptions
@@ -17,7 +18,9 @@ import java.util.*
 
 abstract class Item (val selectionPrefs: SelectionPrefs?,
                      val title: String?,
+                     val startPosition: Long?,
                      var isPrefetch: Boolean = false,
+                     var plugins: JsonArray?,
                      var position: Int = -1,
                      var drmNotRegistered: Boolean? = false, // Just to understand if the asset has failed with drm registration
                      var isOfflineProviderExo: Boolean = false) {
@@ -60,7 +63,7 @@ abstract class Item (val selectionPrefs: SelectionPrefs?,
 fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
 
 @SuppressLint("ParcelCreator")
-object NULL : KalturaItem(0, "", null, null) {
+object NULL : KalturaItem(0, "", null, null, null, false, null) {
     override fun id(): String = TODO()
     override fun mediaOptions(): MediaOptions = TODO()
 }
@@ -71,8 +74,10 @@ class BasicItem(
     private var licenseUrl: String?,
     prefs: SelectionPrefs? = null,
     title: String? = null,
-    isPrefetch: Boolean = false
-): Item(prefs, title, isPrefetch) {
+    startPosition: Long?,
+    isPrefetch: Boolean = false,
+    plugins: JsonArray?,
+): Item(prefs, title, startPosition, isPrefetch, plugins) {
 
     val log = PKLog.get("BasicItem")
 
@@ -104,8 +109,10 @@ abstract class KalturaItem(
     val serverUrl: String,
     prefs: SelectionPrefs?,
     title: String?,
-    isPrefetch: Boolean = false
-): Item(prefs, title, isPrefetch) {
+    startPosition: Long? = null,
+    isPrefetch: Boolean = false,
+    plugins: JsonArray?
+): Item(prefs, title, startPosition, isPrefetch, plugins) {
 
     abstract fun mediaOptions(): MediaOptions
 
@@ -119,12 +126,21 @@ class OVPItem(
     private val ks: String?,
     prefs: SelectionPrefs? = null,
     title: String? = null,
-    isPrefetch: Boolean = false
-) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title, isPrefetch) {
+    startPosition: Long? = null,
+    isPrefetch: Boolean = false,
+    plugins: JsonArray?
+) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title, startPosition, isPrefetch, plugins) {
 
     override fun id() = assetInfo?.assetId ?: entryId
 
-    override fun mediaOptions() = OVPMediaOptions(entryId, ks)
+    override fun mediaOptions(): OVPMediaOptions  {
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = entryId
+        ovpMediaAsset.ks = ks
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
+        ovpMediaOptions.startPosition = startPosition
+        return ovpMediaOptions
+    }
 }
 
 class OTTItem(
@@ -136,8 +152,10 @@ class OTTItem(
     private val protocol: String?,
     prefs: SelectionPrefs? = null,
     title: String? = null,
-    isPrefetch: Boolean = false
-) : KalturaItem(partnerId, serverUrl, prefs, title, isPrefetch) {
+    startPosition: Long? = null,
+    isPrefetch: Boolean = false,
+    plugins: JsonArray?
+) : KalturaItem(partnerId, serverUrl, prefs, title, startPosition, isPrefetch, plugins) {
 
     override fun id() = assetInfo?.assetId ?: ottAssetId
 
@@ -149,8 +167,9 @@ class OTTItem(
         ottMediaAsset.protocol = protocol
         ottMediaAsset.ks = ks
 
-        val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
-        ottMediaOptions.startPosition = 0L
+
+        var ottMediaOptions = OTTMediaOptions(ottMediaAsset)
+        ottMediaOptions.startPosition = startPosition
         return ottMediaOptions
     }
 }

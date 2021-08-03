@@ -58,9 +58,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+<<<<<<< HEAD
         offlineSharePref = getPreferences(Context.MODE_PRIVATE)
 
         val testItems = loadItemsFromJson(this).map { it.toItem() }
+=======
+        val appConfig = loadItemsFromJson(this)
+        val testItems = appConfig.items.map { it.toItem() }
+>>>>>>> FEC-10339_4_gilad
         testItems.filter { it != NULL }.forEach {
             itemMap[it.id()] = it
         }
@@ -116,7 +121,11 @@ class MainActivity : AppCompatActivity() {
                         this,
                         offlineProvider
                 )
+<<<<<<< HEAD
                 saveOfflineProvider(exoOfflineProvider)
+=======
+                offlineManager?.setPreferredMediaFormat(appConfig.offlineConfig?.preferredFormat)
+>>>>>>> FEC-10339_4_gilad
             }
 
             // Show the custom notification
@@ -134,7 +143,11 @@ class MainActivity : AppCompatActivity() {
                         this,
                         offlineProvider
                 )
+<<<<<<< HEAD
                 saveOfflineProvider(dtgOfflineProvider)
+=======
+                offlineManager?.setPreferredMediaFormat(appConfig.offlineConfig?.preferredFormat)
+>>>>>>> FEC-10339_4_gilad
             }
             hideProviderFrame()
             setupManager(offlineManager)
@@ -314,9 +327,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun doOfflinePlayback(item: Item) {
         item.assetInfo?.assetId?.let {
-            startActivity(Intent(this, PlayActivity::class.java).apply {
-                data = Uri.parse(it)
-            })
+            val intent = Intent(this, PlayActivity::class.java)
+            val bundle = Bundle()
+            bundle.putLong("startPosition", item.startPosition ?: -1)
+            intent.putExtra("assetBundle", bundle)
+            intent.data = Uri.parse(it)
+            startActivity(intent)
             return
         }
         toast("This asset is not downloaded.")
@@ -328,6 +344,7 @@ class MainActivity : AppCompatActivity() {
         val bundle = Bundle()
         bundle.putBoolean("isOnlinePlayback", true)
         bundle.putInt("position", position)
+        bundle.putLong("startPosition", item.startPosition ?: -1)
         if (item is OTTItem) {
             bundle.putInt("partnerId", item.partnerId)
         }
