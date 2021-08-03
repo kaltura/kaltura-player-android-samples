@@ -22,6 +22,7 @@ import com.kaltura.playkit.*
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.playkit.samples.prefetchsample.data.OfflineConfig
 import com.kaltura.playkit.samples.prefetchsample.ui.PlayActivity
 import com.kaltura.playkit.samples.prefetchsample.ui.adapter.RvOfflineAssetsAdapter
 import com.kaltura.tvplayer.*
@@ -58,14 +59,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-<<<<<<< HEAD
         offlineSharePref = getPreferences(Context.MODE_PRIVATE)
 
-        val testItems = loadItemsFromJson(this).map { it.toItem() }
-=======
         val appConfig = loadItemsFromJson(this)
         val testItems = appConfig.items.map { it.toItem() }
->>>>>>> FEC-10339_4_gilad
+
         testItems.filter { it != NULL }.forEach {
             itemMap[it.id()] = it
         }
@@ -109,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
             }
-            setupManager(offlineManager)
+            setupManager(offlineManager, appConfig.offlineConfig)
         } else {
             provider_frame.visibility = View.VISIBLE
         }
@@ -121,11 +119,7 @@ class MainActivity : AppCompatActivity() {
                         this,
                         offlineProvider
                 )
-<<<<<<< HEAD
                 saveOfflineProvider(exoOfflineProvider)
-=======
-                offlineManager?.setPreferredMediaFormat(appConfig.offlineConfig?.preferredFormat)
->>>>>>> FEC-10339_4_gilad
             }
 
             // Show the custom notification
@@ -133,7 +127,7 @@ class MainActivity : AppCompatActivity() {
 //                OfflineCustomNotification(this, Consts.EXO_DOWNLOAD_CHANNEL_ID)
 //            )
             hideProviderFrame()
-            setupManager(offlineManager)
+            setupManager(offlineManager, appConfig.offlineConfig)
         }
 
         cb_is_dtg_enable.setOnCheckedChangeListener { _, isChecked ->
@@ -143,19 +137,19 @@ class MainActivity : AppCompatActivity() {
                         this,
                         offlineProvider
                 )
-<<<<<<< HEAD
                 saveOfflineProvider(dtgOfflineProvider)
-=======
-                offlineManager?.setPreferredMediaFormat(appConfig.offlineConfig?.preferredFormat)
->>>>>>> FEC-10339_4_gilad
             }
             hideProviderFrame()
-            setupManager(offlineManager)
+            setupManager(offlineManager, appConfig.offlineConfig)
         }
     }
 
-    private fun setupManager(manager: OfflineManager?) {
+    private fun setupManager(manager: OfflineManager?, offlineConfig: OfflineConfig?) {
         offlineManager = manager
+
+        offlineConfig?.let {
+            offlineManager?.setPreferredMediaFormat(it.preferredFormat)
+        }
 
         runOnUiThread {
             if (offlineManager is ExoOfflineManager) {
