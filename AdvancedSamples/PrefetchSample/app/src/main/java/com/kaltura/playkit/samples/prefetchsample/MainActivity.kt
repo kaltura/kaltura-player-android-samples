@@ -273,7 +273,7 @@ class MainActivity : AppCompatActivity() {
         val drmStatus = offlineManager?.getDrmStatus(item.id())
 
         if (drmStatus?.status == OfflineManager.DrmStatus.Status.unknown) {
-            toastLong("To check the status is invalid for this asset")
+            toastLong("Status is unknown for this asset")
             return
         }
 
@@ -536,9 +536,9 @@ class MainActivity : AppCompatActivity() {
         //manager.prefetchAsset(ottMediaOptions, PrefetchConfig(), prefetchCallback)
 
         val defaultPrefs = OfflineManager.SelectionPrefs().apply {
-            //videoHeight = 300
+            videoHeight = 360
             // videoBitrate = 600000
-            //videoWidth = 400
+            videoWidth = 640
             allAudioLanguages = true
             allTextLanguages = true
             allowInefficientCodecs = false
@@ -792,6 +792,12 @@ class MainActivity : AppCompatActivity() {
                 if (offlineManager is DTGOfflineManager) {
                     toastLong(getString(R.string.no_prefetch_for_dtg))
                     return false
+                }
+
+                val allAssetList = offlineManager?.getAllAssets(null)
+
+                for (info: OfflineManager.AssetInfo in allAssetList!!) {
+                    log.d("Gourav:  ${info.assetId}")
                 }
 
                 if (fl_prefetch_settings.visibility == View.VISIBLE)

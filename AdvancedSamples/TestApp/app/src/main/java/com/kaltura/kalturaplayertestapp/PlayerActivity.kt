@@ -5,6 +5,7 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.os.SystemClock
 import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.view.*
@@ -59,6 +60,7 @@ import com.kaltura.playkitvr.VRController
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import com.kaltura.tvplayer.config.TVPlayerParams
+import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import com.kaltura.tvplayer.playlist.*
 import com.npaw.youbora.lib6.plugin.Options
 import java.net.UnknownHostException
@@ -94,7 +96,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var progressBar: ProgressBar? = null
     private var searchView: SearchView? = null
     private var tracksSelectionController: TracksSelectionController? = null
-    private var appPlayerInitConfig: PlayerConfig? = null
+    private lateinit var appPlayerInitConfig: PlayerConfig
     private var updateParams: UpdateParams? = null
     private var currentPlayedMediaIndex = 0
     private var playbackControlsView: PlaybackControlsView? = null
@@ -108,9 +110,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
     private var networkChangeReceiver: NetworkChangeReceiver? = null
 
+    // Prefetch
+    lateinit var offlineManager: OfflineManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
+        offlineManager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.EXO)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         networkChangeReceiver = NetworkChangeReceiver
@@ -129,7 +135,28 @@ class PlayerActivity: AppCompatActivity(), Observer {
         require(!(playerConfigTitle == null || playerInitOptionsJson == null)) { "Must pass extra " + PlayerActivity.PLAYER_CONFIG_JSON_KEY }
         initDrm()
 
-        appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig::class.java)
+        appPlayerInitConfig = gson.fromJson("{\n" +
+                "  \"playerType\": \"ovp\",\n" +
+                "  \"baseUrl\": \"http://qa-apache-php7.dev.kaltura.com/\",\n" +
+                "  \"partnerId\": 4171,\n" +
+                "  \"autoPlay\": true,\n" +
+                "  \"uiConf\": {\n" +
+                "    \"baseUrl\": \"http://qa-apache-php7.dev.kaltura.com/\",\n" +
+                "    \"partnerId\": 4171,\n" +
+                "    \"id\": 15213831\n" +
+                "  },\n" +
+                "  \"mediaList\": [\n" +
+                "    {\n" +
+                "      \"entryId\": \"0_2jiaa9tb\",\n" +
+                "      \"isPrefetch\": true\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"preferredFormat\": \"dash\",\n" +
+                "  \"startPosition\": 0,\n" +
+                "  \"companionWidth\": 300,\n" +
+                "  \"companionHeight\": 250,\n" +
+                "  \"imaWebOpener\": \"self\"\n" +
+                "}", PlayerConfig::class.java)
 
         appPlayerInitConfig?.let {
             if (it.requestConfiguration != null) {
@@ -291,7 +318,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (it.get(currentPlayedMediaIndex).externalSubtitles != null) {
                     mediaEntry?.externalSubtitleList = it.get(currentPlayedMediaIndex).externalSubtitles
                 }
-                player?.setMedia(mediaEntry, 0L)
+                mediaEntry?.let {
+                    player?.setMedia(it, 0L)
+                }
+
             } else {
                 log.e("Error no such player type <" + appPlayerInitConfig?.playerType + ">")
             }
@@ -361,7 +391,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun buildPlayer(appPlayerInitConfig: PlayerConfig, playListMediaIndex: Int, playerType: KalturaPlayer.Type) {
-        var player: KalturaPlayer
 
         val appPluginConfigJsonObject = appPlayerInitConfig.plugins
         //        int playerUiConfId = -1;
@@ -435,7 +464,101 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
+        mediaList?.let {
+            if (it.isNotEmpty() && it[playListMediaIndex].isPrefetch == true) {
+                doPrefetch(playerType, partnerId, appPlayerInitConfig.baseUrl, playListMediaIndex)
+            } else {
+                setupPlayerAndPlayMedia(playerType, appPlayerInitConfig, playListMediaIndex, partnerId)
+                setUpPlayerControls(appPlayerInitConfig)
+            }
+        }
+    }
 
+    private fun setUpPlayerControls(appPlayerInitConfig: PlayerConfig) {
+        playbackControlsManager = PlaybackControlsManager(this, player, playbackControlsView)
+        if (!initOptions.autoplay) {
+            playbackControlsManager?.showControls(View.VISIBLE)
+        } else {
+            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+        }
+
+        if (appPlayerInitConfig.playlistConfig != null) {
+            var listSize: Int? = null
+            if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ovp) {
+                if (appPlayerInitConfig.playlistConfig?.playlistId == null) {
+                    listSize = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList?.size ?: 0
+                }
+            } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ott) {
+                listSize = appPlayerInitConfig.playlistConfig?.ottMediaOptionsList?.size ?: 0
+            } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.basic) {
+                listSize = appPlayerInitConfig.playlistConfig?.basicMediaOptionsList?.size ?: 0
+            }
+
+            if (listSize != null && listSize > 0) {
+                playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, listSize)
+            }
+        } else {
+            appPlayerInitConfig.mediaList?.let {
+                if (it.size > 1) {
+                    playbackControlsManager?.addChangeMediaImgButtonsListener(it.size)
+                }
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
+            }
+        }
+    }
+
+    private fun doPrefetch(playerType: KalturaPlayer.Type, partnerId: Int?, serverUrl: String?, playListMediaIndex: Int) {
+        var mediaOptions: MediaOptions? = null
+        addAssetStateListener(offlineManager)
+
+        offlineManager.setDownloadProgressListener { assetId, bytesDownloaded, totalBytesEstimated, percentDownloaded ->
+            log.d("[progress] $assetId: ${bytesDownloaded / 1000} / ${totalBytesEstimated / 1000}")
+        }
+
+        offlineManager.start {
+            log.d("manager started")
+        }
+
+        val prefetchManager = offlineManager.prefetchManager
+
+        if (KalturaPlayer.Type.ovp == playerType && partnerId != null)  {
+            offlineManager.setKalturaParams(KalturaPlayer.Type.ovp, partnerId)
+            mediaOptions = buildOvpMediaOptions(appPlayerInitConfig?.startPosition, playListMediaIndex)
+        } else if (KalturaPlayer.Type.ott == playerType && partnerId != null) {
+            offlineManager.setKalturaParams(KalturaPlayer.Type.ott, partnerId)
+            mediaOptions = buildOttMediaOptions(appPlayerInitConfig?.startPosition, playListMediaIndex)
+        }
+
+        val prefetchCallback = addPrefetchCallback()
+
+        val defaultPrefs = OfflineManager.SelectionPrefs()
+
+        if (playerType != KalturaPlayer.Type.basic && mediaOptions != null) {
+            offlineManager.kalturaServerUrl = serverUrl
+            prefetchManager?.prefetchAsset(mediaOptions, defaultPrefs, prefetchCallback)
+            //prefetchManager?.prefetchByMediaEntryList(mediaOptions, defaultPrefs, prefetchCallback)
+        } else {
+            val mediaEntry = appPlayerInitConfig?.mediaList?.get(currentPlayedMediaIndex)?.pkMediaEntry
+            mediaEntry?.let {
+                prefetchManager?.prefetchAsset(it, defaultPrefs, prefetchCallback)
+            }
+        }
+    }
+
+    private fun playAssetOffline(assetId: String) {
+        val mediaEntry = appPlayerInitConfig?.mediaList?.get(currentPlayedMediaIndex)?.pkMediaEntry
+        player = KalturaBasicPlayer.create(this, initOptions)
+        player?.isAutoPlay = true
+        setPlayer(player)
+        val entry = offlineManager.getLocalPlaybackEntry(assetId)
+        entry.mediaType = mediaEntry?.mediaType
+        player?.setMedia(entry, 0L)
+
+        setUpPlayerControls(appPlayerInitConfig)
+    }
+
+    private fun setupPlayerAndPlayMedia(playerType: KalturaPlayer.Type, appPlayerInitConfig: PlayerConfig, playListMediaIndex: Int, partnerId: Int?) {
         if (KalturaPlayer.Type.ovp == playerType) {
 
             // inorder to generate retry error need also to remove and un install app -> KalturaOvpPlayer.create(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
@@ -467,7 +590,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             } else {
                 // PLAYLIST
-                handleOvpPlayerPlaylist(appPlayerInitConfig, player)
+                player?.let {
+                    handleOvpPlayerPlaylist(appPlayerInitConfig, it as KalturaOvpPlayer)
+                }
             }
         } else if (KalturaPlayer.Type.ott == playerType) {
 
@@ -509,7 +634,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
             } else {
                 // PLAYLIST
-                handleOttPlayerPlaylist(appPlayerInitConfig, player)
+                player?.let {
+                    handleOttPlayerPlaylist(appPlayerInitConfig, it as KalturaOttPlayer)
+                }
             }
         } else if (KalturaPlayer.Type.basic == playerType) {
             player = KalturaBasicPlayer.create(this@PlayerActivity, initOptions)
@@ -519,45 +646,126 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (initOptions.vrSettings != null) {
                     mediaEntry?.setIsVRMediaType(true)
                 }
-                player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
+                mediaEntry?.let {
+                    player?.setMedia(it, appPlayerInitConfig.startPosition)
+                }
             } else {
                 // PLAYLIST
-                handleBasicPlayerPlaylist(appPlayerInitConfig, player)
+                player?.let {
+                    handleBasicPlayerPlaylist(appPlayerInitConfig, it as KalturaBasicPlayer)
+                }
             }
         } else {
             log.e("Failed to initialize player...")
             return
         }
+    }
 
-        playbackControlsManager = PlaybackControlsManager(this, player, playbackControlsView)
-        if (!initOptions.autoplay) {
-            playbackControlsManager?.showControls(View.VISIBLE)
-        } else {
-            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
-        }
+    private fun addAssetStateListener(manager: OfflineManager?) {
 
-        if (appPlayerInitConfig.playlistConfig != null) {
-            var listSize: Int? = null
-            if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ovp) {
-                if (appPlayerInitConfig.playlistConfig?.playlistId == null) {
-                    listSize = appPlayerInitConfig.playlistConfig?.ovpMediaOptionsList?.size ?: 0
-                }
-            } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.ott) {
-                listSize = appPlayerInitConfig.playlistConfig?.ottMediaOptionsList?.size ?: 0
-            } else if (appPlayerInitConfig.playerType == KalturaPlayer.Type.basic) {
-                listSize = appPlayerInitConfig.playlistConfig?.basicMediaOptionsList?.size ?: 0
+        manager?.setAssetStateListener(object : OfflineManager.AssetStateListener {
+
+            override fun onAssetDownloadFailed(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: Exception
+            ) {
+
             }
 
-            if (listSize != null && listSize > 0) {
-                playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
-                playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, listSize)
+            override fun onAssetDownloadComplete(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
+            ) {
+
+                log.d("Prefetch: onAssetDownloadComplete")
             }
-        } else {
-            appPlayerInitConfig.mediaList?.let {
-                if (it.size > 1) {
-                    playbackControlsManager?.addChangeMediaImgButtonsListener(it.size)
-                }
-                playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
+
+            override fun onAssetPrefetchComplete(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
+            ) {
+
+                log.d("Prefetch: onAssetPrefetchComplete")
+                playAssetOffline(assetId)
+            }
+
+            override fun onAssetDownloadPending(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
+            ) {
+
+            }
+
+            override fun onAssetDownloadPaused(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
+            ) {
+
+            }
+
+            override fun onRegistered(assetId: String, drmStatus: OfflineManager.DrmStatus) {
+
+            }
+
+            override fun onRegisterError(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: Exception
+            ) {
+
+            }
+
+            override fun onStateChanged(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    assetInfo: OfflineManager.AssetInfo
+            ) {
+                log.d("Prefetch: onAssetPrefetchComplete ")
+            }
+
+            override fun onAssetRemoved(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType
+            ) {
+
+            }
+
+            override fun onAssetRemoveError(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: java.lang.Exception
+            ) {
+
+            }
+        })
+    }
+
+    private fun addPrefetchCallback(): OfflineManager.PrepareCallback {
+
+        return object : OfflineManager.PrepareCallback {
+
+            override fun onPrepared(
+                    assetId: String,
+                    assetInfo: OfflineManager.AssetInfo,
+                    selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
+            ) {
+                log.d("Prefetch: onPrepared")
+            }
+
+            override fun onPrepareError(
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: java.lang.Exception
+            ) {
+
+            }
+
+            override fun onMediaEntryLoadError(
+                    downloadType: OfflineManager.DownloadType,
+                    error: Exception
+            ) {
+
             }
         }
     }
@@ -802,9 +1010,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             return basicMediasOptionsList;
         }
         mediaList.forEach {
-            var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, it.countDownOptions)
-
-            basicMediasOptionsList.add(basicMediaOptions)
+            it.countDownOptions?.let { countDown ->
+                var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, countDown)
+                basicMediasOptionsList.add(basicMediaOptions)
+            }
         }
         return basicMediasOptionsList
     }
@@ -1654,6 +1863,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             player = null
             eventsList.clear()
         }
+
+        offlineManager.setAssetStateListener(null)
+        offlineManager.setDownloadProgressListener(null)
+        offlineManager.stop()
 
         playbackControlsView?.let {
             it.destroy()
