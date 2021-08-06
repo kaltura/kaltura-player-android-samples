@@ -12,17 +12,19 @@ public class OTTItem extends KalturaItem {
     private int partnerId;
     private String ottAssetId;
     private String serverUrl;
+    private String ks;
     private String format;
     private String protocol;
     private OfflineManager.SelectionPrefs prefs;
     private String title;
 
-    public OTTItem(int partnerId, String ottAssetId, String serverUrl, String format, String protocol, OfflineManager.SelectionPrefs prefs, String title) {
+    public OTTItem(int partnerId, String ottAssetId, String serverUrl, String ks, String format, String protocol, OfflineManager.SelectionPrefs prefs, String title) {
         super(partnerId, serverUrl, prefs, title);
 
         this.ottAssetId = ottAssetId;
         this.partnerId = partnerId;
         this.serverUrl = serverUrl;
+        this.ks = ks;
         this.format = format;
         this.protocol = protocol;
         this.prefs = prefs;
@@ -75,6 +77,14 @@ public class OTTItem extends KalturaItem {
     @Override
     public void setServerUrl(String serverUrl) {
         this.serverUrl = serverUrl;
+    }
+
+    public String getKs() {
+        return ks;
+    }
+
+    public void setKs(String ks) {
+        this.ks = ks;
     }
 
     public String getFormat() {

@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.kaltura.playkit.samples.prefetchsample.MainActivity">
+    <item android:id="@+id/action_settings"
+          android:title="@string/settings_prefetch"
+          android:orderInCategory="100"
+          android:icon="@drawable/exo_ic_settings"
+          app:showAsAction="always"/>
+</menu>

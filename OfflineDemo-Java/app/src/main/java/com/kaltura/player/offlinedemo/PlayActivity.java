@@ -88,7 +88,7 @@ public class PlayActivity extends AppCompatActivity {
             playAssetOnline(testItems, position, options);
         } else {
             player = KalturaBasicPlayer.create(this, options);
-            OfflineManager manager = OfflineManager.getInstance(this);
+            OfflineManager manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG);
             if (getIntent().getDataString() != null) {
                 PKMediaEntry entry = null;
                 try {

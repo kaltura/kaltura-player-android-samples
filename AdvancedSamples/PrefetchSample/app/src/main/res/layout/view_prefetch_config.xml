@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/margin_20dp"
+    android:background="@color/colorPrimary">
+
+    <TextView
+        android:id="@+id/tv_ps_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:textSize="@dimen/tsize_20sp"
+        android:textColor="@color/exo_white"
+        android:text="@string/settings_prefetch"
+        android:layout_margin="@dimen/margin_10dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="@dimen/margin_10dp"
+        android:background="@color/colorAccent"
+        app:layout_constraintTop_toBottomOf="@id/tv_ps_title"/>
+
+    <TextView
+        android:id="@+id/tv_ps_item_in_cache"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/exo_white"
+        android:text="@string/maxItemCountInCache"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/et_ps_item_in_cache"
+        app:layout_constraintTop_toBottomOf="@id/tv_ps_title"
+        android:layout_marginTop="@dimen/margin_30dp"
+        android:layout_marginEnd="@dimen/margin_10dp"
+        android:layout_marginStart="@dimen/margin_10dp"/>
+
+    <EditText
+        android:id="@+id/et_ps_item_in_cache"
+        android:layout_width="@dimen/margin_50dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_10dp"
+        android:autofillHints="10"
+        android:lines="1"
+        android:maxLines="1"
+        android:maxLength="2"
+        android:textColor="@color/exo_white"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@id/tv_ps_title"
+        app:layout_constraintLeft_toRightOf="@id/tv_ps_item_in_cache"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_ps_asset_size"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/exo_white"
+        android:text="@string/assetPrefetchSize"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/et_ps_asset_size"
+        app:layout_constraintTop_toBottomOf="@id/tv_ps_item_in_cache"
+        android:layout_marginTop="@dimen/margin_30dp"
+        android:layout_marginEnd="@dimen/margin_10dp"
+        android:layout_marginStart="@dimen/margin_10dp"/>
+
+    <EditText
+        android:id="@+id/et_ps_asset_size"
+        android:layout_width="@dimen/margin_50dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_10dp"
+        android:autofillHints="10"
+        android:textColor="@color/exo_white"
+        android:lines="1"
+        android:maxLines="1"
+        android:maxLength="2"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@id/tv_ps_item_in_cache"
+        app:layout_constraintLeft_toRightOf="@id/tv_ps_asset_size"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_ps_remove_on_destroy"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/exo_white"
+        android:text="@string/removeCacheOnDestroy"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/cb_ps_remove_on_destroy"
+        app:layout_constraintTop_toBottomOf="@id/tv_ps_asset_size"
+        android:layout_marginTop="@dimen/margin_30dp"
+        android:layout_marginEnd="@dimen/margin_10dp"
+        android:layout_marginStart="@dimen/margin_10dp"/>
+
+    <CheckBox
+        android:id="@+id/cb_ps_remove_on_destroy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_10dp"
+        android:autofillHints="10"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@id/et_ps_asset_size"
+        app:layout_constraintLeft_toRightOf="@id/tv_ps_remove_on_destroy"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_sumbit_prefetch_settings"/>
+
+    <Button
+        android:id="@+id/btn_sumbit_prefetch_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text = "@string/apply_prefetch_settings"
+        android:background="@color/colorAccent"
+        android:padding="@dimen/margin_10dp"
+        android:textColor="@color/exo_white"
+        app:layout_constraintTop_toBottomOf="@id/tv_ps_remove_on_destroy"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_margin="@dimen/margin_30dp"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
