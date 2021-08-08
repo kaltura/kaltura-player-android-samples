@@ -4,6 +4,7 @@
     },
     "items": [
         {
+            "playerType": "ovp",
             "title": "HEVC Provider OVP",
             "id": "1_zhpdyrr2",
             "partnerId": 2215841,
@@ -21,6 +22,7 @@
             }
         },
         {
+            "playerType": "ovp",
             "title": "Clear: Kaltura",
             "id": "1_sf5ovm7u",
             "partnerId": 243342,
@@ -38,34 +40,9 @@
                 "textLangs": []
             }
         },
+
         {
-            "title": "AES-128 multi-key",
-            "id": "AES-128 multi-key",
-            "url": "https://noamtamim.com/random/hls/test-enc-aes/multi.m3u8",
-            "options": {
-                "allAudioLangs": true,
-                "allTextLangs": true
-            }
-        },
-        {
-            "title": "Eran multi audio",
-            "id": "0_7s8q41df",
-            "url": "https://cdnapisec.kaltura.com/p/2035982/sp/203598200/playManifest/entryId/0_7s8q41df/format/applehttp/protocol/https/name/a.m3u8?deliveryProfileId=4712",
-            "options": {
-                "allAudioLangs": true,
-                "allTextLangs": true
-            }
-        },
-        {
-            "title": "Trailer",
-            "id": "0_ksthpwh8",
-            "url": "http://cdnbakmi.kaltura.com/p/1758922/sp/175892200/playManifest/entryId/0_ksthpwh8/format/applehttp/tags/ipad/protocol/http/f/a.m3u8",
-            "options": {
-                "allAudioLangs": true,
-                "allTextLangs": true
-            }
-        },
-        {
+            "playerType": "ovp",
             "title": "Prefetch OVP Test Media",
             "id": "1_w9zx2eti",
             "partnerId": 2215841,
@@ -78,32 +55,18 @@
             }
         },
         {
-            "title": "Prefetch bunny",
-            "id": "bunny",
-            "isPrefetch": true,
-            "url": "https://noamtamim.com/hls-bunny/index.m3u8",
+            "playerType": "ovp",
+            "title": "DRM: Prod 2",
+            "id": "1_uzea2uje",
+            "partnerId": 2222401,
+            "env": "http://cdnapisec.kaltura.com",
             "options": {
                 "allAudioLangs": true,
                 "allTextLangs": true
             }
         },
         {
-            "title": "OTT Test Media",
-            "id": "548576",
-            "partnerId": 3009,
-            "ott": true,
-            "startPosition": 90,
-            "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
-            "options": {
-                "allAudioLangs": true,
-                "allTextLangs": true
-            },
-            "ottParams": {
-                "format": "Mobile_Main",
-                "protocol": "http"
-            }
-        },
-        {
+            "playerType": "ovp",
             "title": "DRM: Prod 1",
             "id": "1_f93tepsn",
             "partnerId": 2222401,
@@ -182,6 +145,7 @@
             ]
         },
         {
+            "playerType": "ovp",
             "title": "DRM: QA 1",
             "id": "0_4s6xvtx3",
             "partnerId": 4171,
@@ -192,6 +156,7 @@
             }
         },
         {
+            "playerType": "ovp",
             "title": "DRM: QA 2",
             "id": "0_7o8zceol",
             "partnerId": 4171,
@@ -202,6 +167,52 @@
             }
         },
         {
+            "playerType": "ott",
+            "title": "OTT Test Media1",
+            "id": "548576",
+            "partnerId": 3009,
+            "ott": true,
+            "startPosition": 90,
+            "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            },
+            "ottParams": {
+                "format": "Mobile_Main",
+                "protocol": "http"
+            }
+        },
+        {
+            "playerType": "ott",
+            "title": "OTT Test Media2",
+            "id": "548577",
+            "partnerId": 3009,
+            "ott": true,
+            "startPosition": 90,
+            "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            },
+            "ottParams": {
+                "format": "Mobile_Main",
+                "protocol": "http"
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "Prefetch bunny",
+            "id": "bunny",
+            "isPrefetch": true,
+            "url": "https://noamtamim.com/hls-bunny/index.m3u8",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "basic",
             "title": "QA multi/multi",
             "startPosition": 10,
             "id": "0_mskmqcit",
@@ -218,6 +229,37 @@
             }
         },
         {
+            "playerType": "basic",
+            "title": "AES-128 multi-key",
+            "id": "AES-128 multi-key",
+            "url": "https://noamtamim.com/random/hls/test-enc-aes/multi.m3u8",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "Eran multi audio",
+            "id": "0_7s8q41df",
+            "url": "https://cdnapisec.kaltura.com/p/2035982/sp/203598200/playManifest/entryId/0_7s8q41df/format/applehttp/protocol/https/name/a.m3u8?deliveryProfileId=4712",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "Trailer",
+            "id": "0_ksthpwh8",
+            "url": "http://cdnbakmi.kaltura.com/p/1758922/sp/175892200/playManifest/entryId/0_ksthpwh8/format/applehttp/tags/ipad/protocol/http/f/a.m3u8",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "basic",
             "title": "Kaltura 360p",
             "id": "k-360p",
             "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",
@@ -226,6 +268,7 @@
             }
         },
         {
+            "playerType": "basic",
             "title": "Kaltura 720p",
             "id": "k-720p",
             "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",

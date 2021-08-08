@@ -9,14 +9,11 @@ import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKMediaSource
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ovp.OVPMediaAsset
-import com.kaltura.tvplayer.MediaOptions
-import com.kaltura.tvplayer.OTTMediaOptions
-import com.kaltura.tvplayer.OVPMediaOptions
-import com.kaltura.tvplayer.OfflineManager
+import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
 import java.util.*
 
-abstract class Item (val selectionPrefs: SelectionPrefs?,
+abstract class Item (val playerType: KalturaPlayer.Type, val selectionPrefs: SelectionPrefs?,
                      val title: String?,
                      val startPosition: Long?,
                      var isPrefetch: Boolean = false,
@@ -63,12 +60,13 @@ abstract class Item (val selectionPrefs: SelectionPrefs?,
 fun String.fmt(vararg args: Any?): String = java.lang.String.format(Locale.ROOT, this, *args)
 
 @SuppressLint("ParcelCreator")
-object NULL : KalturaItem(0, "", null, null, null, false, null) {
+object NULL : KalturaItem(KalturaPlayer.Type.basic,0, "", null, null, null, false, null) {
     override fun id(): String = TODO()
     override fun mediaOptions(): MediaOptions = TODO()
 }
 
 class BasicItem(
+    playerType: KalturaPlayer.Type,
     private val id: String,
     private val url: String,
     private var licenseUrl: String?,
@@ -77,7 +75,7 @@ class BasicItem(
     startPosition: Long?,
     isPrefetch: Boolean = false,
     plugins: JsonArray?,
-): Item(prefs, title, startPosition, isPrefetch, plugins) {
+): Item(playerType, prefs, title, startPosition, isPrefetch, plugins) {
 
     val log = PKLog.get("BasicItem")
 
@@ -105,6 +103,7 @@ class BasicItem(
 }
 
 abstract class KalturaItem(
+    playerType: KalturaPlayer.Type,
     val partnerId: Int,
     val serverUrl: String,
     prefs: SelectionPrefs?,
@@ -112,7 +111,7 @@ abstract class KalturaItem(
     startPosition: Long? = null,
     isPrefetch: Boolean = false,
     plugins: JsonArray?
-): Item(prefs, title, startPosition, isPrefetch, plugins) {
+): Item(playerType, prefs, title, startPosition, isPrefetch, plugins) {
 
     abstract fun mediaOptions(): MediaOptions
 
@@ -120,6 +119,7 @@ abstract class KalturaItem(
 }
 
 class OVPItem(
+    playerType: KalturaPlayer.Type,
     partnerId: Int,
     private val entryId: String,
     serverUrl: String? = null,
@@ -129,7 +129,7 @@ class OVPItem(
     startPosition: Long? = null,
     isPrefetch: Boolean = false,
     plugins: JsonArray?
-) : KalturaItem(partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title, startPosition, isPrefetch, plugins) {
+) : KalturaItem(playerType, partnerId, serverUrl ?: "https://cdnapisec.kaltura.com", prefs, title, startPosition, isPrefetch, plugins) {
 
     override fun id() = assetInfo?.assetId ?: entryId
 
@@ -144,6 +144,7 @@ class OVPItem(
 }
 
 class OTTItem(
+    playerType: KalturaPlayer.Type,
     partnerId: Int,
     private val ottAssetId: String,
     serverUrl: String,
@@ -155,7 +156,7 @@ class OTTItem(
     startPosition: Long? = null,
     isPrefetch: Boolean = false,
     plugins: JsonArray?
-) : KalturaItem(partnerId, serverUrl, prefs, title, startPosition, isPrefetch, plugins) {
+) : KalturaItem(playerType, partnerId, serverUrl, prefs, title, startPosition, isPrefetch, plugins) {
 
     override fun id() = assetInfo?.assetId ?: ottAssetId
 

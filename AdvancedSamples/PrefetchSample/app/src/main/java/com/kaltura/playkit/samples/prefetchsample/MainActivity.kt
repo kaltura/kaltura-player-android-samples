@@ -254,7 +254,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 1 -> doStart(item)
                 2 -> doPause(item)
-                3 -> doOfflinePlayback(item)
+                3 -> doOfflinePlayback(item, position)
                 4 -> doOnlinePlayback(item, position)
                 5 -> {
                     doRemove(item)
@@ -321,10 +321,11 @@ class MainActivity : AppCompatActivity() {
         toast("This asset is not prepared.")
     }
 
-    private fun doOfflinePlayback(item: Item) {
+    private fun doOfflinePlayback(item: Item, position: Int) {
         item.assetInfo?.assetId?.let {
             val intent = Intent(this, PlayActivity::class.java)
             val bundle = Bundle()
+            bundle.putInt("position", position)
             bundle.putLong("startPosition", item.startPosition ?: -1)
             intent.putExtra("assetBundle", bundle)
             intent.data = Uri.parse(it)

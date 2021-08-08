@@ -84,7 +84,7 @@
                 android:layout_margin="4dp"
                 android:tag="play"
                 app:fabSize="mini"
-                app:srcCompat="@drawable/ic_play_arrow_white_24dp" />
+                app:srcCompat="@drawable/exo_ic_play_circle_filled" />
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_replay"
                 android:layout_width="wrap_content"
@@ -93,6 +93,16 @@
                 android:tag="play"
                 app:fabSize="mini"
                 app:srcCompat="@drawable/ic_replay_white_24dp" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_change_media"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:tag="play"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_play_arrow_white_24dp" />
 
         </LinearLayout>
 

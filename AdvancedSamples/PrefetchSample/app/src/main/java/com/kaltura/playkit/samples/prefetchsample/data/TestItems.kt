@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.kaltura.playkit.Utils
 import com.kaltura.playkit.samples.prefetchsample.data.AppConfig
+import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.OfflineManager.SelectionPrefs
 
@@ -37,13 +38,13 @@ fun ItemJSON.toItem() : Item {
 
         if (this.ott) {
             // OTT
-            OTTItem(partnerId, this.id, env!!, this.ks,  ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
+            OTTItem(KalturaPlayer.Type.ott, partnerId, this.id, env!!, this.ks,  ottParams?.format, ottParams?.protocol, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
         } else {
             // OVP
-            OVPItem(partnerId, id, env, this.ks, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
+            OVPItem(KalturaPlayer.Type.ovp, partnerId, id, env, this.ks, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
         }
     } else {
-        BasicItem(id, url!!, licenseUrl, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
+        BasicItem(KalturaPlayer.Type.basic, id, url!!, licenseUrl, options?.toPrefs(), title, startPosition, isPrefetch, plugins)
     }
 }
 
