@@ -292,6 +292,24 @@ public class PlayActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        if (player != null && player.isPlaying()) {
+            updatePlayPauseButton(player.isPlaying());
+            player.onApplicationPaused();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (player != null) {
+            updatePlayPauseButton(player.isPlaying());
+            player.onApplicationResumed();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         player.destroy();
