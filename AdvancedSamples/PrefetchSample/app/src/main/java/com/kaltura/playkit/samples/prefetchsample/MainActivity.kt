@@ -264,7 +264,8 @@ class MainActivity : AppCompatActivity() {
                 "Remove",
                 "Status"
         )
-        AlertDialog.Builder(this).setItems(items) { _, i ->
+
+        AlertDialog.Builder(this).setTitle(item.title + " (" + item.id() + ")").setItems(items) { _, i ->
             when (i) {
                 0 -> {
                     showProgressBar()
