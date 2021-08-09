@@ -656,6 +656,14 @@ class MainActivity : AppCompatActivity() {
                 updateRecyclerViewAdapter(item.position)
             }
 
+            override fun onUnRegisterError(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
+            ) {
+                toastLong("onUnRegisterError: $assetId, ${downloadType.name}, $error ")
+            }
+
             override fun onStateChanged(
                     assetId: String,
                     downloadType: OfflineManager.DownloadType,
