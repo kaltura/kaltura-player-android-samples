@@ -96,11 +96,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             (et_ps_asset_size.text).toString()?.let {
-                if (it.toInt() > MAX_ALLOWED_PREFETCH_SIZE) {
-                    toast("Max allowed prefetch size is ${MAX_ALLOWED_PREFETCH_SIZE}")
-                    return@setOnClickListener
-                }
                 if (it.isNotEmpty()) {
+                    if (it.toInt() > MAX_ALLOWED_PREFETCH_SIZE) {
+                        toast("Max allowed prefetch size is ${MAX_ALLOWED_PREFETCH_SIZE}")
+                        return@setOnClickListener
+                    }
                     prefetchSettingAssetPrefetchSize = it.toInt()
                 }
             }
