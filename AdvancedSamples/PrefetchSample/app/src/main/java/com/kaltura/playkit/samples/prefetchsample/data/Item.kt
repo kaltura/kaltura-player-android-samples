@@ -20,7 +20,8 @@ abstract class Item (val playerType: KalturaPlayer.Type, val selectionPrefs: Sel
                      var plugins: JsonArray?,
                      var position: Int = -1,
                      var drmNotRegistered: Boolean? = false, // Just to understand if the asset has failed with drm registration
-                     var isOfflineProviderExo: Boolean = false) {
+                     var isOfflineProviderExo: Boolean = false,
+                     var isSelectedForPrefetching: Boolean = false) {
 
     var entry: PKMediaEntry? = null
     var assetInfo: OfflineManager.AssetInfo? = null

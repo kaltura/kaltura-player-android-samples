@@ -4,6 +4,7 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.kaltura.playkit.samples.prefetchsample.Item
 import com.kaltura.playkit.samples.prefetchsample.R
@@ -25,6 +26,21 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
             } else {
                 itemList[position].isPrefetch = false
                 prefetchTextView.visibility = View.GONE
+            }
+        }, { position, cbItemIsPrefetch, tvItemIsPrefetch ->
+            if (itemList[position].isSelectedForPrefetching) {
+                itemView.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.exo_white))
+                itemList[position].isSelectedForPrefetching = false
+                itemList[position].isPrefetch = false
+                tvItemIsPrefetch.visibility = View.GONE
+                cbItemIsPrefetch.isChecked = false
+            } else {
+                itemView.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.opaque_colorPrimary))
+                itemList[position].isSelectedForPrefetching = true
+                itemList[position].isPrefetch = true
+                tvItemIsPrefetch.visibility = View.VISIBLE
+                tvItemIsPrefetch.text = "Prefetch Available"
+                cbItemIsPrefetch.isChecked = true
             }
         })
     }
