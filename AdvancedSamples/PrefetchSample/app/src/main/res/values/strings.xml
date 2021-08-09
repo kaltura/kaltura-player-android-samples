@@ -4,7 +4,7 @@
 
     <string name="no_offline_provider">Please select one Offline Provider. You can select once in app session.</string>
     <string name="no_prefetch_for_dtg">This is Prefetch Settings. You can use only for Exo offline provider.</string>
-    <string name="no_prefetch_for_options_menu">Please select one or more items by pressing long on the item below..</string>
+    <string name="no_prefetch_for_options_menu">Please select one or more items by pressing long on the item below.</string>
 
     <string name="title_prepare_asset">Prepare</string>
     <string name="title_start_download">Start</string>
