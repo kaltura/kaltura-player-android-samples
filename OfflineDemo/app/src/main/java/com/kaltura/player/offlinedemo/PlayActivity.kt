@@ -242,6 +242,24 @@ class PlayActivity : AppCompatActivity() {
         fab_playpause.setImageDrawable(next)
     }
 
+    override fun onPause() {
+        player?.let {
+            if (it.isPlaying) {
+                updatePlayPauseButton(it.isPlaying)
+                player?.onApplicationPaused()
+            }
+        }
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        player?.let {
+            updatePlayPauseButton(it.isPlaying)
+            player?.onApplicationResumed()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         player.destroy()
