@@ -9,7 +9,7 @@ import com.kaltura.playkit.samples.prefetchsample.R
 class OfflineAssetViewHolder(itemView: View,
                              val itemClick: (Int) -> Unit,
                              val checkBoxClicked: (Int, Boolean, CheckBox, TextView) -> Unit,
-                             val itemLongClick: (Int) -> Unit) : RecyclerView.ViewHolder(itemView) {
+                             val itemLongClick: (Int, CheckBox, TextView) -> Unit) : RecyclerView.ViewHolder(itemView) {
 
     internal var tvItemName: TextView
     internal var tvItemStatus: TextView
@@ -27,6 +27,10 @@ class OfflineAssetViewHolder(itemView: View,
         cbItemIsPrefetch.visibility = View.GONE
         cbItemIsPrefetch.setOnCheckedChangeListener { _, isChecked ->
             checkBoxClicked(adapterPosition, isChecked, cbItemIsPrefetch, tvItemIsPrefetch)
+        }
+        itemView.setOnLongClickListener {
+            itemLongClick(adapterPosition, cbItemIsPrefetch, tvItemIsPrefetch)
+            true
         }
     }
 }

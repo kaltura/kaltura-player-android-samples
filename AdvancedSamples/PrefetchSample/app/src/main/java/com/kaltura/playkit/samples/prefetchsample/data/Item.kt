@@ -1,7 +1,6 @@
 package com.kaltura.playkit.samples.prefetchsample
 
 import android.annotation.SuppressLint
-import android.text.BoringLayout
 import android.text.TextUtils
 import com.google.gson.JsonArray
 import com.kaltura.playkit.PKDrmParams

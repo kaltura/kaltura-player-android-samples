@@ -37,7 +37,6 @@ import com.kaltura.playkit.samples.prefetchsample.data.AppConfig
 import com.kaltura.playkit.samples.prefetchsample.data.PluginDescriptor
 import com.kaltura.playkit.samples.prefetchsample.data.UiConfFormatIMAConfig
 import com.kaltura.tvplayer.*
-import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
 import com.npaw.youbora.lib6.plugin.Options
 import kotlinx.android.synthetic.main.activity_play.*
 import kotlinx.android.synthetic.main.content_play.*

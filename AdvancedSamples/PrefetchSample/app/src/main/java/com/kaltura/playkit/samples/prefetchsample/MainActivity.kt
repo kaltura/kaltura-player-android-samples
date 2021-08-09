@@ -46,8 +46,14 @@ class MainActivity : AppCompatActivity() {
     private var offlineManager: OfflineManager? = null
     private lateinit var offlineSharePref: SharedPreferences
     private val KEY_PROVIDER: String = "KEY_OFFLINE_PROVIDER"
+    private val KEY_MAX_ITEM_COUNT_IN_CACHE: String = "KEY_ITEM_COUNT_IN_CACHE"
+    private val KEY_ASSET_PREFERENCE_SIZE: String = "KEY_PREFERENCE_SIZE"
+    private val KEY_REMOVE_CACHE_ON_DESTROY: String = "KEY_REMOVE_CACHE"
     private val dtgOfflineProvider: Int = 1
     private val exoOfflineProvider: Int = 2
+
+    private val MAX_ALLOWED_ITEM_IN_CACHE = 25
+    private val MAX_ALLOWED_PREFETCH_SIZE = 10 // IN MB
 
     private var prefetchSettingMaxItemCountInCache: Int = 20
     private var prefetchSettingAssetPrefetchSize: Int = 2 // IN MB
@@ -74,20 +80,36 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        prefetchSettingMaxItemCountInCache = getItemCountInCachePrefetchSettings()
+        prefetchSettingAssetPrefetchSize = getPrefetchSizePrefetchSettings()
+        prefetchSettingRemoveCacheOnDestroy = getRemoveOnDestroyPrefetchSettings()
+
         btn_sumbit_prefetch_settings.setOnClickListener {
             (et_ps_item_in_cache.text).toString()?.let {
                 if (it.isNotEmpty()) {
+                    if (it.toInt() > MAX_ALLOWED_ITEM_IN_CACHE) {
+                        toast("Max allowed item in cache is ${MAX_ALLOWED_ITEM_IN_CACHE}")
+                        return@setOnClickListener
+                    }
                     prefetchSettingMaxItemCountInCache = it.toInt()
                 }
             }
 
             (et_ps_asset_size.text).toString()?.let {
+                if (it.toInt() > MAX_ALLOWED_PREFETCH_SIZE) {
+                    toast("Max allowed prefetch size is ${MAX_ALLOWED_PREFETCH_SIZE}")
+                    return@setOnClickListener
+                }
                 if (it.isNotEmpty()) {
                     prefetchSettingAssetPrefetchSize = it.toInt()
                 }
             }
 
             prefetchSettingRemoveCacheOnDestroy = cb_ps_remove_on_destroy.isChecked
+
+            savePrefetchSettingsToPref(prefetchSettingMaxItemCountInCache,
+                    prefetchSettingAssetPrefetchSize,
+                    prefetchSettingRemoveCacheOnDestroy)
 
             fl_prefetch_settings.visibility = View.GONE
 
@@ -99,7 +121,7 @@ class MainActivity : AppCompatActivity() {
         rvAssetList.setHasFixedSize(true)
         rvAssetList.itemAnimator = null
 
-        val provider = getOfflineProvider(KEY_PROVIDER)
+        val provider = getOfflineProvider()
         if (provider > 0) {
             provider_frame.visibility = View.GONE
             offlineManager = if (provider == exoOfflineProvider) {
@@ -204,7 +226,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveOfflineProvider(value: Int) {
-        saveToPref(KEY_PROVIDER, value)
+        saveOfflineProviderToPref(KEY_PROVIDER, value)
     }
 
     private fun updateRecyclerViewAdapter(position: Int) {
@@ -659,9 +681,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onUnRegisterError(
-                assetId: String,
-                downloadType: OfflineManager.DownloadType,
-                error: Exception
+                    assetId: String,
+                    downloadType: OfflineManager.DownloadType,
+                    error: Exception
             ) {
                 toastLong("onUnRegisterError: $assetId, ${downloadType.name}, $error ")
             }
@@ -772,53 +794,95 @@ class MainActivity : AppCompatActivity() {
         provider_frame.startAnimation(anim)
     }
 
-    private fun saveToPref(key: String, value: Int) {
+    private fun saveOfflineProviderToPref(key: String, value: Int) {
         with (offlineSharePref.edit()) {
             putInt(key, value)
             apply()
         }
     }
 
-    private fun getOfflineProvider(key: String): Int {
-        return offlineSharePref.getInt(key, 0)
+    private fun savePrefetchSettingsToPref(itemCountInCache: Int, prefetchSize: Int, removeOnDestroy: Boolean) {
+        with (offlineSharePref.edit()) {
+            putInt(KEY_MAX_ITEM_COUNT_IN_CACHE, itemCountInCache)
+            putInt(KEY_ASSET_PREFERENCE_SIZE, prefetchSize)
+            putBoolean(KEY_REMOVE_CACHE_ON_DESTROY, removeOnDestroy)
+            apply()
+        }
+    }
+
+    private fun getOfflineProvider(): Int {
+        return offlineSharePref.getInt(KEY_PROVIDER, 0)
+    }
+
+    private fun getItemCountInCachePrefetchSettings(): Int {
+        return offlineSharePref.getInt(KEY_MAX_ITEM_COUNT_IN_CACHE, prefetchSettingMaxItemCountInCache)
+    }
+
+    private fun getPrefetchSizePrefetchSettings(): Int {
+        return offlineSharePref.getInt(KEY_ASSET_PREFERENCE_SIZE, prefetchSettingAssetPrefetchSize)
+    }
+
+    private fun getRemoveOnDestroyPrefetchSettings(): Boolean {
+        return offlineSharePref.getBoolean(KEY_REMOVE_CACHE_ON_DESTROY, prefetchSettingRemoveCacheOnDestroy)
+    }
+
+    private fun getSelectedItemForPrefetch(): List<Item> {
+        val selectedItems = mutableListOf<Item>()
+        itemMap.let {
+            if (it.isNotEmpty()) {
+                it.forEach { (queryKey, queryValue) ->
+                    if (queryValue.isSelectedForPrefetching) {
+                        selectedItems.add(queryValue)
+                    }
+                }
+            }
+        }
+        return selectedItems
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
+    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
+        if (offlineManager == null) {
+            toastLong(getString(R.string.no_offline_provider))
+            return false
+        }
+
+        if (offlineManager is DTGOfflineManager) {
+            toastLong(getString(R.string.no_prefetch_for_dtg))
+            return false
+        }
+
+        return when (menuItem.itemId) {
             R.id.action_settings -> {
-                if (offlineManager == null) {
-                    toastLong(getString(R.string.no_offline_provider))
-                    return false
-                }
-
-                if (offlineManager is DTGOfflineManager) {
-                    toastLong(getString(R.string.no_prefetch_for_dtg))
-                    return false
-                }
-
                 if (fl_prefetch_settings.visibility == View.VISIBLE)
                     fl_prefetch_settings.visibility = View.GONE
                 else {
                     if (offlineManager is ExoOfflineManager) {
-                        et_ps_item_in_cache.setText(prefetchSettingMaxItemCountInCache.toString())
-                        et_ps_asset_size.setText(prefetchSettingAssetPrefetchSize.toString())
-                        cb_ps_remove_on_destroy.isChecked = prefetchSettingRemoveCacheOnDestroy
+                        et_ps_item_in_cache.setText(getItemCountInCachePrefetchSettings().toString())
+                        et_ps_asset_size.setText(getPrefetchSizePrefetchSettings().toString())
+                        cb_ps_remove_on_destroy.isChecked = getRemoveOnDestroyPrefetchSettings()
                     }
                     fl_prefetch_settings.visibility = View.VISIBLE
                 }
 
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            R.id.action_prefetch_multiple -> {
+                val selectedItemsForPrefetch = getSelectedItemForPrefetch()
+                if (selectedItemsForPrefetch.isNotEmpty()) {
+                    for (item: Item in selectedItemsForPrefetch) {
+                        doPrefetch(item)
+                    }
+                } else {
+                    toastLong(getString(R.string.no_prefetch_for_options_menu))
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(menuItem)
         }
     }
 
