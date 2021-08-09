@@ -254,7 +254,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 1 -> doStart(item)
                 2 -> doPause(item)
-                3 -> doOfflinePlayback(item)
+                3 -> doOfflinePlayback(item, position)
                 4 -> doOnlinePlayback(item, position)
                 5 -> {
                     doRemove(item)
@@ -321,12 +321,11 @@ class MainActivity : AppCompatActivity() {
         toast("This asset is not prepared.")
     }
 
-    private fun doOfflinePlayback(item: Item) {
+    private fun doOfflinePlayback(item: Item, position: Int) {
         item.assetInfo?.assetId?.let {
             val intent = Intent(this, PlayActivity::class.java)
             val bundle = Bundle()
-            bundle.putLong("startPosition", item.startPosition ?: -1)
-            intent.putExtra("assetBundle", bundle)
+            putValuesInBundle(bundle, item, intent, position)
             intent.data = Uri.parse(it)
             startActivity(intent)
             return
@@ -336,9 +335,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun doOnlinePlayback(item: Item, position: Int) {
         val intent = Intent(this, PlayActivity::class.java)
-
         val bundle = Bundle()
+
         bundle.putBoolean("isOnlinePlayback", true)
+        putValuesInBundle(bundle, item, intent, position)
+        val assetId = item.assetInfo?.assetId ?: ""
+        if (assetId.isNotEmpty()) {
+            intent.data = Uri.parse(assetId)
+        }
+        startActivity(intent)
+    }
+
+    private fun putValuesInBundle(bundle: Bundle, item: Item, intent: Intent, position: Int) {
         bundle.putInt("position", position)
         bundle.putLong("startPosition", item.startPosition ?: -1)
         if (item is OTTItem) {
@@ -350,11 +358,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         intent.putExtra("assetBundle", bundle)
-        val assetId = item.assetInfo?.assetId ?: ""
-        if (!assetId.isEmpty()) {
-            intent.data = Uri.parse(assetId)
-        }
-        startActivity(intent)
     }
 
     private fun doPause(item: Item?) {
@@ -653,6 +656,14 @@ class MainActivity : AppCompatActivity() {
                 val item = itemMap[assetId] ?: return
                 item.drmNotRegistered = true
                 updateRecyclerViewAdapter(item.position)
+            }
+
+            override fun onUnRegisterError(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
+            ) {
+                toastLong("onUnRegisterError: $assetId, ${downloadType.name}, $error ")
             }
 
             override fun onStateChanged(

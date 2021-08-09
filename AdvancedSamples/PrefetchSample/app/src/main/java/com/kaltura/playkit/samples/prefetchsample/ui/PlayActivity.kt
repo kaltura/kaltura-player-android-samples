@@ -46,7 +46,8 @@ private val log = PKLog.get("PlayActivity")
 
 class PlayActivity : AppCompatActivity() {
 
-    private lateinit var player: KalturaPlayer
+    private var manager: OfflineManager? = null
+    private var player: KalturaPlayer? = null
     private lateinit var playDrawable: Drawable
     private lateinit var pauseDrawable: Drawable
 
@@ -59,6 +60,10 @@ class PlayActivity : AppCompatActivity() {
     private var currentVideoTrack: VideoTrack? = null
 
     private var testItems: List<Item>? = null
+    private var currentItemPlayingPosition: Int = 0
+    private var isOnlinePlayback: Boolean = true
+    private var partnerId: Int = 0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,65 +71,120 @@ class PlayActivity : AppCompatActivity() {
 
         playerRoot.systemUiVisibility = SYSTEM_UI_FLAG_FULLSCREEN
 
-        playDrawable = ContextCompat.getDrawable(this@PlayActivity, R.drawable.ic_play_arrow_white_24dp)!!
+        playDrawable = ContextCompat.getDrawable(this@PlayActivity, R.drawable.exo_ic_play_circle_filled)!!
         pauseDrawable = ContextCompat.getDrawable(this@PlayActivity, R.drawable.ic_pause_white_24dp)!!
 
         val bundle = intent.getBundleExtra("assetBundle")
-        val isOnlinePlayback = bundle?.getBoolean("isOnlinePlayback") ?: false
-        val itemIndexPosition = bundle?.getInt("position") ?: -1
-        val startPosition = bundle?.getLong("startPosition") ?: -1
-        val partnerId = bundle?.getInt("partnerId")
+        isOnlinePlayback = bundle?.getBoolean("isOnlinePlayback") ?: false
+        var itemIndexPosition = bundle?.getInt("position") ?: -1
+        currentItemPlayingPosition = itemIndexPosition
+        var startPosition = bundle?.getLong("startPosition") ?: -1
+        partnerId = bundle?.getInt("partnerId") ?: 0
 
-        if (isOnlinePlayback) {
-            val itemsJson = Utils.readAssetToString(this, "appConfig.json")
-            val gson = Gson()
-            val appConfig = gson.fromJson(itemsJson, AppConfig::class.java)
-            testItems = appConfig.items.map { it.toItem() }
-        }
+        val itemsJson = Utils.readAssetToString(this, "appConfig.json")
+        val gson = Gson()
+        val appConfig = gson.fromJson(itemsJson, AppConfig::class.java)
+        testItems = appConfig.items.map { it.toItem() }
+        var testItem = testItems?.get(itemIndexPosition)
 
         val options = PlayerInitOptions(partnerId).apply {
             autoplay = true
             allowCrossProtocolEnabled = true
             offlineProvider = MainActivity.offlineProvider
         }
+        manager = OfflineManager.getInstance(this, options.offlineProvider)
 
         if (isOnlinePlayback) {
-            intent.dataString?.let {
-                var testItem = testItems?.get(itemIndexPosition)
-                playAssetOffline(isOnlinePlayback, it, options, startPosition, testItem)
-            } ?: run {
-                testItems?.let { itemList ->
-                    playAssetOnline(itemList, itemIndexPosition, options)
-                }
-            }
-        } else {
-            intent.dataString?.let {
-                playAssetOffline(isOnlinePlayback, it, options, startPosition, null)
-            } ?: run {
+            if (testItem?.id() != null) {
+                    val entry = manager?.getLocalPlaybackEntry(testItem.id())
+                    if (entry?.sources != null) {
+                        playAssetOffline(isOnlinePlayback, testItem?.id(), options, startPosition, testItem)
+                    } else {
+                        testItems?.let { itemList ->
+                            playAssetOnline(itemList, itemIndexPosition, options)
+                        }
+                    }
+                } else {
                 Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
             }
+        } else {
+
+                var testItem = testItems?.get(itemIndexPosition)
+                if (testItem?.id() != null) {
+                    playAssetOffline(isOnlinePlayback, testItem?.id(), options, startPosition, testItem)
+                } else {
+                    Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
+                }
         }
 
-        player.setPlayerView(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+        player?.setPlayerView(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
         )
-        playerRoot.addView(player.playerView)
+        playerRoot.addView(player?.playerView)
 
         fab_playpause.setOnClickListener {
             togglePlayPause()
         }
 
         fab_replay.setOnClickListener {
-            player.replay()
+            player?.replay()
+        }
+
+        fab_change_media.setOnClickListener {
+
+            val itemsJson = Utils.readAssetToString(this, "appConfig.json")
+            val gson = Gson()
+            val appConfig = gson.fromJson(itemsJson, AppConfig::class.java)
+            testItems = appConfig.items.map { it.toItem() }
+            if (testItems != null) {
+
+                if (currentItemPlayingPosition + 1 == testItems?.size) {
+                    currentItemPlayingPosition = 0
+                } else {
+                    currentItemPlayingPosition += 1
+                }
+
+                val options = PlayerInitOptions(partnerId).apply {
+                    autoplay = true
+                    allowCrossProtocolEnabled = true
+                    offlineProvider = MainActivity.offlineProvider
+                }
+
+                var testItem = testItems?.get(currentItemPlayingPosition)
+                if (testItem?.id() != null) {
+                    val entry = manager?.getLocalPlaybackEntry(testItem.id())
+                    if (entry?.sources != null) {
+                        playAssetOffline(
+                            isOnlinePlayback,
+                            testItem.id(),
+                            options,
+                            startPosition,
+                            testItem
+                        )
+                    } else {
+                        testItems?.let { itemList ->
+                            playAssetOnline(itemList, currentItemPlayingPosition, options)
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
+                }
+            }
         }
 
         fab_replay_10.setOnClickListener {
-            player.seekTo(player.currentPosition - 10000)
+            if (player != null) {
+                var pos = player?.currentPosition ?: 10000
+                player?.seekTo(pos - 10000)
+            }
         }
 
         fab_forward_10.setOnClickListener {
-            player.seekTo(player.currentPosition + 10000)
+            if (player != null) {
+                var pos = player?.currentPosition ?: -10000
+                player?.seekTo(pos + 10000)
+            }
         }
 
         fab_video_track.setOnClickListener {
@@ -338,37 +398,37 @@ class PlayActivity : AppCompatActivity() {
     }
 
     private fun playAssetOffline(isOnlinePlayback: Boolean, assetId: String, options: PlayerInitOptions, startPosition: Long?, item: Item?) {
-        val manager = OfflineManager.getInstance(this, options.offlineProvider)
         if (isOnlinePlayback) {
             addPlugins(item, options)
         }
-        player = KalturaBasicPlayer.create(this, options)
-        val entry = manager.getLocalPlaybackEntry(assetId)
-        player.setMedia(entry, startPosition)
+        if (player == null) {
+            if (item?.playerType == KalturaPlayer.Type.ovp) {
+                player = KalturaOvpPlayer.create(this, options)
+            } else if (item?.playerType == KalturaPlayer.Type.ott) {
+                player = KalturaOttPlayer.create(this, options)
+            }else {
+                player = KalturaBasicPlayer.create(this, options)
+            }
+        }
+        val entry = manager?.getLocalPlaybackEntry(assetId)
+        player?.setMedia(entry, startPosition)
     }
 
     private fun playAssetOnline(itemList: List<Item>, position: Int, options: PlayerInitOptions) {
         when (val item: Item = itemList[position]) {
             is OTTItem -> {
-                if (options.partnerId == 225) {
-                    val phoenixTVPlayerParams = PhoenixTVPlayerParams()
-                    phoenixTVPlayerParams.analyticsUrl = "https://analytics.kaltura.com"
-                    phoenixTVPlayerParams.ovpPartnerId = 1982551
-                    phoenixTVPlayerParams.partnerId = 225
-                    phoenixTVPlayerParams.serviceUrl = "https://rest-as.ott.kaltura.com/v5_2_8/"
-                    phoenixTVPlayerParams.ovpServiceUrl = "http://cdnapi.kaltura.com/"
-                    options.tvPlayerParams = phoenixTVPlayerParams
-                }
                 addPlugins(item, options)
-                player = KalturaOttPlayer.create(this, options)
-                player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
+                if (player == null) {
+                    player = KalturaOttPlayer.create(this, options)
+                }
+                player?.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error error = " + error.message + " Extra = " + error.extra)
                         runOnUiThread {
                             Snackbar.make(
-                                    findViewById<View>(android.R.id.content),
-                                    error.message,
-                                    Snackbar.LENGTH_LONG
+                                findViewById<View>(android.R.id.content),
+                                error.message,
+                                Snackbar.LENGTH_LONG
                             ).show()
                         }
                     } else {
@@ -378,15 +438,18 @@ class PlayActivity : AppCompatActivity() {
             }
             is OVPItem -> {
                 addPlugins(item, options)
-                player = KalturaOvpPlayer.create(this, options)
-                player.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
+                if (player == null) {
+                    player = KalturaOvpPlayer.create(this, options)
+                }
+
+                player?.loadMedia(item.mediaOptions()) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error error = " + error.message + " Extra = " + error.extra)
                         runOnUiThread {
                             Snackbar.make(
-                                    findViewById<View>(android.R.id.content),
-                                    error.message,
-                                    Snackbar.LENGTH_LONG
+                                findViewById<View>(android.R.id.content),
+                                error.message,
+                                Snackbar.LENGTH_LONG
                             ).show()
                         }
                     } else {
@@ -397,8 +460,10 @@ class PlayActivity : AppCompatActivity() {
             is BasicItem -> {
                 item.entry?.let {
                     addPlugins(item, options)
-                    player = KalturaBasicPlayer.create(this, options)
-                    player.setMedia(it, item.startPosition)
+                    if (player == null) {
+                        player = KalturaBasicPlayer.create(this, options)
+                    }
+                    player?.setMedia(it, item.startPosition)
                 }
             }
             else -> {
@@ -433,18 +498,18 @@ class PlayActivity : AppCompatActivity() {
 
                 val currentTrack = currentAudioTrack
                 val currentIndex =
-                        if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
+                    if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
                 val selected = intArrayOf(currentIndex)
                 Builder(this)
-                        .setTitle("Select track")
-                        .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
-                            selected[0] = i
+                    .setTitle("Select track")
+                    .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
+                        selected[0] = i
+                    }
+                    .setPositiveButton("OK") { _, _ ->
+                        if (selected[0] >= 0) {
+                            player?.changeTrack(trackIds[selected[0]])
                         }
-                        .setPositiveButton("OK") { _, _ ->
-                            if (selected[0] >= 0) {
-                                player.changeTrack(trackIds[selected[0]])
-                            }
-                        }.show()
+                    }.show()
             }
             DownloadItem.TrackType.TEXT -> {
                 val tracks = textTracks
@@ -466,18 +531,18 @@ class PlayActivity : AppCompatActivity() {
 
                 val currentTrack = currentTextTrack
                 val currentIndex =
-                        if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
+                    if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
                 val selected = intArrayOf(currentIndex)
                 Builder(this)
-                        .setTitle("Select track")
-                        .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
-                            selected[0] = i
+                    .setTitle("Select track")
+                    .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
+                        selected[0] = i
+                    }
+                    .setPositiveButton("OK") { _, _ ->
+                        if (selected[0] >= 0) {
+                            player?.changeTrack(trackIds[selected[0]])
                         }
-                        .setPositiveButton("OK") { _, _ ->
-                            if (selected[0] >= 0) {
-                                player.changeTrack(trackIds[selected[0]])
-                            }
-                        }.show()
+                    }.show()
             }
             DownloadItem.TrackType.VIDEO -> {
                 val tracks = videoTracks
@@ -503,29 +568,29 @@ class PlayActivity : AppCompatActivity() {
 
                 val currentTrack = currentVideoTrack
                 val currentIndex =
-                        if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
+                    if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
                 val selected = intArrayOf(currentIndex)
                 Builder(this)
-                        .setTitle("Select track")
-                        .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
-                            selected[0] = i
+                    .setTitle("Select track")
+                    .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
+                        selected[0] = i
+                    }
+                    .setPositiveButton("OK") { _, _ ->
+                        if (selected[0] >= 0) {
+                            player?.changeTrack(trackIds[selected[0]])
                         }
-                        .setPositiveButton("OK") { _, _ ->
-                            if (selected[0] >= 0) {
-                                player.changeTrack(trackIds[selected[0]])
-                            }
-                        }.show()
+                    }.show()
             }
         }
     }
 
     private fun addPlayerEventListeners() {
 
-        player.addListener(this, playing) {
+        player?.addListener(this, playing) {
             updatePlayPauseButton(true)
         }
 
-        player.addListener(this, tracksAvailable) {
+        player?.addListener(this, tracksAvailable) {
             val tracksInfo: PKTracks = it.tracksInfo
             audioTracks = tracksInfo.audioTracks
             textTracks = tracksInfo.textTracks
@@ -541,36 +606,36 @@ class PlayActivity : AppCompatActivity() {
             }
         }
 
-        player.addListener(this, audioTrackChanged) {
+        player?.addListener(this, audioTrackChanged) {
             currentAudioTrack = it.newTrack
             currentAudioTrack?.let { track ->
                 log.d("currentAudioTrack: ${track.uniqueId} ${track.language}")
             }
         }
 
-        player.addListener(this, textTrackChanged) {
+        player?.addListener(this, textTrackChanged) {
             currentTextTrack = it.newTrack
             log.d("currentTextTrack: $currentTextTrack")
         }
 
-        player.addListener(this, videoTrackChanged) {
+        player?.addListener(this, videoTrackChanged) {
             currentVideoTrack = it.newTrack
             log.d("currentVideoTrack: $currentVideoTrack")
         }
 
-        player.addListener(this, error) {
+        player?.addListener(this, error) {
             var message: String? = it.error.message
             log.e("error: ${it.error.errorType} $message")
         }
     }
 
     private fun togglePlayPause() {
-        val playing = player.isPlaying
+        val playing = player?.isPlaying ?: false
 
         if (playing) {
-            player.pause()
+            player?.pause()
         } else {
-            player.play()
+            player?.play()
         }
 
         updatePlayPauseButton(!playing)
@@ -583,6 +648,6 @@ class PlayActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        player.destroy()
+        player?.destroy()
     }
 }
