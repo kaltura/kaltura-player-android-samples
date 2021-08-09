@@ -88,6 +88,10 @@ class MainActivity : AppCompatActivity() {
                 updateItemStatus(assetId)
             }
 
+            override fun onUnRegisterError(assetId: String, downloadType: OfflineManager.DownloadType, error: java.lang.Exception) {
+                toastLong("onUnRegisterError: $assetId $error")
+            }
+
             override fun onStateChanged(assetId: String, downloadType: OfflineManager.DownloadType, assetInfo: OfflineManager.AssetInfo) {
                 toast("onStateChanged")
                 updateItemStatus(assetId)

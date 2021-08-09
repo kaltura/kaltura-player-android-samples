@@ -112,6 +112,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onUnRegisterError(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
+                toastLong("onUnRegisterError:" + assetId + " " + error);
+            }
+
+            @Override
             public void onStateChanged(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull OfflineManager.AssetInfo assetInfo) {
                 toast("onStateChanged");
                 updateItemStatus(assetId);
