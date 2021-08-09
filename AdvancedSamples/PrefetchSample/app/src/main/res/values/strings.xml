@@ -19,6 +19,7 @@
     <string name="message_enable_prefetch">Enable checkbox for prefetch.</string>
 
     <string name="settings_prefetch">Prefetch Settings</string>
+    <string name="settings_prefetch_multiple">Prefetch Multiple</string>
     <string name="maxItemCountInCache">Maximum item count in cache for prefetch</string>
     <string name="assetPrefetchSize">Prefetch size for asset(in MB)</string>
     <string name="removeCacheOnDestroy">Destroy prefetched items when app quits</string>

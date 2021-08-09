@@ -1,6 +1,7 @@
 package com.kaltura.playkit.samples.prefetchsample
 
 import android.annotation.SuppressLint
+import android.text.BoringLayout
 import android.text.TextUtils
 import com.google.gson.JsonArray
 import com.kaltura.playkit.PKDrmParams
@@ -20,7 +21,8 @@ abstract class Item (val playerType: KalturaPlayer.Type, val selectionPrefs: Sel
                      var plugins: JsonArray?,
                      var position: Int = -1,
                      var drmNotRegistered: Boolean? = false, // Just to understand if the asset has failed with drm registration
-                     var isOfflineProviderExo: Boolean = false) {
+                     var isOfflineProviderExo: Boolean = false,
+                     var isSelectedForPrefetching: Boolean = false) {
 
     var entry: PKMediaEntry? = null
     var assetInfo: OfflineManager.AssetInfo? = null

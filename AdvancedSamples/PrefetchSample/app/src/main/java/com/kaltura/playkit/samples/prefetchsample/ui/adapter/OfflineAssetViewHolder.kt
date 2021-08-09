@@ -6,7 +6,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.kaltura.playkit.samples.prefetchsample.R
 
-class OfflineAssetViewHolder(itemView: View, val itemClick: (Int) -> Unit, val checkBoxClicked: (Int, Boolean, CheckBox, TextView) -> Unit): RecyclerView.ViewHolder(itemView) {
+class OfflineAssetViewHolder(itemView: View,
+                             val itemClick: (Int) -> Unit,
+                             val checkBoxClicked: (Int, Boolean, CheckBox, TextView) -> Unit,
+                             val itemLongClick: (Int) -> Unit) : RecyclerView.ViewHolder(itemView) {
 
     internal var tvItemName: TextView
     internal var tvItemStatus: TextView
