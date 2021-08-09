@@ -325,9 +325,7 @@ class MainActivity : AppCompatActivity() {
         item.assetInfo?.assetId?.let {
             val intent = Intent(this, PlayActivity::class.java)
             val bundle = Bundle()
-            bundle.putInt("position", position)
-            bundle.putLong("startPosition", item.startPosition ?: -1)
-            intent.putExtra("assetBundle", bundle)
+            putValuesInBundle(bundle, item, intent, position)
             intent.data = Uri.parse(it)
             startActivity(intent)
             return
@@ -337,9 +335,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun doOnlinePlayback(item: Item, position: Int) {
         val intent = Intent(this, PlayActivity::class.java)
-
         val bundle = Bundle()
+
         bundle.putBoolean("isOnlinePlayback", true)
+        putValuesInBundle(bundle, item, intent, position)
+        val assetId = item.assetInfo?.assetId ?: ""
+        if (assetId.isNotEmpty()) {
+            intent.data = Uri.parse(assetId)
+        }
+        startActivity(intent)
+    }
+
+    private fun putValuesInBundle(bundle: Bundle, item: Item, intent: Intent, position: Int) {
         bundle.putInt("position", position)
         bundle.putLong("startPosition", item.startPosition ?: -1)
         if (item is OTTItem) {
@@ -351,11 +358,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         intent.putExtra("assetBundle", bundle)
-        val assetId = item.assetInfo?.assetId ?: ""
-        if (!assetId.isEmpty()) {
-            intent.data = Uri.parse(assetId)
-        }
-        startActivity(intent)
     }
 
     private fun doPause(item: Item?) {

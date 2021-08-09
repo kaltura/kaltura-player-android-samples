@@ -61,8 +61,8 @@ class PlayActivity : AppCompatActivity() {
 
     private var testItems: List<Item>? = null
     private var currentItemPlayingPosition: Int = 0
-    private var isOnlinePlayback: Boolean = true;
-
+    private var isOnlinePlayback: Boolean = true
+    private var partnerId: Int = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +79,7 @@ class PlayActivity : AppCompatActivity() {
         var itemIndexPosition = bundle?.getInt("position") ?: -1
         currentItemPlayingPosition = itemIndexPosition
         var startPosition = bundle?.getLong("startPosition") ?: -1
-        val partnerId = bundle?.getInt("partnerId")
+        partnerId = bundle?.getInt("partnerId") ?: 0
 
         val itemsJson = Utils.readAssetToString(this, "appConfig.json")
         val gson = Gson()
