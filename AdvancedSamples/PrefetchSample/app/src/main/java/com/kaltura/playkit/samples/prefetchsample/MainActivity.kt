@@ -16,6 +16,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.*
@@ -27,6 +30,7 @@ import com.kaltura.playkit.samples.prefetchsample.ui.PlayActivity
 import com.kaltura.playkit.samples.prefetchsample.ui.adapter.RvOfflineAssetsAdapter
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
+import com.kaltura.tvplayer.offline.Prefetch
 import com.kaltura.tvplayer.offline.dtg.DTGOfflineManager
 import com.kaltura.tvplayer.offline.exo.ExoOfflineManager
 import com.kaltura.tvplayer.offline.exo.PrefetchConfig
@@ -37,18 +41,19 @@ import kotlinx.android.synthetic.main.view_item.*
 import kotlinx.android.synthetic.main.view_prefetch_config.*
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     val log = PKLog.get("MainActivity")
 
     private lateinit var rvOfflineAssetsAdapter: RvOfflineAssetsAdapter
     private val itemMap = mutableMapOf<String, Item>()
     private var offlineManager: OfflineManager? = null
+    private var prefetchManager: Prefetch? = null
     private lateinit var offlineSharePref: SharedPreferences
     private val KEY_PROVIDER: String = "KEY_OFFLINE_PROVIDER"
     private val KEY_MAX_ITEM_COUNT_IN_CACHE: String = "KEY_ITEM_COUNT_IN_CACHE"
     private val KEY_ASSET_PREFERENCE_SIZE: String = "KEY_PREFERENCE_SIZE"
-    private val KEY_REMOVE_CACHE_ON_DESTROY: String = "KEY_REMOVE_CACHE"
+    private val KEY_REMOVE_CACHE: String = "KEY_REMOVE_CACHE"
     private val dtgOfflineProvider: Int = 1
     private val exoOfflineProvider: Int = 2
 
@@ -57,13 +62,15 @@ class MainActivity : AppCompatActivity() {
 
     private var prefetchSettingMaxItemCountInCache: Int = 20
     private var prefetchSettingAssetPrefetchSize: Int = 2 // IN MB
-    private var prefetchSettingRemoveCacheOnDestroy: Boolean = true
+    private var prefetchSettingRemoveCache: Boolean = true
 
     var startTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        lifecycle.addObserver(this)
 
         offlineSharePref = getPreferences(Context.MODE_PRIVATE)
 
@@ -82,7 +89,7 @@ class MainActivity : AppCompatActivity() {
 
         prefetchSettingMaxItemCountInCache = getItemCountInCachePrefetchSettings()
         prefetchSettingAssetPrefetchSize = getPrefetchSizePrefetchSettings()
-        prefetchSettingRemoveCacheOnDestroy = getRemoveOnDestroyPrefetchSettings()
+        prefetchSettingRemoveCache = getRemoveCachePrefetchSettings()
 
         btn_sumbit_prefetch_settings.setOnClickListener {
             (et_ps_item_in_cache.text).toString()?.let {
@@ -105,11 +112,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            prefetchSettingRemoveCacheOnDestroy = cb_ps_remove_on_destroy.isChecked
+            prefetchSettingRemoveCache = cb_ps_remove_cache.isChecked
 
             savePrefetchSettingsToPref(prefetchSettingMaxItemCountInCache,
                     prefetchSettingAssetPrefetchSize,
-                    prefetchSettingRemoveCacheOnDestroy)
+                    prefetchSettingRemoveCache)
 
             fl_prefetch_settings.visibility = View.GONE
 
@@ -180,6 +187,11 @@ class MainActivity : AppCompatActivity() {
                 rvOfflineAssetsAdapter.isOfflineProviderExo(true)
                 rvOfflineAssetsAdapter.notifyDataSetChanged()
             }
+            prefetchManager = offlineManager?.getPrefetchManager(PrefetchConfig().apply {
+                isCleanPrefetchedAssets = prefetchSettingRemoveCache
+                maxItemCountInCache = prefetchSettingMaxItemCountInCache
+                assetPrefetchSize = prefetchSettingAssetPrefetchSize
+            })
             toastLong(getString(R.string.message_enable_prefetch))
         }
 
@@ -534,9 +546,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doPrefetch(item: Item) {
-        val prefetchManager = offlineManager?.prefetchManager
+
         prefetchManager?.setPrefetchConfig(PrefetchConfig().apply {
-            isRemoveCacheOnDestroy = prefetchSettingRemoveCacheOnDestroy
+            isCleanPrefetchedAssets = prefetchSettingRemoveCache
             maxItemCountInCache = prefetchSettingMaxItemCountInCache
             assetPrefetchSize = prefetchSettingAssetPrefetchSize
         })
@@ -802,11 +814,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun savePrefetchSettingsToPref(itemCountInCache: Int, prefetchSize: Int, removeOnDestroy: Boolean) {
+    private fun savePrefetchSettingsToPref(itemCountInCache: Int, prefetchSize: Int, removeCache: Boolean) {
         with (offlineSharePref.edit()) {
             putInt(KEY_MAX_ITEM_COUNT_IN_CACHE, itemCountInCache)
             putInt(KEY_ASSET_PREFERENCE_SIZE, prefetchSize)
-            putBoolean(KEY_REMOVE_CACHE_ON_DESTROY, removeOnDestroy)
+            putBoolean(KEY_REMOVE_CACHE, removeCache)
             apply()
         }
     }
@@ -823,8 +835,8 @@ class MainActivity : AppCompatActivity() {
         return offlineSharePref.getInt(KEY_ASSET_PREFERENCE_SIZE, prefetchSettingAssetPrefetchSize)
     }
 
-    private fun getRemoveOnDestroyPrefetchSettings(): Boolean {
-        return offlineSharePref.getBoolean(KEY_REMOVE_CACHE_ON_DESTROY, prefetchSettingRemoveCacheOnDestroy)
+    private fun getRemoveCachePrefetchSettings(): Boolean {
+        return offlineSharePref.getBoolean(KEY_REMOVE_CACHE, prefetchSettingRemoveCache)
     }
 
     private fun getSelectedItemForPrefetch(): List<Item> {
@@ -865,7 +877,7 @@ class MainActivity : AppCompatActivity() {
                     if (offlineManager is ExoOfflineManager) {
                         et_ps_item_in_cache.setText(getItemCountInCachePrefetchSettings().toString())
                         et_ps_asset_size.setText(getPrefetchSizePrefetchSettings().toString())
-                        cb_ps_remove_on_destroy.isChecked = getRemoveOnDestroyPrefetchSettings()
+                        cb_ps_remove_cache.isChecked = getRemoveCachePrefetchSettings()
                     }
                     fl_prefetch_settings.visibility = View.VISIBLE
                 }
@@ -887,10 +899,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun destroy() {
         offlineManager?.let {
             // Removing listeners by setting it to null
+            log.d("offlineManager destroy")
             it.setAssetStateListener(null)
             it.setDownloadProgressListener(null)
             it.stop()
