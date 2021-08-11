@@ -4,15 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PlayActivity">
+    android:background="#ff000000"
+    tools:context=".ui.PlayActivity">
 
-    <include layout="@layout/content_play" />
+    <include layout="@layout/content_play"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_gravity="center_vertical"/>
 
     <LinearLayout
+        android:id="@+id/ll_player_controls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-
         android:orientation="vertical"
         android:padding="16dp">
 

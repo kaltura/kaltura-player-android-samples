@@ -24,6 +24,7 @@ import com.kaltura.playkit.player.AudioTrack
 import com.kaltura.playkit.player.PKTracks
 import com.kaltura.playkit.player.TextTrack
 import com.kaltura.playkit.player.VideoTrack
+import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
 import com.kaltura.playkit.plugins.kava.KavaAnalyticsPlugin
@@ -199,6 +200,7 @@ class PlayActivity : AppCompatActivity() {
         }
 
         addPlayerEventListeners()
+        addAdEventListeners()
     }
 
     private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray?, setPlugin: Boolean): PKPluginConfigs {
@@ -468,6 +470,18 @@ class PlayActivity : AppCompatActivity() {
             else -> {
                 Toast.makeText(this, "No Player Type found", LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun addAdEventListeners() {
+        player?.addListener(this, AdEvent.contentResumeRequested) {
+            log.d("ADS_PLAYBACK_ENDED")
+            ll_player_controls.visibility = View.VISIBLE
+        }
+
+        player?.addListener(this, AdEvent.contentPauseRequested) {
+            log.d("AD_CONTENT_PAUSE_REQUESTED")
+            ll_player_controls.visibility = View.GONE
         }
     }
 
