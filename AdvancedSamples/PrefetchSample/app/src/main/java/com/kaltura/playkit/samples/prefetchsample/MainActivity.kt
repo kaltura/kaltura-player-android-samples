@@ -186,13 +186,13 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             if (offlineManager is ExoOfflineManager) {
                 rvOfflineAssetsAdapter.isOfflineProviderExo(true)
                 rvOfflineAssetsAdapter.notifyDataSetChanged()
+                prefetchManager = offlineManager?.getPrefetchManager(PrefetchConfig().apply {
+                    isCleanPrefetchedAssets = prefetchSettingRemoveCache
+                    maxItemCountInCache = prefetchSettingMaxItemCountInCache
+                    assetPrefetchSize = prefetchSettingAssetPrefetchSize
+                })
+                toastLong(getString(R.string.message_enable_prefetch))
             }
-            prefetchManager = offlineManager?.getPrefetchManager(PrefetchConfig().apply {
-                isCleanPrefetchedAssets = prefetchSettingRemoveCache
-                maxItemCountInCache = prefetchSettingMaxItemCountInCache
-                assetPrefetchSize = prefetchSettingAssetPrefetchSize
-            })
-            toastLong(getString(R.string.message_enable_prefetch))
         }
 
         val offlineSettings = OfflineManagerSettings()
