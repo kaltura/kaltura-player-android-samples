@@ -30,12 +30,12 @@ android {
 
 dependencies {
 
-    //implementation 'com.kaltura.player:tvplayer:4.15.0'
-    //implementation 'com.kaltura.playkit:smartswitchplugin:4.15.0'
+    implementation 'com.kaltura.player:tvplayer:4.15.0'
+    implementation 'com.kaltura.playkit:smartswitchplugin:4.15.0'
 
 
-    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
-    implementation 'com.kaltura:playkit-android-smartSwitch:develop-SNAPSHOT'
+    //implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
+    //implementation 'com.kaltura:playkit-android-smartSwitch:develop-SNAPSHOT'
 
     //implementation project(':tvplayer')
     //implementation project(':smartswitchplugin')
