@@ -88,7 +88,7 @@ public class PlayActivity extends AppCompatActivity {
             playAssetOnline(testItems, position, options);
         } else {
             player = KalturaBasicPlayer.create(this, options);
-            OfflineManager manager = OfflineManager.getInstance(this);
+            OfflineManager manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG);
             if (getIntent().getDataString() != null) {
                 PKMediaEntry entry = null;
                 try {
@@ -289,6 +289,24 @@ public class PlayActivity extends AppCompatActivity {
         }
 
         ((ImageView)findViewById(R.id.fab_playpause)).setImageDrawable(next);
+    }
+
+    @Override
+    protected void onPause() {
+        if (player != null && player.isPlaying()) {
+            updatePlayPauseButton(player.isPlaying());
+            player.onApplicationPaused();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (player != null) {
+            updatePlayPauseButton(player.isPlaying());
+            player.onApplicationResumed();
+        }
     }
 
     @Override

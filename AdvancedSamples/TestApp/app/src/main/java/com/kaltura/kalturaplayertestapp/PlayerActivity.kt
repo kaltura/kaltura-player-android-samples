@@ -291,7 +291,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (it.get(currentPlayedMediaIndex).externalSubtitles != null) {
                     mediaEntry?.externalSubtitleList = it.get(currentPlayedMediaIndex).externalSubtitles
                 }
-                player?.setMedia(mediaEntry, 0L)
+                mediaEntry?.let {
+                    player?.setMedia(it, 0L)
+                }
             } else {
                 log.e("Error no such player type <" + appPlayerInitConfig?.playerType + ">")
             }
@@ -519,7 +521,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (initOptions.vrSettings != null) {
                     mediaEntry?.setIsVRMediaType(true)
                 }
-                player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
+                mediaEntry?.let {
+                    player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
+                }
             } else {
                 // PLAYLIST
                 handleBasicPlayerPlaylist(appPlayerInitConfig, player)
@@ -558,6 +562,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     playbackControlsManager?.addChangeMediaImgButtonsListener(it.size)
                 }
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
+            }
+        }
+    }
+
+    private fun setPlaybackRate(playListMediaIndex: Int) {
+        mediaList?.let {
+            it[playListMediaIndex].playbackRate?.let { rate ->
+                player?.playbackRate = rate
             }
         }
     }
@@ -794,9 +806,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             return basicMediasOptionsList;
         }
         mediaList.forEach {
-            var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, it.countDownOptions)
+            it.countDownOptions?.let { countdown ->
+                var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, countdown)
+                basicMediasOptionsList.add(basicMediaOptions)
+            }
 
-            basicMediasOptionsList.add(basicMediaOptions)
         }
         return basicMediasOptionsList
     }
@@ -1205,6 +1219,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
             if (tracks.getVideoTracks().size > 0) {
                 log.d("Default video isAdaptive = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).isAdaptive() + " bitrate = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).getBitrate())
+            }
+
+            runOnUiThread {
+                setPlaybackRate(currentPlayedMediaIndex)
             }
         }
 
