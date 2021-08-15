@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG);
-        manager.setOfflineManagerSettings(new OfflineManagerSettings().setHlsAudioBitrateEstimation(64000));
+        manager.setOfflineManagerSettings(new OfflineManagerSettings().setHlsAudioBitrateEstimation(OfflineManagerSettings.DEFAULT_HLS_AUDIO_BITRATE_ESTIMATION)));
 
         manager.setAssetStateListener(new OfflineManager.AssetStateListener() {
             @Override
