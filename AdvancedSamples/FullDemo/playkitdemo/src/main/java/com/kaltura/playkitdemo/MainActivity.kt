@@ -109,7 +109,6 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
     private var userIsInteracting: Boolean = false
     private var tracksInfo: PKTracks? = null
     private var playerState: PlayerState? = null
-    private var playerInitOptions: PlayerInitOptions? = null
     private var changeMediaIndex = -1
     private var START_POSITION: Long? = 0L//65L
 
@@ -335,7 +334,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
 
     fun loadKalturaPlayer(mediaPartnerId: Int?, playerType: KalturaPlayer.Type, pkPluginConfigs: PKPluginConfigs) {
 
-        playerInitOptions = PlayerInitOptions(mediaPartnerId)
+        var playerInitOptions = PlayerInitOptions(mediaPartnerId)
         playerInitOptions?.setAutoPlay(true)
         playerInitOptions?.setPreload(true)
         playerInitOptions?.setSecureSurface(false)
@@ -390,7 +389,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
      * @param pkPluginConfigs  Configurations like IMA Ads, Youbora etc
      */
     fun loadBasicKalturaPlayer(pkMediaEntry: PKMediaEntry, pkPluginConfigs: PKPluginConfigs) {
-        playerInitOptions = PlayerInitOptions()
+        var playerInitOptions = PlayerInitOptions()
 
         playerInitOptions?.setPluginConfigs(pkPluginConfigs)
 
