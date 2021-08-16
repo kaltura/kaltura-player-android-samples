@@ -287,7 +287,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
     fun loadPlaykitPlayer() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
         // IMA Configuration
         val pkPluginConfigs = PKPluginConfigs()

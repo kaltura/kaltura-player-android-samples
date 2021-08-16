@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.kaltura.netkit.utils.GsonParser
 import com.kaltura.playkit.PKLog
+import com.kaltura.playkit.PKRequestConfig
 import com.kaltura.playkit.Utils
 import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.KalturaOvpPlayer
@@ -76,7 +77,7 @@ class OVPDemoActivity : BaseDemoActivity() {
         updatedInitOptions.setAspectRatioResizeMode(initOptions?.aspectRatioResizeMode)
         updatedInitOptions.setPreferredMediaFormat(initOptions?.preferredMediaFormat)
         updatedInitOptions.setAllowClearLead(initOptions?.allowClearLead)
-        updatedInitOptions.setAllowCrossProtocolEnabled(initOptions?.allowCrossProtocolEnabled)
+        updatedInitOptions.setPKRequestConfig(PKRequestConfig(initOptions?.allowCrossProtocolEnabled ?: false))
         updatedInitOptions.setSecureSurface(initOptions?.secureSurface)
         updatedInitOptions.setKs(initOptions?.ks)
         updatedInitOptions.setAutoPlay(initOptions?.autoplay)

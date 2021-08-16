@@ -339,7 +339,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, Or
         playerInitOptions?.setPreload(true)
         playerInitOptions?.setSecureSurface(false)
         playerInitOptions?.setAdAutoPlayOnResume(true)
-        playerInitOptions?.setAllowCrossProtocolEnabled(true)
+        playerInitOptions?.setPKRequestConfig(PKRequestConfig(true))
         playerInitOptions?.setReferrer("app://MyApplicationDomain")
         // playerInitOptions.setLoadControlBuffers(new LoadControlBuffers());
 

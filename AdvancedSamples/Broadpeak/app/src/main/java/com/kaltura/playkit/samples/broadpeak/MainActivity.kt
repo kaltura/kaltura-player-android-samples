@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
         // Broadpeak Configuration
         val pkPluginConfigs = PKPluginConfigs()

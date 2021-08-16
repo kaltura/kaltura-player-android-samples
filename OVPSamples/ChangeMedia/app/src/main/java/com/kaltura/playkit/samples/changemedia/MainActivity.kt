@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
+import com.kaltura.playkit.PKRequestConfig
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.providers.ovp.OVPMediaAsset
@@ -206,7 +207,7 @@ class MainActivity : AppCompatActivity() {
     fun loadPlaykitPlayer() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
         playerInitOptions.mediaEntryCacheConfig = MediaEntryCacheConfig(true, 10, 60000)
         player = KalturaOvpPlayer.create(this@MainActivity, playerInitOptions)
 

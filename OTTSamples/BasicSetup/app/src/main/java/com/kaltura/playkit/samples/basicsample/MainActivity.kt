@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
+import com.kaltura.playkit.PKRequestConfig
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
@@ -125,8 +126,7 @@ class MainActivity : AppCompatActivity() {
     fun loadPlaykitPlayer() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
-
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         val container = player_root
