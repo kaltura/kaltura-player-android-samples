@@ -385,7 +385,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setKs(appPlayerInitConfig.ks)
                 .setPreload(appPlayerInitConfig.preload)
                 .setReferrer(appPlayerInitConfig.referrer)
-                .setAllowCrossProtocolEnabled(appPlayerInitConfig.allowCrossProtocolEnabled)
                 .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
                 .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
                 .setSecureSurface(appPlayerInitConfig.secureSurface)
@@ -416,6 +415,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setMulticastSettings(appPlayerInitConfig.multicastSettings)
                 .setMediaEntryCacheConfig(appPlayerInitConfig.mediaEntryCacheConfig)
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject, true))
+
+        if (appPlayerInitConfig.playerRequestConfig == null && appPlayerInitConfig.allowCrossProtocolEnabled != null) {
+            initOptions.setPKRequestConfig(PKRequestConfig(appPlayerInitConfig.allowCrossProtocolEnabled)) // support legacy
+        }
 
         appPlayerInitConfig.trackSelection?.let {
             it.audioSelectionMode?.let { selectionModeAudio ->

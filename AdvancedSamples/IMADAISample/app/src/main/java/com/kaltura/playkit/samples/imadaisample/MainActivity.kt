@@ -13,10 +13,7 @@ import android.widget.FrameLayout
 import com.google.ads.interactivemedia.v3.api.FriendlyObstructionPurpose
 
 import com.google.ads.interactivemedia.v3.api.StreamRequest
-import com.kaltura.playkit.PKMediaConfig
-import com.kaltura.playkit.PKPluginConfigs
-import com.kaltura.playkit.PlayerEvent
-import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.PKFriendlyObstruction
@@ -415,7 +412,7 @@ class MainActivity: AppCompatActivity() {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
         // IMA DAI Configuration
         playerInitOptions.setPluginConfigs(createIMADAIPlugin())

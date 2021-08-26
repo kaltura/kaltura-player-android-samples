@@ -82,7 +82,7 @@ public class PlayActivity extends AppCompatActivity {
             }
         }
 
-        PlayerInitOptions options = new PlayerInitOptions(partnerId).setAutoPlay(true).setAllowCrossProtocolEnabled(true);
+        PlayerInitOptions options = new PlayerInitOptions(partnerId).setAutoPlay(true).setPKRequestConfig(PKRequestConfig(true));
 
         if (isOnlinePlayback && testItems != null && !testItems.isEmpty()) {
             playAssetOnline(testItems, position, options);

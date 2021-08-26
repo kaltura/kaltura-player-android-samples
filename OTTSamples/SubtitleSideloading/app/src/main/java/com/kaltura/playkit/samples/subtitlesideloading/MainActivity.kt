@@ -12,6 +12,7 @@ import android.widget.FrameLayout
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
+import com.kaltura.playkit.PKRequestConfig
 import com.kaltura.playkit.PKSubtitleFormat
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
@@ -446,7 +447,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setSubtitleStyle(defaultPositionDefault)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
         playerInitOptions.setAutoPlay(true)
 
 
