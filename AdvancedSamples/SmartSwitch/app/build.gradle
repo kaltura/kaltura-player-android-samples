@@ -38,7 +38,7 @@ dependencies {
     //implementation 'com.kaltura:playkit-android-smartSwitch:develop-SNAPSHOT'
 
     //implementation project(':tvplayer')
-    //implementation project(':smartswitchplugin')
+    //implementation project(':smartswitch')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('androidx.test.espresso:espresso-core:3.4.0')
