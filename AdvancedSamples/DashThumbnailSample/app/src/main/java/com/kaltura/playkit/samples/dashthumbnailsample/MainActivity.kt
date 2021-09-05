@@ -287,7 +287,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
     fun loadPlaykitPlayer() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
         // IMA Configuration
         val pkPluginConfigs = PKPluginConfigs()
@@ -336,7 +336,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {
@@ -357,7 +357,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
 
-        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {

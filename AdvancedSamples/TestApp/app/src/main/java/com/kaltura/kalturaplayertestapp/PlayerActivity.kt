@@ -263,7 +263,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (KalturaPlayer.Type.ovp == appPlayerInitConfig?.playerType) {
                 val ovpMediaOptions = buildOvpMediaOptions(0L, currentPlayedMediaIndex) ?: return
 
-                player?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, error ->
+                player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
                     var entryId = ""
                     if (entry != null) {
                         entryId = entry.getId()
@@ -274,7 +274,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             } else if (KalturaPlayer.Type.ott == appPlayerInitConfig?.playerType) {
                 val ottMediaOptions = buildOttMediaOptions(0L, currentPlayedMediaIndex) ?: return
 
-                player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, error ->
+                player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
                     var entryId = ""
                     if (entry != null) {
                         entryId = entry.getId()
@@ -291,7 +291,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (it.get(currentPlayedMediaIndex).externalSubtitles != null) {
                     mediaEntry?.externalSubtitleList = it.get(currentPlayedMediaIndex).externalSubtitles
                 }
-                player?.setMedia(mediaEntry, 0L)
+                mediaEntry?.let {
+                    player?.setMedia(it, 0L)
+                }
             } else {
                 log.e("Error no such player type <" + appPlayerInitConfig?.playerType + ">")
             }
@@ -383,7 +385,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setKs(appPlayerInitConfig.ks)
                 .setPreload(appPlayerInitConfig.preload)
                 .setReferrer(appPlayerInitConfig.referrer)
-                .setAllowCrossProtocolEnabled(appPlayerInitConfig.allowCrossProtocolEnabled)
                 .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
                 .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
                 .setSecureSurface(appPlayerInitConfig.secureSurface)
@@ -414,6 +415,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 .setMulticastSettings(appPlayerInitConfig.multicastSettings)
                 .setMediaEntryCacheConfig(appPlayerInitConfig.mediaEntryCacheConfig)
                 .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject, true))
+
+        if (appPlayerInitConfig.playerRequestConfig == null && appPlayerInitConfig.allowCrossProtocolEnabled != null) {
+            initOptions.setPKRequestConfig(PKRequestConfig(appPlayerInitConfig.allowCrossProtocolEnabled)) // support legacy
+        }
 
         appPlayerInitConfig.trackSelection?.let {
             it.audioSelectionMode?.let { selectionModeAudio ->
@@ -453,7 +458,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             val ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ovpMediaOptions != null) {
-                player?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, error ->
+                player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error Extra = " + error.getExtra())
                         runOnUiThread(Runnable {
@@ -495,7 +500,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             setPlayer(player)
             val ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ottMediaOptions != null) {
-                player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, error ->
+                player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error Extra = " + error.getExtra())
                         runOnUiThread(Runnable {
@@ -519,7 +524,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 if (initOptions.vrSettings != null) {
                     mediaEntry?.setIsVRMediaType(true)
                 }
-                player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
+                mediaEntry?.let {
+                    player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
+                }
             } else {
                 // PLAYLIST
                 handleBasicPlayerPlaylist(appPlayerInitConfig, player)
@@ -558,6 +565,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     playbackControlsManager?.addChangeMediaImgButtonsListener(it.size)
                 }
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
+            }
+        }
+    }
+
+    private fun setPlaybackRate(playListMediaIndex: Int) {
+        mediaList?.let {
+            it[playListMediaIndex].playbackRate?.let { rate ->
+                player?.playbackRate = rate
             }
         }
     }
@@ -794,9 +809,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             return basicMediasOptionsList;
         }
         mediaList.forEach {
-            var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, it.countDownOptions)
+            it.countDownOptions?.let { countdown ->
+                var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, countdown)
+                basicMediasOptionsList.add(basicMediaOptions)
+            }
 
-            basicMediasOptionsList.add(basicMediaOptions)
         }
         return basicMediasOptionsList
     }
@@ -883,6 +900,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 playbackControlsManager?.setAdPlayerState(AdEvent.Type.ALL_ADS_COMPLETED)
             }
             allAdsCompleted = true
+
+            player?.playlistController?.let {
+                if (it.currentMediaIndex < it.playlist.mediaList.size - 1 && it.isAutoContinueEnabled) {
+                    progressBar?.visibility = View.VISIBLE
+                    return@addListener
+                }
+            }
+
             if (isPlaybackEndedState()) {
                 progressBar?.setVisibility(View.GONE)
                 playbackControlsManager?.showControls(View.VISIBLE)
@@ -1038,7 +1063,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("PLAYER STOPPED")
             updateEventsLogsList("player:\n" + event.eventType().name)
             if (player?.playlistController == null || (player?.playlistController?.isAutoContinueEnabled ?: true)) {
-                playbackControlsManager?.showControls(View.INVISIBLE)
+                if (playbackControlsManager?.playerState != PlayerEvent.Type.ERROR) {
+                    playbackControlsManager?.showControls(View.INVISIBLE)
+                }
             }
             playbackControlsManager?.setContentPlayerState(event.eventType())
         }
@@ -1099,7 +1126,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlaylistEvent.playListError) { event ->
-            log.d("PLAYLIST playListError")
+            val errorMessage = event.error.message ?: ""
+            log.d("PLAYLIST playListError error = ${errorMessage}")
+            playbackControlsManager?.setContentPlayerState(PlayerEvent.Type.ERROR)
+            player?.playlistController.let {
+                if (it != null && !it.isRecoverOnError) {
+                    progressBar?.setVisibility(View.GONE)
+                    playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                    playbackControlsManager?.showControls(View.VISIBLE)
+                }
+            }
             Toast.makeText(this, event.error.message, Toast.LENGTH_SHORT).show()
         }
 
@@ -1186,6 +1222,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
             if (tracks.getVideoTracks().size > 0) {
                 log.d("Default video isAdaptive = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).isAdaptive() + " bitrate = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).getBitrate())
+            }
+
+            runOnUiThread {
+                setPlaybackRate(currentPlayedMediaIndex)
             }
         }
 

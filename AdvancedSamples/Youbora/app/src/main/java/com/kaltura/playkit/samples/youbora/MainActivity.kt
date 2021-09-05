@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.kaltura.playkit.PKPluginConfigs
+import com.kaltura.playkit.PKRequestConfig
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.plugins.youbora.YouboraEvent
@@ -225,7 +226,7 @@ class MainActivity: AppCompatActivity() {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
 
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
         // Youbora Configuration
         val pkPluginConfigs = PKPluginConfigs()
@@ -242,7 +243,7 @@ class MainActivity: AppCompatActivity() {
         val container = findViewById<ViewGroup>(R.id.player_root)
         container.addView(player?.playerView)
         val ottMediaOptions = buildOttMediaOptions()
-        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_LONG).show()
             } else {

@@ -145,14 +145,14 @@ class VideoFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        isAutoPlay = arguments!!.getBoolean(AUTO_PLAY)
-        startPosition = arguments!!.getLong(START_FROM)
-        adLoadTimeOut = arguments!!.getInt(AD_LOAD_TIMEOUT)
-        videoMimeType = arguments!!.getString(MIME_TYPE)
-        videoBitrate = arguments!!.getInt(PREFERRED_BITRATE)
-        companionAdWidth = arguments!!.getInt(COMPANION_AD_WIDTH)
-        companionAdHeight = arguments!!.getInt(COMPANION_AD_HEIGHT)
-        minAdDurationForSkipButton = arguments!!.getInt(MIN_AD_DURATION_FOR_SKIP_BUTTON)
+        isAutoPlay = requireArguments().getBoolean(AUTO_PLAY)
+        startPosition = requireArguments().getLong(START_FROM)
+        adLoadTimeOut = requireArguments().getInt(AD_LOAD_TIMEOUT)
+        videoMimeType = requireArguments().getString(MIME_TYPE)
+        videoBitrate = requireArguments().getInt(PREFERRED_BITRATE)
+        companionAdWidth = requireArguments().getInt(COMPANION_AD_WIDTH)
+        companionAdHeight = requireArguments().getInt(COMPANION_AD_HEIGHT)
+        minAdDurationForSkipButton = requireArguments().getInt(MIN_AD_DURATION_FOR_SKIP_BUTTON)
 
         rootView = inflater.inflate(R.layout.fragment_video, container, false)
         initUi(rootView!!)
@@ -191,7 +191,7 @@ class VideoFragment : Fragment() {
             //                    setCompanionAdWidth(companionAdWidth).
             //                    setCompanionAdHeight(companionAdHeight);
 
-            val referrer = "app://NonDefaultReferrer1/" + activity!!.packageCodePath
+            val referrer = "app://NonDefaultReferrer1/" + requireContext().packageCodePath
             //player.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
             player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
             player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
@@ -211,7 +211,7 @@ class VideoFragment : Fragment() {
             //                    setCompanionAdWidth(companionAdWidth).
             //                    setCompanionAdHeight(companionAdHeight);
 
-            val referrer = "app://NonDefaultReferrer2/" + activity!!.packageName
+            val referrer = "app://NonDefaultReferrer2/" + requireContext().packageName
             player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
             //player?.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
             player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
@@ -364,8 +364,7 @@ class VideoFragment : Fragment() {
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
 
-
-        player = KalturaBasicPlayer.create(activity, playerInitOptions)
+        player = KalturaBasicPlayer.create(requireContext(), playerInitOptions)
         player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT)
 
         val container = rootView!!.findViewById<ViewGroup>(R.id.player_root)
@@ -563,7 +562,7 @@ class VideoFragment : Fragment() {
                 orient = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 setFullScreen(true)
             }
-            activity!!.requestedOrientation = orient
+            activity?.requestedOrientation = orient
         }
 
         val logText = rootView.findViewById<TextView>(R.id.logText)

@@ -70,7 +70,7 @@ class PlayActivity : AppCompatActivity() {
                 }
             } else {
                 player = KalturaBasicPlayer.create(this, options)
-                val manager = OfflineManager.getInstance(this)
+                val manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
                 intent.dataString?.let {
                     val entry = manager.getLocalPlaybackEntry(it)
                     player.setMedia(entry)
@@ -240,6 +240,24 @@ class PlayActivity : AppCompatActivity() {
     private fun updatePlayPauseButton(isPlaying: Boolean) {
         val next = if (isPlaying) pauseDrawable else playDrawable
         fab_playpause.setImageDrawable(next)
+    }
+
+    override fun onPause() {
+        player?.let {
+            if (it.isPlaying) {
+                updatePlayPauseButton(it.isPlaying)
+                player?.onApplicationPaused()
+            }
+        }
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        player?.let {
+            updatePlayPauseButton(it.isPlaying)
+            player?.onApplicationResumed()
+        }
     }
 
     override fun onDestroy() {

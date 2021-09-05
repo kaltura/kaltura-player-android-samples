@@ -9,15 +9,17 @@ public class OVPItem extends KalturaItem {
     private int partnerId;
     private String entryId;
     private String serverUrl;
+    private String ks;
     private OfflineManager.SelectionPrefs prefs;
     private String title;
 
-    public OVPItem(int partnerId, String entryId, String serverUrl, OfflineManager.SelectionPrefs prefs, String title) {
+    public OVPItem(int partnerId, String entryId, String serverUrl, String ks, OfflineManager.SelectionPrefs prefs, String title) {
         super(partnerId, serverUrl != null ? serverUrl: "https://cdnapisec.kaltura.com", prefs, title);
 
         this.entryId = entryId;
         this.partnerId = partnerId;
         this.serverUrl = serverUrl != null ? serverUrl: "https://cdnapisec.kaltura.com";
+        this.ks = ks;
         this.prefs = prefs;
         this.title = title;
     }
@@ -62,6 +64,14 @@ public class OVPItem extends KalturaItem {
     @Override
     public void setServerUrl(String serverUrl) {
         this.serverUrl = serverUrl;
+    }
+
+    public String getKs() {
+        return ks;
+    }
+
+    public void setKs(String ks) {
+        this.ks = ks;
     }
 
     @Override

@@ -19,13 +19,11 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonSyntaxException
 import com.kaltura.netkit.utils.ErrorElement
-import com.kaltura.playkit.PKLog
-import com.kaltura.playkit.PKMediaEntry
+import com.kaltura.playkit.*
 import com.kaltura.playkit.PKMediaEntry.MediaEntryType.Unknown
-import com.kaltura.playkit.PKMediaFormat
-import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.tvplayer.KalturaPlayer
+import com.kaltura.tvplayer.MediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -79,7 +77,7 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
                         .setPreload(safeBoolean(playerConfigJasonObject, PRELOAD))
                         .setKs(safeString(playerConfigJasonObject, KS))
                         .setPluginConfigs(parsePluginConfigs(json.get(PLUGINS)))
-                        .setAllowCrossProtocolEnabled(safeBoolean(playerConfigJasonObject, ALLOW_CROSS_PROTOCOL_ENABLED))
+                        .setPKRequestConfig(PKRequestConfig(safeBoolean(playerConfigJasonObject, ALLOW_CROSS_PROTOCOL_ENABLED) ?: false))
                         .setReferrer(safeString(playerConfigJasonObject, REFERRER))
 
             }
@@ -221,7 +219,7 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
 
     protected abstract fun loadItem(item: DemoItem)
 
-    override fun onEntryLoadComplete(entry: PKMediaEntry, error: ErrorElement?) {
+    override fun onEntryLoadComplete(mediaOptions: MediaOptions, entry: PKMediaEntry, error: ErrorElement?) {
         if (error != null) {
             Log.d("onEntryLoadComplete", " error: $error")
         }

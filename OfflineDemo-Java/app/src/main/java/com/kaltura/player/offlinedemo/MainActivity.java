@@ -65,18 +65,18 @@ public class MainActivity extends AppCompatActivity {
             testItems.add(itemJson.get(index).toItem());
         }
 
-        manager = OfflineManager.getInstance(this);
-        manager.setOfflineManagerSettings(new OfflineManagerSettings().setDefaultHlsAudioBitrateEstimation(64000));
+        manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG);
+        manager.setOfflineManagerSettings(new OfflineManagerSettings().setHlsAudioBitrateEstimation(OfflineManagerSettings.DEFAULT_HLS_AUDIO_BITRATE_ESTIMATION)));
 
         manager.setAssetStateListener(new OfflineManager.AssetStateListener() {
             @Override
-            public void onAssetDownloadFailed(@NonNull String assetId, @NonNull Exception error) {
+            public void onAssetDownloadFailed(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
                 toastLong("Download of" + error + "failed:" + error);
                 updateItemStatus(assetId);
             }
 
             @Override
-            public void onAssetDownloadComplete(@NonNull String assetId) {
+            public void onAssetDownloadComplete(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
                 log.d("onAssetDownloadComplete");
                 log.d("onAssetDownloadComplete:" + (SystemClock.elapsedRealtimeNanos() - startTime));
                 toast("Complete");
@@ -84,12 +84,17 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAssetDownloadPending(@NonNull String assetId) {
+            public void onAssetPrefetchComplete(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
+
+            }
+
+            @Override
+            public void onAssetDownloadPending(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
                 updateItemStatus(assetId);
             }
 
             @Override
-            public void onAssetDownloadPaused(@NonNull String assetId) {
+            public void onAssetDownloadPaused(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
                 toast("Paused");
                 updateItemStatus(assetId);
             }
@@ -101,21 +106,31 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onRegisterError(@NonNull String assetId, @NonNull Exception error) {
+            public void onRegisterError(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
                 toastLong("onRegisterError:" + assetId + " " + error);
                 updateItemStatus(assetId);
             }
 
             @Override
-            public void onStateChanged(@NonNull String assetId, @NonNull OfflineManager.AssetInfo assetInfo) {
+            public void onUnRegisterError(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
+                toastLong("onUnRegisterError:" + assetId + " " + error);
+            }
+
+            @Override
+            public void onStateChanged(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull OfflineManager.AssetInfo assetInfo) {
                 toast("onStateChanged");
                 updateItemStatus(assetId);
             }
 
             @Override
-            public void onAssetRemoved(@NonNull String assetId) {
+            public void onAssetRemoved(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType) {
                 toast("onAssetRemoved");
                 updateItemStatus(assetId);
+            }
+
+            @Override
+            public void onAssetRemoveError(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
+
             }
         });
 
@@ -232,12 +247,12 @@ public class MainActivity extends AppCompatActivity {
                 manager.setKalturaParams(KalturaPlayer.Type.ovp, ((KalturaItem) item).getPartnerId());
                 manager.renewDrmAssetLicense(item.id(), ((KalturaItem) item).mediaOptions(), new OfflineManager.MediaEntryCallback() {
                     @Override
-                    public void onMediaEntryLoaded(@NonNull String assetId, @NonNull PKMediaEntry mediaEntry) {
-                        reduceLicenseDuration(mediaEntry, 300);
+                    public void onMediaEntryLoaded(@NonNull String assetId, OfflineManager.DownloadType downloadType, @NonNull PKMediaEntry mediaEntry) {
+                      //  reduceLicenseDuration(mediaEntry, 300);
                     }
 
                     @Override
-                    public void onMediaEntryLoadError(@NonNull Exception error) {
+                    public void onMediaEntryLoadError(@NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
                         toastLong("onMediaEntryLoadError: " + error);
                     }
                 });
@@ -323,18 +338,18 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPrepareError(@NonNull String assetId, @NonNull Exception error) {
+            public void onPrepareError(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
                 toastLong("onPrepareError: " + error);
             }
 
             @Override
-            public void onMediaEntryLoadError(@NonNull Exception error) {
+            public void onMediaEntryLoadError(@NonNull OfflineManager.DownloadType downloadType, @NonNull Exception error) {
                 toastLong("onMediaEntryLoadError: " + error);
             }
 
             @Override
-            public void onMediaEntryLoaded(@NonNull String assetId, @NonNull PKMediaEntry mediaEntry) {
-                reduceLicenseDuration(mediaEntry, 300);
+            public void onMediaEntryLoaded(@NonNull String assetId, @NonNull OfflineManager.DownloadType downloadType, @NonNull PKMediaEntry mediaEntry) {
+                //reduceLicenseDuration(mediaEntry, 300);
             }
 
             @Override

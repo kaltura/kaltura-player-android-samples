@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
         // Broadpeak Configuration
         val pkPluginConfigs = PKPluginConfigs()
@@ -188,7 +188,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadFirstOttMedia() {
         val ottMediaOptions = buildOttMediaOptions(FIRST_ASSET_ID)
         ottMediaOptions.startPosition = START_POSITION
-        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_SHORT).show()
             } else {
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadSecondOttMedia() {
         val ottMediaOptions = buildOttMediaOptions(SECOND_ASSET_ID)
         ottMediaOptions.startPosition = START_POSITION
-        player?.loadMedia(ottMediaOptions) { ottMediaOptions, entry, loadError ->
+        player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {
                 Snackbar.make(findViewById(android.R.id.content), loadError.message, Snackbar.LENGTH_SHORT).show()
             } else {

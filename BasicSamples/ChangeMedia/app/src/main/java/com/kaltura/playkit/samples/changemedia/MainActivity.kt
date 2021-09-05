@@ -322,7 +322,7 @@ class MainActivity : AppCompatActivity() {
 
     fun loadPlaykitPlayer() {
         val playerInitOptions = PlayerInitOptions()
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
         playerInitOptions.mediaEntryCacheConfig = MediaEntryCacheConfig(true, 10, 60000)
         playerInitOptions.setAutoPlay(true)
 

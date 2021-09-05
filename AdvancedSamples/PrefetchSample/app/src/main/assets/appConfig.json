@@ -1,0 +1,289 @@
+{
+    "offlineConfig": {
+        "preferredFormat": "hls"
+    },
+    "items": [
+        {
+            "playerType": "ovp",
+            "title": "HEVC Provider OVP",
+            "id": "1_zhpdyrr2",
+            "partnerId": 2215841,
+            "env": "http://cdnapisec.kaltura.com",
+            "isPrefetch": false,
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            },
+            "expected": {
+                "estimatedSize": 0,
+                "downloadedSize": 0,
+                "audioLangs": ["en"],
+                "textLangs": []
+            }
+        },
+        {
+            "playerType": "ovp",
+            "title": "Clear: Kaltura",
+            "id": "1_sf5ovm7u",
+            "partnerId": 243342,
+            "env": "http://cdnapisec.kaltura.com",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            },
+            "expected": {
+                "estimatedSize": 0,
+                "downloadedSize": 0,
+                "audioLangs": [
+                    "en"
+                ],
+                "textLangs": []
+            }
+        },
+
+        {
+            "playerType": "ovp",
+            "title": "Prefetch OVP Test Media",
+            "id": "1_w9zx2eti",
+            "partnerId": 2215841,
+            "isPrefetch": true,
+            "startPosition": 0,
+            "env": "http://cdnapisec.kaltura.com",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "ovp",
+            "title": "DRM: Prod 2",
+            "id": "1_uzea2uje",
+            "partnerId": 2222401,
+            "env": "http://cdnapisec.kaltura.com",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "ovp",
+            "title": "DRM: Prod 1",
+            "id": "1_f93tepsn",
+            "partnerId": 2222401,
+            "env": "http://cdnapisec.kaltura.com",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            },
+            "plugins": [
+                {
+                    "pluginName": "ima",
+                    "params": {
+                        "adTagUrl": "\"https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=",
+                        "adsRenderingSettings": {
+                            "bitrate": -1,
+                            "loadVideoTimeout": 8,
+                            "mimeTypes": [
+                                "video/mp4",
+                                "application/x-mpegURL"
+                            ],
+                            "uiElements": {
+                                "adAttribution": true,
+                                "adCountDown": true
+                            }
+                        },
+                        "sdkSettings": {
+                            "numRedirects": 4,
+                            "autoPlayAdBreaks": true,
+                            "debugMode": false,
+                            "enableBackgroundPlayback": false,
+                            "language": "en"
+                        }
+                    }
+                },
+                {
+                    "pluginName": "youbora",
+                    "params": {
+                        "options": {
+                            "accountCode": "kalturatest",
+                            "username": "TEST_DASH",
+                            "haltOnError": true,
+                            "enableAnalytics": true,
+                            "enableSmartAds": true,
+                            "media": {
+                                "isLive": false,
+                                "title": "media99"
+                            },
+                            "ads": {
+                                "title": "",
+                                "campaign": ""
+                            },
+                            "properties": {
+                                "genre": "action",
+                                "type": "video",
+                                "transaction_type": "",
+                                "year": 2000,
+                                "cast": "joe joe",
+                                "director": "henry",
+                                "owner": "",
+                                "parental": "",
+                                "price": "",
+                                "rating": "",
+                                "audioType": "",
+                                "audioChannels": "",
+                                "device": "",
+                                "quality": ""
+                            },
+                            "extraParams": {
+                                "param1": "",
+                                "param2": "",
+                                "param3": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "playerType": "ovp",
+            "title": "DRM: QA 1",
+            "id": "0_4s6xvtx3",
+            "partnerId": 4171,
+            "env": "http://cdntesting.qa.mkaltura.com",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "ovp",
+            "title": "DRM: QA 2",
+            "id": "0_7o8zceol",
+            "partnerId": 4171,
+            "env": "http://cdntesting.qa.mkaltura.com",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "ott",
+            "title": "OTT Test Media1",
+            "id": "548576",
+            "partnerId": 3009,
+            "ott": true,
+            "startPosition": 90,
+            "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            },
+            "ottParams": {
+                "format": "Mobile_Main",
+                "protocol": "http"
+            }
+        },
+        {
+            "playerType": "ott",
+            "title": "OTT Test Media2",
+            "id": "548579",
+            "partnerId": 3009,
+            "ott": true,
+            "startPosition": 90,
+            "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            },
+            "ottParams": {
+                "format": "Mobile_Main",
+                "protocol": "http"
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "Prefetch bunny",
+            "id": "bunny",
+            "isPrefetch": true,
+            "url": "https://noamtamim.com/hls-bunny/index.m3u8",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "QA multi/multi",
+            "startPosition": 10,
+            "id": "0_mskmqcit",
+            "url": "http://cdntesting.qa.mkaltura.com/p/1091/sp/109100/playManifest/entryId/0_mskmqcit/flavorIds/0_et3i1dux,0_pa4k1rn9/format/applehttp/protocol/http/a.m3u8",
+            "options": {
+                "audioLangs": [
+                    "en",
+                    "es"
+                ],
+                "textLangs": [
+                    "en",
+                    "ru"
+                ]
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "AES-128 multi-key",
+            "id": "AES-128 multi-key",
+            "url": "https://noamtamim.com/random/hls/test-enc-aes/multi.m3u8",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "Eran multi audio",
+            "id": "0_7s8q41df",
+            "url": "https://cdnapisec.kaltura.com/p/2035982/sp/203598200/playManifest/entryId/0_7s8q41df/format/applehttp/protocol/https/name/a.m3u8?deliveryProfileId=4712",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "Trailer",
+            "id": "0_ksthpwh8",
+            "url": "http://cdnbakmi.kaltura.com/p/1758922/sp/175892200/playManifest/entryId/0_ksthpwh8/format/applehttp/tags/ipad/protocol/http/f/a.m3u8",
+            "options": {
+                "allAudioLangs": true,
+                "allTextLangs": true
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "Kaltura 360p",
+            "id": "k-360p",
+            "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",
+            "options": {
+                "videoHeight": 360
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "Kaltura 720p",
+            "id": "k-720p",
+            "url": "https://cdnapisec.kaltura.com/p/243342/sp/24334200/playManifest/entryId/1_sf5ovm7u/format/applehttp/protocol/https/name/a.m3u8",
+            "options": {
+                "videoHeight": 720
+            }
+        },
+        {
+            "playerType": "basic",
+            "title": "Kaltura Live",
+            "id": "live-720p",
+            "url": "http://cdntesting.qa.mkaltura.com/p/1091/sp/109100/playManifest/entryId/0_nwkp7jtx/protocol/http/format/applehttp/flavorIds/0_iju7j519,0_98mlrldo,0_5hts3h5r,0_n6n76xp9/a.m3u8",
+            "options": {
+                "videoHeight": 720
+            }
+        }
+    ]
+}

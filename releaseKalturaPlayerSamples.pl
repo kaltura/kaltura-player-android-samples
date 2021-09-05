@@ -54,7 +54,7 @@ while ( my $entry = readdir $DIR ) {
     chdir ("$pathToSamplesFolder/$entry");
     my $returnCode = system("./gradlew build");
     if ($returnCode != 0) { 
-        die "Failed executing [./gradlew biuld]\n"; 
+        die "Failed executing [./gradlew build]\n"; 
         closedir $DIR;
     } 
 }

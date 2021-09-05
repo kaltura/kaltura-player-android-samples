@@ -30,12 +30,12 @@ android {
 
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.14.0'
-    implementation 'com.kaltura.playkit:youboraplugin:4.14.0'
-    implementation 'com.kaltura.playkit:imaplugin:4.14.0'
-    implementation 'com.kaltura.playkit:googlecast:4.14.0'
-    implementation 'com.kaltura.playkit:vrplugin:4.14.0'
-    implementation 'com.kaltura.playkit:fbadsplugin:4.14.0'
+    implementation 'com.kaltura.player:tvplayer:4.16.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.16.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.16.0'
+    implementation 'com.kaltura.playkit:googlecast:4.16.0'
+    implementation 'com.kaltura.playkit:vrplugin:4.16.0'
+    implementation 'com.kaltura.playkit:fbadsplugin:4.16.0'
 
 //    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
 //    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'
@@ -54,12 +54,12 @@ dependencies {
 //    implementation project(':fbads')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0')
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'com.google.android.material:material:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    implementation "androidx.core:core-ktx:+"
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.4.0')
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
+    testImplementation 'junit:junit:4.13.2'
+    implementation "androidx.core:core-ktx:1.3.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 

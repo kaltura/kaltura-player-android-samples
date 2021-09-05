@@ -29,7 +29,7 @@ import androidx.preference.PreferenceFragmentCompat
 
 class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
 
-    override fun onCreatePreferences(bundle: Bundle, s: String) {
+    override fun onCreatePreferences(bundle: Bundle?, s: String?) {
 
         // Add visualizer preferences, defined in the XML file in res->xml->pref_visualizer
         addPreferencesFromResource(R.xml.pref_visualizer)
@@ -53,12 +53,12 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         // Figure out which preference was changed
-        val preference = findPreference(key)
-        if (null != preference) {
+        val preference: Preference?  = findPreference(key)
+        preference?.let { pref ->
             // Updates the summary for the preference
             if (preference !is CheckBoxPreference) {
-                val value = sharedPreferences.getString(preference.key, "")
-                value?.let { setPreferenceSummary(preference, it) }
+                val value = sharedPreferences.getString(pref.key, "")
+                value?.let { setPreferenceSummary(pref, it) }
             }
         }
     }
