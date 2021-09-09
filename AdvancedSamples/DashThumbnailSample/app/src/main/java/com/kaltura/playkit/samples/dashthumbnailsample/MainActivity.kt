@@ -15,6 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.DashImageTrack
+import com.kaltura.playkit.player.ImageTrack
 import com.kaltura.playkit.player.thumbnail.ThumbnailInfo
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
@@ -103,7 +104,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
     private var adCuePoints: AdCuePoints? = null
-    private var dashImageTracks = mutableListOf<DashImageTrack>()
+    private var imageTracks = mutableListOf<ImageTrack>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -211,9 +212,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
             if (event.tracksInfo.getImageTracks().isNotEmpty()) {
                 isImageTrackAvailable = true
-                dashImageTracks = event.tracksInfo.getImageTracks() as MutableList<DashImageTrack>
+                if (!event.tracksInfo.getImageTracks().isEmpty() && event.tracksInfo.getImageTracks().get(0) is DashImageTrack) {
+                    imageTracks = (event.tracksInfo.getImageTracks() as MutableList<DashImageTrack>).toMutableList()
+                } else if (!event.tracksInfo.getImageTracks().isEmpty() && event.tracksInfo.getImageTracks().get(0) is ImageTrack) {
+                    imageTracks = (event.tracksInfo.getImageTracks() as MutableList<ImageTrack>).toMutableList()
+                }
                 val imageTrackStrings: MutableList<String> = mutableListOf()
-                for(imageTrack in dashImageTracks) {
+                for(imageTrack in imageTracks) {
                     imageTrackStrings.add(imageTrack.label)
                 }
 
@@ -224,10 +229,12 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
                         if (!userIsInteracting) {
                             return
                         }
-                        player?.changeTrack(dashImageTracks.get(position).uniqueId)
+                        player?.changeTrack(imageTracks.get(position).uniqueId)
                     }
 
-                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        log.d("Nothing selected")
+                    }
                 }
             }
         }
@@ -556,7 +563,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         //Set media entry type. It could be Live,Vod or Unknown.
         //For now we will use Unknown.
         mediaEntry.mediaType = PKMediaEntry.MediaEntryType.Vod
-
+        //mediaEntry.setExternalVttThumbnailUrl(VTT_URL);
+        
         //Create list that contains at least 1 media source.
         //Each media entry can contain a couple of different media sources.
         //All of them represent the same content, the difference is in it format.

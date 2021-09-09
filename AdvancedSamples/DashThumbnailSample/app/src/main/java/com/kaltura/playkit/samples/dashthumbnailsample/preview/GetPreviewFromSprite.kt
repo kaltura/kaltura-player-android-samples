@@ -67,9 +67,15 @@ class GetPreviewFromSprite(var context: Context) {
                             .submit(SIZE_ORIGINAL, SIZE_ORIGINAL)
 
                     val fetchedBitmap = futureTarget.get()
+                    var updatedThumbnailInfo = it
+
+                    if (it.height <= 0 || it.width <= 0) {
+                        updatedThumbnailInfo = ThumbnailInfo(it.url, it.x, it.y, fetchedBitmap.width.toFloat() , fetchedBitmap.height.toFloat())
+                    }
+
                     log.d("Bitmap URL = ${it.url} ")
                     log.d("Bitmap Received = ${fetchedBitmap}  Thread Name = ${Thread.currentThread().name}")
-                    extractedBitmap = convertBitmapAndExtractTile(fetchedBitmap, it, isLiveMedia)
+                    extractedBitmap = convertBitmapAndExtractTile(fetchedBitmap, updatedThumbnailInfo, isLiveMedia)
                 } catch (exception: GlideException) {
                     log.d("GlideException = ${exception.logRootCauses("GetPreviewFromSprite")}")
                     return extractedBitmap
