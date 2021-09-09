@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
                     }
 
                     override fun onNothingSelected(parent: AdapterView<*>?) {
-                        log.d("Noting selected")
+                        log.d("Nothing selected")
                     }
                 }
             }
