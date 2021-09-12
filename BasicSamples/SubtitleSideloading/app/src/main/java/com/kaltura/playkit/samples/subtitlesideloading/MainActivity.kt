@@ -1,5 +1,6 @@
 package com.kaltura.playkit.samples.subtitlesideloading
 
+
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Layout
