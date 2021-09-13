@@ -687,7 +687,7 @@ class VideoFragment : Fragment() {
         }
 
         player?.addListener(this, AdEvent.cuepointsChanged) { event ->
-            Log.d(TAG, "cuepointsChanged = " + event.cuePoints.hasPostRoll())
+            Log.d(TAG, "cuepointsChanged. Has Postroll  = " + event.cuePoints.hasPostRoll())
             adCuePoints = event.cuePoints;
             if (adCuePoints != null) {
                 Log.d(TAG, "Has Postroll = " + adCuePoints?.hasPostRoll());
