@@ -10,10 +10,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import com.kaltura.playkit.PKPluginConfigs
-import com.kaltura.playkit.PKRequestConfig
-import com.kaltura.playkit.PlayerEvent
-import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.*
 import com.kaltura.playkit.plugins.smartswitch.SmartSwitchEvent
 import com.kaltura.playkit.plugins.smartswitch.SmartSwitchPlugin
 import com.kaltura.playkit.plugins.smartswitch.pluginconfig.SmartSwitchConfig
@@ -253,6 +250,10 @@ class MainActivity : AppCompatActivity() {
 
         player?.addListener(this, SmartSwitchEvent.error) { event ->
             Log.i(TAG, "SmartSwitch ERROR " + event.errorMessage)
+        }
+
+        player?.addListener(this, InterceptorEvent.cdnSwitched) { event ->
+            Log.i(TAG, "InterceptorEvent CDN_SWITCHED " + event.cdnCode)
         }
 
         val container = findViewById<ViewGroup>(R.id.player_root)
