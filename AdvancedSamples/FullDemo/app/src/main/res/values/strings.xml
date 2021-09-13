@@ -81,5 +81,6 @@
     <string name="pref_show_false">Auto Play OFF</string>
     <string name="skip_ad">Skip Ad</string>
     <string name="learn_more">Learn More</string>
+    <string name="replay">Replay</string>
 
 </resources>
