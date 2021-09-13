@@ -197,7 +197,7 @@ class VideoFragment : Fragment() {
             //                    setCompanionAdWidth(companionAdWidth).
             //                    setCompanionAdHeight(companionAdHeight);
 
-            val referrer = "app://NonDefaultReferrer1/" + requireContext().packageResourcePath
+            val referrer = "app://NonDefaultReferrer1/" + requireContext().packageCodePath
             //player.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
             player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
             player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
