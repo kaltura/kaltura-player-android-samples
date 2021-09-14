@@ -210,8 +210,10 @@ class FullscreenActivity : AppCompatActivity() {
         super.onResume()
         player?.let {
             playPauseButton.setImageResource(R.drawable.exo_controls_pause)
-            it.onApplicationResumed()
-            it.play()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+                it.play()
+            }
         }
     }
 

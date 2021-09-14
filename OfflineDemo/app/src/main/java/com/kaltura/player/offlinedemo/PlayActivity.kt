@@ -256,7 +256,9 @@ class PlayActivity : AppCompatActivity() {
         super.onResume()
         player?.let {
             updatePlayPauseButton(it.isPlaying)
-            player?.onApplicationResumed()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+            }
         }
     }
 
