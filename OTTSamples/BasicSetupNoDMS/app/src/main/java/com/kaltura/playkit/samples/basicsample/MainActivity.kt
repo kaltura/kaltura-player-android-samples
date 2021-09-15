@@ -111,8 +111,10 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         player?.let {
             play_pause_button.setText(R.string.pause_text)
-            it.onApplicationResumed()
-            it.play()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+                it.play()
+            }
         }
     }
 

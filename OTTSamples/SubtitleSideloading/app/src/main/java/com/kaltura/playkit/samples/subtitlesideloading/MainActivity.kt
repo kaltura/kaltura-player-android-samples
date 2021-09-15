@@ -438,8 +438,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         super.onResume()
 
         player?.let {
-            player?.onApplicationResumed()
-            player?.play()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+                it.play()
+            }
         }
     }
 
@@ -497,6 +499,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
         ottMediaOptions.externalSubtitles = externalSubtitles
+        //ottMediaOptions.externalVttThumbnailUrl = "https://stdlwcdn.lwcdn.com/i/8fdb4e20-8ebb-4590-8844-dae39680d837/160p.vtt"
 
         return ottMediaOptions
     }

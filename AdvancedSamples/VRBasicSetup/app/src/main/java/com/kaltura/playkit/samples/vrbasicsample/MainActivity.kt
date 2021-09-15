@@ -158,8 +158,10 @@ class MainActivity: AppCompatActivity() {
             playPauseButton?.let {
                 it.setText(R.string.pause_text)
             }
-            player.onApplicationResumed()
-            player.play()
+            playerState?.let {
+                player.onApplicationResumed()
+                player.play()
+            }
         }
     }
 
