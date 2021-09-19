@@ -1,8 +1,11 @@
 package com.kaltura.playkit.samples.fulldemo
 
-import android.app.Activity
+import android.annotation.TargetApi
+
+import androidx.fragment.app.Fragment
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -13,13 +16,13 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.fragment.app.Fragment
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.kaltura.android.exoplayer2.util.MimeTypes
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.ads.AdEnabledPlayerController
+import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
@@ -40,6 +43,7 @@ import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
 import java.util.*
+
 
 //import com.kaltura.plugins.adsmanager.AdsConfig;
 //import com.kaltura.plugins.adsmanager.AdsPlugin;
@@ -114,6 +118,8 @@ class VideoFragment : Fragment() {
     private var companionAdHeight: Int = 0
     private var minAdDurationForSkipButton: Int = 0
     private var firstLaunch = true
+    private var adCuePoints: AdCuePoints? = null
+    private var replayButton: Button? = null
 
     private var rootView: View? = null
 
@@ -538,14 +544,26 @@ class VideoFragment : Fragment() {
         return mediaSources
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private fun initUi(rootView: View) {
+
+        replayButton = rootView.findViewById(R.id.replay)
+        replayButton?.setOnClickListener(View.OnClickListener { v: View? ->
+            if (player != null) {
+                player?.replay()
+            }
+            replayButton?.setVisibility(View.GONE)
+        })
+
 
         val changeMediaButton = rootView.findViewById<Button>(R.id.changeMedia)
         //Set click listener.
-        changeMediaButton.setOnClickListener {
+        changeMediaButton.setOnClickListener { v: View? ->
+            replayButton?.setVisibility(View.GONE)
             //Change media.
             changeMedia()
         }
+
         mVideoTitle = rootView.findViewById(R.id.video_title)
         playerLayout = rootView.findViewById(R.id.player_root)
         progressBar = rootView.findViewById(R.id.progressBarSpinner)
@@ -562,7 +580,9 @@ class VideoFragment : Fragment() {
                 orient = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 setFullScreen(true)
             }
-            activity?.requestedOrientation = orient
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                activity?.requestedOrientation = orient
+            }
         }
 
         val logText = rootView.findViewById<TextView>(R.id.logText)
@@ -667,7 +687,12 @@ class VideoFragment : Fragment() {
         }
 
         player?.addListener(this, AdEvent.cuepointsChanged) { event ->
-            Log.d(TAG, "Has Postroll = " + event.cuePoints.hasPostRoll())
+            Log.d(TAG, "cuepointsChanged. Has Postroll  = " + event.cuePoints.hasPostRoll())
+            adCuePoints = event.cuePoints;
+            if (adCuePoints != null) {
+                Log.d(TAG, "Has Postroll = " + adCuePoints?.hasPostRoll());
+            }
+
             log("AD_CUEPOINTS_UPDATED")
             onCuePointChanged()
         }
@@ -705,6 +730,11 @@ class VideoFragment : Fragment() {
 
         player?.addListener(this, AdEvent.allAdsCompleted) { event ->
             log("AD_ALL_ADS_COMPLETED")
+            var hasPostRoll = adCuePoints?.hasPostRoll() ?: false
+            if (adCuePoints != null && hasPostRoll) {
+                replayButton?.setVisibility(View.VISIBLE);
+            }
+
             appProgressBar.visibility = View.INVISIBLE
         }
 
@@ -813,6 +843,10 @@ class VideoFragment : Fragment() {
         player?.addListener(this, PlayerEvent.ended) { event ->
             log("PLAYER ENDED")
             appProgressBar.visibility = View.INVISIBLE
+            var hasPostRoll = adCuePoints?.hasPostRoll() ?: false
+            if (adCuePoints == null || !hasPostRoll) {
+                replayButton?.setVisibility(View.VISIBLE);
+            }
             nowPlaying = false
         }
 

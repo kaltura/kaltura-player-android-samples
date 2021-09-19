@@ -426,8 +426,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         super.onResume()
 
         player?.let {
-            player?.onApplicationResumed()
-            player?.play()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+                it.play()
+            }
         }
     }
 

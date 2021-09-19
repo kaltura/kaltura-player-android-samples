@@ -490,8 +490,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         player?.let {
             play_pause_button.setText(R.string.pause_text)
-            player?.onApplicationResumed()
-            player?.play()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+                it.play()
+            }
         }
     }
 

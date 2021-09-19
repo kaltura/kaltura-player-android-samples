@@ -41,6 +41,16 @@
             layout="@layout/ad_skin_layout"
             android:visibility="invisible" />
 
+        <Button
+            android:id="@+id/replay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:contentDescription="replay"
+            android:text="@string/replay" />
+
+
         <ProgressBar
             android:id="@+id/progressBarSpinner"
             android:layout_width="wrap_content"
