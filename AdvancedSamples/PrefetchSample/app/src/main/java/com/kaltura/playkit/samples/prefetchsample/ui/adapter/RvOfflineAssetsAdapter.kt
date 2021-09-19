@@ -18,7 +18,7 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val itemView = inflater.inflate(R.layout.view_item, parent, false)
-        var prefetchString  = if (isOfflineProviderExo)  "Prefetch Available" else  ""
+        var prefetchString = if(isOfflineProviderExo) "Prefetch Available" else ""
         return OfflineAssetViewHolder(itemView, itemClick, { position, isChecked, checkBoxView, prefetchTextView ->
             if (isChecked) {
                 itemList[position].isPrefetch = true
@@ -70,7 +70,7 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
         if (assetStatus == OfflineManager.AssetDownloadState.prefetched || itemList[position].isPrefetch) {
             offlineAssetViewHolder.cbItemIsPrefetch.isChecked = true
             offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.VISIBLE
-            var prefetchString  = if (isOfflineProviderExo)  "Prefetch Available" else  ""
+            var prefetchString = if(isOfflineProviderExo) "Prefetch Available" else ""
             offlineAssetViewHolder.tvItemIsPrefetch.text = prefetchString
         } else {
             offlineAssetViewHolder.cbItemIsPrefetch.isChecked = false
