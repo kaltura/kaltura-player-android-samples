@@ -30,7 +30,7 @@ android {
 
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.16.0'
+    implementation 'com.kaltura.player:tvplayer:4.17.0'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
