@@ -18,11 +18,12 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val itemView = inflater.inflate(R.layout.view_item, parent, false)
+        var prefetchString = if (isOfflineProviderExo) "Prefetch Available" else ""
         return OfflineAssetViewHolder(itemView, itemClick, { position, isChecked, checkBoxView, prefetchTextView ->
             if (isChecked) {
                 itemList[position].isPrefetch = true
                 prefetchTextView.visibility = View.VISIBLE
-                prefetchTextView.text = "Prefetch Available"
+                prefetchTextView.text = prefetchString
             } else {
                 itemList[position].isPrefetch = false
                 prefetchTextView.visibility = View.GONE
@@ -39,7 +40,7 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
                 itemList[position].isSelectedForPrefetching = true
                 itemList[position].isPrefetch = true
                 tvItemIsPrefetch.visibility = View.VISIBLE
-                tvItemIsPrefetch.text = "Prefetch Available"
+                tvItemIsPrefetch.text = prefetchString
                 cbItemIsPrefetch.isChecked = true
             }
         })
@@ -69,7 +70,8 @@ class RvOfflineAssetsAdapter(private val itemList: List<Item>, val itemClick: (I
         if (assetStatus == OfflineManager.AssetDownloadState.prefetched || itemList[position].isPrefetch) {
             offlineAssetViewHolder.cbItemIsPrefetch.isChecked = true
             offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.VISIBLE
-            offlineAssetViewHolder.tvItemIsPrefetch.text = "Prefetch Available"
+            var prefetchString = if (isOfflineProviderExo) "Prefetch Available" else ""
+            offlineAssetViewHolder.tvItemIsPrefetch.text = prefetchString
         } else {
             offlineAssetViewHolder.cbItemIsPrefetch.isChecked = false
             offlineAssetViewHolder.tvItemIsPrefetch.visibility = View.GONE
