@@ -50,7 +50,7 @@ class SignInActivity: BaseActivity(), View.OnClickListener {
 
         // Check auth on Activity start
         if (mAuth?.getCurrentUser() != null) {
-            onAuthSuccess(mAuth?.getCurrentUser()!!)
+            onAuthSuccess(mAuth?.currentUser)
         }
     }
 
@@ -70,7 +70,7 @@ class SignInActivity: BaseActivity(), View.OnClickListener {
                     hideProgressDialog()
 
                     if (task.isSuccessful) {
-                        onAuthSuccess(task.result!!.user)
+                        onAuthSuccess(task.result.user)
                     } else {
                         Toast.makeText(this@SignInActivity, "Sign In Failed: " + task.exception!!.message,
                                 Toast.LENGTH_SHORT).show()
@@ -94,7 +94,7 @@ class SignInActivity: BaseActivity(), View.OnClickListener {
                     hideProgressDialog()
 
                     if (task.isSuccessful) {
-                        onAuthSuccess(task.result!!.user)
+                        onAuthSuccess(task.result.user)
                     } else {
                         Toast.makeText(this@SignInActivity, "Sign Up Failed: " + task.exception!!.message,
                                 Toast.LENGTH_SHORT).show()
@@ -102,15 +102,20 @@ class SignInActivity: BaseActivity(), View.OnClickListener {
                 }
     }
 
-    private fun onAuthSuccess(user: FirebaseUser) {
-        val username = usernameFromEmail(user.email!!)
+    private fun onAuthSuccess(user: FirebaseUser?) {
+        if (user != null && user.email != null) {
+            val username = usernameFromEmail(user.email!!)
 
-        // Write new user
-        writeNewUser(user.uid, username, user.email)
+            // Write new user
+            writeNewUser(user.uid, username, user.email)
 
-        // Go to MainActivity
-        startActivity(Intent(this@SignInActivity, MainActivity::class.java))
-        finish()
+            // Go to MainActivity
+            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+            finish()
+        } else {
+            Toast.makeText(this@SignInActivity, "User or User email not found",
+                Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun usernameFromEmail(email: String): String {
