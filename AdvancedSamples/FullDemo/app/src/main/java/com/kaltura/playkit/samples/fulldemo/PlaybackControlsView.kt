@@ -134,7 +134,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
     /**
      * Component Listener for Default time bar from ExoPlayer UI
      */
-    private inner class ComponentListener : Player.EventListener, TimeBar.OnScrubListener, View.OnClickListener {
+    private inner class ComponentListener : Player.Listener, TimeBar.OnScrubListener, View.OnClickListener {
 
         override fun onScrubStart(timeBar: TimeBar, position: Long) {
             dragging = true
@@ -149,15 +149,19 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
             player?.seekTo(position)
         }
 
-        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+        override fun onPlaybackStateChanged(playbackState: Int) {
             updateProgress()
         }
 
-        override fun onPositionDiscontinuity(@Player.DiscontinuityReason reason: Int) {
+        override fun onPositionDiscontinuity(
+            oldPosition: Player.PositionInfo,
+            newPosition: Player.PositionInfo,
+            reason: Int
+        ) {
             updateProgress()
         }
 
-        override fun onTimelineChanged(timeline: Timeline, manifest: Any?, reason: Int) {
+        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
             updateProgress()
         }
 
