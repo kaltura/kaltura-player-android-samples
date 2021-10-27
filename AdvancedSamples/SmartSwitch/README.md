@@ -1,4 +1,4 @@
-# SmartSwitch plugin Sample
+# SmartSwitch Plugin Sample
 
 ## Purpose
 
