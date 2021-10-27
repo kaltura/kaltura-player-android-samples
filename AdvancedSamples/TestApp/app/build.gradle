@@ -26,6 +26,10 @@ android {
             }
         }
     }
+    packagingOptions {
+        exclude 'META-INF/main.kotlin_module'
+        exclude 'META-INF/annotation-experimental_release.kotlin_module'
+    }
 
     buildTypes {
         release {
@@ -48,14 +52,18 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
+configurations {
+    implementation.exclude module:'protobuf-lite'
+}
+
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.17.0'
-    implementation 'com.kaltura.playkit:youboraplugin:4.17.0'
-    implementation 'com.kaltura.playkit:imaplugin:4.17.0'
-    implementation 'com.kaltura.playkit:googlecast:4.17.0'
-    implementation 'com.kaltura.playkit:vrplugin:4.17.0'
-    implementation 'com.kaltura.playkit:fbadsplugin:4.17.0'
+    implementation 'com.kaltura.player:tvplayer:4.18.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.18.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.18.0'
+    implementation 'com.kaltura.playkit:googlecast:4.18.0'
+    implementation 'com.kaltura.playkit:vrplugin:4.18.0'
+    implementation 'com.kaltura.playkit:fbadsplugin:4.18.0'
 
 //    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
 //    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'
@@ -75,22 +83,22 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'com.google.android.gms:play-services-vision:19.0.0'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.google.android.gms:play-services-vision:20.1.3'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.firebaseui:firebase-ui-database:3.0.0'
-    implementation "com.google.firebase:firebase-firestore:18.0.1"
+    implementation "com.google.firebase:firebase-firestore:23.0.4"
 
-    implementation 'com.google.firebase:firebase-auth:16.1.0'
-    implementation "com.google.android.gms:play-services-auth:16.0.1"
-    implementation 'com.google.firebase:firebase-database:16.0.6'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.3.0'
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.3.0')
-    implementation "androidx.core:core-ktx:1.3.2"
+    implementation 'com.google.firebase:firebase-auth:21.0.1'
+    implementation "com.google.android.gms:play-services-auth:19.2.0"
+    implementation 'com.google.firebase:firebase-database:20.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.4.0')
+    implementation "androidx.core:core-ktx:1.6.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
