@@ -143,6 +143,7 @@ class MainActivity : AppCompatActivity() {
             analyticsAddress = "https://analytics.kaltura.com/api_v3/index.php"
             nanoCDNHost = ""
             broadpeakDomainNames = "*"
+            uuid = "" // app user - uuid
         }
 
         pkPluginConfigs.setPluginConfig(BroadpeakPlugin.factory.name, broadpeakConfig)
