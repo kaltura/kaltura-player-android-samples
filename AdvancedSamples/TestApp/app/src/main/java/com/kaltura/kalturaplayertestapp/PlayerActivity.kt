@@ -836,8 +836,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (ottMedia.format != null) {
             ottMediaAsset.setFormats(listOf(ottMedia.format))
         }
+
         if (ottMedia.fileId != null) {
             ottMediaAsset.setMediaFileIds(listOf(ottMedia.fileId))
+        }
+
+        if (ottMedia.epgId != null) {
+            ottMediaAsset.setEpgId(ottMedia.epgId)
         }
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
