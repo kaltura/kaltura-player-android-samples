@@ -1,4 +1,4 @@
-# BroadpeakPlugin Sample
+# SmartSwitch plugin Sample
 
 ## Purpose
 
