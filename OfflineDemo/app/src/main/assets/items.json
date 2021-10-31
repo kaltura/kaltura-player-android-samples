@@ -16,8 +16,8 @@
         "url": "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_zhpdyrr2/protocol/https/format/mpegdash/flavorIds/1_3nudljkx,1_8sk0np7s,1_ntkon8wy,1_j2lglql3,1_2lps5mcy,1_lf6l8e4n,1_xyjf6mch/a.mpd"
     },
     {
-        "title": "G-HLS",
-        "id": "G-HLS",
+        "title": "ClearHLSKaltura",
+        "id": "ClearHLSKaltura",
         "url": "https://cdnapisec.kaltura.com/p/243342/sp/243342/playManifest/entryId/1_sf5ovm7u/flavorIds/1_d2uwy7vv,1_jl7y56al/deliveryProfileId/13952/protocol/https/format/applehttp/a.m3u8",
         "options": {
             "allAudioLangs": true,
