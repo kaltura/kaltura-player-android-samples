@@ -199,7 +199,7 @@ class MainActivity : AppCompatActivity() {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
 
         // FBAds Configuration

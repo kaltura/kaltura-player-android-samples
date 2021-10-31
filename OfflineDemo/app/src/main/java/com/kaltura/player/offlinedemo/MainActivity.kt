@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         val testItems = items.map { it.toItem() }
 
         manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG)
-        manager.setOfflineManagerSettings(OfflineManagerSettings().setHlsAudioBitrateEstimation(64000))
+        manager.setOfflineManagerSettings(OfflineManagerSettings().setHlsAudioBitrateEstimation(OfflineManagerSettings.DEFAULT_HLS_AUDIO_BITRATE_ESTIMATION))
 
         manager.setAssetStateListener(object : OfflineManager.AssetStateListener {
             override fun onAssetDownloadFailed(assetId: String, downloadType: OfflineManager.DownloadType, error: Exception) {

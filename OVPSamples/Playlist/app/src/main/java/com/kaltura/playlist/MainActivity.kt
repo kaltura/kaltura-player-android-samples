@@ -158,8 +158,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         player?.let {
-            it.onApplicationResumed()
-            it.play()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+                it.play()
+            }
         }
 
         playerControls.resume();

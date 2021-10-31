@@ -12,6 +12,7 @@ import android.widget.FrameLayout
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
+import com.kaltura.playkit.PKRequestConfig
 import com.kaltura.playkit.PKSubtitleFormat
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
@@ -437,8 +438,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         super.onResume()
 
         player?.let {
-            player?.onApplicationResumed()
-            player?.play()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+                it.play()
+            }
         }
     }
 
@@ -446,7 +449,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setSubtitleStyle(defaultPositionDefault)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
         playerInitOptions.setAutoPlay(true)
 
 
@@ -496,6 +499,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
         ottMediaOptions.externalSubtitles = externalSubtitles
+        //ottMediaOptions.externalVttThumbnailUrl = "https://stdlwcdn.lwcdn.com/i/8fdb4e20-8ebb-4590-8844-dae39680d837/160p.vtt"
 
         return ottMediaOptions
     }

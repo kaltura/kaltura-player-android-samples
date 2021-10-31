@@ -2,6 +2,7 @@ package com.kaltura.playkit.samples.prefetchsample.ui
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
 import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.kaltura.dtg.DownloadItem
 import com.kaltura.playkit.PKLog
+import com.kaltura.playkit.PKMediaEntry
 import com.kaltura.playkit.PKPluginConfigs
 import com.kaltura.playkit.PlayerEvent.*
 import com.kaltura.playkit.Utils
@@ -96,30 +98,29 @@ class PlayActivity : AppCompatActivity() {
 
         if (isOnlinePlayback) {
             if (testItem?.id() != null) {
-                    val entry = manager?.getLocalPlaybackEntry(testItem.id())
-                    if (entry?.sources != null) {
-                        playAssetOffline(isOnlinePlayback, testItem?.id(), options, startPosition, testItem)
-                    } else {
-                        testItems?.let { itemList ->
-                            playAssetOnline(itemList, itemIndexPosition, options)
-                        }
-                    }
+                val entry = manager?.getLocalPlaybackEntry(testItem.id())
+                if (checkOfflinePlaybackPossible(entry)) {
+                    playAssetOffline(isOnlinePlayback, testItem?.id(), options, startPosition, testItem)
                 } else {
+                    testItems?.let { itemList ->
+                        playAssetOnline(itemList, itemIndexPosition, options)
+                    }
+                }
+            } else {
                 Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
             }
         } else {
-
-                var testItem = testItems?.get(itemIndexPosition)
-                if (testItem?.id() != null) {
-                    playAssetOffline(isOnlinePlayback, testItem?.id(), options, startPosition, testItem)
-                } else {
-                    Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
-                }
+            var testItem = testItems?.get(itemIndexPosition)
+            if (testItem?.id() != null) {
+                playAssetOffline(isOnlinePlayback, testItem?.id(), options, startPosition, testItem)
+            } else {
+                Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
+            }
         }
 
         player?.setPlayerView(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
         )
         playerRoot.addView(player?.playerView)
 
@@ -154,13 +155,13 @@ class PlayActivity : AppCompatActivity() {
                 var testItem = testItems?.get(currentItemPlayingPosition)
                 if (testItem?.id() != null) {
                     val entry = manager?.getLocalPlaybackEntry(testItem.id())
-                    if (entry?.sources != null) {
+                    if (checkOfflinePlaybackPossible(entry)) {
                         playAssetOffline(
-                            isOnlinePlayback,
-                            testItem.id(),
-                            options,
-                            startPosition,
-                            testItem
+                                isOnlinePlayback,
+                                testItem.id(),
+                                options,
+                                startPosition,
+                                testItem
                         )
                     } else {
                         testItems?.let { itemList ->
@@ -202,6 +203,9 @@ class PlayActivity : AppCompatActivity() {
         addPlayerEventListeners()
         addAdEventListeners()
     }
+
+    private fun checkOfflinePlaybackPossible(entry: PKMediaEntry?) =
+            entry?.sources != null && entry.sources?.isNotEmpty() == true && !TextUtils.isEmpty(entry.sources[0].url)
 
     private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray?, setPlugin: Boolean): PKPluginConfigs {
         val pkPluginConfigs = PKPluginConfigs()
@@ -427,9 +431,9 @@ class PlayActivity : AppCompatActivity() {
                         log.d("OTTMedia Error error = " + error.message + " Extra = " + error.extra)
                         runOnUiThread {
                             Snackbar.make(
-                                findViewById<View>(android.R.id.content),
-                                error.message,
-                                Snackbar.LENGTH_LONG
+                                    findViewById<View>(android.R.id.content),
+                                    error.message,
+                                    Snackbar.LENGTH_LONG
                             ).show()
                         }
                     } else {
@@ -448,9 +452,9 @@ class PlayActivity : AppCompatActivity() {
                         log.d("OVPMedia Error error = " + error.message + " Extra = " + error.extra)
                         runOnUiThread {
                             Snackbar.make(
-                                findViewById<View>(android.R.id.content),
-                                error.message,
-                                Snackbar.LENGTH_LONG
+                                    findViewById<View>(android.R.id.content),
+                                    error.message,
+                                    Snackbar.LENGTH_LONG
                             ).show()
                         }
                     } else {
@@ -511,18 +515,18 @@ class PlayActivity : AppCompatActivity() {
 
                 val currentTrack = currentAudioTrack
                 val currentIndex =
-                    if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
+                        if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
                 val selected = intArrayOf(currentIndex)
                 Builder(this)
-                    .setTitle("Select track")
-                    .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
-                        selected[0] = i
-                    }
-                    .setPositiveButton("OK") { _, _ ->
-                        if (selected[0] >= 0) {
-                            player?.changeTrack(trackIds[selected[0]])
+                        .setTitle("Select track")
+                        .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
+                            selected[0] = i
                         }
-                    }.show()
+                        .setPositiveButton("OK") { _, _ ->
+                            if (selected[0] >= 0) {
+                                player?.changeTrack(trackIds[selected[0]])
+                            }
+                        }.show()
             }
             DownloadItem.TrackType.TEXT -> {
                 val tracks = textTracks
@@ -544,18 +548,18 @@ class PlayActivity : AppCompatActivity() {
 
                 val currentTrack = currentTextTrack
                 val currentIndex =
-                    if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
+                        if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
                 val selected = intArrayOf(currentIndex)
                 Builder(this)
-                    .setTitle("Select track")
-                    .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
-                        selected[0] = i
-                    }
-                    .setPositiveButton("OK") { _, _ ->
-                        if (selected[0] >= 0) {
-                            player?.changeTrack(trackIds[selected[0]])
+                        .setTitle("Select track")
+                        .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
+                            selected[0] = i
                         }
-                    }.show()
+                        .setPositiveButton("OK") { _, _ ->
+                            if (selected[0] >= 0) {
+                                player?.changeTrack(trackIds[selected[0]])
+                            }
+                        }.show()
             }
             DownloadItem.TrackType.VIDEO -> {
                 val tracks = videoTracks
@@ -581,18 +585,18 @@ class PlayActivity : AppCompatActivity() {
 
                 val currentTrack = currentVideoTrack
                 val currentIndex =
-                    if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
+                        if (currentTrack != null) trackIds.indexOf(currentTrack.uniqueId) else -1
                 val selected = intArrayOf(currentIndex)
                 Builder(this)
-                    .setTitle("Select track")
-                    .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
-                        selected[0] = i
-                    }
-                    .setPositiveButton("OK") { _, _ ->
-                        if (selected[0] >= 0) {
-                            player?.changeTrack(trackIds[selected[0]])
+                        .setTitle("Select track")
+                        .setSingleChoiceItems(trackTitles.toTypedArray(), selected[0]) { _, i ->
+                            selected[0] = i
                         }
-                    }.show()
+                        .setPositiveButton("OK") { _, _ ->
+                            if (selected[0] >= 0) {
+                                player?.changeTrack(trackIds[selected[0]])
+                            }
+                        }.show()
             }
         }
     }

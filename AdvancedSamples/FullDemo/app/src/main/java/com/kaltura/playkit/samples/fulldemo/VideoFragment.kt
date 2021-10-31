@@ -1,8 +1,11 @@
 package com.kaltura.playkit.samples.fulldemo
 
-import android.app.Activity
+import android.annotation.TargetApi
+
+import androidx.fragment.app.Fragment
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -13,13 +16,13 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.fragment.app.Fragment
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.kaltura.android.exoplayer2.util.MimeTypes
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.ads.AdEnabledPlayerController
+import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
@@ -40,6 +43,7 @@ import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
 import java.util.*
+
 
 //import com.kaltura.plugins.adsmanager.AdsConfig;
 //import com.kaltura.plugins.adsmanager.AdsPlugin;
@@ -114,6 +118,8 @@ class VideoFragment : Fragment() {
     private var companionAdHeight: Int = 0
     private var minAdDurationForSkipButton: Int = 0
     private var firstLaunch = true
+    private var adCuePoints: AdCuePoints? = null
+    private var replayButton: Button? = null
 
     private var rootView: View? = null
 
@@ -145,14 +151,14 @@ class VideoFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        isAutoPlay = arguments!!.getBoolean(AUTO_PLAY)
-        startPosition = arguments!!.getLong(START_FROM)
-        adLoadTimeOut = arguments!!.getInt(AD_LOAD_TIMEOUT)
-        videoMimeType = arguments!!.getString(MIME_TYPE)
-        videoBitrate = arguments!!.getInt(PREFERRED_BITRATE)
-        companionAdWidth = arguments!!.getInt(COMPANION_AD_WIDTH)
-        companionAdHeight = arguments!!.getInt(COMPANION_AD_HEIGHT)
-        minAdDurationForSkipButton = arguments!!.getInt(MIN_AD_DURATION_FOR_SKIP_BUTTON)
+        isAutoPlay = requireArguments().getBoolean(AUTO_PLAY)
+        startPosition = requireArguments().getLong(START_FROM)
+        adLoadTimeOut = requireArguments().getInt(AD_LOAD_TIMEOUT)
+        videoMimeType = requireArguments().getString(MIME_TYPE)
+        videoBitrate = requireArguments().getInt(PREFERRED_BITRATE)
+        companionAdWidth = requireArguments().getInt(COMPANION_AD_WIDTH)
+        companionAdHeight = requireArguments().getInt(COMPANION_AD_HEIGHT)
+        minAdDurationForSkipButton = requireArguments().getInt(MIN_AD_DURATION_FOR_SKIP_BUTTON)
 
         rootView = inflater.inflate(R.layout.fragment_video, container, false)
         initUi(rootView!!)
@@ -191,7 +197,7 @@ class VideoFragment : Fragment() {
             //                    setCompanionAdWidth(companionAdWidth).
             //                    setCompanionAdHeight(companionAdHeight);
 
-            val referrer = "app://NonDefaultReferrer1/" + activity!!.packageCodePath
+            val referrer = "app://NonDefaultReferrer1/" + requireContext().packageCodePath
             //player.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
             player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
             player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
@@ -211,7 +217,7 @@ class VideoFragment : Fragment() {
             //                    setCompanionAdWidth(companionAdWidth).
             //                    setCompanionAdHeight(companionAdHeight);
 
-            val referrer = "app://NonDefaultReferrer2/" + activity!!.packageName
+            val referrer = "app://NonDefaultReferrer2/" + requireContext().packageName
             player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
             //player?.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
             player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
@@ -364,8 +370,7 @@ class VideoFragment : Fragment() {
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
 
-
-        player = KalturaBasicPlayer.create(activity, playerInitOptions)
+        player = KalturaBasicPlayer.create(requireContext(), playerInitOptions)
         player?.setPlayerView(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT)
 
         val container = rootView!!.findViewById<ViewGroup>(R.id.player_root)
@@ -539,14 +544,26 @@ class VideoFragment : Fragment() {
         return mediaSources
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private fun initUi(rootView: View) {
+
+        replayButton = rootView.findViewById(R.id.replay)
+        replayButton?.setOnClickListener(View.OnClickListener { v: View? ->
+            if (player != null) {
+                player?.replay()
+            }
+            replayButton?.setVisibility(View.GONE)
+        })
+
 
         val changeMediaButton = rootView.findViewById<Button>(R.id.changeMedia)
         //Set click listener.
-        changeMediaButton.setOnClickListener {
+        changeMediaButton.setOnClickListener { v: View? ->
+            replayButton?.setVisibility(View.GONE)
             //Change media.
             changeMedia()
         }
+
         mVideoTitle = rootView.findViewById(R.id.video_title)
         playerLayout = rootView.findViewById(R.id.player_root)
         progressBar = rootView.findViewById(R.id.progressBarSpinner)
@@ -563,7 +580,9 @@ class VideoFragment : Fragment() {
                 orient = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 setFullScreen(true)
             }
-            activity!!.requestedOrientation = orient
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                activity?.requestedOrientation = orient
+            }
         }
 
         val logText = rootView.findViewById<TextView>(R.id.logText)
@@ -668,7 +687,12 @@ class VideoFragment : Fragment() {
         }
 
         player?.addListener(this, AdEvent.cuepointsChanged) { event ->
-            Log.d(TAG, "Has Postroll = " + event.cuePoints.hasPostRoll())
+            Log.d(TAG, "cuepointsChanged. Has Postroll  = " + event.cuePoints.hasPostRoll())
+            adCuePoints = event.cuePoints;
+            if (adCuePoints != null) {
+                Log.d(TAG, "Has Postroll = " + adCuePoints?.hasPostRoll());
+            }
+
             log("AD_CUEPOINTS_UPDATED")
             onCuePointChanged()
         }
@@ -706,6 +730,11 @@ class VideoFragment : Fragment() {
 
         player?.addListener(this, AdEvent.allAdsCompleted) { event ->
             log("AD_ALL_ADS_COMPLETED")
+            var hasPostRoll = adCuePoints?.hasPostRoll() ?: false
+            if (adCuePoints != null && hasPostRoll) {
+                replayButton?.setVisibility(View.VISIBLE);
+            }
+
             appProgressBar.visibility = View.INVISIBLE
         }
 
@@ -814,6 +843,10 @@ class VideoFragment : Fragment() {
         player?.addListener(this, PlayerEvent.ended) { event ->
             log("PLAYER ENDED")
             appProgressBar.visibility = View.INVISIBLE
+            var hasPostRoll = adCuePoints?.hasPostRoll() ?: false
+            if (adCuePoints == null || !hasPostRoll) {
+                replayButton?.setVisibility(View.VISIBLE);
+            }
             nowPlaying = false
         }
 

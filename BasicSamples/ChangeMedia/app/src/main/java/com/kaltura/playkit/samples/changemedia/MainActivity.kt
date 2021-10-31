@@ -305,8 +305,10 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         player?.let {
             resetPlayPauseButtonToPauseText()
-            it.onApplicationResumed()
-            it.play()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+                it.play()
+            }
         }
     }
 
@@ -322,7 +324,7 @@ class MainActivity : AppCompatActivity() {
 
     fun loadPlaykitPlayer() {
         val playerInitOptions = PlayerInitOptions()
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
         playerInitOptions.mediaEntryCacheConfig = MediaEntryCacheConfig(true, 10, 60000)
         playerInitOptions.setAutoPlay(true)
 

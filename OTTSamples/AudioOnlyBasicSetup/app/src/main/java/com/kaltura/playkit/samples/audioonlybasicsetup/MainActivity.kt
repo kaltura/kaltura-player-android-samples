@@ -118,8 +118,10 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         player?.let {
             play_pause_button.setText(R.string.pause_text)
-            it.onApplicationResumed()
-            it.play()
+            if (it.mediaEntry != null) {
+                it.onApplicationResumed()
+                it.play()
+            }
         }
     }
 
@@ -137,7 +139,7 @@ class MainActivity : AppCompatActivity() {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
 
         // Audio Only setup

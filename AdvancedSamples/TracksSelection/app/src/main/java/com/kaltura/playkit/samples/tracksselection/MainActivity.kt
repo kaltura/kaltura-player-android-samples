@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Spinner
 import android.widget.TextView
+import com.kaltura.playkit.PKRequestConfig
 
 import com.kaltura.playkit.PKSubtitleFormat
 import com.kaltura.playkit.PlayerEvent
@@ -457,8 +458,8 @@ class MainActivity: AppCompatActivity(), AdapterView.OnItemSelectedListener {
         super.onResume()
 
         if (player != null && playerState != null) {
-            player!!.onApplicationResumed()
-            player!!.play()
+            player?.onApplicationResumed()
+            player?.play()
         }
     }
 
@@ -467,7 +468,7 @@ class MainActivity: AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
         playerInitOptions.setSubtitleStyle(defaultPositionDefault)
         playerInitOptions.setAutoPlay(true)
-        playerInitOptions.setAllowCrossProtocolEnabled(true)
+        playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
 
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
