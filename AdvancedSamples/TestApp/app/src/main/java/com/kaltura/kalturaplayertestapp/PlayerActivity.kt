@@ -840,11 +840,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (ottMedia.fileId != null) {
             ottMediaAsset.setMediaFileIds(listOf(ottMedia.fileId))
         }
-
-        if (ottMedia.epgId != null) {
-            ottMediaAsset.setEpgId(ottMedia.epgId)
-        }
-
+        
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = startPosition
         ottMediaOptions.externalSubtitles = ottMedia.externalSubtitles
