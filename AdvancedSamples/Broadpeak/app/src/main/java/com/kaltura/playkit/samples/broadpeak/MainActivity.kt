@@ -1,6 +1,7 @@
 package com.kaltura.playkit.samples.broadpeak
 
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     private var currentMediaId = ""
 
     //Youbora analytics Constants
-    val ACCOUNT_CODE = "kalturatest"
+    val ACCOUNT_CODE = "accountocde"
     val UNIQUE_USER_NAME = "your_app_logged_in_user_email_or_userId"
     val USER_EMAIL = "user_email"
     val MEDIA_TITLE = "your_media_title"
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity() {
 
         change_media_button.setOnClickListener {
             currentlyPlayingAsset?.let {
-                player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraBundle(it))
+                player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraBundle(it, null))
                 if (it == FIRST_ASSET_ID) {
                     loadSecondOttMedia()
                 } else {
@@ -191,7 +192,7 @@ class MainActivity : AppCompatActivity() {
 
         pkPluginConfigs.setPluginConfig(BroadpeakPlugin.factory.name, broadpeakConfig)
 
-        pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, getYouboraBundle(FIRST_ASSET_ID))
+        pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, getYouboraBundle(FIRST_ASSET_ID, null))
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
 
@@ -203,7 +204,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         player?.addListener(this, PlayerEvent.playing) { event ->
-        //    player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraBundle1(event.))
+            Log.i(TAG, "PLAYING EVENT")
         }
 
         player?.addListener(this, BroadpeakEvent.error) { event ->
@@ -211,7 +212,7 @@ class MainActivity : AppCompatActivity() {
         }
         player?.addListener(this, InterceptorEvent.sourceUrlSwitched) { event ->
             Log.d(TAG, "BROADPEAK SOURCE URL SWITCHED: " + event.originalUrl + " to " + event.updatedUrl)
-            player?.updatePluginConfig(YouboraPlugin.factory.name, getUpdatedYouboraBundle(event.originalUrl ?: "unknown", currentMediaId))
+            player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraBundle(currentMediaId, event.originalUrl ?: "unknown"))
         }
 
         val container = findViewById<ViewGroup>(R.id.player_root)
@@ -227,7 +228,7 @@ class MainActivity : AppCompatActivity() {
         addPlayerStateListener()
     }
 
-    private fun getYouboraBundle(mediaId : String?): Bundle {
+    private fun getYouboraBundle(mediaId : String?, originalUrl: String?): Bundle {
 
         val optBundle = Bundle()
 
@@ -289,75 +290,9 @@ class MainActivity : AppCompatActivity() {
         //You can add some extra params here:
         optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, EXTRA_PARAM_1)
         optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, EXTRA_PARAM_2 + "-" + mediaId)
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_5, mediaId)
-
-        return optBundle
-    }
-
-    private fun getUpdatedYouboraBundle(originalUrl: String, mediaId: String?): Bundle {
-
-        val optBundle = Bundle()
-
-        //Youbora config bundle. Main config goes here.
-        optBundle.putString(Options.KEY_ACCOUNT_CODE, ACCOUNT_CODE)
-        optBundle.putString(Options.KEY_USERNAME, UNIQUE_USER_NAME)
-        optBundle.putString(Options.KEY_USER_EMAIL, USER_EMAIL)
-
-        optBundle.putBoolean(Options.KEY_ENABLED, true)
-        optBundle.putString(Options.KEY_APP_NAME, "TestApp");
-        optBundle.putString(Options.KEY_APP_RELEASE_VERSION, "v1.0");
-
-        //Media entry bundle.
-        optBundle.putString(Options.KEY_CONTENT_TITLE, MEDIA_TITLE)
-       // optBundle.putBoolean(Options.KEY_PARSE_MANIFEST, true);
-       // optBundle.putBoolean(Options.KEY_PARSE_CDN_NODE, true);
-
-       // optBundle.putBoolean(Options.KEY_PARSE_MANIFEST, PARSE_MANIFEST)
-       // optBundle.putBoolean(Options.KEY_PARSE_CDN_NODE, PARSE_CDN_NODE)
-        optBundle.putBoolean(Options.KEY_PARSE_CDN_SWITCH_HEADER, PARSE_CDN_SWITCH_HEADER)
-        optBundle.putStringArrayList(Options.KEY_PARSE_CDN_NODE_LIST, PARSE_CDN_NODE_LIST)
-        optBundle.putString(Options.KEY_PARSE_CDN_NAME_HEADER, PARSE_CDN_NAME_HEADERS)
-        optBundle.putInt(Options.KEY_PARSE_CDN_TTL, PARSE_CDN_TTL)
-
-
-        //Optional - Device bundle o/w youbora will decide by its own.
-        optBundle.putString(Options.KEY_DEVICE_CODE, DEVICE_CODE)
-        optBundle.putString(Options.KEY_DEVICE_BRAND, "Xiaomi")
-        optBundle.putString(Options.KEY_DEVICE_MODEL, "Mii3")
-        optBundle.putString(Options.KEY_DEVICE_TYPE, "TvBox")
-        optBundle.putString(Options.KEY_DEVICE_OS_NAME, "Android/Oreo")
-        optBundle.putString(Options.KEY_DEVICE_OS_VERSION, "8.1")
-
-        //Youbora ads configuration bundle.
-        optBundle.putString(Options.KEY_AD_CAMPAIGN, CAMPAIGN)
-
-        //Configure custom properties here:
-        optBundle.putString(Options.KEY_CONTENT_GENRE, GENRE)
-        optBundle.putString(Options.KEY_CONTENT_TYPE, TYPE)
-        optBundle.putString(Options.KEY_CONTENT_TRANSACTION_CODE, TRANSACTION_TYPE)
-        optBundle.putString(Options.KEY_CONTENT_CDN, CONTENT_CDN_CODE)
-
-        optBundle.putString(Options.KEY_CONTENT_PRICE, PRICE)
-        optBundle.putString(Options.KEY_CONTENT_ENCODING_AUDIO_CODEC, AUDIO_TYPE)
-        optBundle.putString(Options.KEY_CONTENT_CHANNEL, AUDIO_CHANNELS)
-
-        val contentMetadataBundle = Bundle()
-
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_YEAR, YEAR)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_CAST, CAST)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_DIRECTOR, DIRECTOR)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_OWNER, OWNER)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_PARENTAL, PARENTAL)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_RATING, RATING)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_QUALITY, QUALITY)
-
-        optBundle.putBundle(Options.KEY_CONTENT_METADATA, contentMetadataBundle)
-
-        //You can add some extra params here:
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, EXTRA_PARAM_1)
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, EXTRA_PARAM_2 + "-" + mediaId)
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_3, originalUrl)
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_5, mediaId)
+        if (!TextUtils.isEmpty(originalUrl)) {
+            optBundle.putString(Options.KEY_CUSTOM_DIMENSION_3, originalUrl)
+        }
         return optBundle
     }
 
