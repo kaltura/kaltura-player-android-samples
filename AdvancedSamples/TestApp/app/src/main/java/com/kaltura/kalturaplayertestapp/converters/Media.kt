@@ -13,7 +13,6 @@ class Media {
     var assetId: String? = null   // ott
     var format: String? = null    // ott
     var fileId: String? = null   // ott
-    var epgId:  String? = null   // ott live/dvr 
 
     @get:JvmName("getAssetType")
     var assetType: String? = null // ott
