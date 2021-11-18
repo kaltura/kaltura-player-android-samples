@@ -1,7 +1,7 @@
 [
     {
-        "title": "HEVC HLS",
-        "id": "Hevc_HLS",
+        "title": "HLS HEVC",
+        "id": "HLS_HEVC",
         "url": "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_zhpdyrr2/protocol/https/format/applehttp/flavorIds/1_3nudljkx,1_8sk0np7s,1_ntkon8wy,1_j2lglql3,1_rt9w2vwh,1_2lps5mcy,1_lf6l8e4n,1_xyjf6mch/a.m3u8",
         "options": {
             "videoBitrate": 200000,
@@ -11,8 +11,8 @@
         }
     },
     {
-        "title": "HEVC DASH",
-        "id": "Hevc_DASH",
+        "title": "DASH HEVC ",
+        "id": "DASH_HEVC",
         "url": "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_zhpdyrr2/protocol/https/format/mpegdash/flavorIds/1_3nudljkx,1_8sk0np7s,1_ntkon8wy,1_j2lglql3,1_2lps5mcy,1_lf6l8e4n,1_xyjf6mch/a.mpd"
     },
     {
@@ -28,16 +28,6 @@
         "title": "hls-crossProtocol",
         "id": "hls-crossProtocol",
         "url": "https://rest-us.ott.kaltura.com/api_v3/service/assetFile/action/playManifest/partnerId/3009/assetId/548579/assetType/media/assetFileId/1199761/contextType/PLAYBACK/a.m3u8",
-        "options": {
-            "allAudioLangs": true,
-            "allTextLangs": true
-        }
-    },
-    {
-        "title": "zee",
-        "id": "zee",
-        "url": "https://zee5vod.akamaized.net/drm1/elemental/dash/ORIGINALS/ACTION/HINDI/URI/BQC_URI_HINDI_MOVIE_UHD_50MBPS_R2_hi_d87eed6bdfeac7d5cfb881ca570467fa/manifest.mpd?c3.ri=6913885343629884945",
-        "licenseUrl" : "https://wv-keyos-aps1.licensekeyserver.com",
         "options": {
             "allAudioLangs": true,
             "allTextLangs": true
@@ -140,7 +130,33 @@
             "audioLangs": ["en"],
             "textLangs": []
         }
-    }
+    },
+    {
+        "title": "OVP Test Media",
+        "id": "1_w9zx2eti",
+        "partnerId": 2215841,
+        "env": "http://cdnapisec.kaltura.com",
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        }
+    },
+    {
+
+        "title": "OTT Test Media",
+        "id": "548576",
+        "partnerId": 3009,
+        "ott": true,
+        "env": "https://rest-us.ott.kaltura.com/v4_5/api_v3/",
+        "options": {
+            "allAudioLangs": true,
+            "allTextLangs": true
+        },
+        "ottParams": {
+            "format": "Mobile_Main",
+            "protocol": "http"
+        }
+    },
     {
         "title": "DRM: Prod 1",
         "id": "1_f93tepsn",
