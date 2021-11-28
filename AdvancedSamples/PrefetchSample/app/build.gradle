@@ -34,12 +34,12 @@ android {
 
 dependencies {
 
-      implementation 'com.kaltura.player:tvplayer:4.16.0'
-      implementation 'com.kaltura.playkit:youboraplugin:4.16.0'
-      implementation 'com.kaltura.playkit:imaplugin:4.16.0'
-      implementation 'com.kaltura.playkit:googlecast:4.16.0'
-      implementation 'com.kaltura.playkit:vrplugin:4.16.0'
-      implementation 'com.kaltura.playkit:fbadsplugin:4.16.0'
+      implementation 'com.kaltura.player:tvplayer:4.19.0'
+      implementation 'com.kaltura.playkit:youboraplugin:4.19.0'
+      implementation 'com.kaltura.playkit:imaplugin:4.19.0'
+      implementation 'com.kaltura.playkit:googlecast:4.19.0'
+      implementation 'com.kaltura.playkit:vrplugin:4.19.0'
+      implementation 'com.kaltura.playkit:fbadsplugin:4.19.0'
 
 //    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
 //    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'

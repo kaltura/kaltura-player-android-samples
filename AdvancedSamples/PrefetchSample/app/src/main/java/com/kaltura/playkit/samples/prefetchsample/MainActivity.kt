@@ -267,8 +267,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             return
         }
 
-        val items = arrayOf(
-                if (item.isPrefetch && offlineManager is ExoOfflineManager) "Prefetch" else "Prepare",
+        var items = arrayOf(
+                "Prepare",
                 "Start",
                 "Pause",
                 "Play-Offline",
@@ -277,26 +277,55 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
                 "Status"
         )
 
-        AlertDialog.Builder(this).setTitle(item.title + " (" + item.id() + ")").setItems(items) { _, i ->
+        if (offlineManager is ExoOfflineManager) {
+            items = arrayOf(
+                if (item.isPrefetch && offlineManager is ExoOfflineManager) "Prefetch" else "PrepareAndStart",
+                "Pause",
+                "Play-Offline",
+                "Play-Online",
+                "Remove",
+                "Status"
+            )
+        }
+
+        var dtgOfflineManagerDialog = AlertDialog.Builder(this).setTitle(item.title + " (" + item.id() + ")").setItems(items) { _, i ->
+            when (i) {
+                0 -> {
+                    showProgressBar()
+                    doPrepare(item)
+                }
+                1 -> doStart(item)
+                2 -> doPause(item)
+                3 -> doOfflinePlayback(item, position)
+                4 -> doOnlinePlayback(item, position)
+                5 -> doRemove(item)
+                6 -> doStatus(item)
+            }
+        }
+
+        var exoOfflineManagerDialog = AlertDialog.Builder(this).setTitle(item.title + " (" + item.id() + ")").setItems(items) { _, i ->
             when (i) {
                 0 -> {
                     showProgressBar()
                     if (item.isPrefetch && offlineManager is ExoOfflineManager) {
                         doPrefetch(item)
                     } else {
-                        doPrepare(item)
+                        doPrepareAndStart(item)
                     }
                 }
-                1 -> doStart(item)
-                2 -> doPause(item)
-                3 -> doOfflinePlayback(item, position)
-                4 -> doOnlinePlayback(item, position)
-                5 -> {
-                    doRemove(item)
-                }
-                6 -> doStatus(item)
+                1 -> doPause(item)
+                2 -> doOfflinePlayback(item, position)
+                3 -> doOnlinePlayback(item, position)
+                4 -> doRemove(item)
+                5 -> doStatus(item)
             }
-        }.show()
+        }
+
+        if (offlineManager is ExoOfflineManager) {
+            exoOfflineManagerDialog.show();
+        } else {
+            dtgOfflineManagerDialog.show()
+        }
     }
 
     private fun doStatus(item: Item) {
@@ -600,6 +629,112 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
              item.entry?.let { entry ->
                  prefetchManager?.prefetchByMediaEntryList(mediaEntries, defaultPrefs, prefetchCallback)
              }*/
+        }
+    }
+
+    private fun doPrepareAndStart(item: Item) {
+
+        val assetInfo = offlineManager?.getAssetInfo(item.id())
+        if (assetInfo?.state == OfflineManager.AssetDownloadState.completed) {
+            offlineManager?.getDrmStatus(item.id())?.let {
+                if (it.isValid || it.status == OfflineManager.DrmStatus.Status.unknown){
+                    hideProgressBar()
+                    toast("Asset already downloaded")
+                    return
+                }
+            }
+        }
+
+        if (item is OTTItem) {
+            offlineManager?.setKalturaParams(KalturaPlayer.Type.ott, item.partnerId)
+            offlineManager?.setKalturaServerUrl(item.serverUrl)
+        }
+
+        if (item is OVPItem) {
+            offlineManager?.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
+            offlineManager?.setKalturaServerUrl(item.serverUrl)
+        }
+
+        val prepareCallback = object : OfflineManager.PrepareCallback {
+
+            override fun onPrepared(
+                assetId: String,
+                assetInfo: OfflineManager.AssetInfo,
+                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
+            ) {
+                item.assetInfo = assetInfo
+                runOnUiThread {
+                    hideProgressBar()
+                    doStart(item)
+                    updateRecyclerViewAdapter(item.position)
+                }
+            }
+
+            override fun onPrepareError(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
+            ) {
+                hideProgressBar()
+                toastLong("onPrepareError: $error")
+            }
+
+            override fun onMediaEntryLoadError(
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
+            ) {
+                hideProgressBar()
+                toastLong("onMediaEntryLoadError: $error")
+            }
+
+            override fun onMediaEntryLoaded(
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                mediaEntry: PKMediaEntry
+            ) {
+                hideProgressBar()
+                toastLong("onMediaEntryLoaded: ${mediaEntry.name}")
+                // reduceLicenseDuration(mediaEntry, 300)
+            }
+
+            override fun onSourceSelected(
+                assetId: String,
+                source: PKMediaSource,
+                drmParams: PKDrmParams?
+            ) {
+                // hideProgressBar()
+                toastLong("onSourceSelected ")
+            }
+        }
+
+        val defaultPrefs = OfflineManager.SelectionPrefs().apply {
+            //  videoHeight = 500
+            // videoBitrate = 300000
+            // videoWidth = 3000
+            allAudioLanguages = true
+            allTextLanguages = true
+            // videoCodecs = mutableListOf()
+            //  videoCodecs.also { it?.add(OfflineManager.TrackCodec.AVC1) }
+            //allowInefficientCodecs = false
+        }
+
+        if (item is KalturaItem) {
+            if (!TextUtils.isEmpty(item.serverUrl)) {
+                offlineManager?.setKalturaServerUrl(item.serverUrl);
+            }
+            offlineManager?.prepareAsset(
+                item.mediaOptions(),
+                item.selectionPrefs ?: defaultPrefs,
+                prepareCallback
+            )
+        } else {
+            item.entry?.let { entry ->
+                offlineManager?.prepareAsset(
+                    entry,
+                    item.selectionPrefs ?: defaultPrefs,
+                    prepareCallback
+                )
+            }
         }
     }
 

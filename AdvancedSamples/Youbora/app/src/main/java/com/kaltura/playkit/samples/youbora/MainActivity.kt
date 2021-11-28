@@ -230,9 +230,9 @@ class MainActivity: AppCompatActivity() {
 
         // Youbora Configuration
         val pkPluginConfigs = PKPluginConfigs()
-        val youboraConfigJson = getYouboraConfig()
-
         pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, getYouboraBundle())
+
+        //val youboraConfigJson = getYouboraConfig() //can be used instead of getYouboraBundle()
         //pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, youboraConfigJson)
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
@@ -409,8 +409,6 @@ class MainActivity: AppCompatActivity() {
 
         //Media entry bundle.
         optBundle.putString(KEY_CONTENT_TITLE, MEDIA_TITLE)
-        optBundle.putBoolean(KEY_PARSE_MANIFEST, true);
-        optBundle.putBoolean(KEY_PARSE_CDN_NODE, true);
 
         optBundle.putBoolean(KEY_PARSE_MANIFEST, PARSE_MANIFEST)
         optBundle.putBoolean(KEY_PARSE_CDN_NODE, PARSE_CDN_NODE)

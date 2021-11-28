@@ -673,20 +673,21 @@ class PlayerActivity: AppCompatActivity(), Observer {
             return ovpMediasOptions;
         }
 
-        mediaList.forEach {
+        for (item in mediaList) {
             var ovpMediaAsset = OVPMediaAsset()
-            ovpMediaAsset.entryId = it.entryId ?: ""
-            ovpMediaAsset.referenceId = it.referenceId ?: ""
-            ovpMediaAsset.redirectFromEntryId = it.redirectFromEntryId ?: true
-            ovpMediaAsset.ks = it.ks
-            ovpMediaAsset.referrer = it.referrer
+            ovpMediaAsset.entryId = item.entryId ?: ""
+            ovpMediaAsset.referenceId = item.referenceId ?: ""
+            ovpMediaAsset.redirectFromEntryId = item.redirectFromEntryId ?: true
+            ovpMediaAsset.ks = item.ks
+            ovpMediaAsset.referrer = item.referrer
 
             var ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
-            ovpMediaOptions.setUseApiCaptions(it.useApiCaptions)
-            ovpMediaOptions.playlistCountDownOptions = it.countDownOptions
-            ovpMediaOptions.startPosition = it.startPosition
+            ovpMediaOptions.setUseApiCaptions(item.useApiCaptions)
+            ovpMediaOptions.playlistCountDownOptions = item.countDownOptions
+            ovpMediaOptions.startPosition = item.startPosition
             ovpMediasOptions.add(ovpMediaOptions)
         }
+
         return ovpMediasOptions
     }
 
@@ -726,21 +727,21 @@ class PlayerActivity: AppCompatActivity(), Observer {
             return ottMediasOptions;
         }
 
-        mediaList.forEach {
+        for (item in mediaList) {
             var ottMediaAsset = OTTMediaAsset()
-            ottMediaAsset.assetId = it.assetId
-            ottMediaAsset.urlType = it.urlType
-            ottMediaAsset.streamerType = it.streamerType
-            ottMediaAsset.assetReferenceType = it.assetReferenceType
-            ottMediaAsset.protocol = it.protocol
-            ottMediaAsset.contextType = it.contextType
-            ottMediaAsset.assetType = it.assetType
-            ottMediaAsset.ks = it.ks
-            ottMediaAsset.referrer = it.referrer
-            ottMediaAsset.adapterData = it.adapterData
+            ottMediaAsset.assetId = item.assetId
+            ottMediaAsset.urlType = item.urlType
+            ottMediaAsset.streamerType = item.streamerType
+            ottMediaAsset.assetReferenceType = item.assetReferenceType
+            ottMediaAsset.protocol = item.protocol
+            ottMediaAsset.contextType = item.contextType
+            ottMediaAsset.assetType = item.assetType
+            ottMediaAsset.ks = item.ks
+            ottMediaAsset.referrer = item.referrer
+            ottMediaAsset.adapterData = item.adapterData
 
             var mediaFilesList = mutableListOf<String>()
-            it.fileIds.let {
+            item.fileIds.let {
                 if (it != null) {
                     for (fileId in it) {
                         mediaFilesList.add(fileId)
@@ -753,7 +754,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             var mediaFormatsList = mutableListOf<String>()
-            it.formats.let {
+            item.formats.let {
                 if (it != null) {
                     for (format in it) {
                         mediaFormatsList.add(format)
@@ -766,8 +767,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             var ottMediaOptions = OTTMediaOptions(ottMediaAsset)
-            ottMediaOptions.playlistCountDownOptions = it.countDownOptions
-            ottMediaOptions.startPosition = it.startPosition
+            ottMediaOptions.playlistCountDownOptions = item.countDownOptions
+            ottMediaOptions.startPosition = item.startPosition
             ottMediasOptions.add(ottMediaOptions)
         }
         return ottMediasOptions
@@ -808,12 +809,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (mediaList == null) {
             return basicMediasOptionsList;
         }
-        mediaList.forEach {
-            it.countDownOptions?.let { countdown ->
-                var basicMediaOptions = BasicMediaOptions(it.pkMediaEntry, countdown)
+
+        for (item in mediaList) {
+            item.countDownOptions?.let { countdown ->
+                var basicMediaOptions = BasicMediaOptions(item.pkMediaEntry, countdown)
                 basicMediasOptionsList.add(basicMediaOptions)
             }
-
         }
         return basicMediasOptionsList
     }
@@ -835,10 +836,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (ottMedia.format != null) {
             ottMediaAsset.setFormats(listOf(ottMedia.format))
         }
+
         if (ottMedia.fileId != null) {
             ottMediaAsset.setMediaFileIds(listOf(ottMedia.fileId))
         }
-
+        
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = startPosition
         ottMediaOptions.externalSubtitles = ottMedia.externalSubtitles
