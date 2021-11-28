@@ -5,7 +5,7 @@ package com.kaltura.playkit.samples.fulldemo
  */
 
 object Consts {
-    val ADS_JSON_FILE_URL = "http://externaltests.dev.kaltura.com/playKitApp/adManager/full_demo_ads_custom.json" //"https://d3arsss1ejpe8a.cloudfront.net/IMA/full_demo_ads_v7.json";
+    val ADS_JSON_FILE_URL = "http://externaltests.dev.kaltura.com/playKitApp/adManager/full_demo_ads_custom_inbal.json" //"https://d3arsss1ejpe8a.cloudfront.net/IMA/full_demo_ads_v7.json";
 
     val VIDEO_PLAYLIST_FRAGMENT_TAG = "video_playlist_fragment_tag"
     val VIDEO_EXAMPLE_FRAGMENT_TAG = "video_example_fragment_tag"
