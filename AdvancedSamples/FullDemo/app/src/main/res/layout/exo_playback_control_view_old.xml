@@ -79,7 +79,6 @@
       android:paddingLeft="4dp"
       android:paddingRight="4dp"
       android:includeFontPadding="false"
-      android:contentDescription="time_current"
       android:textColor="#FFBEBEBE"/>
 
     <com.kaltura.android.exoplayer2.ui.DefaultTimeBar
