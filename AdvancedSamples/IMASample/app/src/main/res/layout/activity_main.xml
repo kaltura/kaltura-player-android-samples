@@ -25,5 +25,16 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/player_root"/>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_above="@id/playerControls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        style="@android:style/Widget.ProgressBar.Large"
+        />
+
 </RelativeLayout>
 
