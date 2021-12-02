@@ -22,6 +22,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
     interface ChangeMediaListener {
         fun changeMediaOnClick()
+        fun playAdNowApi()
     }
 
     private val log = PKLog.get("PlaybackControlsView")
@@ -258,8 +259,11 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
             R.id.kexo_rew -> {
                 //Do nothing for now
             }
-            R.id.kexo_next, R.id.kexo_prev -> {
+            R.id.kexo_next -> {
                 changeMediaListener?.changeMediaOnClick()
+            }
+            R.id.kexo_prev -> {
+                changeMediaListener?.playAdNowApi()
             }
         }
     }
