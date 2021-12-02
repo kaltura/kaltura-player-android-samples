@@ -88,7 +88,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.4.0'
-    implementation 'com.firebaseui:firebase-ui-database:3.0.0'
+    implementation 'com.firebaseui:firebase-ui-database:8.0.0'
     implementation "com.google.firebase:firebase-firestore:23.0.4"
 
     implementation 'com.google.firebase:firebase-auth:21.0.1'
