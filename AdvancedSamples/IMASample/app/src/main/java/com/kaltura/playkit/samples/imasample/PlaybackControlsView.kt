@@ -18,7 +18,12 @@ import com.kaltura.playkit.ads.AdController
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
 
-open class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
+class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
+
+    interface ChangeMediaListener {
+        fun changeMediaOnClick()
+        fun playAdNowApi()
+    }
 
     private val log = PKLog.get("PlaybackControlsView")
     private val PROGRESS_BAR_MAX = 100
@@ -45,6 +50,7 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
     private var dragging = false
 
     private val componentListener: ComponentListener
+    private var changeMediaListener: ChangeMediaListener? = null
 
     private val updateProgressAction = Runnable { this.updateProgress() }
 
@@ -89,6 +95,10 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
 
         tvCurTime = this.findViewById(R.id.kexo_position)
         tvTime = this.findViewById(R.id.kexo_duration)
+    }
+
+    fun setChangeMediaListener(changeMediaListener: ChangeMediaListener) {
+        this.changeMediaListener = changeMediaListener;
     }
 
     private fun updateProgress() {
@@ -250,10 +260,10 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
                 //Do nothing for now
             }
             R.id.kexo_next -> {
-                //Do nothing for now
+                changeMediaListener?.changeMediaOnClick()
             }
             R.id.kexo_prev -> {
-                //Do nothing for now
+                changeMediaListener?.playAdNowApi()
             }
         }
     }
