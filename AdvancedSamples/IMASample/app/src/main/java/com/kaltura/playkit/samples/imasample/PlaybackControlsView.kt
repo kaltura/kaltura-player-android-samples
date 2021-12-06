@@ -245,7 +245,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         seekBar.isEnabled = !isAdPlaying
     }
 
-    fun setAdMarkers(adGroupTime: LongArray, playedAdFlag: BooleanArray, totalAdCount: Int) {
+    fun setAdMarkers(adGroupTime: LongArray, playedAdFlag: BooleanArray?, totalAdCount: Int) {
         seekBar.setAdGroupTimesMs(adGroupTime, playedAdFlag, totalAdCount)
     }
 
