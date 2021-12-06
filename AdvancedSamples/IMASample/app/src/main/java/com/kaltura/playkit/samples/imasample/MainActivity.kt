@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
 
     private val log = PKLog.get("MainActivity")
 
-    private val START_POSITION = 20L // position for start playback in msec.
+    private val START_POSITION = 0L // position for start playback in msec.
     private val FIRST_ASSET_ID = "548576"
     private val SECOND_ASSET_ID = "548577"
 
@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        PKLog.setGlobalLevel(PKLog.Level.verbose)
         progressBar.visibility = View.GONE
         loadPlaykitPlayer()
     }
@@ -243,24 +244,35 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
             "https://pubaasndjknasjdnasds.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&vad_type=linear&vpos=preroll&pod=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0",
             "https://kaltura.github.io/playkit-admanager-samples/vast/pod-inline-single-ad-skip-no-learnmore.xml")
 
-       // val prerollAdPod = listOf(prerollVastUrlListWithWaterfallingAdErrored)
+      //  val prerollAdPod = listOf(prerollVastUrlListWithWaterfallingAdErrored)
         val prerollAdPod = listOf(prerollVastUrlListWithWaterfallingAd1, prerollVastUrlListWithoutWaterfallingAd2, prerollVastUrlListWithWaterfallingAd3)
 
-        val midrollVastUrlList = listOf("https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml",
+        val midrollVastUrlListError = listOf("https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml",
             "https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml",
-            "https://pubads.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&cue=15000&vad_type=linear&vpos=midroll&pod=2&mridx=1&rmridx=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0")
+            "https://pubadsdasdasdasdasdasd.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&cue=15000&vad_type=linear&vpos=midroll&pod=2&mridx=1&rmridx=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0")
         val postrollVastUrlList = listOf("https://pubads.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&vad_type=linear&vpos=postroll&pod=3&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0")
 
+        val midrollVastUrlListPlayabale = listOf("https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml",
+            "https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml",
+            "https://pubads.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&cue=15000&vad_type=linear&vpos=midroll&pod=2&mridx=1&rmridx=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0")
+
+
         val midrollVastUrlListForEVERY = listOf("https://kalasdasdasdtura.github.asdasdasio/playkisdasdasdasdt-admanager-samples/vast/pod-inline-someskip.xml",
-        "https://pubads.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&cue=15000&vad_type=linear&vpos=midroll&pod=2&mridx=1&rmridx=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0")
+            "https://puasdasdasbads.g.doubleasdasdasdasdclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&cue=15000&vad_type=linear&vpos=midroll&pod=2&mridx=1&rmridx=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0")
 
         val prerollAdBreak = AdBreak(AdBreakPositionType.POSITION, 0, prerollAdPod)
-        val midrollAdBreak1 = AdBreak(AdBreakPositionType.POSITION, 10, listOf(midrollVastUrlList))
-        val midrollAdBreak3 = AdBreak(AdBreakPositionType.POSITION, 15, listOf(midrollVastUrlList))
-        val midrollAdBreak2 = AdBreak(AdBreakPositionType.POSITION, 30, listOf(midrollVastUrlList))
-        val midrollAdBreak4 = AdBreak(AdBreakPositionType.POSITION, 40, listOf(midrollVastUrlList))
+//        val midrollAdBreak1 = AdBreak(AdBreakPositionType.POSITION, 10, listOf(midrollVastUrlListError))
+//        val midrollAdBreak2 = AdBreak(AdBreakPositionType.POSITION, 20, listOf(midrollVastUrlListPlayabale))
+//        val midrollAdBreak3 = AdBreak(AdBreakPositionType.POSITION, 30, listOf(midrollVastUrlListForEVERY))
+//        val midrollAdBreak4 = AdBreak(AdBreakPositionType.POSITION, 40, listOf(midrollVastUrlListPlayabale))
+//        val midrollAdBreak5 = AdBreak(AdBreakPositionType.POSITION, 50, listOf(midrollVastUrlListError))
+//        val midrollAdBreak6 = AdBreak(AdBreakPositionType.POSITION, 60, listOf(midrollVastUrlListForEVERY))
+//        val midrollAdBreak7 = AdBreak(AdBreakPositionType.POSITION, 70, listOf(midrollVastUrlListPlayabale))
 
-        //val midrollAdBreak1 = AdBreak(AdBreakPositionType.EVERY, 10, listOf(midrollVastUrlListForEVERY))
+
+
+
+          val midrollAdBreak1 = AdBreak(AdBreakPositionType.EVERY, 10, listOf(midrollVastUrlListForEVERY))
 //        val midrollAdBreak3 = AdBreak(45, midrollVastUrlList)
 //        val midrollAdBreak4 = AdBreak(60, midrollVastUrlList)
 //        val midrollAdBreak5 = AdBreak(90, midrollVastUrlList)
@@ -269,13 +281,14 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
 //15, 30, 60, 90, 100 -> 75
         return AdvertisingConfig(listOf(
             prerollAdBreak
-            // , midrollAdBreak6
-            , midrollAdBreak1
-             , midrollAdBreak4
-              , midrollAdBreak3
-                , midrollAdBreak2
-            //  , midrollAdBreak5
-            , postrollAdBreak
+           //  , midrollAdBreak6
+           ,   midrollAdBreak1
+//             , midrollAdBreak4
+//              , midrollAdBreak3
+//                , midrollAdBreak2
+//              , midrollAdBreak5
+//              , midrollAdBreak7
+           ,  postrollAdBreak
         ), AdTimeUnit.SECONDS, -1)
     }
 
@@ -372,11 +385,23 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
     private fun subscribeToAdEvents() {
 
         player?.addListener(this, AdEvent.adWaterFalling) { event ->
-
+            log.d("adInfo callback from IMAPlugin: AdEvent.adWaterFalling \n " +
+                    "${event.adBreakConfig}")
         }
 
         player?.addListener(this, AdEvent.adWaterFallingFailed) { event ->
+            log.w("adInfo callback from IMAPlugin: AdEvent.adWaterFallingFailed \n" +
+                    "${event.adBreakConfig}")
+        }
 
+        player?.addListener(this, AdEvent.error) { event ->
+            log.e("adInfo callback from IMAPlugin: AdEvent.error \n" +
+                    "${event.error}")
+        }
+
+        player?.addListener(this, AdEvent.adBreakFetchError) { event ->
+            log.e("adInfo callback from IMAPlugin: AdEvent.adBreakFetchError \n" +
+                    "${event.eventType()}")
         }
 
         player?.addListener(this, AdEvent.started) { event ->
@@ -388,6 +413,8 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
             //Then you can use the data object itself.
             val adInfo = event.adInfo
             //Print to log content type of this ad.
+            log.d("adInfo callback from IMAPlugin adInfo: $adInfo")
+
             log.d("ad event received: " + event.eventType().name
                     + ". Additional info: ad content type is: "
                     + adInfo.getAdContentType())
