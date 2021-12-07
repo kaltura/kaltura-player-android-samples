@@ -171,9 +171,7 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
     }
 
     private fun getPlayAdNowConfigAdBreak(): AdBreak {
-        val vastUrlList = listOf("https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml",
-            "https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml",
-            "https://pubads.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&cue=15000&vad_type=linear&vpos=midroll&pod=2&mridx=1&rmridx=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0")
+        val vastUrlList = listOf("https://kaltura.github.io/playkit-admanager-samples/vast/pod-inline-someskip.xml")
         val playAdNowVastAdBreak = AdBreak(AdBreakPositionType.POSITION, 15, listOf(vastUrlList))
 
         return playAdNowVastAdBreak
@@ -423,8 +421,8 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
         ottMediaOptions.startPosition = START_POSITION
 
         if (TextUtils.equals(assetId, FIRST_ASSET_ID)) {
-            player?.setAdvertisingConfig(getAdvertisingConfigJson())
-            //  player?.setAdvertisingConfig(createAdvertisingConfig1())
+          //  player?.setAdvertisingConfig(getAdvertisingConfigJson())
+              player?.setAdvertisingConfig(createAdvertisingConfig1())
         } else {
            // player?.setAdvertisingConfig(null as AdvertisingConfig?)
               player?.setAdvertisingConfig(createAdvertisingConfig1())
@@ -641,7 +639,20 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
     }
 
     override fun playAdNowApi() {
-        player?.advertisingController?.playAdNow(getPlayAdNowConfigAdBreak())
+        player?.advertisingController?.playAdNow(1000)
+      //  player?.advertisingController?.playAdNow(getPlayAdNowJSON())
+    }
+
+    fun getPlayAdNowJSON(): String {
+        return "{\n" +
+                "  \"adBreakPositionType\": \"POSITION\",\n" +
+                "  \"position\": 15,\n" +
+                "  \"ads\": [\n" +
+                "    [\n" +
+                "      \"https://kaltura.github.io/playkit-admanager-samples/vast/pod-inline-someskip.xml\"\n" +
+                "    ]\n" +
+                "  ]\n" +
+                "}"
     }
 
     companion object {
