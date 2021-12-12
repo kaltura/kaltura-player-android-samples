@@ -26,6 +26,7 @@ import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAConfig
 import com.kaltura.playkit.plugins.ima.IMAPlugin
+import com.kaltura.playkit.plugins.imadai.IMADAIPlugin
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsConfig
 import com.kaltura.playkit.plugins.ott.PhoenixAnalyticsPlugin
 import com.kaltura.playkit.plugins.youbora.YouboraPlugin
@@ -43,6 +44,19 @@ import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
 import java.util.*
+import com.kaltura.playkit.plugins.imadai.IMADAIConfig
+
+import com.google.ads.interactivemedia.v3.api.StreamRequest
+import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
+
+import com.kaltura.playkit.plugins.kava.KavaAnalyticsPlugin
+
+import com.kaltura.playkit.utils.Consts.DISTANCE_FROM_LIVE_THRESHOLD
+
+import com.kaltura.playkit.PKPluginConfigs
+
+import androidx.annotation.NonNull
+import com.kaltura.playkit.samples.fulldemo.Consts.KAVA_BASE_URL
 
 
 //import com.kaltura.plugins.adsmanager.AdsConfig;
@@ -120,7 +134,7 @@ class VideoFragment : Fragment() {
     private var firstLaunch = true
     private var adCuePoints: AdCuePoints? = null
     private var replayButton: Button? = null
-
+    private var imaDAIEnabled = false
     private var rootView: View? = null
 
     private val phoenixAnalyticsConfig: PhoenixAnalyticsConfig
@@ -200,7 +214,12 @@ class VideoFragment : Fragment() {
             val referrer = "app://NonDefaultReferrer1/" + requireContext().packageCodePath
             //player.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
             player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
-            player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+            if (imaDAIEnabled) {
+                player?.updatePluginConfig(IMADAIPlugin.factory.getName(), getDAILiveConfig());
+            } else {
+                player?.updatePluginConfig(IMAPlugin.factory.getName(), adsConfig);
+            }
+
             player?.updatePluginConfig(YouboraPlugin.factory.name, getConverterYoubora(MEDIA_TITLE + "_changeMedia1", false).toJson())
             //If first one is active, prepare second one.
             prepareFirstEntry()
@@ -220,12 +239,32 @@ class VideoFragment : Fragment() {
             val referrer = "app://NonDefaultReferrer2/" + requireContext().packageName
             player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
             //player?.updatePluginConfig(AdsPlugin.factory.getName(), adsConfig);
-            player?.updatePluginConfig(IMAPlugin.factory.name, adsConfig)
+            if (imaDAIEnabled) {
+                player?.updatePluginConfig(IMADAIPlugin.factory.getName(), getDAILiveConfig());
+            } else {
+                player?.updatePluginConfig(IMAPlugin.factory.getName(), adsConfig);
+            }
+
             player?.updatePluginConfig(YouboraPlugin.factory.name, getConverterYoubora(MEDIA_TITLE + "_changeMedia2", false).toJson())
 
             //If the second one is active, prepare the first one.
             prepareSecondEntry()
         }
+    }
+
+    private fun getDAILiveConfig(): IMADAIConfig? {
+        val assetTitle = "Live Video - Big Buck Bunny"
+        val assetKey = "sN_IYUG8STe1ZzhIIE_ksA"
+        val apiKey: String? = null
+        val streamFormat = StreamRequest.StreamFormat.HLS
+        val licenseUrl: String? = null
+        return IMADAIConfig.getLiveIMADAIConfig(
+            assetTitle,
+            assetKey,
+            apiKey,
+            streamFormat,
+            licenseUrl
+        ).setAlwaysStartWithPreroll(true).enableDebugMode(true)
     }
 
     /**
@@ -365,8 +404,16 @@ class VideoFragment : Fragment() {
 
         // IMA Configuration
         val pkPluginConfigs = PKPluginConfigs()
-        val adsConfig = getAdsConfig(mVideoItem!!.adTagUrl)
-        pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
+
+        if (mVideoItem.adTagUrl != null) {
+            addIMAPluginConfig(pkPluginConfigs, mVideoItem.adTagUrl!!)
+        } else {
+            addIMADAIPluginConfig(pkPluginConfigs, mVideoItem.title,
+                mVideoItem.assetKey, mVideoItem.contentSourceId, mVideoItem.videoId)
+        }
+        addKavaPlugin(pkPluginConfigs);
+        addYouboraPlugin(pkPluginConfigs);
+
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
 
@@ -406,22 +453,88 @@ class VideoFragment : Fragment() {
     //        config.setPluginConfig(AdsPlugin.factory.getName(), adsConfig);
     //    }
 
-    private fun addPhoenixAnalyticsPluginConfig(config: PKPluginConfigs) {
-        val phoenixAnalyticsConfig = phoenixAnalyticsConfig
-        config.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, phoenixAnalyticsConfig)
-    }
-
-    private fun getAdsConfig(adTagUrl: String): IMAConfig {
+    private fun addIMAPluginConfig(config: PKPluginConfigs, adTagUrl: String) {
 
         //List<String> videoMimeTypes = new ArrayList<>();
         //videoMimeTypes.add(MimeTypes.APPLICATION_MP4);
         //videoMimeTypes.add(MimeTypes.APPLICATION_M3U8);
         //Map<Double, String> tagTimesMap = new HashMap<>();
         //tagTimesMap.put(2.0,"ADTAG");
-        val videoMimeTypes = ArrayList<String>()
+        val videoMimeTypes: MutableList<String> = ArrayList()
         videoMimeTypes.add("video/mp4")
         videoMimeTypes.add(MimeTypes.APPLICATION_M3U8)
-        return IMAConfig().setAdTagUrl(adTagUrl).enableDebugMode(true).setVideoMimeTypes(videoMimeTypes)
+        val adsConfig = IMAConfig().setAdTagUrl(adTagUrl).enableDebugMode(true)
+            .setVideoMimeTypes(videoMimeTypes)
+        config.setPluginConfig(IMAPlugin.factory.name, adsConfig)
+    }
+
+    private fun addIMADAIPluginConfig(
+        config: PKPluginConfigs,
+        title: String,
+        assetKey: String?,
+        contentSourceId: String?,
+        videoId: String?
+    ) {
+        imaDAIEnabled = if (assetKey == null) {
+            val adsConfig = getDAIVodConfig(title, contentSourceId, videoId)
+            config.setPluginConfig(IMADAIPlugin.factory.name, adsConfig)
+            true
+        } else {
+            val adsConfigLive = getDAILiveConfig(title, assetKey)
+            config.setPluginConfig(IMADAIPlugin.factory.name, adsConfigLive)
+            false
+        }
+    }
+
+    private fun getDAILiveConfig(assetTitle: String, assetKey: String): IMADAIConfig {
+        val apiKey: String? = null
+        val streamFormat = StreamRequest.StreamFormat.HLS
+        val licenseUrl: String? = null
+        return IMADAIConfig.getLiveIMADAIConfig(
+            assetTitle,
+            assetKey,
+            apiKey,
+            streamFormat,
+            licenseUrl
+        ).setAlwaysStartWithPreroll(true).enableDebugMode(true)
+    }
+
+    private fun getDAIVodConfig(
+        assetTitle: String,
+        contentSourceId: String?,
+        videoId: String?
+    ): IMADAIConfig {
+        val apiKey: String? = null
+        val streamFormat = StreamRequest.StreamFormat.HLS
+        val licenseUrl: String? = null
+        return IMADAIConfig.getVodIMADAIConfig(
+            assetTitle,
+            contentSourceId,
+            videoId,
+            apiKey,
+            streamFormat,
+            licenseUrl
+        ).enableDebugMode(true).setAlwaysStartWithPreroll(true)
+    }
+
+    private fun addKavaPlugin(config: PKPluginConfigs) {
+        val referrer = "app://NonDefaultReferrer/" + activity!!.packageName
+        val kavaAnalyticsConfig =
+            getKavaAnalyticsConfig(38713161, referrer, DISTANCE_FROM_LIVE_THRESHOLD.toInt())
+        config.setPluginConfig(KavaAnalyticsPlugin.factory.name, kavaAnalyticsConfig)
+    }
+
+    private fun getKavaAnalyticsConfig(
+        uiconfId: Int,
+        referrer: String,
+        distanceFromLiveThesholdMili: Int
+    ): KavaAnalyticsConfig {
+        return KavaAnalyticsConfig()
+            .setBaseUrl(KAVA_BASE_URL)
+            .setPartnerId(1281471)
+            .setUiConfId(24997472)
+            .setReferrer(referrer)
+            .setDvrThreshold(150000)
     }
 
     private fun addYouboraPlugin(pluginConfigs: PKPluginConfigs) {
