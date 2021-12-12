@@ -35,7 +35,6 @@ import java.io.IOException
 import java.net.URL
 import java.util.*
 
-
 class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
 
     private val ADS_LOADER = 22
@@ -155,7 +154,7 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
                     //                                "</vmap:VMAP>";
                     val customAdTagUrl = adUrl?.text.toString()
 
-                    val customAdTagVideoItem = VideoItem(originalVideoItem.title, customMediaUrl, customMediaLicUrl, customAdTagUrl, originalVideoItem.imageResource)
+                    val customAdTagVideoItem = VideoItem(originalVideoItem.title, customMediaUrl, customMediaLicUrl, customAdTagUrl, originalVideoItem.imageResource, null, null, null)
 
                     if (mSelectedCallback != null) {
                         mSelectedCallback?.onVideoSelected(customAdTagVideoItem)
@@ -173,7 +172,7 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<String> {
-        return object : AsyncTaskLoader<String>(context!!) {
+        return object : AsyncTaskLoader<String>(requireContext()) {
 
             override fun onStartLoading() {
 
@@ -194,7 +193,6 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
                     e.printStackTrace()
                     return null
                 }
-
             }
         }
     }
@@ -233,7 +231,7 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
                             SOURCE_URL1,
                             LIC_URL1,
                             "custom",
-                            R.drawable.k_image))
+                            R.drawable.k_image, null, null, null))
                     for (i in 0 until jsonArray.length()) {
 
                         val sample = jsonArray.getJSONObject(i)
@@ -241,8 +239,42 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
                         val streamName = sample.getString("name")
                         val streamUri = sample.getString("uri")
                         val streamLic = if (sample.has("lic")) sample.getString("lic") else ""
-                        val adtagUri = sample.getString("ad_tag_uri")
-                        samples.add(VideoItem(streamName, streamUri, streamLic, adtagUri, R.drawable.k_image))
+                        val adtagUri =
+                            if (sample.has("ad_tag_uri")) sample.getString("ad_tag_uri") else null
+                        val adAssetKey =
+                            if (sample.has("ad_asset_key")) sample.getString("ad_asset_key") else null
+                        val adContentSourceId =
+                            if (sample.has("ad_content_source_id")) sample.getString("ad_content_source_id") else null
+                        val adVideoId =
+                            if (sample.has("ad_video_id")) sample.getString("ad_video_id") else null
+
+                        if (adtagUri != null) {
+                            samples.add(
+                                VideoItem(
+                                    streamName,
+                                    streamUri,
+                                    streamLic,
+                                    adtagUri,
+                                    R.drawable.k_image,
+                                    null,
+                                    null,
+                                    null
+                                )
+                            )
+                        } else {
+                            samples.add(
+                                VideoItem(
+                                    streamName,
+                                    streamUri,
+                                    streamLic,
+                                    null,
+                                    R.drawable.k_image,
+                                    adAssetKey,
+                                    adContentSourceId,
+                                    adVideoId
+                                )
+                            )
+                        }
                         //String videoUrl, String videoLic, String title, String adTagUrl, int thumbnail
                     }
                     val sampleGroup = SampleGroup(title, samples)
