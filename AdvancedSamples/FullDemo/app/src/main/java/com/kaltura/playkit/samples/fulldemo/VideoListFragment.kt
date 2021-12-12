@@ -254,7 +254,7 @@ class VideoListFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
                                     streamName,
                                     streamUri,
                                     streamLic,
-                                            adtagUri,
+                                    adtagUri,
                                     R.drawable.k_image,
                                     null,
                                     null,
