@@ -29,13 +29,14 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
 
     private val log = PKLog.get("MainActivity")
 
-    private val START_POSITION = 0L // position for start playback in msec.
+    private val START_POSITION = 0L // position for start playback in seconds.
     private val FIRST_ASSET_ID = "548576"
     private val SECOND_ASSET_ID = "548577"
 
     // Ads configuration constants.
     private var preSkipAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator="
     private var preMidPostSingleAdTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
+    private var postRollAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpostonly&cmsid=496&vid=short_onecue&correlator="
     private var ads5AdsEvery10Secs = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostlongpod&cmsid=496&vid=short_tencue&correlator="
     private var adCuePoints: AdCuePoints? = null
     private var adsPosition: MutableList<Long>? = null
@@ -88,14 +89,14 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
     fun loadPlaykitPlayer() {
 
         val playerInitOptions = PlayerInitOptions(PARTNER_ID)
-        playerInitOptions.setAutoPlay(true)
+        playerInitOptions.setAutoPlay(false)
         playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
         //  playerInitOptions.mediaEntryCacheConfig = MediaEntryCacheConfig(true)
         playerInitOptions.setAudioCodecSettings(AudioCodecSettings().setAllowMixedCodecs(true))
 
         // IMA Configuration
         val pkPluginConfigs = PKPluginConfigs()
-        val adsConfig = getAdsConfig(preMidPostSingleAdTagUrl)
+        val adsConfig = getAdsConfig(postRollAdTag)
         pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
@@ -116,19 +117,56 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
 
     private fun getAdvertisingConfigJson(): String {
         return "{\n" +
-                "   \"advertising\": [\n" +
-                "      {\n" +
-                "         \"adBreakPositionType\": \"POSITION\",\n" +
-                "         \"position\": 0,\n" +
-                "         \"ads\": [\n" +
-                "            [\n" +
-                "               \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\\r\\n<VAST xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\" xsi:noNamespaceSchemaLocation=\\\"vast4.xsd\\\" version=\\\"4.0\\\"><Ad id=\\\"ad1\\\" sequence=\\\"1\\\"><InLine><AdSystem>Kaltura</AdSystem><AdTitle>30 second skippable ad</AdTitle><Description><![CDATA[Single Inline]]></Description><Error><![CDATA[http://vast.example.com/track/error?code=[ERRORCODE]]]></Error><Impression><![CDATA[http://vast.example.com/track/impression]]></Impression><Creatives><Creative id=\\\"57859154776\\\" sequence=\\\"1\\\"><Linear skipoffset=\\\"00:00:05\\\"><Duration>00:00:30</Duration><TrackingEvents><Tracking event=\\\"acceptInvitationLinear\\\"><![CDATA[http://vast.example.com/track/acceptInvitationLinear]]></Tracking><Tracking event=\\\"acceptInvitation\\\"><![CDATA[http://vast.example.com/track/acceptInvitation]]></Tracking><Tracking event=\\\"playerCollapse\\\"><![CDATA[http://vast.example.com/track/playerCollapse]]></Tracking><Tracking event=\\\"playerExpand\\\"><![CDATA[http://vast.example.com/track/playerExpand]]></Tracking><Tracking event=\\\"closeLinear\\\"><![CDATA[http://vast.example.com/track/closeLinear]]></Tracking><Tracking event=\\\"complete\\\"><![CDATA[http://vast.example.com/track/complete]]></Tracking><Tracking event=\\\"creativeView\\\"><![CDATA[http://vast.example.com/track/creativeView]]></Tracking><Tracking event=\\\"firstQuartile\\\"><![CDATA[http://vast.example.com/track/firstQuartile]]></Tracking><Tracking event=\\\"midpoint\\\"><![CDATA[http://vast.example.com/track/midpoint]]></Tracking><Tracking event=\\\"mute\\\"><![CDATA[http://vast.example.com/track/mute]]></Tracking><Tracking event=\\\"otherAdInteraction\\\"><![CDATA[http://vast.example.com/track/otherAdInteraction]]></Tracking><Tracking event=\\\"pause\\\"><![CDATA[http://vast.example.com/track/pause]]></Tracking><Tracking event=\\\"playerCollapse\\\"><![CDATA[http://vast.example.com/track/playerCollapse]]></Tracking><Tracking event=\\\"playerExpand\\\"><![CDATA[http://vast.example.com/track/playerExpand]]></Tracking><Tracking event=\\\"progress\\\"><![CDATA[http://vast.example.com/track/progress]]></Tracking><Tracking event=\\\"resume\\\"><![CDATA[http://vast.example.com/track/resume]]></Tracking><Tracking event=\\\"rewind\\\"><![CDATA[http://vast.example.com/track/rewind]]></Tracking><Tracking event=\\\"skip\\\"><![CDATA[http://vast.example.com/track/skip]]></Tracking><Tracking event=\\\"start\\\"><![CDATA[http://vast.example.com/track/start]]></Tracking><Tracking event=\\\"thirdQuartile\\\"><![CDATA[http://vast.example.com/track/thirdQuartile]]></Tracking><Tracking event=\\\"timeSpentViewing\\\"><![CDATA[http://vast.example.com/track/timeSpentViewing]]></Tracking><Tracking event=\\\"unmute\\\"><![CDATA[http://vast.example.com/track/unmute]]></Tracking></TrackingEvents><MediaFiles><MediaFile id=\\\"1\\\" delivery=\\\"progressive\\\" width=\\\"640\\\" height=\\\"360\\\" type=\\\"video/mp4\\\" bitrate=\\\"227\\\" scalable=\\\"true\\\" maintainAspectRatio=\\\"true\\\"><![CDATA[https://cdnapisec.kaltura.com/p/2215841/playManifest/entryId/1_dx1anrn9/format/url/protocol/https/a.mp4]]></MediaFile><MediaFile id=\\\"1\\\" delivery=\\\"streaming\\\" width=\\\"640\\\" height=\\\"360\\\" type=\\\"application/x-mpegURL\\\" minBitrate=\\\"112\\\" maxBitrate=\\\"125\\\" scalable=\\\"true\\\" maintainAspectRatio=\\\"true\\\"><![CDATA[https://cdnapisec.kaltura.com/p/2215841/playManifest/entryId/1_dx1anrn9/format/applehttp/protocol/https/a.m3u8]]></MediaFile></MediaFiles></Linear></Creative></Creatives></InLine></Ad></VAST>\\r\\n\"\n" +
-                "            ]\n" +
-                "         ]\n" +
-                "      }\n" +
-                "   ],\n" +
-                "   \"adType\": \"AD_RESPONSE\",\n" +
-                "   \"adConfigUnit\": \"SECONDS\"\n" +
+                "  \"advertising\": [\n" +
+                "    {\n" +
+                "      \"adBreakPositionType\": \"POSITION\",\n" +
+                "      \"position\": 0,\n" +
+                "      \"ads\": [\n" +
+                "        [\n" +
+                "          \"https://externaltests.dev.kaltura.com/standalonePlayer/Ads/adManager/customAdTags/vast/single_preroll_skip_wildlife.xml\"\n" +
+                "        ],\n" +
+                "        [\n" +
+                "          \"https://externaltests.dev.kaltura.com/standalonePlayer/Ads/adManager/customAdTags/vast/single_preroll_skip_terminator.xml\",\n" +
+                "          \"https://externaltests.dev.kaltura.com/standalonePlayer/Ads/adManager/customAdTags/vast/single_preroll_skip_transformers.xml\"\n" +
+                "        ],\n" +
+                "        [\n" +
+                "          \"https://externaltests.dev.kaltura.com/standalonePlayer/Ads/adManager/customAdTags/vast/single_preroll_skip_hdVideo.xml\"\n" +
+                "        ]\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"adBreakPositionType\": \"POSITION\",\n" +
+                "      \"position\": 30,\n" +
+                "      \"ads\": [\n" +
+                "        [\n" +
+                "          \"https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml\",\n" +
+                "          \"https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml\",\n" +
+                "          \"https://pubads.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&cue=15000&vad_type=linear&vpos=midroll&pod=2&mridx=1&rmridx=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0\"\n" +
+                "        ]\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"adBreakPositionType\": \"POSITION\",\n" +
+                "      \"position\": 15,\n" +
+                "      \"ads\": [\n" +
+                "        [\n" +
+                "          \"https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml\",\n" +
+                "          \"https://kalasdasdtura.gasdasdasithub.io/playkit-adsasdadmanager-samples/vast/pod-inline-someskip.xml\",\n" +
+                "          \"https://pubads.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&cue=15000&vad_type=linear&vpos=midroll&pod=2&mridx=1&rmridx=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0\"\n" +
+                "        ]\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"adBreakPositionType\": \"POSITION\",\n" +
+                "      \"position\": -1,\n" +
+                "      \"ads\": [\n" +
+                "        [\n" +
+                "          \"https://pubads.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&vad_type=linear&vpos=postroll&pod=3&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0\"\n" +
+                "        ]\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"adTimeUnit\": \"SECONDS\"\n" +
                 "}"
     }
 
@@ -136,7 +174,7 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
         return "{\n" +
                 "  \"advertising\": [\n" +
                 "    {\n" +
-                "      \"adBreakPositionType\": \"POSITION\",\n" +
+                "      \"adBreakPositionType\": \"PERCENTAGE\",\n" +
                 "      \"position\": 0,\n" +
                 "      \"ads\": [\n" +
                 "        [\n" +
@@ -204,8 +242,8 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
             "https://pubaasndjknasjdnasds.g.doubleclick.net/gampad/ads?slotname=/124319096/external/ad_rule_samples&sz=640x480&ciu_szs=300x250&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&url=&unviewed_position_start=1&output=xml_vast3&impl=s&env=vp&gdfp_req=1&ad_rule=0&vad_type=linear&vpos=preroll&pod=1&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256&cmsid=496&video_doc_id=short_onecue&kfa=0&tfcd=0",
             "https://kaltura.github.io/playkit-admanager-samples/vast/pod-inline-single-ad-skip-no-learnmore.xml")
 
-        val prerollAdPod = listOf(prerollVastUrlListWithWaterfallingAdErrored)
-      //  val prerollAdPod = listOf(prerollVastUrlListWithWaterfallingAd1, prerollVastUrlListWithoutWaterfallingAd2, prerollVastUrlListWithWaterfallingAd3)
+      //  val prerollAdPod = listOf(prerollVastUrlListWithWaterfallingAdErrored)
+        val prerollAdPod = listOf(prerollVastUrlListWithWaterfallingAd1, prerollVastUrlListWithoutWaterfallingAd2, prerollVastUrlListWithWaterfallingAd3)
 
         val adBreakXML = listOf("<VAST xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"vast4.xsd\" version=\"4.0\">\n" +
                 "<Ad id=\"ad1\" sequence=\"1\">\n" +
@@ -343,15 +381,15 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
         val postrollAdBreak = AdBreak(AdBreakPositionType.POSITION, -1, listOf(postrollVastUrlList))
 //15, 30, 60, 90, 100 -> 75
         return AdvertisingConfig(listOf(
-            prerollAdBreak
+         //   prerollAdBreak
            //  , midrollAdBreak6
-           ,   midrollAdBreak1
+           //   midrollAdBreak1
 //             , midrollAdBreak4
 //              , midrollAdBreak3
-                , midrollAdBreak2
+            //    , midrollAdBreak2
 //              , midrollAdBreak5
 //              , midrollAdBreak7
-           ,  postrollAdBreak
+             postrollAdBreak
         ), AdTimeUnit.SECONDS, AdType.AD_URL, -1)
     }
 
@@ -420,13 +458,14 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
 
-        if (TextUtils.equals(assetId, FIRST_ASSET_ID)) {
-          //  player?.setAdvertisingConfig(getAdvertisingConfigJson())
-              player?.setAdvertisingConfig(createAdvertisingConfig1())
-        } else {
-           // player?.setAdvertisingConfig(null as AdvertisingConfig?)
-              player?.setAdvertisingConfig(createAdvertisingConfig1())
-        }
+//        if (TextUtils.equals(assetId, FIRST_ASSET_ID)) {
+//          //  player?.setAdvertisingConfig(waterfallevery())
+//              player?.setAdvertisingConfig(createAdvertisingConfig1())
+//        } else {
+//           // player?.setAdvertisingConfig(null as AdvertisingConfig?)
+//            //  player?.setAdvertisingConfig(null)
+//            player?.setAdvertisingConfig(createAdvertisingConfig1())
+//        }
 
         player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {
@@ -554,6 +593,13 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
 
             adsPosition = ArrayList(adMarkersHashMap.keys)
             playedAdsPosition = ArrayList(adMarkersHashMap.values)
+
+            adCuePoints?.let { adCuePoints ->
+                adsPosition?.let {
+                    playerControls.setAdMarkers(it.toLongArray(), playedAdsPosition?.toBooleanArray(),  adCuePoints.adCuePoints.size)
+                }
+            }
+
         }
 
         player?.addListener(this, AdEvent.loaded) { event ->
@@ -639,8 +685,8 @@ class MainActivity : AppCompatActivity(), PlaybackControlsView.ChangeMediaListen
     }
 
     override fun playAdNowApi() {
-        player?.advertisingController?.playAdNow(1000)
-      //  player?.advertisingController?.playAdNow(getPlayAdNowJSON())
+       // player?.advertisingController?.playAdNow(1000)
+       player?.advertisingController?.playAdNow(getPlayAdNowJSON())
     }
 
     fun getPlayAdNowJSON(): String {
