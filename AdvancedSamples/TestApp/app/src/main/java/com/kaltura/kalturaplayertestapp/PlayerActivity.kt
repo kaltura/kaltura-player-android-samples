@@ -30,6 +30,8 @@ import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController
 import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor
 import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
+import com.kaltura.playkit.ads.AdBreak
+import com.kaltura.playkit.ads.AdBreakConfig
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.playkit.player.PKLowLatencyConfig
@@ -96,6 +98,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var tracksSelectionController: TracksSelectionController? = null
     private var appPlayerInitConfig: PlayerConfig? = null
     private var updateParams: UpdateParams? = null
+    private var playAdNowAdBreak: AdBreak? = null
     private var currentPlayedMediaIndex = 0
     private var playbackControlsView: PlaybackControlsView? = null
     private var adCuePoints: AdCuePoints? = null
@@ -159,10 +162,17 @@ class PlayerActivity: AppCompatActivity(), Observer {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_update_param, menu)
         updateMenuItem = menu?.findItem(R.id.action_menu_update)
-        updateMenuItem?.setVisible(false)
+        val playAdNowMenuItem: MenuItem? = menu?.findItem(R.id.action_play_ad_now)
+        updateMenuItem?.isVisible = false
+        playAdNowMenuItem?.isVisible = false
         updateParams?.let { params ->
             updateMenuItem?.setVisible(true)
         }
+
+        playAdNowAdBreak?.let {
+            playAdNowMenuItem?.setVisible(true)
+        }
+
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -171,6 +181,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
             R.id.action_menu_update -> {
                 updateParams?.let { params ->
                     doUpdateConfig(params)
+                }
+                true
+            }
+            R.id.action_play_ad_now -> {
+                playAdNowAdBreak?.let {
+                    player?.advertisingController?.playAdNow(it)
                 }
                 true
             }
@@ -585,8 +601,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player: KalturaPlayer,
         playListMediaIndex: Int
     ) {
-        mediaList?.get(playListMediaIndex)?.advertisingConfig.let {
-            player.setAdvertisingConfig(mediaList?.get(playListMediaIndex)?.advertisingConfig)
+        mediaList?.get(playListMediaIndex)?.advertisingConfig?.let {
+            player.setAdvertisingConfig(it)
+        }
+
+        mediaList?.get(playListMediaIndex)?.playAdNowAdBreak?.let {
+            this.playAdNowAdBreak = it
         }
     }
 

@@ -1,6 +1,7 @@
 package com.kaltura.kalturaplayertestapp.converters
 
 import com.kaltura.playkit.PKMediaEntry
+import com.kaltura.playkit.ads.AdBreak
 import com.kaltura.playkit.ads.AdvertisingConfig
 import com.kaltura.playkit.player.PKExternalSubtitle
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
@@ -30,6 +31,8 @@ class Media {
     var externalSubtitles: List<PKExternalSubtitle>? = null
     var playbackRate: Float? = null
     var advertisingConfig: AdvertisingConfig? = null
+    var playAdNowAdBreak: AdBreak? = null
+
     fun getAssetType(): APIDefines.KalturaAssetType? {
         if (assetType == null) {
             return null
