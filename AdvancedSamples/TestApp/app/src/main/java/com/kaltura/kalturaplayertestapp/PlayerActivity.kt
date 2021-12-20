@@ -610,6 +610,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
+    private fun setAdvertisingConfigForPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaPlayer?) {
+        appPlayerInitConfig.playlistConfig?.advertisingConfig?.let {
+            player?.setAdvertisingConfig(it)
+        }
+
+        appPlayerInitConfig?.playlistConfig?.playAdNowAdBreak?.let {
+            this.playAdNowAdBreak = it
+        }
+    }
+
     private fun setPlaybackRate(playListMediaIndex: Int) {
         mediaList?.let {
             it[playListMediaIndex].playbackRate?.let { rate ->
@@ -667,6 +677,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
             ovpPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
+            setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
+
             player?.loadPlaylistById(ovpPlaylistIdOptions) { playlistController, error ->
                 if (error != null) {
                     Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
@@ -693,6 +705,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             //ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
             ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
             ovpPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
+            setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
             player?.loadPlaylist(ovpPlaylistOptions) { playlistController, error ->
                 if (error != null) {
@@ -748,6 +762,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
         ottPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
+        setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
         player?.loadPlaylist(ottPlaylistIdOptions) { playlistController, error ->
             if (error != null) {
@@ -830,6 +846,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //basicPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         basicPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
         basicPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
+        setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
         player?.loadPlaylist(basicPlaylistOptions) { playlistController, error ->
             if (error != null) {
