@@ -15,9 +15,11 @@ import com.kaltura.tvplayer.PlayerInitOptions
 import com.kaltura.tvplayer.config.MediaEntryCacheConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
-
+import com.kaltura.playkit.PKLog
 
 class MainActivity : AppCompatActivity() {
+
+    private val log = PKLog.get("MainActivity")
 
     //The url of the first source to play
     private val FIRST_SOURCE_URL = "https://cdnapisec.kaltura.com/p/2215841/sp/221584100/playManifest/entryId/1_w9zx2eti/protocol/https/format/applehttp/falvorIds/1_1obpcggb,1_yyuvftfz,1_1xdbzoa6,1_k16ccgto,1_djdf6bk8/a.m3u8"
@@ -268,6 +270,7 @@ class MainActivity : AppCompatActivity() {
                     it.pause()
                 } else {
                     resetPlayPauseButtonToPauseText()
+                    log.d("entry id" + player?.mediaEntry?.id);
                     it.play()
                 }
             }
