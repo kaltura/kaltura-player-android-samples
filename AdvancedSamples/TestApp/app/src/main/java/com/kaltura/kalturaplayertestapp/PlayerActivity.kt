@@ -1013,6 +1013,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             allAdsCompleted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
+            log.d("adInfo = $adInfo" )
             adCuePoints?.let {
                 if (!initOptions.autoplay && IMADAIPlugin.factory.name != it.getAdPluginName()) {
                     playbackControlsManager?.showControls(View.INVISIBLE)
