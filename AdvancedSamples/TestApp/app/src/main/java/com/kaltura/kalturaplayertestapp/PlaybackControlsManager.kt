@@ -27,6 +27,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     private val videoTracksBtn: Button
     private val audioTracksBtn: Button
     private val textTracksBtn: Button
+    private val rateBtn: Button
 
     private val loopBtn: Button
     private val shuffleBtn: Button
@@ -90,6 +91,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         this.videoTracksBtn = playerActivity.findViewById(R.id.video_tracks)
         this.textTracksBtn = playerActivity.findViewById(R.id.text_tracks)
         this.audioTracksBtn = playerActivity.findViewById(R.id.audio_tracks)
+        this.rateBtn = playerActivity.findViewById(R.id.rate)
+
         addTracksButtonsListener()
 
         this.loopBtn = playerActivity.findViewById(R.id.loop_btn)
@@ -184,6 +187,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             videoTracksBtn.visibility = View.INVISIBLE
             audioTracksBtn.visibility = View.INVISIBLE
             textTracksBtn.visibility = View.INVISIBLE
+            rateBtn.visibility = View.INVISIBLE
             vrToggle.visibility = View.INVISIBLE
             return
         }
@@ -255,6 +259,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         } else {
             textTracksBtn.visibility = View.INVISIBLE
         }
+        rateBtn.visibility = visibility
     }
 
     override fun setContentPlayerState(playerState: Enum<*>?) {
@@ -297,6 +302,18 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         audioTracksBtn.setOnClickListener { view ->
             if (tracksSelectionController != null && !isAdDisplayed) {
                 tracksSelectionController!!.showTracksSelectionDialog(Consts.TRACK_TYPE_AUDIO)
+            }
+        }
+
+        rateBtn.setOnClickListener { view ->
+            if (tracksSelectionController != null && !isAdDisplayed) {
+                player.let {
+                    if (it?.playbackRate == 1.0f) {
+                        it.playbackRate = 1.75f
+                    } else {
+                        it?.playbackRate = 1.0f
+                    }
+                }
             }
         }
     }

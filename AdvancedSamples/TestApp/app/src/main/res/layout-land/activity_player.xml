@@ -84,6 +84,16 @@
                 android:background="@color/cardview_dark_background"/>
 
             <Button
+                android:id="@+id/rate"
+                android:layout_width="5dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="1"
+                android:background="@color/cardview_dark_background"
+                android:text="x1.5"
+                android:textColor="@android:color/white" />
+
+            <Button
                 android:text="Loop"
                 android:id="@+id/loop_btn"
                 android:clickable="false"
