@@ -307,11 +307,11 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
 
         rateBtn.setOnClickListener { view ->
             if (tracksSelectionController != null && !isAdDisplayed) {
-                player.let {
-                    if (it?.playbackRate == 1.0f) {
-                        it.playbackRate = 1.75f
+                if (player != null) {
+                    if (player.playbackRate == 1.0f) {
+                        player.playbackRate = 1.75f
                     } else {
-                        it?.playbackRate = 1.0f
+                        player.playbackRate = 1.0f
                     }
                 }
             }
