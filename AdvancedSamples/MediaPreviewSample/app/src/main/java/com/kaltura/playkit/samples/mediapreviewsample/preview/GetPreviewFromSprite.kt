@@ -49,7 +49,9 @@ open class GetPreviewFromSprite(var spriteSliceWidth: Int,
                 } else {
                     log.e("Error downloading the image. Response code = " + connection.responseMessage)
                 }
-                spritesHashMap = framesFromImageStream(inputStream, spriteSlicesCount)
+                if (inputStream != null) {
+                    spritesHashMap = framesFromImageStream(inputStream, spriteSlicesCount)
+                }
             } catch (exception: IOException) {
                 log.e(exception.toString())
             } finally {
@@ -66,26 +68,26 @@ open class GetPreviewFromSprite(var spriteSliceWidth: Int,
      * Extract the image frames from Sprite image
      * Logic is to crop rectangle from sprite from left (left, top) (bottom, right) coordinates
      */
-    private fun framesFromImageStream(inputStream: InputStream?, columns: Int): HashMap<String, Bitmap>? {
+    private fun framesFromImageStream(inputStream: InputStream, columns: Int): HashMap<String, Bitmap>? {
         val previewImagesHashMap: HashMap<String, Bitmap>? = HashMap()
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.RGB_565
-        val bitmapRegionDecoder: BitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
+        val bitmapRegionDecoder: BitmapRegionDecoder? = BitmapRegionDecoder.newInstance(inputStream, false)
 
         for (previewImageIndex: Int in 0 until columns) {
             val cropRect = Rect((previewImageIndex * spriteSliceWidth), 0, (previewImageIndex * spriteSliceWidth + spriteSliceWidth), spriteSliceHeight)
             val extractedImageBitmap: Bitmap = try {
-                bitmapRegionDecoder.decodeRegion(cropRect, options)
+                bitmapRegionDecoder!!.decodeRegion(cropRect, options)
             } catch (e: IllegalArgumentException) {
                 log.e("The given height and width is out of rectangle which is outside the image. ImageSpriteUrl: ${imageSpriteUrl}")
                 previewImagesHashMap?.clear()
-                bitmapRegionDecoder.recycle()
+                bitmapRegionDecoder!!.recycle()
                 return null
             }
             previewImagesHashMap?.put("" + previewImageIndex, extractedImageBitmap)
         }
 
-        bitmapRegionDecoder.recycle()
+        bitmapRegionDecoder!!.recycle()
 
         return previewImagesHashMap
     }

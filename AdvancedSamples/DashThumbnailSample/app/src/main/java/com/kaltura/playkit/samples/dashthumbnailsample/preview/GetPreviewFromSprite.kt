@@ -103,19 +103,21 @@ class GetPreviewFromSprite(var context: Context) {
          * Gets the Bitmap's inputstream and based on the Thumbnail info
          * extracts the rectangle Tile/Frame
          */
-        private fun framesFromImageStream(inputStream: InputStream?, thumbnailInfo: ThumbnailInfo, isLiveMedia: Boolean): Bitmap? {
+        private fun framesFromImageStream(inputStream: InputStream, thumbnailInfo: ThumbnailInfo, isLiveMedia: Boolean): Bitmap? {
             val options = BitmapFactory.Options()
             options.inPreferredConfig = Bitmap.Config.RGB_565
-            val bitmapRegionDecoder: BitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
+            val bitmapRegionDecoder: BitmapRegionDecoder? = BitmapRegionDecoder.newInstance(inputStream, false)
 
             val cropRect: RectF? = MainActivity.getExtractedRectangle(thumbnailInfo)
             //log.e("cropRect: ${cropRect?.toString()}")
+            bitmapRegionDecoder.let {
 
+            }
             val extractedImageBitmap: Bitmap = try {
-                bitmapRegionDecoder.decodeRegion(cropRect?.toRect(), options)
+                bitmapRegionDecoder!!.decodeRegion(cropRect?.toRect(), options)
             } catch (e: IllegalArgumentException) {
                 log.e("The given height and width is out of rectangle which is outside the image. ImageSpriteUrl: ${thumbnailInfo.url}")
-                bitmapRegionDecoder.recycle()
+                bitmapRegionDecoder!!.recycle()
                 return null
             }
 
