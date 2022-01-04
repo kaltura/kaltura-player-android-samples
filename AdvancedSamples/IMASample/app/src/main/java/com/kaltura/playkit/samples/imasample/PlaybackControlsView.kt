@@ -18,12 +18,7 @@ import com.kaltura.playkit.ads.AdController
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
 
-class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
-
-    interface ChangeMediaListener {
-        fun changeMediaOnClick()
-        fun playAdNowApi()
-    }
+open class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
 
     private val log = PKLog.get("PlaybackControlsView")
     private val PROGRESS_BAR_MAX = 100
@@ -50,7 +45,6 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
     private var dragging = false
 
     private val componentListener: ComponentListener
-    private var changeMediaListener: ChangeMediaListener? = null
 
     private val updateProgressAction = Runnable { this.updateProgress() }
 
@@ -95,10 +89,6 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
 
         tvCurTime = this.findViewById(R.id.kexo_position)
         tvTime = this.findViewById(R.id.kexo_duration)
-    }
-
-    fun setChangeMediaListener(changeMediaListener: ChangeMediaListener) {
-        this.changeMediaListener = changeMediaListener;
     }
 
     private fun updateProgress() {
@@ -245,7 +235,7 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
         seekBar.isEnabled = !isAdPlaying
     }
 
-    fun setAdMarkers(adGroupTime: LongArray, playedAdFlag: BooleanArray?, totalAdCount: Int) {
+    fun setAdMarkers(adGroupTime: LongArray, playedAdFlag: BooleanArray, totalAdCount: Int) {
         seekBar.setAdGroupTimesMs(adGroupTime, playedAdFlag, totalAdCount)
     }
 
@@ -260,10 +250,10 @@ class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: At
                 //Do nothing for now
             }
             R.id.kexo_next -> {
-                changeMediaListener?.changeMediaOnClick()
+                //Do nothing for now
             }
             R.id.kexo_prev -> {
-                changeMediaListener?.playAdNowApi()
+                //Do nothing for now
             }
         }
     }
