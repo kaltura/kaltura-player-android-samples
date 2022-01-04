@@ -30,9 +30,9 @@ android {
 
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.19.0'
-    implementation 'com.kaltura.playkit:smartswitchplugin:4.19.0'
-    implementation 'com.kaltura.playkit:youboraplugin:4.19.0'
+    implementation 'com.kaltura.player:tvplayer:4.20.1'
+    implementation 'com.kaltura.playkit:smartswitchplugin:4.20.1'
+    implementation 'com.kaltura.playkit:youboraplugin:4.20.1'
 
 
     //implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
