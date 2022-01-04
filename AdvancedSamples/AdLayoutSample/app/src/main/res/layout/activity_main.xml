@@ -10,7 +10,7 @@
     <LinearLayout
         android:id="@+id/player_root"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="300dp"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:orientation="horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
