@@ -1,4 +1,4 @@
-# IMA Sample
+# AdLayout Sample
 
 ## Purpose
 
