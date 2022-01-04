@@ -221,7 +221,7 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
 
         player?.addListener(this, AdEvent.allAdsCompleted) {
-            event -> log.d("AD_ALL_ADS_COMPLETED")
+                event -> log.d("AD_ALL_ADS_COMPLETED")
             if (adCuePoints != null && adCuePoints?.hasPostRoll()!!) {
                 playerControls?.setPlayerState(PlayerState.IDLE)
             }

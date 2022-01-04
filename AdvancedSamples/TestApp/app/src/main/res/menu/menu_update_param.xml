@@ -6,4 +6,8 @@
         android:id="@+id/action_menu_update"
         android:title="@string/menu_update" />
 
+    <item
+        android:id="@+id/action_play_ad_now"
+        android:title="@string/play_ad_now" />
+
 </menu>

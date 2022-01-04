@@ -46,7 +46,8 @@ def samples = [
         'RecyclerViewSample',
         'DashThumbnailSample',
         'SmartSwitch',
-        'PrefetchSample'
+        'PrefetchSample',
+        'AdLayoutSample'
 ]
 
 samples.each {

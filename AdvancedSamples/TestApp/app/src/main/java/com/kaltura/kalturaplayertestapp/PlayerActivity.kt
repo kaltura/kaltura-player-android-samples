@@ -30,6 +30,8 @@ import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController
 import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor
 import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
+import com.kaltura.playkit.ads.AdBreak
+import com.kaltura.playkit.ads.AdBreakConfig
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.playkit.player.PKLowLatencyConfig
@@ -96,6 +98,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var tracksSelectionController: TracksSelectionController? = null
     private var appPlayerInitConfig: PlayerConfig? = null
     private var updateParams: UpdateParams? = null
+    private var playAdNowAdBreak: AdBreak? = null
     private var currentPlayedMediaIndex = 0
     private var playbackControlsView: PlaybackControlsView? = null
     private var adCuePoints: AdCuePoints? = null
@@ -128,7 +131,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         require(!(playerConfigTitle == null || playerInitOptionsJson == null)) { "Must pass extra " + PlayerActivity.PLAYER_CONFIG_JSON_KEY }
         initDrm()
-
+        
         appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig::class.java)
 
         appPlayerInitConfig?.let {
@@ -159,10 +162,17 @@ class PlayerActivity: AppCompatActivity(), Observer {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_update_param, menu)
         updateMenuItem = menu?.findItem(R.id.action_menu_update)
-        updateMenuItem?.setVisible(false)
+        val playAdNowMenuItem: MenuItem? = menu?.findItem(R.id.action_play_ad_now)
+        updateMenuItem?.isVisible = false
+        playAdNowMenuItem?.isVisible = false
         updateParams?.let { params ->
             updateMenuItem?.setVisible(true)
         }
+
+        playAdNowAdBreak?.let {
+            playAdNowMenuItem?.setVisible(true)
+        }
+
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -171,6 +181,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
             R.id.action_menu_update -> {
                 updateParams?.let { params ->
                     doUpdateConfig(params)
+                }
+                true
+            }
+            R.id.action_play_ad_now -> {
+                playAdNowAdBreak?.let {
+                    player?.advertisingController?.playAdNow(it)
                 }
                 true
             }
@@ -207,7 +223,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (player?.playlistController != null) {
             player?.playlistController?.playNext()
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
-                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+                ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
 
             val playerDuration =  player?.duration ?: 0
             player?.playlistController?.isAutoContinueEnabled?.let {
@@ -230,7 +246,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (player?.playlistController != null) {
             player?.playlistController?.playPrev()
             playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
-                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+                ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
         }
         val playerDuration =  player?.duration ?: 0
         player?.playlistController?.isAutoContinueEnabled?.let {
@@ -259,8 +275,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         mediaList?.let {
             convertPluginsJsonArrayToPKPlugins(appPlayerInitConfig?.plugins, false)
+            player?.let { setAdvertisingConfig(it, currentPlayedMediaIndex) }
 
             if (KalturaPlayer.Type.ovp == appPlayerInitConfig?.playerType) {
+
                 val ovpMediaOptions = buildOvpMediaOptions(0L, currentPlayedMediaIndex) ?: return
 
                 player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
@@ -272,6 +290,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     handleOnEntryLoadComplete(error)
                 }
             } else if (KalturaPlayer.Type.ott == appPlayerInitConfig?.playerType) {
+
                 val ottMediaOptions = buildOttMediaOptions(0L, currentPlayedMediaIndex) ?: return
 
                 player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
@@ -283,6 +302,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     handleOnEntryLoadComplete(error)
                 }
             } else if (KalturaPlayer.Type.basic == appPlayerInitConfig?.playerType) run {
+
                 val mediaEntry = it.get(currentPlayedMediaIndex).pkMediaEntry
                 if (appPlayerInitConfig?.vrSettings != null) {
                     mediaEntry?.setIsVRMediaType(true)
@@ -381,40 +401,40 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         val partnerId = if (appPlayerInitConfig.partnerId != null) Integer.valueOf(appPlayerInitConfig.partnerId) else null
         initOptions = PlayerInitOptions(partnerId)
-                .setAutoPlay(appPlayerInitConfig.autoPlay)
-                .setKs(appPlayerInitConfig.ks)
-                .setPreload(appPlayerInitConfig.preload)
-                .setReferrer(appPlayerInitConfig.referrer)
-                .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
-                .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
-                .setSecureSurface(appPlayerInitConfig.secureSurface)
-                .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode)
-                .setAbrSettings(appPlayerInitConfig.abrSettings)
-                .setVideoCodecSettings(appPlayerInitConfig.videoCodecSettings)
-                .setAudioCodecSettings(appPlayerInitConfig.audioCodecSettings)
-                .setLoadControlBuffers(appPlayerInitConfig.loadControlBuffers)
-                .setAllowClearLead(appPlayerInitConfig.allowClearLead)
-                .setEnableDecoderFallback(appPlayerInitConfig.enableDecoderFallback)
-                .setAdAutoPlayOnResume(appPlayerInitConfig.adAutoPlayOnResume)
-                .setCea608CaptionsEnabled(appPlayerInitConfig.cea608CaptionsEnabled)
-                .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
-                .setVRSettings(appPlayerInitConfig.vrSettings)
-                .setPKLowLatencyConfig(pkLowLatencyConfig)
-                .setIsVideoViewHidden(appPlayerInitConfig.isVideoViewHidden)
-                .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
-                .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
-                .forceSinglePlayerEngine(appPlayerInitConfig.forceSinglePlayerEngine)
-                .forceWidevineL3Playback(appPlayerInitConfig.forceWidevineL3Playback)
-                .setTunneledAudioPlayback(appPlayerInitConfig.isTunneledAudioPlayback)
-                .setMaxAudioBitrate(appPlayerInitConfig.maxAudioBitrate)
-                .setMaxAudioChannelCount(appPlayerInitConfig.maxAudioChannelCount)
-                .setMaxVideoBitrate(appPlayerInitConfig.maxVideoBitrate)
-                .setMaxVideoSize(appPlayerInitConfig.maxVideoSize)
-                .setHandleAudioBecomingNoisy(appPlayerInitConfig.handleAudioBecomingNoisyEnabled)
-                .setSubtitlePreference(appPlayerInitConfig.subtitlePreference)
-                .setMulticastSettings(appPlayerInitConfig.multicastSettings)
-                .setMediaEntryCacheConfig(appPlayerInitConfig.mediaEntryCacheConfig)
-                .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject, true))
+            .setAutoPlay(appPlayerInitConfig.autoPlay)
+            .setKs(appPlayerInitConfig.ks)
+            .setPreload(appPlayerInitConfig.preload)
+            .setReferrer(appPlayerInitConfig.referrer)
+            .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
+            .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
+            .setSecureSurface(appPlayerInitConfig.secureSurface)
+            .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode)
+            .setAbrSettings(appPlayerInitConfig.abrSettings)
+            .setVideoCodecSettings(appPlayerInitConfig.videoCodecSettings)
+            .setAudioCodecSettings(appPlayerInitConfig.audioCodecSettings)
+            .setLoadControlBuffers(appPlayerInitConfig.loadControlBuffers)
+            .setAllowClearLead(appPlayerInitConfig.allowClearLead)
+            .setEnableDecoderFallback(appPlayerInitConfig.enableDecoderFallback)
+            .setAdAutoPlayOnResume(appPlayerInitConfig.adAutoPlayOnResume)
+            .setCea608CaptionsEnabled(appPlayerInitConfig.cea608CaptionsEnabled)
+            .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
+            .setVRSettings(appPlayerInitConfig.vrSettings)
+            .setPKLowLatencyConfig(pkLowLatencyConfig)
+            .setIsVideoViewHidden(appPlayerInitConfig.isVideoViewHidden)
+            .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
+            .setLicenseRequestAdapter(appPlayerInitConfig.licenseRequestAdapter)
+            .forceSinglePlayerEngine(appPlayerInitConfig.forceSinglePlayerEngine)
+            .forceWidevineL3Playback(appPlayerInitConfig.forceWidevineL3Playback)
+            .setTunneledAudioPlayback(appPlayerInitConfig.isTunneledAudioPlayback)
+            .setMaxAudioBitrate(appPlayerInitConfig.maxAudioBitrate)
+            .setMaxAudioChannelCount(appPlayerInitConfig.maxAudioChannelCount)
+            .setMaxVideoBitrate(appPlayerInitConfig.maxVideoBitrate)
+            .setMaxVideoSize(appPlayerInitConfig.maxVideoSize)
+            .setHandleAudioBecomingNoisy(appPlayerInitConfig.handleAudioBecomingNoisyEnabled)
+            .setSubtitlePreference(appPlayerInitConfig.subtitlePreference)
+            .setMulticastSettings(appPlayerInitConfig.multicastSettings)
+            .setMediaEntryCacheConfig(appPlayerInitConfig.mediaEntryCacheConfig)
+            .setPluginConfigs(convertPluginsJsonArrayToPKPlugins(appPluginConfigJsonObject, true))
 
         if (appPlayerInitConfig.playerRequestConfig == null && appPlayerInitConfig.allowCrossProtocolEnabled != null) {
             initOptions.setPKRequestConfig(PKRequestConfig(appPlayerInitConfig.allowCrossProtocolEnabled)) // support legacy
@@ -440,7 +460,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-
         if (KalturaPlayer.Type.ovp == playerType) {
 
             // inorder to generate retry error need also to remove and un install app -> KalturaOvpPlayer.create(this, 1091, "http://qa-apache-php7.dev.kaltura.com/");
@@ -454,6 +473,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             //            }
 
             player = KalturaOvpPlayer.create(this@PlayerActivity, initOptions)
+
+            setAdvertisingConfig(player, playListMediaIndex)
+
             setPlayer(player)
 
             val ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
@@ -497,6 +519,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             player = KalturaOttPlayer.create(this@PlayerActivity, initOptions)
+
+            setAdvertisingConfig(player, playListMediaIndex)
+
             setPlayer(player)
             val ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ottMediaOptions != null) {
@@ -518,6 +543,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         } else if (KalturaPlayer.Type.basic == playerType) {
             player = KalturaBasicPlayer.create(this@PlayerActivity, initOptions)
+
+            setAdvertisingConfig(player, currentPlayedMediaIndex)
+
             setPlayer(player)
             val mediaEntry = appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex)?.pkMediaEntry
             if (appPlayerInitConfig.mediaList != null && appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex) != null) {
@@ -569,6 +597,29 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
+    private fun setAdvertisingConfig(
+        player: KalturaPlayer,
+        playListMediaIndex: Int
+    ) {
+        mediaList?.get(playListMediaIndex)?.advertisingConfig?.let {
+            player.setAdvertisingConfig(it)
+        }
+
+        mediaList?.get(playListMediaIndex)?.playAdNowAdBreak?.let {
+            this.playAdNowAdBreak = it
+        }
+    }
+
+    private fun setAdvertisingConfigForPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaPlayer?) {
+        appPlayerInitConfig.playlistConfig?.advertisingConfig?.let {
+            player?.setAdvertisingConfig(it)
+        }
+
+        appPlayerInitConfig?.playlistConfig?.playAdNowAdBreak?.let {
+            this.playAdNowAdBreak = it
+        }
+    }
+
     private fun setPlaybackRate(playListMediaIndex: Int) {
         mediaList?.let {
             it[playListMediaIndex].playbackRate?.let { rate ->
@@ -586,13 +637,13 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             subtitleStyle.config?.let {
                 subtitleStyleSettings = SubtitleStyleSettings(subtitleName)
-                        .setBackgroundColor(it.getStringToColor(it.subtitleBackgroundColor))
-                        .setTextColor(it.getStringToColor(it.subtitleTextColor))
-                        .setWindowColor(it.getStringToColor(it.subtitleWindowColor))
-                        .setEdgeColor(it.getStringToColor(it.subtitleEdgeColor))
-                        .setTextSizeFraction(it.getSubtitleTextSizeFraction())
-                        .setTypeface(it.getSubtitleStyleTypeface())
-                        .setEdgeType(it.getSubtitleEdgeType())
+                    .setBackgroundColor(it.getStringToColor(it.subtitleBackgroundColor))
+                    .setTextColor(it.getStringToColor(it.subtitleTextColor))
+                    .setWindowColor(it.getStringToColor(it.subtitleWindowColor))
+                    .setEdgeColor(it.getStringToColor(it.subtitleEdgeColor))
+                    .setTextSizeFraction(it.getSubtitleTextSizeFraction())
+                    .setTypeface(it.getSubtitleStyleTypeface())
+                    .setEdgeType(it.getSubtitleEdgeType())
 
                 var pkSubtitlePosition: PKSubtitlePosition = PKSubtitlePosition(it.overrideInlineCueConfig)
 
@@ -618,13 +669,15 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ovpPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
             ovpPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
             ovpPlaylistIdOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
-                    ?: CountDownOptions()
+                ?: CountDownOptions()
             ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
             ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.useApiCaptions ?: false
             ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
             //ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
             ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
             ovpPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
+            setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
             player?.loadPlaylistById(ovpPlaylistIdOptions) { playlistController, error ->
                 if (error != null) {
@@ -644,14 +697,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
             ovpPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
             ovpPlaylistOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
             ovpPlaylistOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
-                    ?: CountDownOptions()
+                ?: CountDownOptions()
             ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
-                    ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+                ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
             ovpPlaylistOptions.ovpMediaOptionsList = convertToOvpMediaOptionsList(mediaList)
             ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
             //ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
             ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
             ovpPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
+            setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
             player?.loadPlaylist(ovpPlaylistOptions) { playlistController, error ->
                 if (error != null) {
@@ -699,14 +754,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
         ottPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
         ottPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
         ottPlaylistIdOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
-                ?: CountDownOptions()
+            ?: CountDownOptions()
         ottPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
-                ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
+            ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
         ottPlaylistIdOptions.ottMediaOptionsList = convertToOttMediaOptionsList(mediaList)
         ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
         //ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
         ottPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
+        setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
         player?.loadPlaylist(ottPlaylistIdOptions) { playlistController, error ->
             if (error != null) {
@@ -781,14 +838,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val basicPlaylistOptions = BasicPlaylistOptions()
         basicPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
         basicPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
-                ?: PlaylistMetadata().setName("TestBasicPlayList").setId("1")
+            ?: PlaylistMetadata().setName("TestBasicPlayList").setId("1")
         basicPlaylistOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
-                ?: CountDownOptions()
+            ?: CountDownOptions()
         basicPlaylistOptions.basicMediaOptionsList = convertToBasicMediaOptionsList(mediaList)
         basicPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
         //basicPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         basicPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
         basicPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+
+        setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
         player?.loadPlaylist(basicPlaylistOptions) { playlistController, error ->
             if (error != null) {
@@ -840,7 +899,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (ottMedia.fileId != null) {
             ottMediaAsset.setMediaFileIds(listOf(ottMedia.fileId))
         }
-        
+
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = startPosition
         ottMediaOptions.externalSubtitles = ottMedia.externalSubtitles
@@ -954,6 +1013,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             allAdsCompleted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
+            log.d("adInfo = $adInfo" )
             adCuePoints?.let {
                 if (!initOptions.autoplay && IMADAIPlugin.factory.name != it.getAdPluginName()) {
                     playbackControlsManager?.showControls(View.INVISIBLE)
@@ -1046,7 +1106,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
             if (player?.playlistController != null) {
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
-                        ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
             }
 
             updateEventsLogsList("player:\n" + event.eventType().name)
@@ -1077,7 +1137,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             playbackControlsManager?.setContentPlayerState(event.eventType())
             if (player?.playlistController != null) {
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
-                        ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
             }
 
             if (adCuePoints == null || adCuePoints != null && !adCuePoints!!.hasPostRoll() || IMADAIPlugin.factory.name == adCuePoints!!.getAdPluginName()) {
@@ -1089,8 +1149,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
             progressBar?.setVisibility(View.GONE)
             if (!isPostrollAvailableInAdCuePoint() ||
-                    IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName()) ||
-                    FBInstreamPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())
+                IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName()) ||
+                FBInstreamPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())
             ) {
                 if (player?.playlistController == null || !(player?.playlistController?.isAutoContinueEnabled ?: true)) {
                     playbackControlsManager?.showControls(View.VISIBLE)
