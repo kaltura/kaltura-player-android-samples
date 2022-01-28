@@ -44,6 +44,7 @@ class PlayerConfig {
     var multicastSettings: MulticastSettings? = null
     var mediaEntryCacheConfig: MediaEntryCacheConfig? = null
 
+    var drmSettings: DRMSettings? = null;
     var setSubtitleStyle: SubtitleStyleSettings? = null
     var aspectRatioResizeMode: PKAspectRatioResizeMode? = null
     var contentRequestAdapter: PKRequestParams.Adapter? = null

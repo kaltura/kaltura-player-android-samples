@@ -131,7 +131,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         require(!(playerConfigTitle == null || playerInitOptionsJson == null)) { "Must pass extra " + PlayerActivity.PLAYER_CONFIG_JSON_KEY }
         initDrm()
-        
+
         appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig::class.java)
 
         appPlayerInitConfig?.let {
@@ -419,6 +419,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             .setCea608CaptionsEnabled(appPlayerInitConfig.cea608CaptionsEnabled)
             .setVrPlayerEnabled(appPlayerInitConfig.vrPlayerEnabled)
             .setVRSettings(appPlayerInitConfig.vrSettings)
+            .setDrmSettings(appPlayerInitConfig.drmSettings)
             .setPKLowLatencyConfig(pkLowLatencyConfig)
             .setIsVideoViewHidden(appPlayerInitConfig.isVideoViewHidden)
             .setContentRequestAdapter(appPlayerInitConfig.contentRequestAdapter)
