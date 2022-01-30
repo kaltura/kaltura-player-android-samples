@@ -235,7 +235,16 @@ class MainActivity : AppCompatActivity() {
         optionalParams.put("OPTION_PARAM_KEY_1", "OPTION_PARAM_VALUE_1")
         optionalParams.put("OPTION_PARAM_KEY_2", "OPTION_PARAM_VALUE_2")
 
-        val smartSwitchConfig = SmartSwitchConfig("YOUR_ACCOUNT_CODE", "YOUR_ORIGIN_CODE", optionalParams)
+//Example:
+//        optionalParams.put("protocol", "hls")
+//        optionalParams.put("extended", "true")
+//        optionalParams.put("originCode", "default")
+//        optionalParams.put("live", "false")
+//        account example: kalture
+//        applicaton example: NPAW test
+//        server url in setMedia: https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8
+
+        val smartSwitchConfig = SmartSwitchConfig("YOUR_ACCOUNT_CODE", optionalParams, "YOUR APPLICATION")
         pkPluginConfigs.setPluginConfig(SmartSwitchPlugin.factory.name, smartSwitchConfig)
         pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, getYouboraBundle())
 
