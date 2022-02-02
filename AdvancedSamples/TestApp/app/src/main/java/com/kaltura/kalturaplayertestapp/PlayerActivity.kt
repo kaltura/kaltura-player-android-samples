@@ -37,6 +37,7 @@ import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.playkit.player.PKLowLatencyConfig
 import com.kaltura.playkit.player.PKSubtitlePosition
 import com.kaltura.playkit.player.SubtitleStyleSettings
+import com.kaltura.playkit.player.metadata.*
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig
@@ -1373,6 +1374,47 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, PlayerEvent.seeked) { event ->
             log.d("PLAYER SEEKED")
             updateEventsLogsList("player:\n" + event.eventType().name)
+        }
+
+        player?.addListener(this, PlayerEvent.metadataAvailable) { event ->
+            log.d("PLAYER metadataAvailable")
+            if (event.metadataList != null && event.metadataList.size > 0) {
+                for (metadata in event.metadataList) {
+                    if (metadata is PKEventMessage) {
+                        log.d("PKEventMessage id " + metadata.id)
+                        log.d("PKEventMessage value " + metadata.value)
+                    } else  if (metadata is PKGeobFrame) {
+                        log.d("PKGeobFrame id " + metadata.id)
+                        log.d("PKGeobFrame description " + metadata.description)
+                    } else if (metadata is PKApicFrame) {
+                        log.d("PKGeobFrame id " + metadata.id)
+                        log.d("PKGeobFrame description " + metadata.description)
+                    } else if (metadata is PKTextInformationFrame) {
+                        log.d("PKGeobFrame id " + metadata.id)
+                        log.d("PKGeobFrame description " + metadata.description)
+                    } else if (metadata is PKApicFrame) {
+                        log.d("PKGeobFrame id " + metadata.id)
+                        log.d("PKGeobFrame description " + metadata.description)
+                    } else if (metadata is PKBinaryFrame) {
+                        log.d("PKBinaryFrame id " + metadata.id)
+                    } else if (metadata is PKChapterFrame) {
+                        log.d("PKChapterFrame id " + metadata.id)
+                        log.d("PKChapterFrame chapterId " + metadata.chapterId)
+                    } else if (metadata is PKCommentFrame) {
+                        log.d("PKCommentFrame id " + metadata.id)
+                        log.d("PKCommentFrame description " + metadata.description)
+                    } else if (metadata is PKPrivFrame) {
+                        log.d("PKPrivFrame id " + metadata.id)
+                        log.d("PKPrivFrame owner " + metadata.owner)
+                    } else if (metadata is PKChapterTocFrame) {
+                        log.d("PKChapterTocFrame id " + metadata.id)
+                        log.d("PKChapterTocFrame elementId " + metadata.elementId)
+                    } else if (metadata is PKUrlLinkFrame) {
+                        log.d("PKUrlLinkFrame id " + metadata.id)
+                        log.d("PKUrlLinkFrame description " + metadata.description)
+                    }
+                }
+            }
         }
 
         player?.addListener(this, KavaAnalyticsEvent.reportSent) { event ->
