@@ -90,9 +90,27 @@ class TracksSelectionController(private val context: Context, private val player
         }
 
         when (trackType) {
-            TRACK_TYPE_VIDEO -> lastVideoTrackSelectionIndex = lastTrackSelected
-            TRACK_TYPE_AUDIO -> lastAudioTrackSelectionIndex = lastTrackSelected
-            TRACK_TYPE_TEXT -> lastTextTrackSelectionIndex = lastTrackSelected
+            TRACK_TYPE_VIDEO -> {
+                if (lastVideoTrackSelectionIndex != lastTrackSelected) {
+                    lastVideoTrackSelectionIndex = lastTrackSelected
+                } else {
+                    return
+                }
+            }
+            TRACK_TYPE_AUDIO -> {
+                if (lastAudioTrackSelectionIndex != lastTrackSelected) {
+                    lastAudioTrackSelectionIndex = lastTrackSelected
+                } else {
+                    return
+                }
+            }
+            TRACK_TYPE_TEXT -> {
+                    if (lastTextTrackSelectionIndex != lastTrackSelected) {
+                        lastTextTrackSelectionIndex = lastTrackSelected
+                    } else {
+                        return
+                    }
+            }
             else -> return
         }
         player?.changeTrack(uniqueId)
