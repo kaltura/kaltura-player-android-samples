@@ -1392,9 +1392,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     } else if (metadata is PKTextInformationFrame) {
                         log.d("PKTextInformationFrame id " + metadata.id)
                         log.d("PKTextInformationFrame description " + metadata.description)
-                    } else if (metadata is PKApicFrame) {
-                        log.d("PKApicFrame id " + metadata.id)
-                        log.d("PKApicFrame description " + metadata.description)
                     } else if (metadata is PKBinaryFrame) {
                         log.d("PKBinaryFrame id " + metadata.id)
                     } else if (metadata is PKChapterFrame) {
