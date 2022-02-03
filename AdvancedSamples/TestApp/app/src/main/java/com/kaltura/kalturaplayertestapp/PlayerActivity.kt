@@ -1387,14 +1387,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         log.d("PKGeobFrame id " + metadata.id)
                         log.d("PKGeobFrame description " + metadata.description)
                     } else if (metadata is PKApicFrame) {
-                        log.d("PKGeobFrame id " + metadata.id)
-                        log.d("PKGeobFrame description " + metadata.description)
+                        log.d("PKApicFrame id " + metadata.id)
+                        log.d("PKApicFrame description " + metadata.description)
                     } else if (metadata is PKTextInformationFrame) {
-                        log.d("PKGeobFrame id " + metadata.id)
-                        log.d("PKGeobFrame description " + metadata.description)
+                        log.d("PKTextInformationFrame id " + metadata.id)
+                        log.d("PKTextInformationFrame description " + metadata.description)
                     } else if (metadata is PKApicFrame) {
-                        log.d("PKGeobFrame id " + metadata.id)
-                        log.d("PKGeobFrame description " + metadata.description)
+                        log.d("PKApicFrame id " + metadata.id)
+                        log.d("PKApicFrame description " + metadata.description)
                     } else if (metadata is PKBinaryFrame) {
                         log.d("PKBinaryFrame id " + metadata.id)
                     } else if (metadata is PKChapterFrame) {
