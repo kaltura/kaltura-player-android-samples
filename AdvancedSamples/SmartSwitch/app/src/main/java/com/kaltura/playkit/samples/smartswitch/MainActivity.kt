@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity() {
         optionalParams.put("OPTION_PARAM_KEY_1", "OPTION_PARAM_VALUE_1")
         optionalParams.put("OPTION_PARAM_KEY_2", "OPTION_PARAM_VALUE_2")
 
-         /**
+        /**
          * Create SmartSwitch Config object
          *
          * @param accountCode Mandatory: YOUBORA account code
@@ -255,7 +255,7 @@ class MainActivity : AppCompatActivity() {
          *
          * @param application Optional: application name, default: "default"
          * @param domainUrl Optional: SmartSwitch domain url default: https://api.gbnpaw.com
-         **/
+         */
          
         val smartSwitchConfig = SmartSwitchConfig("YOUR_ACCOUNT_CODE", optionalParams)
         pkPluginConfigs.setPluginConfig(SmartSwitchPlugin.factory.name, smartSwitchConfig)
