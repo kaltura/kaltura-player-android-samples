@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity() {
         optionalParams.put("OPTION_PARAM_KEY_1", "OPTION_PARAM_VALUE_1")
         optionalParams.put("OPTION_PARAM_KEY_2", "OPTION_PARAM_VALUE_2")
 
-        val smartSwitchConfig = SmartSwitchConfig("YOUR_ACCOUNT_CODE", "YOUR_ORIGIN_CODE", optionalParams)
+        val smartSwitchConfig = SmartSwitchConfig("YOUR_ACCOUNT_CODE", optionalParams)
         pkPluginConfigs.setPluginConfig(SmartSwitchPlugin.factory.name, smartSwitchConfig)
         pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, getYouboraBundle())
 
