@@ -598,7 +598,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     override fun onPause() {
-        mCastContext!!.removeCastStateListener(mCastStateListener)
+        mCastContext!!.removeCastStateListener(mCastStateListener!!)
         super.onPause()
     }
 }

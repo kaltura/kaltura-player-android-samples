@@ -6,10 +6,7 @@ import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.framework.CastOptions
 import com.google.android.gms.cast.framework.OptionsProvider
 import com.google.android.gms.cast.framework.SessionProvider
-import com.google.android.gms.cast.framework.media.CastMediaOptions
-import com.google.android.gms.cast.framework.media.ImagePicker
-import com.google.android.gms.cast.framework.media.MediaIntentReceiver
-import com.google.android.gms.cast.framework.media.NotificationOptions
+import com.google.android.gms.cast.framework.media.*
 import com.google.android.gms.common.images.WebImage
 
 import java.util.Arrays
@@ -17,7 +14,7 @@ import java.util.Arrays
 /**
  * Implements [OptionsProvider] to provide [CastOptions].
  */
-class CastOptionsProvider: OptionsProvider {
+class CastOptionsProviderKt: OptionsProvider {
 
     override fun getCastOptions(context: Context): CastOptions {
         val notificationOptions = NotificationOptions.Builder()
@@ -27,7 +24,7 @@ class CastOptionsProvider: OptionsProvider {
                 .setTargetActivityClassName(ExpandedControlsActivity::class.java.name)
                 .build()
         val mediaOptions = CastMediaOptions.Builder()
-                .setImagePicker(ImagePickerImpl())
+                //.setImagePicker(ImagePickerImpl())
                 .setNotificationOptions(notificationOptions)
                 .setExpandedControllerActivityClassName(ExpandedControlsActivity::class.java.name)
                 .build()
@@ -41,9 +38,9 @@ class CastOptionsProvider: OptionsProvider {
         return null
     }
 
-    private class ImagePickerImpl: ImagePicker() {
 
-        override fun onPickImage(mediaMetadata: MediaMetadata?, type: Int): WebImage? {
+    private class ImagePickerImpl: ImagePicker() {
+        override fun onPickImage(mediaMetadata: MediaMetadata, hints: ImageHints): WebImage? {
             if (mediaMetadata == null || !mediaMetadata.hasImages()) {
                 return null
             }
@@ -51,7 +48,7 @@ class CastOptionsProvider: OptionsProvider {
             return if (images.size == 1) {
                 images[0]
             } else {
-                if (type == ImagePicker.IMAGE_TYPE_MEDIA_ROUTE_CONTROLLER_DIALOG_BACKGROUND) {
+                if (hints.type == ImagePicker.IMAGE_TYPE_MEDIA_ROUTE_CONTROLLER_DIALOG_BACKGROUND) {
                     images[0]
                 } else {
                     images[1]
