@@ -268,7 +268,7 @@ class BarcodeCaptureActivity: AppCompatActivity(), BarcodeGraphicTracker.Barcode
                 applicationContext)
         if (code != ConnectionResult.SUCCESS) {
             val dlg = GoogleApiAvailability.getInstance().getErrorDialog(this, code, RC_HANDLE_GMS)
-            dlg.show()
+            dlg?.show()
         }
 
         if (mCameraSource != null) {
