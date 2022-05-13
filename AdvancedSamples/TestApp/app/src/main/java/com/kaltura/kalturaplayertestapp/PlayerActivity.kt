@@ -1083,6 +1083,19 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //
         //        });
 
+        player?.addListener(this, PlayerEvent.metadataAvailable) { event ->
+            log.d("player:\n ${event.eventType().name}" + "\n metadata list size : ${event.metadataList.size}")
+            if (!event.metadataList.isNullOrEmpty()) {
+                updateEventsLogsList("player:\n ${event.eventType().name}" + "\n metadata list size : ${event.metadataList.size}")
+            }
+        }
+
+        player?.addListener(this, PlayerEvent.eventStreamAvailable) { event ->
+            log.d("player:\n ${event.eventType().name}" + "\n eventStreamsList list size : ${event.eventStreamsList.size}")
+            if (!event.eventStreamsList.isNullOrEmpty()) {
+                updateEventsLogsList("player:\n ${event.eventType().name}" + "\n eventStreamsList list size : ${event.eventStreamsList.size}")
+            }
+        }
 
         player?.addListener(this, PlayerEvent.loadedMetadata) { event ->
             log.d("PLAYER LoadedMetadata")
