@@ -31,7 +31,6 @@ import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor
 import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdBreak
-import com.kaltura.playkit.ads.AdBreakConfig
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.playkit.player.PKLowLatencyConfig
@@ -66,7 +65,6 @@ import com.npaw.youbora.lib6.plugin.Options
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class PlayerActivity: AppCompatActivity(), Observer {
 
@@ -1090,7 +1088,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
         }
 
-        player?.addListener(this, PlayerEvent.eventStreamAvailable) { event ->
+        player?.addListener(this, PlayerEvent.eventStreamChanged) { event ->
             log.d("player:\n ${event.eventType().name}" + "\n eventStreamsList list size : ${event.eventStreamsList.size}")
             if (!event.eventStreamsList.isNullOrEmpty()) {
                 updateEventsLogsList("player:\n ${event.eventType().name}" + "\n eventStreamsList list size : ${event.eventStreamsList.size}")
