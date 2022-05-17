@@ -31,7 +31,6 @@ import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor
 import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdBreak
-import com.kaltura.playkit.ads.AdBreakConfig
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.MediaSupport
 import com.kaltura.playkit.player.PKLowLatencyConfig
@@ -66,7 +65,6 @@ import com.npaw.youbora.lib6.plugin.Options
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class PlayerActivity: AppCompatActivity(), Observer {
 
@@ -1083,6 +1081,19 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //
         //        });
 
+        player?.addListener(this, PlayerEvent.metadataAvailable) { event ->
+            log.d("player:\n ${event.eventType().name}" + "\n metadata list size : ${event.metadataList.size}")
+            if (!event.metadataList.isNullOrEmpty()) {
+                updateEventsLogsList("player:\n ${event.eventType().name}" + "\n metadata list size : ${event.metadataList.size}")
+            }
+        }
+
+        player?.addListener(this, PlayerEvent.eventStreamChanged) { event ->
+            log.d("player:\n ${event.eventType().name}" + "\n eventStreamList list size : ${event.eventStreamList.size}")
+            if (!event.eventStreamList.isNullOrEmpty()) {
+                updateEventsLogsList("player:\n ${event.eventType().name}" + "\n eventStreamList list size : ${event.eventStreamList.size}")
+            }
+        }
 
         player?.addListener(this, PlayerEvent.loadedMetadata) { event ->
             log.d("PLAYER LoadedMetadata")
