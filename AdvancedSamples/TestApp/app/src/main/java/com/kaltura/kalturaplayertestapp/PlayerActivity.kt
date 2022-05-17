@@ -1089,9 +1089,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlayerEvent.eventStreamChanged) { event ->
-            log.d("player:\n ${event.eventType().name}" + "\n eventStreamsList list size : ${event.eventStreamsList.size}")
-            if (!event.eventStreamsList.isNullOrEmpty()) {
-                updateEventsLogsList("player:\n ${event.eventType().name}" + "\n eventStreamsList list size : ${event.eventStreamsList.size}")
+            log.d("player:\n ${event.eventType().name}" + "\n eventStreamList list size : ${event.eventStreamList.size}")
+            if (!event.eventStreamList.isNullOrEmpty()) {
+                updateEventsLogsList("player:\n ${event.eventType().name}" + "\n eventStreamList list size : ${event.eventStreamList.size}")
             }
         }
 
