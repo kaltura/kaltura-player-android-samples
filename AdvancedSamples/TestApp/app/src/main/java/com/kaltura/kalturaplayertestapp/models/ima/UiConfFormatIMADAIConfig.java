@@ -34,6 +34,7 @@ public class UiConfFormatIMADAIConfig {
     public static final String AD_ENABLE_DEBUG_MODE     = "enableDebugMode";
     public static final String AD_SESSION_ID            = "sessionId";
     public static final String AD_ALWAYES_START_WITH_PREROLL = "alwaysStartWithPreroll";
+    public static final String AD_ENABLE_CUSTOM_TABS = "enableCustomTabs";
     public static final String AD_ADTAG_PARAMS = "adTagParams";
     public static final String AD_STREAM_ACTIVITY_MONITOR_ID = "streamActivityMonitorId";
     public static final String AD_AUTH_TOKEN = "authToken";
@@ -49,6 +50,7 @@ public class UiConfFormatIMADAIConfig {
     private StreamRequest.StreamFormat streamFormat;
     private String licenseUrl;
     private boolean alwaysStartWithPreroll;
+    private boolean enableCustomTabs;
 
     private AdsRenderingSettings adsRenderingSettings;
     private SdkSettings sdkSettings;
@@ -87,6 +89,10 @@ public class UiConfFormatIMADAIConfig {
 
     public boolean isAlwaysStartWithPreroll() {
         return alwaysStartWithPreroll;
+    }
+
+    public boolean isEnableCustomTabs() {
+        return enableCustomTabs;
     }
 
     public Map<String, String> getAdTagParams() {
@@ -134,6 +140,7 @@ public class UiConfFormatIMADAIConfig {
         jsonObject.addProperty(AD_ENABLE_DEBUG_MODE, getSdkSettings().getDebugMode());
         jsonObject.addProperty(AD_SESSION_ID, getSdkSettings().getSessionId());
         jsonObject.addProperty(AD_ALWAYES_START_WITH_PREROLL , alwaysStartWithPreroll);
+        jsonObject.addProperty(AD_ENABLE_CUSTOM_TABS, isEnableCustomTabs());
 
         if (adTagParams != null) {
             Gson gson = new Gson();
