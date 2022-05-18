@@ -25,9 +25,11 @@ public class UiConfFormatIMAConfig {
     public static final String AD_ENABLE_DEBUG_MODE     = "enableDebugMode";
     public static final String AD_SESSION_ID            = "sessionId";
     public static final String AD_ALWAYES_START_WITH_PREROLL = "alwaysStartWithPreroll";
+    public static final String AD_ENABLE_CUSTOM_TABS = "enableCustomTabs";
 
     private String adTagUrl;
     private String adResponse;
+    private boolean enableCustomTabs;
     private AdTagType adTagType = AdTagType.VAST;
     private AdsRenderingSettings adsRenderingSettings;
     private SdkSettings sdkSettings;
@@ -38,6 +40,9 @@ public class UiConfFormatIMAConfig {
     }
     public String getAdResponse() {
         return adResponse;
+    }
+    public boolean isEnableCustomTabs() {
+        return enableCustomTabs;
     }
     public AdTagType getAdTagType() {
         return adTagType;
@@ -70,7 +75,7 @@ public class UiConfFormatIMAConfig {
         } else if (!TextUtils.isEmpty(adResponse)) {
             jsonObject.addProperty(AD_RESPONSE, adResponse);
         }
-
+        jsonObject.addProperty(AD_ENABLE_CUSTOM_TABS, isEnableCustomTabs());
         jsonObject.addProperty(AD_VIDEO_BITRATE, getAdsRenderingSettings().getBitrate());
         jsonObject.addProperty(AD_ATTRIBUTION_UIELEMENT, getAdsRenderingSettings().getUiElements().getAdAttribution());
         jsonObject.addProperty(AD_COUNTDOWN_UIELEMENT, getAdsRenderingSettings().getUiElements().getAdCountDown());
