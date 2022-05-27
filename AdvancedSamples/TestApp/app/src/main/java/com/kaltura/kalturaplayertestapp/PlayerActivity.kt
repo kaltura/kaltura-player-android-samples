@@ -401,6 +401,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         initOptions = PlayerInitOptions(partnerId)
             .setAutoPlay(appPlayerInitConfig.autoPlay)
             .setKs(appPlayerInitConfig.ks)
+            .allowChunklessPreparation(appPlayerInitConfig.allowChunklessPreparation)
             .setPreload(appPlayerInitConfig.preload)
             .setReferrer(appPlayerInitConfig.referrer)
             .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
