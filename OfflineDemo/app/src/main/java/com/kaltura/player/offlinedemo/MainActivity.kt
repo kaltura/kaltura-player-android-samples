@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
             manager.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             manager.renewDrmAssetLicense(item.id(), item.mediaOptions(), object: OfflineManager.MediaEntryCallback {
                 override fun onMediaEntryLoaded(assetId: String, downloadType: OfflineManager.DownloadType, mediaEntry: PKMediaEntry) {
-                   // reduceLicenseDuration(mediaEntry, 300)
+                    // reduceLicenseDuration(mediaEntry, 300)
                 }
 
                 override fun onMediaEntryLoadError(downloadType: OfflineManager.DownloadType, error: Exception) {
@@ -244,8 +244,13 @@ class MainActivity : AppCompatActivity() {
     private fun doPause(item: Item?) {
         item?.let { it ->
             it.id()?.let { itemId ->
-                manager.pauseAssetDownload(itemId)
-                updateItemStatus(it)
+                val assetState = manager.getAssetInfo(itemId)?.state
+                if (assetState == OfflineManager.AssetDownloadState.started) {
+                    manager.pauseAssetDownload(itemId)
+                    updateItemStatus(it)
+                } else {
+                    toast("Asset $itemId can not be paused because asset is not being downloaded. It's state is: $assetState")
+                }
             }
         }
     }
