@@ -427,8 +427,13 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
     private fun doPause(item: Item?) {
         item?.let { it ->
             it.id()?.let { itemId ->
-                offlineManager?.pauseAssetDownload(itemId)
-                updateItemStatus(it)
+                val assetState = offlineManager?.getAssetInfo(itemId)?.state
+                if (assetState == OfflineManager.AssetDownloadState.started) {
+                    offlineManager?.pauseAssetDownload(itemId)
+                    updateItemStatus(it)
+                } else {
+                    toast("Asset $itemId can not be paused because asset is not being downloaded. It's state is: $assetState")
+                }
             }
         }
     }
