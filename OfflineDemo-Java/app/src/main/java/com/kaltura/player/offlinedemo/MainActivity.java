@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         manager = OfflineManager.getInstance(this, OfflineManager.OfflineProvider.DTG);
-        manager.setOfflineManagerSettings(new OfflineManagerSettings().setHlsAudioBitrateEstimation(OfflineManagerSettings.DEFAULT_HLS_AUDIO_BITRATE_ESTIMATION)));
+        manager.setOfflineManagerSettings(new OfflineManagerSettings().setHlsAudioBitrateEstimation(OfflineManagerSettings.DEFAULT_HLS_AUDIO_BITRATE_ESTIMATION));
 
         manager.setAssetStateListener(new OfflineManager.AssetStateListener() {
             @Override
@@ -297,8 +297,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void doPause(Item item) {
         if (item != null && item.id() != null) {
-            manager.pauseAssetDownload(item.id());
-            updateItemStatus(item);
+            OfflineManager.AssetInfo assetInfo = manager.getAssetInfo(item.id());
+            if (assetInfo != null && assetInfo.getState() == OfflineManager.AssetDownloadState.started) {
+                manager.pauseAssetDownload(item.id());
+                updateItemStatus(item);
+            } else {
+                toast("Asset" + item.id() + "can not be paused because asset is not being downloaded. It's state is: " + (assetInfo != null ? assetInfo.getState() : null));
+            }
         }
     }
 

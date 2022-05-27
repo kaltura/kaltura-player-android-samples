@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.PKMediaEntry;
+import com.kaltura.playkit.PKRequestConfig;
 import com.kaltura.playkit.PlayerEvent;
 import com.kaltura.playkit.Utils;
 import com.kaltura.playkit.player.AudioTrack;
@@ -82,7 +83,7 @@ public class PlayActivity extends AppCompatActivity {
             }
         }
 
-        PlayerInitOptions options = new PlayerInitOptions(partnerId).setAutoPlay(true).setPKRequestConfig(PKRequestConfig(true));
+        PlayerInitOptions options = new PlayerInitOptions(partnerId).setAutoPlay(true).setPKRequestConfig(new PKRequestConfig(true));
 
         if (isOnlinePlayback && testItems != null && !testItems.isEmpty()) {
             playAssetOnline(testItems, position, options);
