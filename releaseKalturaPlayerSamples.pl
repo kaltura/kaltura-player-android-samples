@@ -52,9 +52,9 @@ while ( my $entry = readdir $DIR ) {
     next if $entry  =~ /^\./;
     print "Found directory <$pathToSamplesFolder/$entry>\n";
     chdir ("$pathToSamplesFolder/$entry");
-    my $returnCode = system("./gradlew build");
+    my $returnCode = system("./gradlew build --no-daemon");
     if ($returnCode != 0) { 
-        die "Failed executing [./gradlew build]\n"; 
+        die "Failed executing [./gradlew build --no-daemon]\n"; 
         closedir $DIR;
     } 
 }
