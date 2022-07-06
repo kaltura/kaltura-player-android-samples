@@ -292,11 +292,6 @@ class MainActivity: AppCompatActivity() {
         val youboraConfigJson = JsonObject()
         youboraConfigJson.addProperty("accountCode", ACCOUNT_CODE)
         youboraConfigJson.addProperty("username", UNIQUE_USER_NAME)
-        youboraConfigJson.addProperty("haltOnError", true)
-        youboraConfigJson.addProperty("enableAnalytics", true)
-        youboraConfigJson.addProperty("enableSmartAds", ENABLE_SMART_ADS)
-        youboraConfigJson.addProperty("appName", "TestApp")
-        youboraConfigJson.addProperty("appReleaseVersion", "v1.0")
         youboraConfigJson.addProperty("userObfuscateIp", true)
         youboraConfigJson.addProperty("httpSecure", true)
 
