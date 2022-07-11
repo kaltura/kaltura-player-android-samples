@@ -188,6 +188,10 @@ class MainActivity : AppCompatActivity() {
             nanoCDNHost = ""
             broadpeakDomainNames = "*"
             uuid = "" // app user - uuid
+            deviceType = "Android"
+            adCustomReference = "myCustomReference"
+            customParameters = hashMapOf(Pair("customParamKey", "customParamValue"))
+            adParameters = hashMapOf(Pair("customAdParamKey", "customAdParamValue"))
         }
 
         pkPluginConfigs.setPluginConfig(BroadpeakPlugin.factory.name, broadpeakConfig)
