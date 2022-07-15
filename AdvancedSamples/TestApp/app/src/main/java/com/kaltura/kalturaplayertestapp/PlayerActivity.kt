@@ -32,10 +32,7 @@ import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdBreak
 import com.kaltura.playkit.ads.AdController
-import com.kaltura.playkit.player.MediaSupport
-import com.kaltura.playkit.player.PKLowLatencyConfig
-import com.kaltura.playkit.player.PKSubtitlePosition
-import com.kaltura.playkit.player.SubtitleStyleSettings
+import com.kaltura.playkit.player.*
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig
@@ -407,7 +404,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
             .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
             .setSecureSurface(appPlayerInitConfig.secureSurface)
-            .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode)
+            .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode ?: PKAspectRatioResizeMode.fit)
             .setAbrSettings(appPlayerInitConfig.abrSettings)
             .setVideoCodecSettings(appPlayerInitConfig.videoCodecSettings)
             .setAudioCodecSettings(appPlayerInitConfig.audioCodecSettings)
@@ -594,6 +591,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
             }
+        }
+
+        appPlayerInitConfig.aspectRatioResizeMode?.let {
+            playbackControlsManager?.setSelectedAspectRatioIndex(PKAspectRatioResizeMode.getExoPlayerAspectRatioResizeMode(it))
         }
     }
 
@@ -1407,6 +1408,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             if (PlayerEvent.Type.PLAYHEAD_UPDATED.name != reportedEventName) {
                 updateEventsLogsList("phoenix:\n$reportedEventName")
             }
+        }
+
+        player?.addListener(this, PlayerEvent.surfaceAspectRationSizeModeChanged) { event ->
+            updateEventsLogsList("PlayerEvent:\n" + event.eventType().name + " Aspect Ratio: " + event.resizeMode.name)
+            log.d("ASPECT_RATIO_RESIZE_MODE_CHANGED")
         }
     }
 

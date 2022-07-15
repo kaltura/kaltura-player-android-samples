@@ -106,6 +106,17 @@
                 android:background="@color/cardview_dark_background"/>
 
             <Button
+                android:id="@+id/aspect_ratio_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="8dp"
+                android:text="AR"
+                android:visibility="gone"
+                android:textColor="@android:color/white"
+                android:background="@color/cardview_dark_background" />
+
+            <Button
                 android:text="REC"
                 android:id="@+id/recover_btn"
                 android:clickable="false"
