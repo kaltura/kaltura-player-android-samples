@@ -20,6 +20,7 @@ import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.tvplayer.*
 import com.npaw.youbora.lib6.plugin.Options
 import kotlinx.android.synthetic.main.activity_main.*
+import tv.broadpeak.smartlib.session.streaming.StreamingSessionOptions
 
 class MainActivity : AppCompatActivity() {
 
@@ -190,8 +191,16 @@ class MainActivity : AppCompatActivity() {
             uuid = "" // app user - uuid
             deviceType = "Android"
             adCustomReference = "myCustomReference"
+            nanoCDNResolvingRetryDelay = 60000
             customParameters = hashMapOf(Pair("customParamKey", "customParamValue"))
             adParameters = hashMapOf(Pair("customAdParamKey", "customAdParamValue"))
+
+            val opt: HashMap<Int, Any> = HashMap()
+            opt[StreamingSessionOptions.SESSION_KEEPALIVE_FREQUENCY] = 8000
+            opt[StreamingSessionOptions.USERAGENT_AD_EVENT] = "kalturatest-useragent"
+            opt[StreamingSessionOptions.ULTRA_LOW_LATENCY_SUPPORT] = false
+
+            options = opt
         }
 
         pkPluginConfigs.setPluginConfig(BroadpeakPlugin.factory.name, broadpeakConfig)
