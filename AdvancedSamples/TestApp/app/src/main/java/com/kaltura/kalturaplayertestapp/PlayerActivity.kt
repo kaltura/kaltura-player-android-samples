@@ -1780,7 +1780,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ((screenHeight / 2) - 300))
                 } else {
                     supportActionBar?.hide()
-                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
+                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 }
                 container.setOnClickListener { view ->
                     if (playbackControlsManager != null) {
@@ -1802,7 +1802,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             searchView?.setVisibility(View.GONE)
             eventsListView?.setVisibility(View.GONE)
             //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
+            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             //unhide your objects here.
             supportActionBar?.show()
