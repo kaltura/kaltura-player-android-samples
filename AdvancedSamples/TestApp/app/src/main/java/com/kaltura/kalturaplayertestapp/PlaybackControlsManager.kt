@@ -1,5 +1,6 @@
 package com.kaltura.kalturaplayertestapp
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
@@ -13,6 +14,7 @@ import com.kaltura.kalturaplayertestapp.tracks.TracksSelectionController
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.ads.AdController
+import com.kaltura.playkit.player.PKAspectRatioResizeMode
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin
 import com.kaltura.playkit.utils.Consts
@@ -27,6 +29,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     private val videoTracksBtn: Button
     private val audioTracksBtn: Button
     private val textTracksBtn: Button
+    private val aspectRatioBtn: Button
 
     private val loopBtn: Button
     private val shuffleBtn: Button
@@ -41,6 +44,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
     private val vrToggle: ImageView
     private var adPluginName: String? = null
     val lowLatencyHandler = Handler(Looper.getMainLooper())
+    private var selectedAspectRatio = 0// Initially selected aspect ratio position in the list
 
     val lowLatencyRunnable = object : Runnable {
         override fun run() {
@@ -92,6 +96,9 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         this.audioTracksBtn = playerActivity.findViewById(R.id.audio_tracks)
         addTracksButtonsListener()
 
+        this.aspectRatioBtn = playerActivity.findViewById(R.id.aspect_ratio_btn)
+        this.aspectRatioBtn.setOnClickListener { openAspectRatioSelectionDialog() }
+
         this.loopBtn = playerActivity.findViewById(R.id.loop_btn)
         this.shuffleBtn = playerActivity.findViewById(R.id.shuffle_btn)
         this.recoverOnErrorBtn = playerActivity.findViewById(R.id.recover_btn)
@@ -140,7 +147,32 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
                 vrToggle.setBackgroundResource(R.drawable.ic_vr)
             }
         }
+    }
 
+    fun setSelectedAspectRatioIndex(position: Int) {
+        selectedAspectRatio = position
+    }
+
+    private fun openAspectRatioSelectionDialog() {
+        val arSelectionDialogBuilder = AlertDialog.Builder(playerActivity)
+        arSelectionDialogBuilder.setTitle("Select Aspect Ratio")
+
+        val aspectRatioList = arrayListOf(PKAspectRatioResizeMode.fit.name,
+            PKAspectRatioResizeMode.fixedWidth.name,
+            PKAspectRatioResizeMode.fixedHeight.name,
+            PKAspectRatioResizeMode.fill.name,
+            PKAspectRatioResizeMode.zoom.name)
+
+        val aspectRatioSequence: Array<CharSequence> = aspectRatioList.toArray(arrayOfNulls<CharSequence>(aspectRatioList.size))
+
+        arSelectionDialogBuilder.setSingleChoiceItems(aspectRatioSequence, selectedAspectRatio) { _, position ->
+            player?.updateSurfaceAspectRatioResizeMode(PKAspectRatioResizeMode.valueOf(
+                aspectRatioList[position]
+            ))
+            selectedAspectRatio = position
+        }
+
+        arSelectionDialogBuilder.create().show();
     }
 
     override fun handleContainerClick() {
@@ -160,6 +192,10 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         hideButtonsHandler.postDelayed(hideButtonsRunnable, REMOVE_CONTROLS_TIMEOUT.toLong())
     }
 
+    private fun showHideAspectRatioButton(visibility: Int) {
+        aspectRatioBtn.visibility = visibility
+    }
+
     override fun showControls(visibility: Int) {
         if (playbackControlsView != null) {
             if (player != null) {
@@ -172,6 +208,8 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
             }
             playbackControlsView.visibility = visibility
         }
+
+        showHideAspectRatioButton(visibility)
 
         if (isAdDisplayed) {
             loopBtn.visibility = View.INVISIBLE
@@ -395,7 +433,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
                 }
             }
             updatePrevNextImgBtnFunctionality(player.playlistController.currentMediaIndex, player.playlistController.playlist?.mediaList?.size
-                    ?: 0)
+                ?: 0)
 
         }
 

@@ -32,10 +32,7 @@ import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdBreak
 import com.kaltura.playkit.ads.AdController
-import com.kaltura.playkit.player.MediaSupport
-import com.kaltura.playkit.player.PKLowLatencyConfig
-import com.kaltura.playkit.player.PKSubtitlePosition
-import com.kaltura.playkit.player.SubtitleStyleSettings
+import com.kaltura.playkit.player.*
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig
@@ -594,6 +591,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
             }
+        }
+
+        appPlayerInitConfig.aspectRatioResizeMode?.let {
+            playbackControlsManager?.setSelectedAspectRatioIndex(PKAspectRatioResizeMode.getExoPlayerAspectRatioResizeMode(it))
         }
     }
 
@@ -1408,6 +1409,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 updateEventsLogsList("phoenix:\n$reportedEventName")
             }
         }
+
+        player?.addListener(this, PlayerEvent.surfaceAspectRationSizeModeChanged) { event ->
+            updateEventsLogsList("PlayerEvent:\n" + event.eventType().name + " Aspect Ratio: " + event.resizeMode.name)
+            log.d("ASPECT_RATIO_RESIZE_MODE_CHANGED")
+        }
     }
 
     private fun getFullPlayerError(event: PlayerEvent.Error): String? {
@@ -1774,7 +1780,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ((screenHeight / 2) - 300))
                 } else {
                     supportActionBar?.hide()
-                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
+                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 }
                 container.setOnClickListener { view ->
                     if (playbackControlsManager != null) {
@@ -1796,7 +1802,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             searchView?.setVisibility(View.GONE)
             eventsListView?.setVisibility(View.GONE)
             //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
+            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             //unhide your objects here.
             supportActionBar?.show()
