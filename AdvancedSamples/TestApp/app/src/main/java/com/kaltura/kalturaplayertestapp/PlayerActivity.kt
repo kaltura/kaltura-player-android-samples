@@ -404,7 +404,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
             .setPreferredMediaFormat(appPlayerInitConfig.preferredFormat)
             .setSecureSurface(appPlayerInitConfig.secureSurface)
-            .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode ?: PKAspectRatioResizeMode.fit)
+            .setAspectRatioResizeMode(appPlayerInitConfig.aspectRatioResizeMode)
             .setAbrSettings(appPlayerInitConfig.abrSettings)
             .setVideoCodecSettings(appPlayerInitConfig.videoCodecSettings)
             .setAudioCodecSettings(appPlayerInitConfig.audioCodecSettings)
