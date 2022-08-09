@@ -3,4 +3,5 @@
     <string name="change_media_text">Change media</string>
     <string name="play_text">Play</string>
     <string name="pause_text">Pause</string>
+    <string name="change_media_button">change_media_button</string>
 </resources>
