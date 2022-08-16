@@ -288,6 +288,7 @@ class MainActivity : AppCompatActivity() {
         val basicPlaylistIdOptions = BasicPlaylistOptions()
         basicPlaylistIdOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
         basicPlaylistIdOptions.basicMediaOptionsList = basicMediaOptionsList
+        basicPlaylistIdOptions.loopEnabled = true
 
         player = KalturaBasicPlayer.create(this@MainActivity, playerInitOptions)
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
@@ -361,6 +362,10 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, AdEvent.contentResumeRequested) { event ->
             log.d("CONTENT_RESUME_REQUESTED")
             playerControls.setPlayerState(PlayerState.READY)
+        }
+
+        player!!.addListener(this, PlayerEvent.playbackInfoUpdated) { event ->
+            log.d("Event entry id " + player?.mediaEntry?.id )
         }
     }
 }
