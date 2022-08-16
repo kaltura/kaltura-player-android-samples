@@ -22,7 +22,6 @@ import com.kaltura.tvplayer.playlist.BasicPlaylistOptions
 import com.kaltura.tvplayer.playlist.CountDownOptions
 import com.kaltura.tvplayer.playlist.PlaylistEvent
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private val log = PKLog.get("MainActivity")
@@ -43,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun subscribeToAdEvents() {
 
-        player!!.addListener(this, AdEvent.started) { event ->
+        player?.addListener(this, AdEvent.started) { event ->
             //Some events holds additional data objects in them.
             //In order to get access to this object you need first cast event to
             //the object it belongs to. You can learn more about this kind of objects in
@@ -58,54 +57,54 @@ class MainActivity : AppCompatActivity() {
                     + adInfo.getAdContentType())
         }
 
-        player!!.addListener(this, AdEvent.contentResumeRequested) { event -> log.d("ADS_PLAYBACK_ENDED") }
+        player?.addListener(this, AdEvent.contentResumeRequested) { event -> log.d("ADS_PLAYBACK_ENDED") }
 
-        player!!.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
+        player?.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
             log.d("AD_PLAYBACK_INFO_UPDATED  = " + event.width + "/" + event.height + "/" + event.bitrate)
         }
 
-        player!!.addListener(this, AdEvent.skippableStateChanged) { event -> log.d("SKIPPABLE_STATE_CHANGED") }
+        player?.addListener(this, AdEvent.skippableStateChanged) { event -> log.d("SKIPPABLE_STATE_CHANGED") }
 
-        player!!.addListener(this, AdEvent.adRequested) { event ->
+        player?.addListener(this, AdEvent.adRequested) { event ->
             log.d("AD_REQUESTED adtag = " + event.adTagUrl)
         }
 
-        player!!.addListener(this, AdEvent.playHeadChanged) { event ->
+        player?.addListener(this, AdEvent.playHeadChanged) { event ->
             val adEventProress = event
             //Log.d(TAG, "received AD PLAY_HEAD_CHANGED " + adEventProress.adPlayHead);
         }
 
 
-        player!!.addListener(this, AdEvent.adBreakStarted) { event -> log.d("AD_BREAK_STARTED") }
+        player?.addListener(this, AdEvent.adBreakStarted) { event -> log.d("AD_BREAK_STARTED") }
 
-        player!!.addListener(this, AdEvent.cuepointsChanged) { event ->
+        player?.addListener(this, AdEvent.cuepointsChanged) { event ->
             log.d("AD_CUEPOINTS_UPDATED HasPostroll = " + event.cuePoints.hasPostRoll())
         }
 
-        player!!.addListener(this, AdEvent.loaded) { event ->
+        player?.addListener(this, AdEvent.loaded) { event ->
             log.d("AD_LOADED " + event.adInfo.getAdIndexInPod() + "/" + event.adInfo.getTotalAdsInPod())
         }
 
-        player!!.addListener(this, AdEvent.started) { event ->
+        player?.addListener(this, AdEvent.started) { event ->
             log.d("AD_STARTED w/h - " + event.adInfo.getAdWidth() + "/" + event.adInfo.getAdHeight())
         }
 
-        player!!.addListener(this, AdEvent.resumed) { event -> log.d("AD_RESUMED") }
+        player?.addListener(this, AdEvent.resumed) { event -> log.d("AD_RESUMED") }
 
-        player!!.addListener(this, AdEvent.paused) { event -> log.d("AD_PAUSED") }
+        player?.addListener(this, AdEvent.paused) { event -> log.d("AD_PAUSED") }
 
-        player!!.addListener(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
+        player?.addListener(this, AdEvent.skipped) { event -> log.d("AD_SKIPPED") }
 
-        player!!.addListener(this, AdEvent.allAdsCompleted) { event -> log.d("AD_ALL_ADS_COMPLETED") }
+        player?.addListener(this, AdEvent.allAdsCompleted) { event -> log.d("AD_ALL_ADS_COMPLETED") }
 
-        player!!.addListener(this, AdEvent.completed) { event -> log.d("AD_COMPLETED") }
+        player?.addListener(this, AdEvent.completed) { event -> log.d("AD_COMPLETED") }
 
-        player!!.addListener(this, AdEvent.firstQuartile) { event -> log.d("FIRST_QUARTILE") }
+        player?.addListener(this, AdEvent.firstQuartile) { event -> log.d("FIRST_QUARTILE") }
 
-        player!!.addListener(this, AdEvent.midpoint) { event ->
+        player?.addListener(this, AdEvent.midpoint) { event ->
             log.d("MIDPOINT")
-            if (player != null) {
-                val adController = player!!.getController(AdController::class.java)
+            player?.let {
+                val adController = it.getController(AdController::class.java)
                 if (adController != null) {
                     if (adController.isAdDisplayed) {
                         log.d("AD CONTROLLER API: " + adController.adCurrentPosition + "/" + adController.adDuration)
@@ -117,19 +116,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        player!!.addListener(this, AdEvent.thirdQuartile) { event -> log.d("THIRD_QUARTILE") }
+        player?.addListener(this, AdEvent.thirdQuartile) { event -> log.d("THIRD_QUARTILE") }
 
-        player!!.addListener(this, AdEvent.adBreakEnded) { event -> log.d("AD_BREAK_ENDED") }
+        player?.addListener(this, AdEvent.adBreakEnded) { event -> log.d("AD_BREAK_ENDED") }
 
-        player!!.addListener(this, AdEvent.adClickedEvent) { event ->
+        player?.addListener(this, AdEvent.adClickedEvent) { event ->
             log.d("AD_CLICKED url = " + event.clickThruUrl)
         }
 
-        player!!.addListener(this, AdEvent.error) { event ->
+        player?.addListener(this, AdEvent.error) { event ->
             log.d("AD_ERROR : " + event.error.errorType.name)
         }
 
-        player!!.addListener(this, PlayerEvent.error) { event -> log.d("PLAYER ERROR " + event.error.message!!) }
+        player?.addListener(this, PlayerEvent.error) { event -> log.d("PLAYER ERROR " + event.error.message!!) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -279,12 +278,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadPlaylistToPlayer(basicMediaOptionsList: List<BasicMediaOptions>) {
         val playerInitOptions = PlayerInitOptions()
-        val pkPluginConfigs = PKPluginConfigs()
-        val AD0 = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator="
-        val adsConfig = getAdsConfig(AD0)
-        pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
+        if (BuildConfig.IMA_ENABLED) {
+            val pkPluginConfigs = PKPluginConfigs()
+            val AD0 =
+                "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator="
+            val adsConfig = getAdsConfig(AD0)
+            pkPluginConfigs.setPluginConfig(IMAPlugin.factory.name, adsConfig)
+            playerInitOptions.setPluginConfigs(pkPluginConfigs)
+        }
 
-        playerInitOptions.setPluginConfigs(pkPluginConfigs)
         val basicPlaylistIdOptions = BasicPlaylistOptions()
         basicPlaylistIdOptions.playlistMetadata = PlaylistMetadata().setName("TestOTTPlayList").setId("1")
         basicPlaylistIdOptions.basicMediaOptionsList = basicMediaOptionsList
@@ -306,6 +308,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         addPlayerListeners()
+        if (BuildConfig.IMA_ENABLED) {
+            subscribeToAdEvents()
+        }
     }
 
     private fun addPlayerListeners() {
