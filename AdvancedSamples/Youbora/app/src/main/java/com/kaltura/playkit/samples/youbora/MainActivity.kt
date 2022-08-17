@@ -484,8 +484,10 @@ class MainActivity: AppCompatActivity() {
         contentCustomDimensions.addProperty("param2", "param2")
         mediaEntryJson.add("customDimensions", contentCustomDimensions)
 
+        val sessionMetricsMap = JsonObject()
+        sessionMetricsMap.addProperty("sessionKey", "sessionValue")
         val sessionJson = JsonObject()
-        sessionJson.addProperty("sessionKey", "sesssionValue")
+        sessionJson.add("metrics", sessionMetricsMap)
 
         //Configure custom properties here: DEPRECATED in the Youbora Plugin
 //        JsonObject propertiesJson = new JsonObject();
@@ -519,7 +521,7 @@ class MainActivity: AppCompatActivity() {
         youboraConfigJson.add("ad", adsJson)
         youboraConfigJson.add("app", appJson)
         youboraConfigJson.add("errors", errorJson)
-        youboraConfigJson.add("sessionMetrics", sessionJson)
+        youboraConfigJson.add("session", sessionJson)
 //        youboraConfigJson.add("properties", propertiesJson);
 //        youboraConfigJson.add("extraParams", extraParamJson);
 
