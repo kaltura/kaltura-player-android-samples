@@ -367,5 +367,12 @@ class MainActivity : AppCompatActivity() {
         player!!.addListener(this, PlayerEvent.playbackInfoUpdated) { event ->
             log.d("Event entry id " + player?.mediaEntry?.id )
         }
+
+        player!!.addListener(this, PlayerEvent.tracksAvailable) { event ->
+            var media_list=""
+            player?.playlistController?.playlist?.mediaList?.forEach { media_list += it.id +", " }
+            media_list = media_list.dropLast(1)
+            log.d("Event media lists " + media_list )
+        }
     }
 }
