@@ -86,13 +86,11 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        preferenceScreen.sharedPreferences
-                ?.registerOnSharedPreferenceChangeListener(this)
+        preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        preferenceScreen.sharedPreferences
-                ?.unregisterOnSharedPreferenceChangeListener(this)
+        preferenceScreen.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
     }
 }
