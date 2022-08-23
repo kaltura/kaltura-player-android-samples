@@ -304,7 +304,7 @@ class MainActivity: AppCompatActivity() {
         appJson.addProperty("appReleaseVersion", "1.0.1")
 
         // Backward compatibility DEPRECATED
-//        youboraConfigJson.addProperty("userEmail", "gourav@at.com DEPRECATED");
+//        youboraConfigJson.addProperty("userEmail", "test@at.com DEPRECATED");
 //        youboraConfigJson.addProperty("userAnonymousId", "my anonymousId DEPRECATED");
 //        youboraConfigJson.addProperty("userType", "my user type DEPRECATED");
 //        youboraConfigJson.addProperty("userObfuscateIp", false);
@@ -312,7 +312,7 @@ class MainActivity: AppCompatActivity() {
 
         // USER Json
         val userJson = JsonObject()
-        userJson.addProperty("email", "gourav@at.com")
+        userJson.addProperty("email", USER_EMAIL)
         userJson.addProperty("anonymousId", "my anonymousId")
         userJson.addProperty("type", "my user type")
         userJson.addProperty("obfuscateIp", true)
@@ -321,7 +321,7 @@ class MainActivity: AppCompatActivity() {
         // Miscellaneous Configs
         youboraConfigJson.addProperty("authToken", "myTokenString")
         youboraConfigJson.addProperty("authType", "Bearer")
-        youboraConfigJson.addProperty("username", "gouravYouboraTest")
+        youboraConfigJson.addProperty("username", "youboraTest")
         youboraConfigJson.addProperty("linkedViewId", "my linked View ID")
         youboraConfigJson.addProperty("urlToParse", "http://abcasd.com")
 
