@@ -35,8 +35,6 @@ import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.*
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
-import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig
-import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin
 import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
@@ -1163,9 +1161,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
             progressBar?.setVisibility(View.GONE)
             if (!isPostrollAvailableInAdCuePoint() ||
-                IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName()) ||
-                FBInstreamPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())
-            ) {
+                IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())) {
                 if (player?.playlistController == null || !(player?.playlistController?.isAutoContinueEnabled ?: true)) {
                     playbackControlsManager?.showControls(View.VISIBLE)
                 }
@@ -1622,39 +1618,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                             }
                         }
                     }
-                } else if (FBInstreamPlugin.factory.name.equals(pluginName)) {
-                    if (pluginDescriptor.params != null) {
-                        var fbInstreamPluginConfig: FBInstreamConfig? = null
-                        when (pluginDescriptor.params) {
-                            is JsonObject -> {
-                                fbInstreamPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, FBInstreamConfig::class.java)
-                            }
-
-                            is JsonArray -> {
-                                var config: JsonElement? = null
-                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
-                                pluginValue?.let {
-                                    if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
-                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
-                                    } else {
-                                        config = null
-                                        log.e("$pluginName  $errorMessage")
-                                    }
-                                }
-
-                                config?.let {
-                                    fbInstreamPluginConfig = gson.fromJson(config, FBInstreamConfig::class.java)
-                                }
-                            }
-                        }
-                        fbInstreamPluginConfig?.let {
-                            if (setPlugin) {
-                                pkPluginConfigs.setPluginConfig(FBInstreamPlugin.factory.name, it)
-                            } else {
-                                player?.updatePluginConfig(FBInstreamPlugin.factory.name, it)
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -1854,11 +1817,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         super.onPause()
         unregisterReceiver(networkChangeReceiver)
         NetworkChangeReceiver.getObservable().deleteObserver(this)
-        adCuePoints?.let {
-            if (FBInstreamPlugin.factory.getName().equals(it.getAdPluginName())) {
-                return;
-            }
-        }
 
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager?.showControls(View.VISIBLE)

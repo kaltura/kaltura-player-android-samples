@@ -16,7 +16,6 @@ import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.PKAspectRatioResizeMode
 import com.kaltura.playkit.plugins.ads.AdEvent
-import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin
 import com.kaltura.playkit.utils.Consts
 import com.kaltura.playkitvr.VRController
 import com.kaltura.tvplayer.KalturaPlayer
@@ -180,11 +179,7 @@ class PlaybackControlsManager(private val playerActivity: PlayerActivity, privat
         if (playerState == null && adPlayerState == null) {
             return
         }
-        if (isAdDisplayed && FBInstreamPlugin.factory.getName().equals(adPluginName)) {
-            showControls(View.INVISIBLE)
-        } else {
-            showControls(View.VISIBLE)
-        }
+        showControls(View.VISIBLE)
         playerActivity.pkLowLatencyConfig?.let {
             liveInfoMenuClick()
         }
