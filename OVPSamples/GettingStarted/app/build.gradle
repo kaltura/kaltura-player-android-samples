@@ -29,7 +29,7 @@ android {
 
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.23.0'
+    implementation 'com.kaltura.player:tvplayer:4.24.0'
     //implementation project(':tvplayer')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])

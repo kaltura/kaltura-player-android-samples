@@ -18,9 +18,6 @@ android {
         versionName "1.0"
         multiDexEnabled  true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        dexOptions {
-            jumboMode true
-        }
     }
     buildTypes {
         release {
@@ -39,11 +36,11 @@ configurations.all {
 
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.23.0'
-    implementation 'com.kaltura.playkit:youboraplugin:4.23.0'
-    implementation 'com.kaltura.playkit:imaplugin:4.23.0'
-    implementation 'com.kaltura.playkit:googlecast:4.23.0'
-    implementation 'com.kaltura.playkit:vrplugin:4.23.0'
+    implementation 'com.kaltura.player:tvplayer:4.24.0'
+    implementation 'com.kaltura.playkit:youboraplugin:4.24.0'
+    implementation 'com.kaltura.playkit:imaplugin:4.24.0'
+    implementation 'com.kaltura.playkit:googlecast:4.24.0'
+    implementation 'com.kaltura.playkit:vrplugin:4.24.0'
 
 //    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
 //    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'
@@ -69,6 +66,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
     testImplementation 'junit:junit:4.13.2'
     implementation "androidx.core:core-ktx:1.7.0"
+    implementation 'com.android.support:multidex:2.0.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
