@@ -39,7 +39,6 @@ dependencies {
       implementation 'com.kaltura.playkit:imaplugin:4.23.0'
       implementation 'com.kaltura.playkit:googlecast:4.23.0'
       implementation 'com.kaltura.playkit:vrplugin:4.23.0'
-      implementation 'com.kaltura.playkit:fbadsplugin:4.23.0'
 
 //    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
 //    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'
