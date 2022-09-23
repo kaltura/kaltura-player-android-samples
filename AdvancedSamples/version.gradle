@@ -1,0 +1,77 @@
+/**
+ * Set `isLocal` to `true` is want the project to run locally
+ * Set `isSnapshot` to `true` is want the project to run with dev snapshot
+ *
+ * By default both are `false` hence remote will be used
+ * If both set to `true` then local is preferred
+ */
+
+project.ext {
+    def playerVersion = '4.24.0'
+    def snapshot = 'develop-SNAPSHOT'
+
+
+    isLocal = false
+    isSnapshot = false
+
+    remote = [
+            tvPlayer: "com.kaltura.player:tvplayer:$playerVersion",
+            youbora: "com.kaltura.playkit:youboraplugin:$playerVersion",
+            ima: "com.kaltura.playkit:imaplugin:$playerVersion",
+            googlecast: "com.kaltura.playkit:googlecast:$playerVersion",
+            vr: "com.kaltura.playkit:vrplugin:$playerVersion",
+            smartSwitch: "com.kaltura.playkit:smartswitchplugin:$playerVersion"
+    ]
+
+    snapshot = [
+            tvPlayer: "com.kaltura:kaltura-player-android:$snapshot",
+            ima: "com.kaltura:playkit-android-ima:$snapshot",
+            youbora: "com.kaltura:playkit-android-youbora:$snapshot",
+            googlecast: "com.kaltura:playkit-android-googlecast:$snapshot",
+            vr: "com.kaltura:playkit-android-vr:$snapshot",
+            fbAds: "com.kaltura:playkit-android-fb-ads:$snapshot",
+            smartSwitch: "com.kaltura:playkit-android-smartSwitch:$snapshot"
+    ]
+
+    /**
+     * Steps to run project locally
+     * 1. Uncomment the following 'local' block
+     * 2. Uncomment the path of local repos from settings.gradle
+     * 3. Set `isLocal` above in the file to `true`
+     */
+    /* local = [
+             tvPlayer: project(':tvplayer'),
+             ima: project(":ima"),
+             youbora: project(":youbora"),
+             googlecast: project(":googlecast"),
+             vr: project(":playkitvr"),
+             md360: project(":MD360"),
+             fbAds: project(':fbads'),
+             smartSwitch: project(':smartswitch')
+     ]*/
+
+    // Special dependencies for Broadpeak. By default this project is not included.
+    // Uncomment from `settings.gradle` to include it.
+    broadpeakRemote = [
+            tvPlayer: "com.kaltura.player:tvplayer:$playerVersion",
+            youbora: "com.kaltura.playkit:youboraplugin:$playerVersion",
+            broadPeak: "com.kaltura.playkit:broadpeakplugin:$playerVersion"
+    ]
+
+    broadPeakSnapshot = [
+            tvPlayer: "com.kaltura:kaltura-player-android:$snapshot",
+            youbora: "com.kaltura:playkit-android-youbora:$snapshot",
+            broadPeak:  "com.github.kaltura:playkit-android-broadpeak-smartlib:$snapshot"
+    ]
+    /**
+     * Steps to run project locally
+     * 1. Uncomment the following 'local' block
+     * 2. Uncomment the path of local repos from settings.gradle
+     * 3. Set `isLocal` above in the file to `true`
+     */
+    /*broadPeakLocal = [
+            tvPlayer: project(':tvplayer'),
+            youbora: project(":youbora"),
+            broadPeak: project(':broadpeak')
+    ]*/
+}

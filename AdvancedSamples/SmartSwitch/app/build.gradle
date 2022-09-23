@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply from: '../../version.gradle'
 
 android {
     compileSdkVersion 31
@@ -30,18 +31,13 @@ android {
 
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.24.0'
-    implementation 'com.kaltura.playkit:smartswitchplugin:4.24.0'
-    implementation 'com.kaltura.playkit:youboraplugin:4.24.0'
-
-
-    //implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
-    //implementation 'com.kaltura:playkit-android-smartSwitch:develop-SNAPSHOT'
-    //implementation 'com.kaltura:playkit-android-youbora:develop-SNAPSHOT'
-
-    //implementation project(':tvplayer')
-    //implementation project(':smartswitch')
-    //implementation project(":youbora")
+    if (project.ext.isLocal) {
+        implementation project.ext.local.values()
+    } else if (project.ext.isSnapshot) {
+        implementation project.ext.snapshot.values()
+    } else {
+        implementation project.ext.remote.values()
+    }
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('androidx.test.espresso:espresso-core:3.4.0')
