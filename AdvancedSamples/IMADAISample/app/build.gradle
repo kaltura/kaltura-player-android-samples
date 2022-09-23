@@ -4,15 +4,15 @@ apply plugin: 'kotlin-android-extensions'
 apply from: '../../version.gradle'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion project.ext.compileSdkVersion
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility project.ext.Java_1_8
+        targetCompatibility project.ext.Java_1_8
     }
     defaultConfig {
         applicationId "com.kaltura.playkit.samples.imadaisample"
-        minSdkVersion 17
-        targetSdkVersion 30
+        minSdkVersion project.ext.minSdkVersion
+        targetSdkVersion project.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         multiDexEnabled  true
@@ -43,16 +43,9 @@ dependencies {
         implementation project.ext.remote.values()
     }
 
+    implementation project.ext.commonDeps.values()
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('androidx.test.espresso:espresso-core:3.4.0')
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'com.google.android.material:material:1.4.0'
-
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
-    testImplementation 'junit:junit:4.13.2'
-    implementation "androidx.core:core-ktx:1.7.0"
-    implementation 'com.android.support:multidex:2.0.1'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 repositories {

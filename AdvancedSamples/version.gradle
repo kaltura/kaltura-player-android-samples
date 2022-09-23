@@ -7,12 +7,19 @@
  */
 
 project.ext {
-    def playerVersion = '4.24.0'
-    def snapshot = 'develop-SNAPSHOT'
 
+    compileSdkVersion = 31
+    minSdkVersion = 19
+    targetSdkVersion = 30
+    kotlin_version = '1.5.20'
+    ktx_version ='1.7.0'
+    Java_1_8 = JavaVersion.VERSION_1_8
 
+    // Only for remote, local, dev-snapshot config
     isLocal = false
     isSnapshot = false
+    def playerVersion = '4.24.0'
+    def snapshot = 'develop-SNAPSHOT'
 
     remote = [
             tvPlayer: "com.kaltura.player:tvplayer:$playerVersion",
@@ -74,4 +81,35 @@ project.ext {
             youbora: project(":youbora"),
             broadPeak: project(':broadpeak')
     ]*/
+
+    commonDeps = [
+            appCompat: 'androidx.appcompat:appcompat:1.4.0',
+            material: 'com.google.android.material:material:1.4.0',
+            constraintLayout: 'androidx.constraintlayout:constraintlayout:2.1.2',
+            junit: 'junit:junit:4.13.2',
+            multidex: 'com.android.support:multidex:2.0.1',
+            ktx: "androidx.core:core-ktx:$ktx_version",
+            kotlin: "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    ]
+
+    testAppSpecialDeps = [
+            playServices: 'com.google.android.gms:play-services-vision:20.1.3',
+            recyclerView: 'androidx.recyclerview:recyclerview:1.2.1',
+            cardView: 'androidx.cardview:cardview:1.0.0',
+            firebaseUi: 'com.firebaseui:firebase-ui-database:8.0.0',
+            firebaseStore: "com.google.firebase:firebase-firestore:23.0.4",
+            firebaseAuth: 'com.google.firebase:firebase-auth:21.0.1',
+            firebaseDatabase: 'com.google.firebase:firebase-database:20.0.2',
+            playerServicesAuth: "com.google.android.gms:play-services-auth:19.2.0"
+    ]
+
+    coroutine = [
+            core: 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3',
+            android: 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3'
+    ]
+
+    glide = [
+            glide: 'com.github.bumptech.glide:glide:4.12.0',
+            compiler: 'com.github.bumptech.glide:compiler:4.12.0'
+    ]
 }
