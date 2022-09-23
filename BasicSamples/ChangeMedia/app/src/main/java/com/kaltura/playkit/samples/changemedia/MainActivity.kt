@@ -15,6 +15,7 @@ import com.kaltura.tvplayer.PlayerInitOptions
 import com.kaltura.tvplayer.config.MediaEntryCacheConfig
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
+import android.util.Log
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,13 +25,15 @@ class MainActivity : AppCompatActivity() {
     //The url of the second source to play
     private val SECOND_SOURCE_URL = "http://cdnapi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_uka1msg4/flavorIds/1_vqhfu6uy,1_80sohj7p/format/applehttp/protocol/http/a.m3u8"
     //id of the first entry
-    private val FIRST_ENTRY_ID = "entry_id_1"
+    private val FIRST_ENTRY_ID = "1_w9zx2eti"
     //id of the second entry
-    private val SECOND_ENTRY_ID = "entry_id_2"
+    private val SECOND_ENTRY_ID = "0_uka1msg4"
     //id of the first media source.
     private val FIRST_MEDIA_SOURCE_ID = "source_id_1"
     //id of the second media source.
     private val SECOND_MEDIA_SOURCE_ID = "source_id_2"
+
+    private val TAG = "MainActivity"
 
     private var player: KalturaPlayer? = null
     private var isFullScreen: Boolean = false
@@ -59,7 +62,11 @@ class MainActivity : AppCompatActivity() {
                 hideSystemUI()
             }
         }
+
+        Log.d(TAG, "Event entry id " + FIRST_ENTRY_ID)
+
     }
+
 
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -116,6 +123,10 @@ class MainActivity : AppCompatActivity() {
 
         //Just reset the playPauseButton text to "Play".
         resetPlayPauseButtonToPauseText()
+
+        player!!.addListener(this, PlayerEvent.playbackInfoUpdated) { event ->
+            Log.d(TAG, "Event entry id " + player?.mediaEntry?.id )
+        }
     }
 
 

@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 
     fun addItemsOnSpeedSpinner() {
 
-        speedSpinner = findViewById(R.id.sppedSpinner)
+        speedSpinner = findViewById(R.id.speedSpinner)
         val list = ArrayList<Float>()
         list.add(0.5f)
         list.add(1.0f)
