@@ -8,9 +8,9 @@
 
 project.ext {
 
-    compileSdkVersion = 31
+    compileSdkVersion = 33
     minSdkVersion = 19
-    targetSdkVersion = 30
+    targetSdkVersion = 33
     kotlin_version = '1.5.20'
     ktx_version ='1.7.0'
     Java_1_8 = JavaVersion.VERSION_1_8
