@@ -1,9 +1,12 @@
 package com.kaltura.playkit.samples.prefetchsample
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.text.TextUtils
@@ -13,33 +16,39 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import com.kaltura.playkit.*
+import com.kaltura.playkit.PKDrmParams
+import com.kaltura.playkit.PKLog
+import com.kaltura.playkit.PKMediaEntry
+import com.kaltura.playkit.PKMediaSource
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
 import com.kaltura.playkit.samples.prefetchsample.data.OfflineConfig
+import com.kaltura.playkit.samples.prefetchsample.ui.OfflineCustomNotification
 import com.kaltura.playkit.samples.prefetchsample.ui.PlayActivity
 import com.kaltura.playkit.samples.prefetchsample.ui.adapter.RvOfflineAssetsAdapter
-import com.kaltura.tvplayer.*
+import com.kaltura.playkit.utils.Consts
+import com.kaltura.tvplayer.KalturaPlayer
+import com.kaltura.tvplayer.OTTMediaOptions
+import com.kaltura.tvplayer.OfflineManager
 import com.kaltura.tvplayer.offline.OfflineManagerSettings
 import com.kaltura.tvplayer.offline.Prefetch
 import com.kaltura.tvplayer.offline.dtg.DTGOfflineManager
 import com.kaltura.tvplayer.offline.exo.ExoOfflineManager
 import com.kaltura.tvplayer.offline.exo.PrefetchConfig
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_provider_chooser.*
-import kotlinx.android.synthetic.main.view_item.*
 import kotlinx.android.synthetic.main.view_prefetch_config.*
-import java.util.*
 
 class MainActivity : AppCompatActivity(), LifecycleObserver {
 
@@ -74,6 +83,15 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
 
         offlineSharePref = getPreferences(Context.MODE_PRIVATE)
 
+        // Check for the camera permission before accessing the camera.  If the
+        // permission is not granted yet, request permission.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            if (rc != PackageManager.PERMISSION_GRANTED) {
+                requestNotificationPermission()
+            }
+        }
+
         val appConfig = loadItemsFromJson(this)
         val testItems = appConfig.items.map { it.toItem() }
 
@@ -82,8 +100,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         }
         rvOfflineAssetsAdapter = RvOfflineAssetsAdapter(testItems) {
             showActionsDialog(
-                    rvOfflineAssetsAdapter.getItemAtPosition(it).apply { position = it },
-                    it
+                rvOfflineAssetsAdapter.getItemAtPosition(it).apply { position = it },
+                it
             )
         }
 
@@ -92,7 +110,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         prefetchSettingRemoveCache = getRemoveCachePrefetchSettings()
 
         btn_sumbit_prefetch_settings.setOnClickListener {
-            (et_ps_item_in_cache.text).toString()?.let {
+            (et_ps_item_in_cache.text).toString().let {
                 if (it.isNotEmpty()) {
                     if (it.toInt() > MAX_ALLOWED_ITEM_IN_CACHE) {
                         toast("Max allowed item in cache is ${MAX_ALLOWED_ITEM_IN_CACHE}")
@@ -102,7 +120,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
                 }
             }
 
-            (et_ps_asset_size.text).toString()?.let {
+            (et_ps_asset_size.text).toString().let {
                 if (it.isNotEmpty()) {
                     if (it.toInt() > MAX_ALLOWED_PREFETCH_SIZE) {
                         toast("Max allowed prefetch size is ${MAX_ALLOWED_PREFETCH_SIZE}")
@@ -115,8 +133,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             prefetchSettingRemoveCache = cb_ps_remove_cache.isChecked
 
             savePrefetchSettingsToPref(prefetchSettingMaxItemCountInCache,
-                    prefetchSettingAssetPrefetchSize,
-                    prefetchSettingRemoveCache)
+                prefetchSettingAssetPrefetchSize,
+                prefetchSettingRemoveCache)
 
             fl_prefetch_settings.visibility = View.GONE
 
@@ -147,8 +165,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             if (isChecked) {
                 offlineProvider =  OfflineManager.OfflineProvider.EXO
                 offlineManager = OfflineManager.getInstance(
-                        this,
-                        offlineProvider
+                    this,
+                    offlineProvider
                 )
                 saveOfflineProvider(exoOfflineProvider)
             }
@@ -165,8 +183,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             if (isChecked) {
                 offlineProvider =  OfflineManager.OfflineProvider.DTG
                 offlineManager = OfflineManager.getInstance(
-                        this,
-                        offlineProvider
+                    this,
+                    offlineProvider
                 )
                 saveOfflineProvider(dtgOfflineProvider)
             }
@@ -268,13 +286,13 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         }
 
         var items = arrayOf(
-                "Prepare",
-                "Start",
-                "Pause",
-                "Play-Offline",
-                "Play-Online",
-                "Remove",
-                "Status"
+            "Prepare",
+            "Start",
+            "Pause",
+            "Play-Offline",
+            "Play-Online",
+            "Remove",
+            "Status"
         )
 
         if (offlineManager is ExoOfflineManager) {
@@ -354,24 +372,24 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         snackbar(msg, "Renew") {
             offlineManager?.setKalturaParams(KalturaPlayer.Type.ovp, item.partnerId)
             offlineManager?.renewDrmAssetLicense(
-                    item.id(),
-                    item.mediaOptions(),
-                    object : OfflineManager.MediaEntryCallback {
-                        override fun onMediaEntryLoaded(
-                                assetId: String,
-                                downloadType: OfflineManager.DownloadType,
-                                mediaEntry: PKMediaEntry
-                        ) {
-                            //   reduceLicenseDuration(mediaEntry, 300)
-                        }
+                item.id(),
+                item.mediaOptions(),
+                object : OfflineManager.MediaEntryCallback {
+                    override fun onMediaEntryLoaded(
+                        assetId: String,
+                        downloadType: OfflineManager.DownloadType,
+                        mediaEntry: PKMediaEntry
+                    ) {
+                        //   reduceLicenseDuration(mediaEntry, 300)
+                    }
 
-                        override fun onMediaEntryLoadError(
-                                downloadType: OfflineManager.DownloadType,
-                                error: Exception
-                        ) {
-                            toastLong("onMediaEntryLoadError: $error")
-                        }
-                    })
+                    override fun onMediaEntryLoadError(
+                        downloadType: OfflineManager.DownloadType,
+                        error: Exception
+                    ) {
+                        toastLong("onMediaEntryLoadError: $error")
+                    }
+                })
         }
     }
 
@@ -488,9 +506,9 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         val prepareCallback = object : OfflineManager.PrepareCallback {
 
             override fun onPrepared(
-                    assetId: String,
-                    assetInfo: OfflineManager.AssetInfo,
-                    selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
+                assetId: String,
+                assetInfo: OfflineManager.AssetInfo,
+                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
             ) {
                 item.assetInfo = assetInfo
                 runOnUiThread {
@@ -503,26 +521,26 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             }
 
             override fun onPrepareError(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType,
-                    error: Exception
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
             ) {
                 hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
             override fun onMediaEntryLoadError(
-                    downloadType: OfflineManager.DownloadType,
-                    error: Exception
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
             ) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")
             }
 
             override fun onMediaEntryLoaded(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType,
-                    mediaEntry: PKMediaEntry
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                mediaEntry: PKMediaEntry
             ) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoaded: ${mediaEntry.name}")
@@ -530,9 +548,9 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             }
 
             override fun onSourceSelected(
-                    assetId: String,
-                    source: PKMediaSource,
-                    drmParams: PKDrmParams?
+                assetId: String,
+                source: PKMediaSource,
+                drmParams: PKDrmParams?
             ) {
                 // hideProgressBar()
                 toastLong("onSourceSelected ")
@@ -555,16 +573,16 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
                 offlineManager?.setKalturaServerUrl(item.serverUrl);
             }
             offlineManager?.prepareAsset(
-                    item.mediaOptions(),
-                    item.selectionPrefs ?: defaultPrefs,
-                    prepareCallback
+                item.mediaOptions(),
+                item.selectionPrefs ?: defaultPrefs,
+                prepareCallback
             )
         } else {
             item.entry?.let { entry ->
                 offlineManager?.prepareAsset(
-                        entry,
-                        item.selectionPrefs ?: defaultPrefs,
-                        prepareCallback
+                    entry,
+                    item.selectionPrefs ?: defaultPrefs,
+                    prepareCallback
                 )
             }
 
@@ -764,17 +782,17 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         manager?.setAssetStateListener(object : OfflineManager.AssetStateListener {
 
             override fun onAssetDownloadFailed(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType,
-                    error: Exception
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
             ) {
                 toastLong("Download of $assetId, ${downloadType.name} failed: $error")
                 updateItemStatus(assetId)
             }
 
             override fun onAssetDownloadComplete(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType
+                assetId: String,
+                downloadType: OfflineManager.DownloadType
             ) {
                 log.d("onAssetDownloadComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
 
@@ -787,8 +805,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             }
 
             override fun onAssetPrefetchComplete(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType
+                assetId: String,
+                downloadType: OfflineManager.DownloadType
             ) {
                 log.d("onAssetPrefetchComplete $assetId totalDownloadTime: ${SystemClock.elapsedRealtimeNanos() - startTime}")
 
@@ -801,16 +819,16 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             }
 
             override fun onAssetDownloadPending(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType
+                assetId: String,
+                downloadType: OfflineManager.DownloadType
             ) {
                 //toast("Pending - onAssetDownloadPending")
                 updateItemStatus(assetId)
             }
 
             override fun onAssetDownloadPaused(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType
+                assetId: String,
+                downloadType: OfflineManager.DownloadType
             ) {
                 toast("Paused - onAssetDownloadPaused")
                 updateItemStatus(assetId)
@@ -822,9 +840,9 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             }
 
             override fun onRegisterError(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType,
-                    error: Exception
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
             ) {
                 toastLong("onRegisterError: $assetId, ${downloadType.name}, $error ")
                 //   updateItemStatus(assetId)
@@ -834,25 +852,25 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             }
 
             override fun onUnRegisterError(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType,
-                    error: Exception
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
             ) {
                 toastLong("onUnRegisterError: $assetId, ${downloadType.name}, $error ")
             }
 
             override fun onStateChanged(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType,
-                    assetInfo: OfflineManager.AssetInfo
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                assetInfo: OfflineManager.AssetInfo
             ) {
                 toast("onStateChanged state = " + assetInfo.state.name)
                 updateItemStatus(assetId)
             }
 
             override fun onAssetRemoved(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType
+                assetId: String,
+                downloadType: OfflineManager.DownloadType
             ) {
                 hideProgressBar()
                 toast("onAssetRemoved")
@@ -860,9 +878,9 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             }
 
             override fun onAssetRemoveError(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType,
-                    error: java.lang.Exception
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: java.lang.Exception
             ) {
                 hideProgressBar()
                 toast("Error Asset Was Not Removed")
@@ -875,9 +893,9 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         return object : OfflineManager.PrepareCallback {
 
             override fun onPrepared(
-                    assetId: String,
-                    assetInfo: OfflineManager.AssetInfo,
-                    selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
+                assetId: String,
+                assetInfo: OfflineManager.AssetInfo,
+                selected: MutableMap<OfflineManager.TrackType, MutableList<OfflineManager.Track>>?
             ) {
                 hideProgressBar()
                 item.assetInfo = assetInfo
@@ -885,17 +903,17 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             }
 
             override fun onPrepareError(
-                    assetId: String,
-                    downloadType: OfflineManager.DownloadType,
-                    error: java.lang.Exception
+                assetId: String,
+                downloadType: OfflineManager.DownloadType,
+                error: java.lang.Exception
             ) {
                 hideProgressBar()
                 toastLong("onPrepareError: $error")
             }
 
             override fun onMediaEntryLoadError(
-                    downloadType: OfflineManager.DownloadType,
-                    error: Exception
+                downloadType: OfflineManager.DownloadType,
+                error: Exception
             ) {
                 hideProgressBar()
                 toastLong("onMediaEntryLoadError: $error")
@@ -1050,10 +1068,24 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         }
     }
 
+    /**
+     * Handles the requesting of the camera permission.  This includes
+     * showing a "Snackbar" message of why the permission is needed then
+     * sending the request.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun requestNotificationPermission() {
+        log.w("Notification permission is not granted. Requesting permission")
+        val permissions = arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+        ActivityCompat.requestPermissions(this, permissions, RC_HANDLE_NOTIFICATION_PERM)
+    }
+
     companion object {
         val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
         private val ASSET_ID = "548576"
         val PARTNER_ID = 3009
         var offlineProvider: OfflineManager.OfflineProvider? = null
+        // permission request codes need to be < 256
+        private val RC_HANDLE_NOTIFICATION_PERM = 2
     }
 }

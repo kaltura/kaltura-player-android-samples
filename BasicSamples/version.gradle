@@ -27,7 +27,6 @@ project.ext {
             ima: "com.kaltura.playkit:imaplugin:$playerVersion",
             googlecast: "com.kaltura.playkit:googlecast:$playerVersion",
             vr: "com.kaltura.playkit:vrplugin:$playerVersion",
-            smartSwitch: "com.kaltura.playkit:smartswitchplugin:$playerVersion"
     ]
 
     snapshot = [
@@ -37,7 +36,6 @@ project.ext {
             googlecast: "com.kaltura:playkit-android-googlecast:$snapshot",
             vr: "com.kaltura:playkit-android-vr:$snapshot",
             fbAds: "com.kaltura:playkit-android-fb-ads:$snapshot",
-            smartSwitch: "com.kaltura:playkit-android-smartSwitch:$snapshot"
     ]
 
     /**
@@ -54,7 +52,6 @@ project.ext {
              vr: project(":playkitvr"),
              md360: project(":MD360"),
              fbAds: project(':fbads'),
-             smartSwitch: project(':smartswitch')
      ]*/
 
     commonDeps = [

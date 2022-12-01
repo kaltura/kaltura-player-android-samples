@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -114,10 +115,20 @@ public class OfflineCustomNotification extends ExoOfflineNotificationHelper {
         if (download != null && !areActionButtonsAdded) {
             pauseIntent.putExtra("pause", download.request.id);
             removeIntent.putExtra("remove", download.request.id);
-            PendingIntent pausePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            PendingIntent removePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), removeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pausePendingIntent;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                pausePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), pauseIntent, PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                pausePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
+            PendingIntent removePendingIntent;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                removePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), removeIntent, PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                removePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), removeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
             notificationBuilder.addAction(R.drawable.pause, "Pause", pausePendingIntent);
-            notificationBuilder.addAction(R.drawable.ic_dialog_close_dark, "Remove", removePendingIntent);
+            notificationBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Remove", removePendingIntent);
             areActionButtonsAdded = true;
         }
 
