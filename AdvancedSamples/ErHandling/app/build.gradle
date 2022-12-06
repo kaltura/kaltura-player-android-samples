@@ -1,18 +1,18 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-
+apply from: '../../version.gradle'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion project.ext.compileSdkVersion
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility project.ext.Java_1_8
+        targetCompatibility project.ext.Java_1_8
     }
     defaultConfig {
         applicationId "com.kaltura.playkit.samples.erhandling"
-        minSdkVersion 17
-        targetSdkVersion 30
+        minSdkVersion project.ext.minSdkVersion
+        targetSdkVersion project.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         multiDexEnabled  true
@@ -28,38 +28,17 @@ android {
 
 dependencies {
 
-    implementation 'com.kaltura.player:tvplayer:4.24.0'
-    implementation 'com.kaltura.playkit:youboraplugin:4.24.0'
-    implementation 'com.kaltura.playkit:imaplugin:4.24.0'
-    implementation 'com.kaltura.playkit:googlecast:4.24.0'
-    implementation 'com.kaltura.playkit:vrplugin:4.24.0'
+    if (project.ext.isLocal) {
+        implementation project.ext.local.values()
+    } else if (project.ext.isSnapshot) {
+        implementation project.ext.snapshot.values()
+    } else {
+        implementation project.ext.remote.values()
+    }
 
-//    implementation 'com.kaltura:kaltura-player-android:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-ima:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-youbora:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-googlecast:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-vr:develop-SNAPSHOT'
-//    implementation 'com.kaltura:playkit-android-fb-ads:develop-SNAPSHOT'
-
-
-//    implementation project(':tvplayer')
-//    implementation project(":ima")
-//    implementation project(":youbora")
-//    implementation project(":googlecast")
-//    implementation project(":playkitvr")
-//    implementation project(":MD360")
-//    implementation project(':fbads')
-
+    implementation project.ext.commonDeps.values()
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('androidx.test.espresso:espresso-core:3.4.0')
-
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'com.google.android.material:material:1.4.0'
-
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
-    testImplementation 'junit:junit:4.13.2'
-    implementation "androidx.core:core-ktx:1.7.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 configurations.all {

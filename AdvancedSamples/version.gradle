@@ -1,0 +1,115 @@
+/**
+ * Set `isLocal` to `true` is want the project to run locally
+ * Set `isSnapshot` to `true` is want the project to run with dev snapshot
+ *
+ * By default both are `false` hence remote will be used
+ * If both set to `true` then local is preferred
+ */
+
+project.ext {
+
+    compileSdkVersion = 33
+    minSdkVersion = 19
+    targetSdkVersion = 33
+    kotlin_version = '1.7.10'
+    ktx_version ='1.9.0'
+    Java_1_8 = JavaVersion.VERSION_1_8
+
+    // Only for remote, local, dev-snapshot config
+    isLocal = false
+    isSnapshot = false
+    def playerVersion = '4.24.0'
+    def snapshot = 'develop-SNAPSHOT'
+
+    remote = [
+            tvPlayer: "com.kaltura.player:tvplayer:$playerVersion",
+            youbora: "com.kaltura.playkit:youboraplugin:$playerVersion",
+            ima: "com.kaltura.playkit:imaplugin:$playerVersion",
+            googlecast: "com.kaltura.playkit:googlecast:$playerVersion",
+            vr: "com.kaltura.playkit:vrplugin:$playerVersion",
+            smartSwitch: "com.kaltura.playkit:smartswitchplugin:$playerVersion"
+    ]
+
+    snapshot = [
+            tvPlayer: "com.kaltura:kaltura-player-android:$snapshot",
+            ima: "com.kaltura:playkit-android-ima:$snapshot",
+            youbora: "com.kaltura:playkit-android-youbora:$snapshot",
+            googlecast: "com.kaltura:playkit-android-googlecast:$snapshot",
+            vr: "com.kaltura:playkit-android-vr:$snapshot",
+            fbAds: "com.kaltura:playkit-android-fb-ads:$snapshot",
+            smartSwitch: "com.kaltura:playkit-android-smartSwitch:$snapshot"
+    ]
+
+    /**
+     * Steps to run project locally
+     * 1. Uncomment the following 'local' block
+     * 2. Uncomment the path of local repos from settings.gradle
+     * 3. Set `isLocal` above in the file to `true`
+     */
+    /* local = [
+             tvPlayer: project(':tvplayer'),
+             ima: project(":ima"),
+             youbora: project(":youbora"),
+             googlecast: project(":googlecast"),
+             vr: project(":playkitvr"),
+             md360: project(":MD360"),
+             fbAds: project(':fbads'),
+             smartSwitch: project(':smartswitch')
+     ]*/
+
+    // Special dependencies for Broadpeak. By default this project is not included.
+    // Uncomment from `settings.gradle` to include it.
+    broadpeakRemote = [
+            tvPlayer: "com.kaltura.player:tvplayer:$playerVersion",
+            youbora: "com.kaltura.playkit:youboraplugin:$playerVersion",
+            broadPeak: "com.kaltura.playkit:broadpeakplugin:$playerVersion"
+    ]
+
+    broadPeakSnapshot = [
+            tvPlayer: "com.kaltura:kaltura-player-android:$snapshot",
+            youbora: "com.kaltura:playkit-android-youbora:$snapshot",
+            broadPeak:  "com.github.kaltura:playkit-android-broadpeak-smartlib:$snapshot"
+    ]
+    /**
+     * Steps to run project locally
+     * 1. Uncomment the following 'local' block
+     * 2. Uncomment the path of local repos from settings.gradle
+     * 3. Set `isLocal` above in the file to `true`
+     */
+    /*broadPeakLocal = [
+            tvPlayer: project(':tvplayer'),
+            youbora: project(":youbora"),
+            broadPeak: project(':broadpeak')
+    ]*/
+
+    commonDeps = [
+            appCompat: 'androidx.appcompat:appcompat:1.4.0',
+            material: 'com.google.android.material:material:1.4.0',
+            constraintLayout: 'androidx.constraintlayout:constraintlayout:2.1.2',
+            junit: 'junit:junit:4.13.2',
+            multidex: 'com.android.support:multidex:2.0.1',
+            ktx: "androidx.core:core-ktx:$ktx_version",
+            kotlin: "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    ]
+
+    testAppSpecialDeps = [
+            playServices: 'com.google.android.gms:play-services-vision:20.1.3',
+            recyclerView: 'androidx.recyclerview:recyclerview:1.2.1',
+            cardView: 'androidx.cardview:cardview:1.0.0',
+            firebaseUi: 'com.firebaseui:firebase-ui-database:8.0.0',
+            firebaseStore: "com.google.firebase:firebase-firestore:23.0.4",
+            firebaseAuth: 'com.google.firebase:firebase-auth:21.0.1',
+            firebaseDatabase: 'com.google.firebase:firebase-database:20.0.2',
+            playerServicesAuth: "com.google.android.gms:play-services-auth:19.2.0"
+    ]
+
+    coroutine = [
+            core: 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3',
+            android: 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3'
+    ]
+
+    glide = [
+            glide: 'com.github.bumptech.glide:glide:4.12.0',
+            compiler: 'com.github.bumptech.glide:compiler:4.12.0'
+    ]
+}
