@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kaltura.playkitdemo">
-    
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
@@ -14,22 +14,22 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-                  android:screenOrientation="portrait"
-            >
+            android:screenOrientation="portrait"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                    <action android:name="com.playkit.demo.MAIN"/>
+                <action android:name="com.playkit.demo.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-       <!-- <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>-->
+        <!-- <activity
+             android:name=".LoginActivity"
+             android:label="@string/title_activity_login">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>-->
     </application>
 
 </manifest>
