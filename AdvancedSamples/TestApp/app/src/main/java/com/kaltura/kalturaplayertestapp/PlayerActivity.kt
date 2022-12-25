@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.google.api.AnnotationsProto.http
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -35,6 +36,7 @@ import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.*
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
+import com.kaltura.playkit.plugins.ads.AdEvent.allAdsCompleted
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin
 import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
@@ -127,6 +129,31 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig::class.java)
 
+        if (appPlayerInitConfig?.playerType == KalturaPlayer.Type.basic) {
+
+            if (!appPlayerInitConfig?.mediaList.isNullOrEmpty()) {
+                for (media in appPlayerInitConfig?.mediaList!!) {
+                    media.let {
+                        media.pkMediaEntry.let {
+                            it?.let { video -> fixDeprecatedDomain(video) }
+                        }
+                    }
+                }
+            }
+
+            appPlayerInitConfig?.playlistConfig.let {
+                if (!appPlayerInitConfig?.playlistConfig?.basicMediaOptionsList.isNullOrEmpty()) {
+                    for (media in appPlayerInitConfig?.playlistConfig?.basicMediaOptionsList!!) {
+                        media.let {
+                            media.pkMediaEntry?.let {
+                                it.let { video -> fixDeprecatedDomain(video) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         appPlayerInitConfig?.let {
             if (it.requestConfiguration != null) {
                 APIOkRequestsExecutor.getSingleton().requestConfiguration = it.requestConfiguration
@@ -187,6 +214,14 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
+    fun fixDeprecatedDomain(pkMediaEntry: PKMediaEntry) {
+        for (source in pkMediaEntry.sources!!) {
+            source.url = source.url?.replace(
+                "cdntesting.qa.mkaltura.com",
+                "qa-apache-php7.dev.kaltura.com"
+            )?.replace("/http/", "/https/")?.replace("http:", "https:")
+        }
+    }
     /**
      * Checks the updatable prameters in JSON
      */
@@ -295,7 +330,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     handleOnEntryLoadComplete(error)
                 }
             } else if (KalturaPlayer.Type.basic == appPlayerInitConfig?.playerType) run {
-
+//"https://qa-apache-php7.dev.kaltura.com/p/1091/sp/109100/playManifest/entryId/0_ttfy4uu0/protocol/https/format/applehttp/flavorIds/0_yuv6fomw,0_i414yxdl,0_mwmzcwv0,0_g68ar3sh/a.m3u8?uiConfId=15225670&playSessionId=ef985a5d-e1f7-9e22-9ded-e57edc62fcd0:80f4173e-893c-fa7c-586d-fad49e0e8ff7&referrer=aHR0cHM6Ly9leHRlcm5hbHRlc3RzLmRldi5rYWx0dXJhLmNvbS9wbGF5ZXIvbGlicmFyeV9QbGF5ZXJfVjMvc21hcnRQYWdlcy9QbGF5ZXJfVjNfZ2VuZXJpY19wYWdlLnBocD9jZG5Vcmw9dGVzdCZzZWxlY3RlZENkblVybD1UZXN0aW5nJnBhcnRuZXJJZD0xMDkxJnNlbGVjdGVkUGFydG5lcj0xMDkxJnVpQ29uZklkPXRlc3RDYW5hcnkmc2VsZWN0ZWRVaUNvbmY9MTUyMjU2NzAmZW50cnlJZD10c3RCYXNpYyZzZWxlY3RlZEVudHJ5SWQ9MF90dGZ5NHV1MCZjb21wTHN0PSZjb21wVmVyPSZjb21wVmVycz0mbG9ncz1kZWImcGxsc3RCeUVudElkPSZwbGxzdElkPSZjbnREd25UVFM9JmNudER3bkR1cj0mc2VsZWN0ZWRDbmdNZWQ9MF93aWZxYWlwZCZhZEN1c3RvbVRleHRDTT0mZW5nMT1odG1sJmVuZzI9aHRtbCZlbmczPWh0bWwmc3RQcjE9aGxzJnN0UHIyPWRhc2gmc3RQcjM9cHJvZ3Jlc3NpdmUmdHh0TGFuZz1kZWZhdWx0JmF1ZGlvTGFuZz1kZWZhdWx0JmFfcz0wJnN0clBvcz0wJm5ld1N0clBvcz0wJnZvbHVtZT0mTXV0QXV0UGxFbmI9b24mcGxJbkVuYj1vbiZhdXRvUGxheUVuYj1vbiZhZFRhZz1sb25nUHJlU2tpcCZhZEFmdFRpbWU9Jm51bVJlZGlyZWN0cz0mZGFpPW5vRGFpJmJ1bXBlcj1ub0J1bXAmYnVtcFBvcz1kZWZCdW1wJmthdmFWaWV3RXZlbnRDb3VudGRvd249MTAma2F2YVJlc2V0U2Vzc2lvbkNvdW50ZG93bj0zMCZrYXZhRHZyVGhyZXNob2xkPTEyMCZXTVBsYWNlPSZ3aWR0aD0xMTEwJmhlaWdodD02MjQmcmF0aW89JmhpZGV0aW1lPQ==&clientTag=html5:v7.56.22"
+//http://cdntesting.qa.mkaltura.com/p/1091/sp/109100/playManifest/entryId/0_ttfy4uu0/protocol/http/format/applehttp/flavorIds/0_yuv6fomw,0_i414yxdl,0_mwmzcwv0,0_g68ar3sh/a.m3u8
                 val mediaEntry = it.get(currentPlayedMediaIndex).pkMediaEntry
                 if (appPlayerInitConfig?.vrSettings != null) {
                     mediaEntry?.setIsVRMediaType(true)
