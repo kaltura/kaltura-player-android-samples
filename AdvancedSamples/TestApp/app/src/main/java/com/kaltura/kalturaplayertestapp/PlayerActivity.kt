@@ -31,17 +31,10 @@ import com.kaltura.netkit.connect.executor.APIOkRequestsExecutor
 import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdBreak
-import com.kaltura.playkit.ads.AdBreakConfig
 import com.kaltura.playkit.ads.AdController
-import com.kaltura.playkit.player.MediaSupport
-import com.kaltura.playkit.player.PKLowLatencyConfig
-import com.kaltura.playkit.player.PKSubtitlePosition
-import com.kaltura.playkit.player.SubtitleStyleSettings
-import com.kaltura.playkit.player.metadata.*
+import com.kaltura.playkit.player.*
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
-import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamConfig
-import com.kaltura.playkit.plugins.fbads.fbinstream.FBInstreamPlugin
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin
 import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
@@ -67,7 +60,6 @@ import com.npaw.youbora.lib6.plugin.Options
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class PlayerActivity: AppCompatActivity(), Observer {
 
@@ -404,6 +396,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         initOptions = PlayerInitOptions(partnerId)
             .setAutoPlay(appPlayerInitConfig.autoPlay)
             .setKs(appPlayerInitConfig.ks)
+            .allowChunklessPreparation(appPlayerInitConfig.allowChunklessPreparation)
             .setPreload(appPlayerInitConfig.preload)
             .setReferrer(appPlayerInitConfig.referrer)
             .setPKRequestConfig(appPlayerInitConfig.playerRequestConfig)
@@ -596,6 +589,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 }
                 playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
             }
+        }
+
+        appPlayerInitConfig.aspectRatioResizeMode?.let {
+            playbackControlsManager?.setSelectedAspectRatioIndex(PKAspectRatioResizeMode.getExoPlayerAspectRatioResizeMode(it))
         }
     }
 
@@ -1084,6 +1081,19 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //
         //        });
 
+        player?.addListener(this, PlayerEvent.metadataAvailable) { event ->
+            log.d("player:\n ${event.eventType().name}" + "\n metadata list size : ${event.metadataList.size}")
+            if (!event.metadataList.isNullOrEmpty()) {
+                updateEventsLogsList("player:\n ${event.eventType().name}" + "\n metadata list size : ${event.metadataList.size}")
+            }
+        }
+
+        player?.addListener(this, PlayerEvent.eventStreamChanged) { event ->
+            log.d("player:\n ${event.eventType().name}" + "\n eventStreamList list size : ${event.eventStreamList.size}")
+            if (!event.eventStreamList.isNullOrEmpty()) {
+                updateEventsLogsList("player:\n ${event.eventType().name}" + "\n eventStreamList list size : ${event.eventStreamList.size}")
+            }
+        }
 
         player?.addListener(this, PlayerEvent.loadedMetadata) { event ->
             log.d("PLAYER LoadedMetadata")
@@ -1151,9 +1161,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
             progressBar?.setVisibility(View.GONE)
             if (!isPostrollAvailableInAdCuePoint() ||
-                IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName()) ||
-                FBInstreamPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())
-            ) {
+                IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())) {
                 if (player?.playlistController == null || !(player?.playlistController?.isAutoContinueEnabled ?: true)) {
                     playbackControlsManager?.showControls(View.VISIBLE)
                 }
@@ -1435,6 +1443,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 updateEventsLogsList("phoenix:\n$reportedEventName")
             }
         }
+
+        player?.addListener(this, PlayerEvent.surfaceAspectRationSizeModeChanged) { event ->
+            updateEventsLogsList("PlayerEvent:\n" + event.eventType().name + " Aspect Ratio: " + event.resizeMode.name)
+            log.d("ASPECT_RATIO_RESIZE_MODE_CHANGED")
+        }
     }
 
     private fun getFullPlayerError(event: PlayerEvent.Error): String? {
@@ -1643,39 +1656,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
                             }
                         }
                     }
-                } else if (FBInstreamPlugin.factory.name.equals(pluginName)) {
-                    if (pluginDescriptor.params != null) {
-                        var fbInstreamPluginConfig: FBInstreamConfig? = null
-                        when (pluginDescriptor.params) {
-                            is JsonObject -> {
-                                fbInstreamPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, FBInstreamConfig::class.java)
-                            }
-
-                            is JsonArray -> {
-                                var config: JsonElement? = null
-                                val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
-                                pluginValue?.let {
-                                    if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
-                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
-                                    } else {
-                                        config = null
-                                        log.e("$pluginName  $errorMessage")
-                                    }
-                                }
-
-                                config?.let {
-                                    fbInstreamPluginConfig = gson.fromJson(config, FBInstreamConfig::class.java)
-                                }
-                            }
-                        }
-                        fbInstreamPluginConfig?.let {
-                            if (setPlugin) {
-                                pkPluginConfigs.setPluginConfig(FBInstreamPlugin.factory.name, it)
-                            } else {
-                                player?.updatePluginConfig(FBInstreamPlugin.factory.name, it)
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -1801,7 +1781,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ((screenHeight / 2) - 300))
                 } else {
                     supportActionBar?.hide()
-                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
+                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 }
                 container.setOnClickListener { view ->
                     if (playbackControlsManager != null) {
@@ -1823,7 +1803,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             searchView?.setVisibility(View.GONE)
             eventsListView?.setVisibility(View.GONE)
             //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight)
+            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             //unhide your objects here.
             supportActionBar?.show()
@@ -1875,11 +1855,6 @@ class PlayerActivity: AppCompatActivity(), Observer {
         super.onPause()
         unregisterReceiver(networkChangeReceiver)
         NetworkChangeReceiver.getObservable().deleteObserver(this)
-        adCuePoints?.let {
-            if (FBInstreamPlugin.factory.getName().equals(it.getAdPluginName())) {
-                return;
-            }
-        }
 
         if (!backButtonPressed && playbackControlsManager != null) {
             playbackControlsManager?.showControls(View.VISIBLE)

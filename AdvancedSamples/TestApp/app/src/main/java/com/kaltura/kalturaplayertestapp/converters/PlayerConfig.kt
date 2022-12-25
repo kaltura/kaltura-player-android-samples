@@ -22,6 +22,7 @@ class PlayerConfig {
     var startPosition: Long? = null
     var autoPlay: Boolean? = null
     var preload: Boolean? = null
+    var allowChunklessPreparation: Boolean? = null
     val allowCrossProtocolEnabled: Boolean? = null
     val playerRequestConfig: PKRequestConfig? = null
     var preferredFormat: PKMediaFormat? = null

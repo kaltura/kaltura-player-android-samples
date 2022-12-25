@@ -51,6 +51,9 @@ class MainActivity: AppCompatActivity() {
     private var mCastSession: CastSession? = null
     private val mSelectedMedia: MediaInfo? = null
     private var remoteMediaClient: RemoteMediaClient? = null
+    private var startPositionForVodMedia = 0L
+    // For Live media `setPlayPosition` should be -1000 always.
+    private var startPositionForLiveMedia = MediaInfoUtils.LIVE_EDGE
 
     enum class PlaybackLocation {
         LOCAL,
@@ -99,7 +102,7 @@ class MainActivity: AppCompatActivity() {
 
         //Add clickListener.
         playPauseButton!!.setOnClickListener(View.OnClickListener {
-            loadRemoteMediaOvp(0, true)
+            loadRemoteMediaOvp(startPositionForVodMedia, true)
             return@OnClickListener
         })
     }
@@ -113,7 +116,7 @@ class MainActivity: AppCompatActivity() {
 
         //Add clickListener.
         basicPlayPauseButton!!.setOnClickListener(View.OnClickListener {
-            loadRemoteMediaBasic(0, true)
+            loadRemoteMediaBasic(startPositionForVodMedia, true)
             return@OnClickListener
         })
     }
@@ -127,7 +130,7 @@ class MainActivity: AppCompatActivity() {
         //Add clickListener.
         playPauseButton!!.setOnClickListener(View.OnClickListener {
             // usually protocol should be https!!!
-            loadRemoteMediaOtt(0, true, CAFCastBuilder.HttpProtocol.Http /* CAFCastBuilder.HttpProtocol.Https */)
+            loadRemoteMediaOtt(startPositionForVodMedia, true, CAFCastBuilder.HttpProtocol.Http /* CAFCastBuilder.HttpProtocol.Https */)
             return@OnClickListener
         })
     }
@@ -138,7 +141,7 @@ class MainActivity: AppCompatActivity() {
         if (changeMediaButton != null) {
             changeMediaButton!!.setOnClickListener {
                 var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
-                val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(0).build()
+                val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(startPositionForVodMedia).build()
                 val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 443433543
                 if (remoteMediaClient != null) {
                     if ("ovp" == BuildConfig.FLAVOR) {
@@ -233,7 +236,7 @@ class MainActivity: AppCompatActivity() {
 
                     if (player!!.isPlaying) {
                         player.pause()
-                        loadRemoteMediaOvp(player.currentPosition.toInt(), true)
+                        loadRemoteMediaOvp(player.currentPosition, true)
                         finish()
                         return
                     } else {
@@ -251,7 +254,7 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
-    private fun loadRemoteMediaBasic(position: Int, autoPlay: Boolean) {
+    private fun loadRemoteMediaBasic(position: Long, autoPlay: Boolean) {
         if (mCastSession == null) {
             return
         }
@@ -289,7 +292,7 @@ class MainActivity: AppCompatActivity() {
         })
 
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
-        val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position.toLong()).build()
+        val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position).build()
         val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 311552334242
 
 
@@ -361,7 +364,7 @@ class MainActivity: AppCompatActivity() {
         return captions
     }
 
-    private fun loadRemoteMediaOvp(position: Int, autoPlay: Boolean) {
+    private fun loadRemoteMediaOvp(position: Long, autoPlay: Boolean) {
         if (mCastSession == null) {
             return
         }
@@ -399,7 +402,7 @@ class MainActivity: AppCompatActivity() {
         })
 
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
-        val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position.toLong()).build()
+        val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position).build()
         val vastAdTag = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=" + 321122334242
         //using QA partner 1091
 
@@ -416,7 +419,7 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
-    private fun loadRemoteMediaOtt(position: Int, autoPlay: Boolean, protocol : CAFCastBuilder.HttpProtocol) {
+    private fun loadRemoteMediaOtt(position: Long, autoPlay: Boolean, protocol : CAFCastBuilder.HttpProtocol) {
         if (mCastSession == null) {
             return
         }
@@ -454,7 +457,7 @@ class MainActivity: AppCompatActivity() {
         })
 
         var pendingResult: PendingResult<RemoteMediaClient.MediaChannelResult>? = null
-        val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position.toLong()).build()
+        val loadOptions = MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(position).build()
 
         pendingResult = remoteMediaClient!!.load(getOttCastMediaInfo("548579","Web_Main", "", null, protocol, getExternalVttCaptions()), loadOptions)
         pendingResult!!.setResultCallback { mediaChannelResult ->
@@ -473,7 +476,7 @@ class MainActivity: AppCompatActivity() {
 
 
     fun createAdsConfigVast(adTagUrl: String): AdsConfig {
-        return MediaInfoUtils.createAdsConfigVastInPosition(0, adTagUrl)
+        return MediaInfoUtils.createAdsConfigVastInPosition(startPositionForVodMedia, adTagUrl)
     }
 
     fun createAdsConfigVmap(adTagUrl: String): AdsConfig {
@@ -598,7 +601,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     override fun onPause() {
-        mCastContext!!.removeCastStateListener(mCastStateListener)
+        mCastContext!!.removeCastStateListener(mCastStateListener!!)
         super.onPause()
     }
 }

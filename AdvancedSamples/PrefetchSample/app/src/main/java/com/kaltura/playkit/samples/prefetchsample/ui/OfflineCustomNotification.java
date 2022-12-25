@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +14,7 @@ import androidx.core.app.NotificationManagerCompat;
 import com.kaltura.android.exoplayer2.C;
 import com.kaltura.android.exoplayer2.offline.Download;
 import com.kaltura.android.exoplayer2.offline.DownloadManager;
+import com.kaltura.android.exoplayer2.scheduler.Requirements;
 import com.kaltura.playkit.PKLog;
 import com.kaltura.playkit.samples.prefetchsample.OfflineNotificationReceiver;
 import com.kaltura.playkit.samples.prefetchsample.R;
@@ -24,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Random;
 
-class OfflineCustomNotification extends ExoOfflineNotificationHelper {
+public class OfflineCustomNotification extends ExoOfflineNotificationHelper {
 
     PKLog log = PKLog.get(OfflineCustomNotification.class.getSimpleName());
 
@@ -46,7 +48,12 @@ class OfflineCustomNotification extends ExoOfflineNotificationHelper {
     }
 
     @Override
-    public Notification buildNotification(Context context, @Nullable PendingIntent contentIntent, int notificationId, @NonNull List<Download> downloads) {
+    public Notification buildNotification(Context context,
+                                          @Nullable PendingIntent contentIntent,
+                                          int notificationId,
+                                          @NonNull List<Download> downloads,
+                                          @Requirements.RequirementFlags int notMetRequirements) {
+
         log.d(" Custom Notification: buildNotification");
 
         if (downloads.size() > 0) {
@@ -55,7 +62,7 @@ class OfflineCustomNotification extends ExoOfflineNotificationHelper {
             log.d("download.state => " + download.state);
             float downloadPercentage = download.getPercentDownloaded();
             if (downloadPercentage != C.PERCENTAGE_UNSET) {
-                return getProgressNotification(context, download);
+                return getProgressNotification(context, download, notMetRequirements);
             }
         }
         return removeProgressNotification(notificationId);
@@ -90,19 +97,38 @@ class OfflineCustomNotification extends ExoOfflineNotificationHelper {
         return notification;
     }
 
-    public Notification getProgressNotification(Context context, Download download) {
+    public Notification getProgressNotification(Context context,
+                                                Download download,
+                                                @Requirements.RequirementFlags int notMetRequirements) {
         notificationManager.cancelAll();
 
-        notificationBuilder.setContentTitle("Downloading Asset");
+        int titleId = R.string.downloading_asset;
+        if ((notMetRequirements & Requirements.NETWORK_UNMETERED) != 0) {
+            titleId = R.string.download_paused_for_wifi;
+        } else if ((notMetRequirements & Requirements.NETWORK) != 0) {
+            titleId = R.string.download_paused_for_network;
+        }
+
+        notificationBuilder.setContentTitle(context.getString(titleId));
         notificationBuilder.setShowWhen(false);
 
         if (download != null && !areActionButtonsAdded) {
             pauseIntent.putExtra("pause", download.request.id);
             removeIntent.putExtra("remove", download.request.id);
-            PendingIntent pausePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            PendingIntent removePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), removeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pausePendingIntent;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                pausePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), pauseIntent, PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                pausePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
+            PendingIntent removePendingIntent;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                removePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), removeIntent, PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                removePendingIntent = PendingIntent.getBroadcast(context, new Random().nextInt(), removeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
             notificationBuilder.addAction(R.drawable.pause, "Pause", pausePendingIntent);
-            notificationBuilder.addAction(R.drawable.ic_dialog_close_dark, "Remove", removePendingIntent);
+            notificationBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Remove", removePendingIntent);
             areActionButtonsAdded = true;
         }
 

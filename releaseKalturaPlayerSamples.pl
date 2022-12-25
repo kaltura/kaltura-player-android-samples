@@ -13,7 +13,7 @@ if ($num_args != 3) {
 my ($pathToSamplesFolder, $oldVer, $newVer) = @ARGV;
 print "Release Android Samples\n";
 
-my @files = `find $pathToSamplesFolder/*/* | grep build.gradle`;
+my @files = `find $pathToSamplesFolder/*/* | grep version.gradle`;
 
 #my @files = `find $ENV{'HOME'}/Dev/android/kaltura/kaltura-player-android-samples/*/* | grep build.gradle`;
 
@@ -26,7 +26,7 @@ foreach my $file(@files) {
    
    my @updatedFileLines = ();
    foreach my $line(@data) {
-      if ($line =~ /implementation 'com.kaltura.playkit/ || $line =~ /implementation 'com.kaltura.player/) {
+      if ($line =~ /def playerVersion = /) {
            $line =~ s/$oldVer/$newVer/;
       }
       push(@updatedFileLines, $line);
@@ -52,9 +52,9 @@ while ( my $entry = readdir $DIR ) {
     next if $entry  =~ /^\./;
     print "Found directory <$pathToSamplesFolder/$entry>\n";
     chdir ("$pathToSamplesFolder/$entry");
-    my $returnCode = system("./gradlew build");
+    my $returnCode = system("./gradlew build --no-daemon");
     if ($returnCode != 0) { 
-        die "Failed executing [./gradlew build]\n"; 
+        die "Failed executing [./gradlew build --no-daemon]\n"; 
         closedir $DIR;
     } 
 }

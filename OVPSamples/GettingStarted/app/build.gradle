@@ -1,23 +1,21 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply from: '../../version.gradle'
 
 android {
-    compileSdkVersion 31
-    android {
-        compileOptions {
-            sourceCompatibility 1.8
-            targetCompatibility 1.8
-        }
+    compileSdkVersion project.ext.compileSdkVersion
+    compileOptions {
+        sourceCompatibility project.ext.Java_1_8
+        targetCompatibility project.ext.Java_1_8
     }
-
-    buildToolsVersion "29.0.0"
     defaultConfig {
         applicationId "com.example.gettingstarted"
-        minSdkVersion 23
-        targetSdkVersion 30
+        minSdkVersion project.ext.minSdkVersion
+        targetSdkVersion project.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        multiDexEnabled  true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -29,16 +27,13 @@ android {
 }
 
 dependencies {
+    if (project.ext.isLocal) {
+        implementation project.ext.local.values()
+    } else if (project.ext.isSnapshot) {
+        implementation project.ext.snapshot.values()
+    } else {
+        implementation project.ext.remote.values()
+    }
 
-    implementation 'com.kaltura.player:tvplayer:4.20.1'
-    //implementation project(':tvplayer')
-
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation project.ext.commonDeps.values()
 }

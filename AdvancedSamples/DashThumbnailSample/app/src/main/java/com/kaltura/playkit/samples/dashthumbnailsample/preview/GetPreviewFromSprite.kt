@@ -7,6 +7,7 @@ import android.graphics.BitmapRegionDecoder
 import android.graphics.RectF
 import androidx.core.graphics.toRect
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.HttpException
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.FutureTarget
@@ -17,10 +18,7 @@ import com.kaltura.playkit.samples.dashthumbnailsample.MainActivity
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
+import java.util.concurrent.*
 
 class GetPreviewFromSprite(var context: Context) {
 
@@ -77,8 +75,13 @@ class GetPreviewFromSprite(var context: Context) {
                     log.d("Bitmap Received = ${fetchedBitmap}  Thread Name = ${Thread.currentThread().name}")
                     extractedBitmap = convertBitmapAndExtractTile(fetchedBitmap, updatedThumbnailInfo, isLiveMedia)
                 } catch (exception: GlideException) {
-                    log.d("GlideException = ${exception.logRootCauses("GetPreviewFromSprite")}")
+                    log.e("Glide - GlideException = ${exception.logRootCauses("GetPreviewFromSprite")}")
                     return extractedBitmap
+                } catch (exception: HttpException) {
+                    log.e("Glide - HttpException = ${exception.message}")
+                    return extractedBitmap
+                } catch (exception: ExecutionException) {
+                    log.e("Glide - ExecutionException = ${exception.message}")
                 }
             }
             return extractedBitmap

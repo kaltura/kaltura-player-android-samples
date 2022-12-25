@@ -63,7 +63,7 @@ class SplashScreen: Activity() {
             ConnectionResult.SUCCESS -> return true
             ConnectionResult.SERVICE_DISABLED, ConnectionResult.SERVICE_INVALID, ConnectionResult.SERVICE_MISSING, ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED -> {
                 val dialog = GoogleApiAvailability.getInstance().getErrorDialog(this@SplashScreen, googlePlayServicesCheck, 0)
-                dialog.setOnCancelListener {
+                dialog?.setOnCancelListener {
                     try {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + "com.google.android.gms"))
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -73,7 +73,7 @@ class SplashScreen: Activity() {
                         e.printStackTrace()
                     }
                 }
-                dialog.show()
+                dialog?.show()
             }
         }
         return false

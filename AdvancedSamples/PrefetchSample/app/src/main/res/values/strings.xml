@@ -26,4 +26,9 @@
     <string name="removeCacheOnDestroy">Destroy prefetched items when app quits</string>
     <string name="apply_prefetch_settings">Apply Settings</string>
     <string name="prefetch_settings">Settings saved.</string>
+
+    <string name="downloading_asset">Downloading Asset</string>
+    <string name="download_paused_for_wifi" translatable="false">Downloads waiting for WiFi</string>
+    <string name="download_paused_for_network" translatable="false">Downloads waiting for network</string>
+
 </resources>

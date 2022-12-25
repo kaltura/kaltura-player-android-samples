@@ -106,6 +106,17 @@
                 android:background="@color/cardview_dark_background"/>
 
             <Button
+                android:id="@+id/aspect_ratio_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="8dp"
+                android:text="AR"
+                android:visibility="gone"
+                android:textColor="@android:color/white"
+                android:background="@color/cardview_dark_background" />
+
+            <Button
                 android:text="REC"
                 android:id="@+id/recover_btn"
                 android:clickable="false"
@@ -144,4 +155,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"/>
+    
+    <FrameLayout
+        android:id= "@+id/live_info_frame"
+        android:layout_width="match_parent"
+        android:background="@color/opaque_grey"
+        android:layout_height="100dp"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true">
+        <TextView
+            android:id="@+id/live_info_txt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@android:color/white"/>
+    </FrameLayout>
 </RelativeLayout>
