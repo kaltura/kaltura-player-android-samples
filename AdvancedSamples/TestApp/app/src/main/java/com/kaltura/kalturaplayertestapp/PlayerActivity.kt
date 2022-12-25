@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.google.api.AnnotationsProto.http
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -36,7 +35,6 @@ import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.*
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
-import com.kaltura.playkit.plugins.ads.AdEvent.allAdsCompleted
 import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.plugins.imadai.IMADAIPlugin
 import com.kaltura.playkit.plugins.kava.KavaAnalyticsConfig
