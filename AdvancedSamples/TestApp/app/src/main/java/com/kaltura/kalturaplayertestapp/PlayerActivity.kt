@@ -33,6 +33,7 @@ import com.kaltura.playkit.*
 import com.kaltura.playkit.ads.AdBreak
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.playkit.player.*
+import com.kaltura.playkit.player.metadata.*
 import com.kaltura.playkit.plugins.ads.AdCuePoints
 import com.kaltura.playkit.plugins.ads.AdEvent
 import com.kaltura.playkit.plugins.ima.IMAPlugin
