@@ -16,7 +16,7 @@ import com.kaltura.tvplayer.config.MediaEntryCacheConfig
 class PlayerConfig {
     var playerType: KalturaPlayer.Type? = null
     var playlistConfig : PlaylistConfig? = null
-    var baseUrl: String? = null
+    val baseUrl: String? = null
     val partnerId: String? = null
     var ks: String? = null
     var startPosition: Long? = null
