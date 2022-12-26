@@ -104,6 +104,8 @@ class PlayerActivity : AppCompatActivity(), Observer {
     private var updateMenuItem: MenuItem? = null
     var pkLowLatencyConfig: PKLowLatencyConfig? = null
     private var networkChangeReceiver: NetworkChangeReceiver? = null
+
+    // Map with the deprecated old and new URL
     private val deprecatedServerUrls =
         mutableMapOf("cdntesting.qa.mkaltura.com"
                 to "qa-apache-php7.dev.kaltura.com")
@@ -135,14 +137,14 @@ class PlayerActivity : AppCompatActivity(), Observer {
 
             appPlayerInitConfig?.mediaList?.let { mediaList ->
                 mediaList.forEach {
-                    fixDeprecatedDomain(it.pkMediaEntry)
+                    fixDeprecatedDomains(it.pkMediaEntry)
                 }
             }
 
             appPlayerInitConfig?.playlistConfig?.basicMediaOptionsList?.let {
                 it.forEach { mediaOptions ->
                     mediaOptions.pkMediaEntry?.let { entry ->
-                        fixDeprecatedDomain(entry)
+                        fixDeprecatedDomains(entry)
                     }
                 }
             }
@@ -208,7 +210,7 @@ class PlayerActivity : AppCompatActivity(), Observer {
         }
     }
 
-    private fun fixDeprecatedDomain(pkMediaEntry: PKMediaEntry?) {
+    private fun fixDeprecatedDomains(pkMediaEntry: PKMediaEntry?) {
         pkMediaEntry?.sources?.forEach { mediaSources ->
             deprecatedServerUrls.forEach {
                 mediaSources.url = mediaSources.url?.replace(
