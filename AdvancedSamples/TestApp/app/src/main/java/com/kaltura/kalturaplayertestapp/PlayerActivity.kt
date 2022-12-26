@@ -62,7 +62,7 @@ import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class PlayerActivity: AppCompatActivity(), Observer {
+class PlayerActivity : AppCompatActivity(), Observer {
 
     private val log = PKLog.get("PlayerActivity")
 
@@ -70,6 +70,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         const val PLAYER_CONFIG_JSON_KEY = "player_config_json_key"
         const val PLAYER_CONFIG_TITLE_KEY = "player_config_title_key"
     }
+
     private val dateFormat = SimpleDateFormat("HH:mm:ss.SSS")
     private var backButtonPressed: Boolean = false
     private val gson = Gson()
@@ -102,8 +103,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
     private var isPlayingOnPause: Boolean = false
     private var updateMenuItem: MenuItem? = null
     var pkLowLatencyConfig: PKLowLatencyConfig? = null
-
     private var networkChangeReceiver: NetworkChangeReceiver? = null
+    private val deprecatedServerUrls =
+        mutableMapOf("cdntesting.qa.mkaltura.com"
+                to "qa-apache-php7.dev.kaltura.com")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,26 +131,18 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         appPlayerInitConfig = gson.fromJson(playerInitOptionsJson, PlayerConfig::class.java)
 
-        if (appPlayerInitConfig?.playerType == KalturaPlayer.Type.basic) {
+        if (appPlayerInitConfig?.playerType == KalturaPlayer.Type.basic && deprecatedServerUrls.isNotEmpty()) {
 
-            if (!appPlayerInitConfig?.mediaList.isNullOrEmpty()) {
-                for (media in appPlayerInitConfig?.mediaList!!) {
-                    media.let {
-                        media.pkMediaEntry.let {
-                            it?.let { video -> fixDeprecatedDomain(video) }
-                        }
-                    }
+            appPlayerInitConfig?.mediaList?.let { mediaList ->
+                mediaList.forEach {
+                    fixDeprecatedDomain(it.pkMediaEntry)
                 }
             }
 
-            appPlayerInitConfig?.playlistConfig.let {
-                if (!appPlayerInitConfig?.playlistConfig?.basicMediaOptionsList.isNullOrEmpty()) {
-                    for (media in appPlayerInitConfig?.playlistConfig?.basicMediaOptionsList!!) {
-                        media.let {
-                            media.pkMediaEntry?.let {
-                                it.let { video -> fixDeprecatedDomain(video) }
-                            }
-                        }
+            appPlayerInitConfig?.playlistConfig?.basicMediaOptionsList?.let {
+                it.forEach { mediaOptions ->
+                    mediaOptions.pkMediaEntry?.let { entry ->
+                        fixDeprecatedDomain(entry)
                     }
                 }
             }
@@ -213,14 +208,21 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
-    fun fixDeprecatedDomain(pkMediaEntry: PKMediaEntry) {
-        for (source in pkMediaEntry.sources!!) {
-            source.url = source.url?.replace(
-                "cdntesting.qa.mkaltura.com",
-                "qa-apache-php7.dev.kaltura.com"
-            )?.replace("/http/", "/https/")?.replace("http:", "https:")
+    private fun fixDeprecatedDomain(pkMediaEntry: PKMediaEntry?) {
+        pkMediaEntry?.sources?.forEach { mediaSources ->
+            deprecatedServerUrls.forEach {
+                mediaSources.url = mediaSources.url?.replace(
+                    it.key,
+                    it.value
+                )?.replace(
+                    "/http/", "/https/"
+                )?.replace(
+                    "http:", "https:"
+                )
+            }
         }
     }
+
     /**
      * Checks the updatable prameters in JSON
      */
@@ -249,10 +251,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playNext()
-            playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
-                ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+            playbackControlsManager?.updatePrevNextImgBtnFunctionality(
+                player?.playlistController?.currentMediaIndex
+                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0
+            )
 
-            val playerDuration =  player?.duration ?: 0
+            val playerDuration = player?.duration ?: 0
             player?.playlistController?.isAutoContinueEnabled?.let {
                 if (!it || playerDuration <= 0) {
                     playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
@@ -272,10 +276,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
         if (player?.playlistController != null) {
             player?.playlistController?.playPrev()
-            playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
-                ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+            playbackControlsManager?.updatePrevNextImgBtnFunctionality(
+                player?.playlistController?.currentMediaIndex
+                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0
+            )
         }
-        val playerDuration =  player?.duration ?: 0
+        val playerDuration = player?.duration ?: 0
         player?.playlistController?.isAutoContinueEnabled?.let {
             if (!it || playerDuration <= 0) {
                 playbackControlsManager?.setSeekBarVisibiliy(View.INVISIBLE)
@@ -293,7 +299,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         appPlayerInitConfig?.trackSelection?.let {
             it.subtitleStyling?.let { subtitleStyle ->
-                var subtitleStyleSettings: SubtitleStyleSettings? = getSubtitleStyleSettings(subtitleStyle, getCurrentPlayedMediaIndex())
+                var subtitleStyleSettings: SubtitleStyleSettings? =
+                    getSubtitleStyleSettings(subtitleStyle, getCurrentPlayedMediaIndex())
                 subtitleStyleSettings?.let { styleSetting ->
                     player?.updateSubtitleStyle(styleSetting)
                 }
@@ -353,7 +360,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
         if (error != null) {
             log.d("Load Error Extra = " + error.extra)
             runOnUiThread(Runnable {
-                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG)
+                    .show()
                 playbackControlsView?.playPauseToggle?.setBackgroundResource(R.drawable.play)
                 playbackControlsManager?.showControls(View.VISIBLE)
             })
@@ -410,7 +418,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
         })
     }
 
-    private fun buildPlayer(appPlayerInitConfig: PlayerConfig, playListMediaIndex: Int, playerType: KalturaPlayer.Type) {
+    private fun buildPlayer(
+        appPlayerInitConfig: PlayerConfig,
+        playListMediaIndex: Int,
+        playerType: KalturaPlayer.Type
+    ) {
         var player: KalturaPlayer
 
         val appPluginConfigJsonObject = appPlayerInitConfig.plugins
@@ -427,7 +439,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
             pkLowLatencyConfig = it
         }
 
-        val partnerId = if (appPlayerInitConfig.partnerId != null) Integer.valueOf(appPlayerInitConfig.partnerId) else null
+        val partnerId =
+            if (appPlayerInitConfig.partnerId != null) Integer.valueOf(appPlayerInitConfig.partnerId) else null
         initOptions = PlayerInitOptions(partnerId)
             .setAutoPlay(appPlayerInitConfig.autoPlay)
             .setKs(appPlayerInitConfig.ks)
@@ -472,18 +485,25 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         appPlayerInitConfig.trackSelection?.let {
             it.audioSelectionMode?.let { selectionModeAudio ->
-                initOptions.setAudioLanguage(it.audioSelectionLanguage, PKTrackConfig.Mode.valueOf(selectionModeAudio))
+                initOptions.setAudioLanguage(
+                    it.audioSelectionLanguage,
+                    PKTrackConfig.Mode.valueOf(selectionModeAudio)
+                )
             }
 
             it.textSelectionMode?.let { selectionModeText ->
-                initOptions.setTextLanguage(it.textSelectionLanguage, PKTrackConfig.Mode.valueOf(selectionModeText))
+                initOptions.setTextLanguage(
+                    it.textSelectionLanguage,
+                    PKTrackConfig.Mode.valueOf(selectionModeText)
+                )
             }
 
         }
 
         appPlayerInitConfig.trackSelection?.let {
             it.subtitleStyling?.let { subtitleStyle ->
-                var subtitleStyleSettings: SubtitleStyleSettings? = getSubtitleStyleSettings(subtitleStyle, getCurrentPlayedMediaIndex())
+                var subtitleStyleSettings: SubtitleStyleSettings? =
+                    getSubtitleStyleSettings(subtitleStyle, getCurrentPlayedMediaIndex())
                 subtitleStyleSettings?.let { styleSetting ->
                     initOptions.setSubtitleStyle(styleSetting)
                 }
@@ -508,14 +528,20 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             setPlayer(player)
 
-            val ovpMediaOptions = buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
+            val ovpMediaOptions =
+                buildOvpMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ovpMediaOptions != null) {
                 player?.loadMedia(ovpMediaOptions) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OVPMedia Error Extra = " + error.getExtra())
                         runOnUiThread(Runnable {
-                            Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
-                            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                            Snackbar.make(
+                                findViewById<View>(android.R.id.content),
+                                error.getMessage(),
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                            playbackControlsView?.getPlayPauseToggle()
+                                ?.setBackgroundResource(R.drawable.play)
                             playbackControlsManager?.showControls(View.VISIBLE)
                         })
                     } else {
@@ -553,14 +579,20 @@ class PlayerActivity: AppCompatActivity(), Observer {
             setAdvertisingConfig(player, playListMediaIndex)
 
             setPlayer(player)
-            val ottMediaOptions = buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
+            val ottMediaOptions =
+                buildOttMediaOptions(appPlayerInitConfig.startPosition, playListMediaIndex)
             if (ottMediaOptions != null) {
                 player?.loadMedia(ottMediaOptions) { mediaOptions, entry, error ->
                     if (error != null) {
                         log.d("OTTMedia Error Extra = " + error.getExtra())
                         runOnUiThread(Runnable {
-                            Snackbar.make(findViewById<View>(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show()
-                            playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.play)
+                            Snackbar.make(
+                                findViewById<View>(android.R.id.content),
+                                error.getMessage(),
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                            playbackControlsView?.getPlayPauseToggle()
+                                ?.setBackgroundResource(R.drawable.play)
                             playbackControlsManager?.showControls(View.VISIBLE)
                         })
                     } else {
@@ -578,7 +610,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             setPlayer(player)
             val mediaEntry = appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex)?.pkMediaEntry
-            if (appPlayerInitConfig.mediaList != null && appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex) != null) {
+            if (appPlayerInitConfig.mediaList != null && appPlayerInitConfig.mediaList?.get(
+                    currentPlayedMediaIndex
+                ) != null
+            ) {
                 if (initOptions.vrSettings != null) {
                     mediaEntry?.setIsVRMediaType(true)
                 }
@@ -615,19 +650,29 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             if (listSize != null && listSize > 0) {
                 playbackControlsManager?.addChangeMediaImgButtonsListener(listSize)
-                playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, listSize)
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(
+                    currentPlayedMediaIndex,
+                    listSize
+                )
             }
         } else {
             appPlayerInitConfig.mediaList?.let {
                 if (it.size > 1) {
                     playbackControlsManager?.addChangeMediaImgButtonsListener(it.size)
                 }
-                playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, it.size)
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(
+                    currentPlayedMediaIndex,
+                    it.size
+                )
             }
         }
 
         appPlayerInitConfig.aspectRatioResizeMode?.let {
-            playbackControlsManager?.setSelectedAspectRatioIndex(PKAspectRatioResizeMode.getExoPlayerAspectRatioResizeMode(it))
+            playbackControlsManager?.setSelectedAspectRatioIndex(
+                PKAspectRatioResizeMode.getExoPlayerAspectRatioResizeMode(
+                    it
+                )
+            )
         }
     }
 
@@ -644,7 +689,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
-    private fun setAdvertisingConfigForPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaPlayer?) {
+    private fun setAdvertisingConfigForPlaylist(
+        appPlayerInitConfig: PlayerConfig,
+        player: KalturaPlayer?
+    ) {
         appPlayerInitConfig.playlistConfig?.advertisingConfig?.let {
             player?.setAdvertisingConfig(it)
         }
@@ -662,7 +710,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
-    private fun getSubtitleStyleSettings(subtitleStyleList: List<SubtitleStyling>, subtitlePosition: Int): SubtitleStyleSettings? {
+    private fun getSubtitleStyleSettings(
+        subtitleStyleList: List<SubtitleStyling>,
+        subtitlePosition: Int
+    ): SubtitleStyleSettings? {
         var subtitleStyleSettings: SubtitleStyleSettings? = null
 
         if (subtitleStyleList.isNotEmpty() && subtitleStyleList.size > subtitlePosition) {
@@ -679,12 +730,17 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     .setTypeface(it.getSubtitleStyleTypeface())
                     .setEdgeType(it.getSubtitleEdgeType())
 
-                var pkSubtitlePosition: PKSubtitlePosition = PKSubtitlePosition(it.overrideInlineCueConfig)
+                var pkSubtitlePosition: PKSubtitlePosition =
+                    PKSubtitlePosition(it.overrideInlineCueConfig)
 
                 if (it.horizontalPositionPercentage == null && it.verticalPositionPercentage != null) {
                     pkSubtitlePosition.setVerticalPosition(it.verticalPositionPercentage!!)
                 } else if (it.horizontalPositionPercentage != null && it.verticalPositionPercentage != null && it.horizontalAlignment != null) {
-                    pkSubtitlePosition.setPosition(it.horizontalPositionPercentage!!, it.verticalPositionPercentage!!, it.getHorizontalAlignment())
+                    pkSubtitlePosition.setPosition(
+                        it.horizontalPositionPercentage!!,
+                        it.verticalPositionPercentage!!,
+                        it.getHorizontalAlignment()
+                    )
                 }
                 subtitleStyleSettings?.setSubtitlePosition(pkSubtitlePosition)
             }
@@ -702,25 +758,35 @@ class PlayerActivity: AppCompatActivity(), Observer {
             val ovpPlaylistIdOptions = OVPPlaylistIdOptions()
             ovpPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
             ovpPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
-            ovpPlaylistIdOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
-                ?: CountDownOptions()
+            ovpPlaylistIdOptions.playlistCountDownOptions =
+                appPlayerInitConfig.playlistConfig?.countDownOptions
+                    ?: CountDownOptions()
             ovpPlaylistIdOptions.playlistId = appPlayerInitConfig.playlistConfig?.playlistId
-            ovpPlaylistIdOptions.useApiCaptions = appPlayerInitConfig.playlistConfig?.useApiCaptions ?: false
+            ovpPlaylistIdOptions.useApiCaptions =
+                appPlayerInitConfig.playlistConfig?.useApiCaptions ?: false
             ovpPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
             //ovpPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
             ovpPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
-            ovpPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+            ovpPlaylistIdOptions.recoverOnError =
+                appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
             setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
             player?.loadPlaylistById(ovpPlaylistIdOptions) { playlistController, error ->
                 if (error != null) {
-                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        error.message,
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 } else {
                     setCurrentPlayedMediaIndex(ovpPlaylistIdOptions.startIndex)
                     runOnUiThread(Runnable {
                         playbackControlsManager?.addChangeMediaImgButtonsListener(playlistController.playlist.mediaListSize)
-                        playbackControlsManager?.updatePrevNextImgBtnFunctionality(ovpPlaylistIdOptions.startIndex, playlistController.playlist.mediaListSize)
+                        playbackControlsManager?.updatePrevNextImgBtnFunctionality(
+                            ovpPlaylistIdOptions.startIndex,
+                            playlistController.playlist.mediaListSize
+                        )
                     })
                 }
             }
@@ -730,22 +796,28 @@ class PlayerActivity: AppCompatActivity(), Observer {
             val ovpPlaylistOptions = OVPPlaylistOptions()
             ovpPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
             ovpPlaylistOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
-            ovpPlaylistOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
-                ?: CountDownOptions()
+            ovpPlaylistOptions.playlistCountDownOptions =
+                appPlayerInitConfig.playlistConfig?.countDownOptions
+                    ?: CountDownOptions()
             ovpPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
                 ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
             ovpPlaylistOptions.ovpMediaOptionsList = convertToOvpMediaOptionsList(mediaList)
             ovpPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
             //ovpPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
             ovpPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
-            ovpPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+            ovpPlaylistOptions.recoverOnError =
+                appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
             setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
             player?.loadPlaylist(ovpPlaylistOptions) { playlistController, error ->
                 if (error != null) {
                     runOnUiThread(Runnable {
-                        Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                        Snackbar.make(
+                            findViewById(android.R.id.content),
+                            error.message,
+                            Snackbar.LENGTH_LONG
+                        ).show()
                     })
                 } else {
                     setCurrentPlayedMediaIndex(ovpPlaylistOptions.startIndex)
@@ -787,22 +859,28 @@ class PlayerActivity: AppCompatActivity(), Observer {
         val ottPlaylistIdOptions = OTTPlaylistOptions()
         ottPlaylistIdOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
         ottPlaylistIdOptions.ks = appPlayerInitConfig.playlistConfig?.ks ?: ""
-        ottPlaylistIdOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
-            ?: CountDownOptions()
+        ottPlaylistIdOptions.playlistCountDownOptions =
+            appPlayerInitConfig.playlistConfig?.countDownOptions
+                ?: CountDownOptions()
         ottPlaylistIdOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
             ?: PlaylistMetadata().setName("TestOTTPlayList").setId("1")
         ottPlaylistIdOptions.ottMediaOptionsList = convertToOttMediaOptionsList(mediaList)
         ottPlaylistIdOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
         //ottPlaylistIdOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         ottPlaylistIdOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
-        ottPlaylistIdOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+        ottPlaylistIdOptions.recoverOnError =
+            appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
         setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
         player?.loadPlaylist(ottPlaylistIdOptions) { playlistController, error ->
             if (error != null) {
                 runOnUiThread(Runnable {
-                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        error.message,
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 })
             } else {
                 setCurrentPlayedMediaIndex(ottPlaylistIdOptions.startIndex)
@@ -854,7 +932,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
 
             if (!mediaFormatsList.isEmpty()) {
-                ottMediaAsset.formats =  mediaFormatsList
+                ottMediaAsset.formats = mediaFormatsList
             }
 
             var ottMediaOptions = OTTMediaOptions(ottMediaAsset)
@@ -865,7 +943,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         return ottMediasOptions
     }
 
-    private fun handleBasicPlayerPlaylist(appPlayerInitConfig: PlayerConfig, player: KalturaBasicPlayer?) {
+    private fun handleBasicPlayerPlaylist(
+        appPlayerInitConfig: PlayerConfig,
+        player: KalturaBasicPlayer?
+    ) {
 
         var mediaList = appPlayerInitConfig.playlistConfig?.basicMediaOptionsList
 
@@ -873,20 +954,26 @@ class PlayerActivity: AppCompatActivity(), Observer {
         basicPlaylistOptions.startIndex = appPlayerInitConfig.playlistConfig?.startIndex ?: 0
         basicPlaylistOptions.playlistMetadata = appPlayerInitConfig.playlistConfig?.playlistMetadata
             ?: PlaylistMetadata().setName("TestBasicPlayList").setId("1")
-        basicPlaylistOptions.playlistCountDownOptions = appPlayerInitConfig.playlistConfig?.countDownOptions
-            ?: CountDownOptions()
+        basicPlaylistOptions.playlistCountDownOptions =
+            appPlayerInitConfig.playlistConfig?.countDownOptions
+                ?: CountDownOptions()
         basicPlaylistOptions.basicMediaOptionsList = convertToBasicMediaOptionsList(mediaList)
         basicPlaylistOptions.loopEnabled = appPlayerInitConfig.playlistConfig?.loopEnabled ?: false
         //basicPlaylistOptions.shuffleEnabled = appPlayerInitConfig.playlistConfig?.shuffleEnabled ?: false
         basicPlaylistOptions.autoContinue = appPlayerInitConfig.playlistConfig?.autoContinue ?: true
-        basicPlaylistOptions.recoverOnError = appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
+        basicPlaylistOptions.recoverOnError =
+            appPlayerInitConfig.playlistConfig?.recoverOnError ?: false
 
         setAdvertisingConfigForPlaylist(appPlayerInitConfig, player)
 
         player?.loadPlaylist(basicPlaylistOptions) { playlistController, error ->
             if (error != null) {
                 runOnUiThread(Runnable {
-                    Snackbar.make(findViewById(android.R.id.content), error.message, Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        error.message,
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 })
             } else {
                 log.d("BasicPlaylist OnPlaylistLoadListener  entry = " + basicPlaylistOptions.playlistMetadata.name)
@@ -1047,7 +1134,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
             allAdsCompleted = false
             val adInfo = (event as AdEvent.AdStartedEvent).adInfo
-            log.d("adInfo = $adInfo" )
+            log.d("adInfo = $adInfo")
             adCuePoints?.let {
                 if (!initOptions.autoplay && IMADAIPlugin.factory.name != it.getAdPluginName()) {
                     playbackControlsManager?.showControls(View.INVISIBLE)
@@ -1152,8 +1239,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("PLAYER PLAYING")
             playbackControlsManager?.setSeekBarVisibiliy(View.VISIBLE)
             if (player?.playlistController != null) {
-                playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
-                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(
+                    player?.playlistController?.currentMediaIndex
+                        ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0
+                )
             }
 
             updateEventsLogsList("player:\n" + event.eventType().name)
@@ -1171,7 +1260,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, PlayerEvent.stopped) { event ->
             log.d("PLAYER STOPPED")
             updateEventsLogsList("player:\n" + event.eventType().name)
-            if (player?.playlistController == null || (player?.playlistController?.isAutoContinueEnabled ?: true)) {
+            if (player?.playlistController == null || (player?.playlistController?.isAutoContinueEnabled
+                    ?: true)
+            ) {
                 if (playbackControlsManager?.playerState != PlayerEvent.Type.ERROR) {
                     playbackControlsManager?.showControls(View.INVISIBLE)
                 }
@@ -1183,8 +1274,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             log.d("PLAYER ENDED")
             playbackControlsManager?.setContentPlayerState(event.eventType())
             if (player?.playlistController != null) {
-                playbackControlsManager?.updatePrevNextImgBtnFunctionality(player?.playlistController?.currentMediaIndex
-                    ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0)
+                playbackControlsManager?.updatePrevNextImgBtnFunctionality(
+                    player?.playlistController?.currentMediaIndex
+                        ?: 0, player?.playlistController?.playlist?.mediaListSize ?: 0
+                )
             }
 
             if (adCuePoints == null || adCuePoints != null && !adCuePoints!!.hasPostRoll() || IMADAIPlugin.factory.name == adCuePoints!!.getAdPluginName()) {
@@ -1196,8 +1289,11 @@ class PlayerActivity: AppCompatActivity(), Observer {
             }
             progressBar?.setVisibility(View.GONE)
             if (!isPostrollAvailableInAdCuePoint() ||
-                IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())) {
-                if (player?.playlistController == null || !(player?.playlistController?.isAutoContinueEnabled ?: true)) {
+                IMADAIPlugin.factory.getName().equals(adCuePoints?.getAdPluginName())
+            ) {
+                if (player?.playlistController == null || !(player?.playlistController?.isAutoContinueEnabled
+                        ?: true)
+                ) {
                     playbackControlsManager?.showControls(View.VISIBLE)
                 }
             }
@@ -1209,7 +1305,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
 
         player?.addListener(this, PlaylistEvent.playListStarted) { event ->
             log.d("PLAYLIST playListStarted")
-            playbackControlsManager?.updatePrevNextImgBtnFunctionality(currentPlayedMediaIndex, event.playlist.mediaListSize)
+            playbackControlsManager?.updatePrevNextImgBtnFunctionality(
+                currentPlayedMediaIndex,
+                event.playlist.mediaListSize
+            )
             playbackControlsManager?.addPlaylistButtonsListener()
         }
 
@@ -1256,14 +1355,16 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownStart) { event ->
-            var message = "playlistCountDownStart index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
+            var message =
+                "playlistCountDownStart index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
             log.d("PLAYLIST $message")
             showMessage(message)
             //Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
 
         player?.addListener(this, PlaylistEvent.playlistCountDownEnd) { event ->
-            var message = "playlistCountDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
+            var message =
+                "playlistCountDownEnd index = ${event.currentPlayingIndex} durationMS = ${event.playlistCountDownOptions?.durationMS}"
             log.d("PLAYLIST $message")
             showMessage(message)
             //Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -1272,7 +1373,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, PlayerEvent.textTrackChanged) { event ->
             log.d("PLAYER textTrackChanged")
             tracksSelectionController?.tracks?.let {
-                for (i in 0 .. it.textTracks.size - 1) {
+                for (i in 0..it.textTracks.size - 1) {
                     log.d(it.textTracks.size.toString() + ", PLAYER textTrackChanged " + it.textTracks[i].uniqueId + "/" + event.newTrack.getUniqueId())
                     if (event.newTrack.getUniqueId() == it.textTracks[i].uniqueId) {
                         tracksSelectionController?.setTrackLastSelectionIndex(TRACK_TYPE_TEXT, i)
@@ -1285,7 +1386,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, PlayerEvent.audioTrackChanged) { event ->
             log.d("PLAYER audioTrackChanged")
             tracksSelectionController?.tracks?.let {
-                for (i in 0 .. it.audioTracks.size - 1) {
+                for (i in 0..it.audioTracks.size - 1) {
                     if (event.newTrack.getUniqueId() == it.audioTracks[i].uniqueId) {
                         tracksSelectionController?.setTrackLastSelectionIndex(TRACK_TYPE_AUDIO, i)
                         break
@@ -1297,7 +1398,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
         player?.addListener(this, PlayerEvent.videoTrackChanged) { event ->
             log.d("PLAYER videoTrackChanged")
             tracksSelectionController?.tracks?.let {
-                for (i in 0 .. it.videoTracks.size - 1) {
+                for (i in 0..it.videoTracks.size - 1) {
                     if (event.newTrack.getUniqueId() == it.videoTracks[i].uniqueId) {
                         tracksSelectionController?.setTrackLastSelectionIndex(TRACK_TYPE_VIDEO, i)
                         break
@@ -1328,7 +1429,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
                 log.d("Default Text lang = " + labelText)
             }
             if (tracks.getVideoTracks().size > 0) {
-                log.d("Default video isAdaptive = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).isAdaptive() + " bitrate = " + tracks.getVideoTracks().get(tracks.getDefaultAudioTrackIndex()).getBitrate())
+                log.d(
+                    "Default video isAdaptive = " + tracks.getVideoTracks()
+                        .get(tracks.getDefaultAudioTrackIndex())
+                        .isAdaptive() + " bitrate = " + tracks.getVideoTracks()
+                        .get(tracks.getDefaultAudioTrackIndex()).getBitrate()
+                )
             }
 
             runOnUiThread {
@@ -1372,7 +1478,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     if (!initOptions.autoplay) {
                         playbackControlsManager?.showControls(View.VISIBLE)
                     } else {
-                        playbackControlsView?.getPlayPauseToggle()?.setBackgroundResource(R.drawable.pause)
+                        playbackControlsView?.getPlayPauseToggle()
+                            ?.setBackgroundResource(R.drawable.pause)
                     }
                 }
             }
@@ -1426,7 +1533,7 @@ class PlayerActivity: AppCompatActivity(), Observer {
                     if (metadata is PKEventMessage) {
                         log.d("PKEventMessage id " + metadata.id)
                         log.d("PKEventMessage value " + metadata.value)
-                    } else  if (metadata is PKGeobFrame) {
+                    } else if (metadata is PKGeobFrame) {
                         log.d("PKGeobFrame id " + metadata.id)
                         log.d("PKGeobFrame description " + metadata.description)
                     } else if (metadata is PKApicFrame) {
@@ -1490,11 +1597,12 @@ class PlayerActivity: AppCompatActivity(), Observer {
             val playerError = event.error
             val playerErrorException = playerError.exception as Exception?
             var errorMetadata = "Player error occurred."
-            var exceptionClass : String? = null
+            var exceptionClass: String? = null
             var exceptionCause = ""
             if (playerErrorException != null && playerErrorException.cause != null && playerErrorException.cause?.javaClass != null) {
                 exceptionClass = playerErrorException.cause?.javaClass?.name
-                errorMetadata = if (playerErrorException.cause.toString() != null) playerErrorException.cause.toString() else errorMetadata
+                errorMetadata =
+                    if (playerErrorException.cause.toString() != null) playerErrorException.cause.toString() else errorMetadata
 
                 if (playerErrorException.cause is HttpDataSource.InvalidResponseCodeException) {
                     log.e("InvalidResponseCodeException " + (playerErrorException.cause as HttpDataSource.InvalidResponseCodeException).responseCode)
@@ -1534,7 +1642,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         }
     }
 
-    private fun convertPluginsJsonArrayToPKPlugins(pluginConfigs: JsonArray?, setPlugin: Boolean): PKPluginConfigs {
+    private fun convertPluginsJsonArrayToPKPlugins(
+        pluginConfigs: JsonArray?,
+        setPlugin: Boolean
+    ): PKPluginConfigs {
         val pkPluginConfigs = PKPluginConfigs()
         val pluginDescriptors = gson.fromJson(pluginConfigs, Array<PluginDescriptor>::class.java)
         val errorMessage = "plugin list size is less than the requested played media index."
@@ -1549,7 +1660,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         val isBundle = pluginDescriptor.isBundle
                         when (pluginDescriptor.params) {
                             is JsonObject -> {
-                                youboraPluginConfig = gson.fromJson((pluginDescriptor.params as JsonObject).get("options"), YouboraConfig::class.java)
+                                youboraPluginConfig = gson.fromJson(
+                                    (pluginDescriptor.params as JsonObject).get("options"),
+                                    YouboraConfig::class.java
+                                )
                                 youboraPluginConfig?.let {
                                     if (isBundle == true) {
                                         youboraPluginBundle = getYouboraBundle(it)
@@ -1562,7 +1676,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
                                     if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
-                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config").asJsonObject.get("options")
+                                        config = (pluginDescriptor.params as JsonArray).get(
+                                            getCurrentPlayedMediaIndex()
+                                        ).asJsonObject.get("config").asJsonObject.get("options")
                                     } else {
                                         config = null
                                         log.e("$pluginName  $errorMessage")
@@ -1570,7 +1686,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 }
 
                                 config?.let {
-                                    youboraPluginConfig = gson.fromJson(config, YouboraConfig::class.java)
+                                    youboraPluginConfig =
+                                        gson.fromJson(config, YouboraConfig::class.java)
                                 }
 
                                 youboraPluginConfig?.let {
@@ -1582,21 +1699,36 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         }
                         youboraPluginConfig?.let {
                             if (setPlugin) {
-                                pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, if (isBundle == true) youboraPluginBundle else it.toJson())
+                                pkPluginConfigs.setPluginConfig(
+                                    YouboraPlugin.factory.name,
+                                    if (isBundle == true) youboraPluginBundle else it.toJson()
+                                )
                             } else {
-                                player?.updatePluginConfig(YouboraPlugin.factory.name, if (isBundle == true) youboraPluginBundle else it.toJson())
+                                player?.updatePluginConfig(
+                                    YouboraPlugin.factory.name,
+                                    if (isBundle == true) youboraPluginBundle else it.toJson()
+                                )
                             }
                         }
                     }
                 } else if (KavaAnalyticsPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
-                    val kavaPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, KavaAnalyticsConfig::class.java)
-                    pkPluginConfigs.setPluginConfig(KavaAnalyticsPlugin.factory.name, kavaPluginConfig.toJson())
+                    val kavaPluginConfig = gson.fromJson(
+                        pluginDescriptor.params as JsonObject,
+                        KavaAnalyticsConfig::class.java
+                    )
+                    pkPluginConfigs.setPluginConfig(
+                        KavaAnalyticsPlugin.factory.name,
+                        kavaPluginConfig.toJson()
+                    )
                 } else if (IMAPlugin.factory.name.equals(pluginName, ignoreCase = true)) {
                     if (pluginDescriptor.params != null) {
                         var imaPluginConfig: UiConfFormatIMAConfig? = null
                         when (pluginDescriptor.params) {
                             is JsonObject -> {
-                                imaPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMAConfig::class.java)
+                                imaPluginConfig = gson.fromJson(
+                                    pluginDescriptor.params as JsonObject,
+                                    UiConfFormatIMAConfig::class.java
+                                )
                             }
 
                             is JsonArray -> {
@@ -1604,7 +1736,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
                                     if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
-                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
+                                        config = (pluginDescriptor.params as JsonArray).get(
+                                            getCurrentPlayedMediaIndex()
+                                        ).asJsonObject.get("config")
                                     } else {
                                         config = null
                                         log.e("$pluginName  $errorMessage")
@@ -1612,7 +1746,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 }
 
                                 config?.let {
-                                    imaPluginConfig = gson.fromJson(config, UiConfFormatIMAConfig::class.java)
+                                    imaPluginConfig =
+                                        gson.fromJson(config, UiConfFormatIMAConfig::class.java)
                                 }
                             }
                         }
@@ -1630,7 +1765,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         var imaDaiPluginConfig: UiConfFormatIMADAIConfig? = null
                         when (pluginDescriptor.params) {
                             is JsonObject -> {
-                                imaDaiPluginConfig = gson.fromJson(pluginDescriptor.params as JsonObject, UiConfFormatIMADAIConfig::class.java)
+                                imaDaiPluginConfig = gson.fromJson(
+                                    pluginDescriptor.params as JsonObject,
+                                    UiConfFormatIMADAIConfig::class.java
+                                )
                             }
 
                             is JsonArray -> {
@@ -1638,7 +1776,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
                                     if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
-                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex()).asJsonObject.get("config")
+                                        config = (pluginDescriptor.params as JsonArray).get(
+                                            getCurrentPlayedMediaIndex()
+                                        ).asJsonObject.get("config")
                                     } else {
                                         config = null
                                         log.e("$pluginName  $errorMessage")
@@ -1646,7 +1786,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 }
 
                                 config?.let {
-                                    imaDaiPluginConfig = gson.fromJson(config, UiConfFormatIMADAIConfig::class.java)
+                                    imaDaiPluginConfig =
+                                        gson.fromJson(config, UiConfFormatIMADAIConfig::class.java)
                                 }
                             }
                         }
@@ -1663,7 +1804,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
                         var phoenixAnalyticsConfig: PhoenixAnalyticsConfig? = null
                         when (pluginDescriptor.params) {
                             is JsonObject -> {
-                                phoenixAnalyticsConfig = gson.fromJson(pluginDescriptor.params as JsonObject, PhoenixAnalyticsConfig::class.java)
+                                phoenixAnalyticsConfig = gson.fromJson(
+                                    pluginDescriptor.params as JsonObject,
+                                    PhoenixAnalyticsConfig::class.java
+                                )
                             }
 
                             is JsonArray -> {
@@ -1671,7 +1815,9 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 val pluginValue: JsonArray? = (pluginDescriptor.params as JsonArray)
                                 pluginValue?.let {
                                     if (pluginValue.size() > 0 && pluginValue.size() > getCurrentPlayedMediaIndex()) {
-                                        config = (pluginDescriptor.params as JsonArray).get(getCurrentPlayedMediaIndex())
+                                        config = (pluginDescriptor.params as JsonArray).get(
+                                            getCurrentPlayedMediaIndex()
+                                        )
                                     } else {
                                         config = null
                                         log.e("$pluginName  $errorMessage")
@@ -1679,15 +1825,22 @@ class PlayerActivity: AppCompatActivity(), Observer {
                                 }
 
                                 config?.let {
-                                    phoenixAnalyticsConfig = gson.fromJson(config, PhoenixAnalyticsConfig::class.java)
+                                    phoenixAnalyticsConfig =
+                                        gson.fromJson(config, PhoenixAnalyticsConfig::class.java)
                                 }
                             }
                         }
                         phoenixAnalyticsConfig?.let {
                             if (setPlugin) {
-                                pkPluginConfigs.setPluginConfig(PhoenixAnalyticsPlugin.factory.name, it.toJson())
+                                pkPluginConfigs.setPluginConfig(
+                                    PhoenixAnalyticsPlugin.factory.name,
+                                    it.toJson()
+                                )
                             } else {
-                                player?.updatePluginConfig(PhoenixAnalyticsPlugin.factory.name, it.toJson())
+                                player?.updatePluginConfig(
+                                    PhoenixAnalyticsPlugin.factory.name,
+                                    it.toJson()
+                                )
                             }
                         }
                     }
@@ -1725,28 +1878,61 @@ class PlayerActivity: AppCompatActivity(), Observer {
         //Configure custom properties here:
         optBundle.putString(Options.KEY_CONTENT_GENRE, youboraPluginConfig.properties?.genre)
         optBundle.putString(Options.KEY_CONTENT_TYPE, youboraPluginConfig.properties?.type)
-        optBundle.putString(Options.KEY_CONTENT_TRANSACTION_CODE, youboraPluginConfig.properties?.transactionType)
+        optBundle.putString(
+            Options.KEY_CONTENT_TRANSACTION_CODE,
+            youboraPluginConfig.properties?.transactionType
+        )
         optBundle.putString(Options.KEY_CONTENT_CDN, youboraPluginConfig.properties?.contentCdnCode)
 
         optBundle.putString(Options.KEY_CONTENT_PRICE, youboraPluginConfig.properties?.price)
-        optBundle.putString(Options.KEY_CONTENT_ENCODING_AUDIO_CODEC, youboraPluginConfig.properties?.audioType)
+        optBundle.putString(
+            Options.KEY_CONTENT_ENCODING_AUDIO_CODEC,
+            youboraPluginConfig.properties?.audioType
+        )
         optBundle.putString(Options.KEY_CONTENT_CHANNEL, youboraPluginConfig.properties?.audioChannels)
 
         val contentMetadataBundle = Bundle()
 
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_YEAR, youboraPluginConfig.properties?.year)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_CAST, youboraPluginConfig.properties?.cast)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_DIRECTOR, youboraPluginConfig.properties?.director)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_OWNER, youboraPluginConfig.properties?.owner)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_PARENTAL, youboraPluginConfig.properties?.parental)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_RATING, youboraPluginConfig.properties?.rating)
-        contentMetadataBundle.putString(YouboraConfig.KEY_CONTENT_METADATA_QUALITY, youboraPluginConfig.properties?.quality)
+        contentMetadataBundle.putString(
+            YouboraConfig.KEY_CONTENT_METADATA_YEAR,
+            youboraPluginConfig.properties?.year
+        )
+        contentMetadataBundle.putString(
+            YouboraConfig.KEY_CONTENT_METADATA_CAST,
+            youboraPluginConfig.properties?.cast
+        )
+        contentMetadataBundle.putString(
+            YouboraConfig.KEY_CONTENT_METADATA_DIRECTOR,
+            youboraPluginConfig.properties?.director
+        )
+        contentMetadataBundle.putString(
+            YouboraConfig.KEY_CONTENT_METADATA_OWNER,
+            youboraPluginConfig.properties?.owner
+        )
+        contentMetadataBundle.putString(
+            YouboraConfig.KEY_CONTENT_METADATA_PARENTAL,
+            youboraPluginConfig.properties?.parental
+        )
+        contentMetadataBundle.putString(
+            YouboraConfig.KEY_CONTENT_METADATA_RATING,
+            youboraPluginConfig.properties?.rating
+        )
+        contentMetadataBundle.putString(
+            YouboraConfig.KEY_CONTENT_METADATA_QUALITY,
+            youboraPluginConfig.properties?.quality
+        )
 
         optBundle.putBundle(Options.KEY_CONTENT_METADATA, contentMetadataBundle)
 
         //You can add some extra params here:
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_1, youboraPluginConfig.contentCustomDimensions?.contentCustomDimension1)
-        optBundle.putString(Options.KEY_CUSTOM_DIMENSION_2, youboraPluginConfig.contentCustomDimensions?.contentCustomDimension2)
+        optBundle.putString(
+            Options.KEY_CUSTOM_DIMENSION_1,
+            youboraPluginConfig.contentCustomDimensions?.contentCustomDimension1
+        )
+        optBundle.putString(
+            Options.KEY_CUSTOM_DIMENSION_2,
+            youboraPluginConfig.contentCustomDimensions?.contentCustomDimension2
+        )
 
         return optBundle
     }
@@ -1807,16 +1993,23 @@ class PlayerActivity: AppCompatActivity(), Observer {
         playbackControlsView?.seekBar?.setUnplayedColor(resources.getColor(R.color.exo_black_opacity_60))
         playbackControlsView?.seekBar?.setScrubberColor(resources.getColor(R.color.colorAccent))
 
-        container.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        container.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 container.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 val screenHeight = getDeviceHeight()
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                     supportActionBar?.show()
-                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ((screenHeight / 2) - 300))
+                    player.setPlayerView(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ((screenHeight / 2) - 300)
+                    )
                 } else {
                     supportActionBar?.hide()
-                    player.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    player.setPlayerView(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
                 }
                 container.setOnClickListener { view ->
                     if (playbackControlsManager != null) {
@@ -1838,7 +2031,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
             searchView?.setVisibility(View.GONE)
             eventsListView?.setVisibility(View.GONE)
             //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            player?.setPlayerView(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            player?.setPlayerView(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             //unhide your objects here.
             supportActionBar?.show()
@@ -1849,7 +2045,8 @@ class PlayerActivity: AppCompatActivity(), Observer {
     }
 
     private fun isPlaybackEndedState(): Boolean {
-        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError && allAdsCompleted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition ?: -1) >= (player?.duration ?: 0))
+        return playbackControlsManager?.playerState === PlayerEvent.Type.ENDED || playbackControlsManager?.getAdPlayerState() != AdEvent.error && playbackControlsManager?.getAdPlayerState() != AdEvent.adBreakFetchError && allAdsCompleted && isPostrollAvailableInAdCuePoint() && ((player?.currentPosition
+            ?: -1) >= (player?.duration ?: 0))
     }
 
     private fun isPostrollAvailableInAdCuePoint(): Boolean {
@@ -1860,7 +2057,10 @@ class PlayerActivity: AppCompatActivity(), Observer {
         log.d("Player Activity onResume")
         super.onResume()
         NetworkChangeReceiver.getObservable().addObserver(this)
-        this.registerReceiver(networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+        this.registerReceiver(
+            networkChangeReceiver,
+            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        )
         if (isFirstOnResume) {
             isFirstOnResume = false
             return
