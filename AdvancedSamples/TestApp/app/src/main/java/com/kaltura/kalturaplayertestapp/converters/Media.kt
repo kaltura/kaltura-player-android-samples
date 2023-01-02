@@ -28,10 +28,19 @@ class Media {
     var urlType: String? = null
     var streamerType: String? = null
     var adapterData: Map<String,String>? = null
-    var externalSubtitles: List<PKExternalSubtitle>? = null
     var playbackRate: Float? = null
     var advertisingConfig: AdvertisingConfig? = null
     var playAdNowAdBreak: AdBreak? = null
+
+    var externalSubtitles: List<PKExternalSubtitle>? = null
+    get() {
+        field?.forEach {
+            if (it.isDefault) {
+                it.setDefault()
+            }
+        }
+        return field
+    }
 
     fun getAssetType(): APIDefines.KalturaAssetType? {
         if (assetType == null) {
