@@ -1591,6 +1591,27 @@ class PlayerActivity : AppCompatActivity(), Observer {
             }
         }
 
+        player?.addListener(this, PhoenixAnalyticsEvent.bookmarkError) { event ->
+            val reportedEventName = event.type.name
+            if (PlayerEvent.Type.PLAYHEAD_UPDATED.name != reportedEventName) {
+                updateEventsLogsList("phoenix:\n$reportedEventName")
+            }
+        }
+
+        player?.addListener(this, PhoenixAnalyticsEvent.concurrencyError) { event ->
+            val reportedEventName = event.type.name
+            if (PlayerEvent.Type.PLAYHEAD_UPDATED.name != reportedEventName) {
+                updateEventsLogsList("phoenix:\n$reportedEventName")
+            }
+        }
+
+         player?.addListener(this, PhoenixAnalyticsEvent.error) { event ->
+            val reportedEventName = event.type.name
+            if (PlayerEvent.Type.PLAYHEAD_UPDATED.name != reportedEventName) {
+                updateEventsLogsList("phoenix:\n$reportedEventName")
+            }
+        }
+
         player?.addListener(this, PlayerEvent.surfaceAspectRationSizeModeChanged) { event ->
             updateEventsLogsList("PlayerEvent:\n" + event.eventType().name + " Aspect Ratio: " + event.resizeMode.name)
             log.d("ASPECT_RATIO_RESIZE_MODE_CHANGED")
@@ -1638,7 +1659,7 @@ class PlayerActivity : AppCompatActivity(), Observer {
         eventMsg = dateFormat.format(date) + " " + eventMsg
         eventsList.add(eventMsg)
         if (!TextUtils.isEmpty(searchLogPattern)) {
-            if (eventMsg.toLowerCase().contains(searchLogPattern)) {
+            if (eventMsg.lowercase().contains(searchLogPattern)) {
                 searchedEventsList.add(eventMsg)
                 eventsListRecyclerAdapter?.notifyData(searchedEventsList)
             }
