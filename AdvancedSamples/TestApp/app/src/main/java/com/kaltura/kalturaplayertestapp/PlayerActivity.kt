@@ -622,6 +622,10 @@ class PlayerActivity : AppCompatActivity(), Observer {
                 if (initOptions.vrSettings != null) {
                     mediaEntry?.setIsVRMediaType(true)
                 }
+                appPlayerInitConfig.mediaList?.get(currentPlayedMediaIndex)?.externalSubtitles?.let {
+                    mediaEntry?.externalSubtitleList = it
+                }
+
                 mediaEntry?.let {
                     player.setMedia(mediaEntry, appPlayerInitConfig.startPosition)
                 }
