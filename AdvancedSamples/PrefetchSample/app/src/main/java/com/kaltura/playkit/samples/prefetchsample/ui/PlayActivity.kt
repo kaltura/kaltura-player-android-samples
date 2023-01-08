@@ -100,7 +100,7 @@ class PlayActivity : AppCompatActivity() {
             if (testItem?.id() != null) {
                 val entry = manager?.getLocalPlaybackEntry(testItem.id())
                 if (checkOfflinePlaybackPossible(entry)) {
-                    playAssetOffline(isOnlinePlayback, testItem?.id(), options, startPosition, testItem)
+                    playAssetOffline(isOnlinePlayback, testItem.id(), options, startPosition, testItem)
                 } else {
                     testItems?.let { itemList ->
                         playAssetOnline(itemList, itemIndexPosition, options)
@@ -112,7 +112,7 @@ class PlayActivity : AppCompatActivity() {
         } else {
             var testItem = testItems?.get(itemIndexPosition)
             if (testItem?.id() != null) {
-                playAssetOffline(isOnlinePlayback, testItem?.id(), options, startPosition, testItem)
+                playAssetOffline(isOnlinePlayback, testItem.id(), options, startPosition, testItem)
             } else {
                 Toast.makeText(this, "No asset id given", LENGTH_LONG).show()
             }
