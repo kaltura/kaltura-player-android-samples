@@ -14,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
+import com.kaltura.playkit.player.vr.VRDistortionConfig
 import com.kaltura.playkit.player.vr.VRInteractionMode
 import com.kaltura.playkit.player.vr.VRSettings
 import com.kaltura.playkit.providers.ovp.OVPMediaAsset
@@ -131,6 +132,10 @@ class MainActivity: AppCompatActivity() {
         vrSettings.isVrModeEnabled = false
         vrSettings.interactionMode = VRInteractionMode.MotionWithTouch
         vrSettings.isZoomWithPinchEnabled = true
+        // Distortion Config
+        vrSettings.vrDistortionConfig = VRDistortionConfig().apply {
+            scale = 0.75f
+        }
 
         val interactionMode = vrSettings.interactionMode
         if (!VRUtil.isModeSupported(this@MainActivity, interactionMode)) {
