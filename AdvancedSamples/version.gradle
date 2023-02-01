@@ -19,6 +19,7 @@ project.ext {
     isLocal = false
     isSnapshot = false
     def playerVersion = '4.26.0'
+    def boradpeakVersion = '4.26.1'
     def snapshot = 'develop-SNAPSHOT'
 
     remote = [
@@ -62,7 +63,7 @@ project.ext {
     broadpeakRemote = [
             tvPlayer: "com.kaltura.player:tvplayer:$playerVersion",
             youbora: "com.kaltura.playkit:youboraplugin:$playerVersion",
-            broadPeak: "com.kaltura.playkit:broadpeakplugin:$playerVersion"
+            broadPeak: "com.kaltura.playkit:broadpeakplugin:$boradpeakVersion"
     ]
 
     broadPeakSnapshot = [

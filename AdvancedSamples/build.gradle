@@ -23,6 +23,7 @@ allprojects {
         }
         mavenCentral()
         maven { url  "https://npaw.jfrog.io/artifactory/youbora/" }
+        maven { url "https://delivery-platform.broadpeak.tv/android/repository/all" }
         maven { url "https://jitpack.io" }
     }
 }
