@@ -67,6 +67,7 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
     }
 
     protected fun parseInitOptions(json: JsonObject?) {
+        val appPlayerInitConfig = Gson().fromJson(json, PlayerConfig::class.java)
         val partnerId = safeInteger(json, PARTNER_ID)
                 ?: throw IllegalArgumentException("partnerId must not be null")
         if (json?.has(PLAYER_CONFIG)!!) {
@@ -77,6 +78,8 @@ abstract class BaseDemoActivity : AppCompatActivity(), NavigationView.OnNavigati
                         .setPreload(safeBoolean(playerConfigJasonObject, PRELOAD))
                         .setKs(safeString(playerConfigJasonObject, KS))
                         .setPluginConfigs(parsePluginConfigs(json.get(PLUGINS)))
+                        .setLoadControlBuffers(appPlayerInitConfig.loadControlBuffers)
+                        .setMulticastSettings(appPlayerInitConfig.multicastSettings)
                         .setPKRequestConfig(PKRequestConfig(safeBoolean(playerConfigJasonObject, ALLOW_CROSS_PROTOCOL_ENABLED) ?: false))
                         .setReferrer(safeString(playerConfigJasonObject, REFERRER))
 

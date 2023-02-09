@@ -68,6 +68,7 @@ class BasicDemoActivity : BaseDemoActivity() {
         updatedInitOptions.setAdAutoPlayOnResume(initOptions?.adAutoPlayOnResume)
         updatedInitOptions.setSubtitleStyle(initOptions?.setSubtitleStyle)
         updatedInitOptions.setLoadControlBuffers(initOptions?.loadControlBuffers)
+        updatedInitOptions.setMulticastSettings(initOptions?.multicastSettings)
         updatedInitOptions.setAbrSettings(initOptions?.abrSettings)
         updatedInitOptions.setAspectRatioResizeMode(initOptions?.aspectRatioResizeMode)
         updatedInitOptions.setPreferredMediaFormat(initOptions?.preferredMediaFormat)
