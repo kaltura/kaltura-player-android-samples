@@ -4,7 +4,8 @@
  *
  * By default both are `false` hence remote will be used
  * If both set to `true` then local is preferred
- * make sure that local is commented if you want to run snapshot
+ * Make sure that local and remote are commented if you want to run snapshot
+ * Make sure that snapshot and remote are commented if you want to run local
  */
 
 project.ext {
