@@ -41,7 +41,7 @@ def samples = [
         'EventsRegistration',
         'VRBasicSetup',
         'VRBasicSubtitles',
-	'MediaPreviewSample',
+	    'MediaPreviewSample',
         'RecyclerViewSample',
         'DashThumbnailSample',
         'SmartSwitch',
