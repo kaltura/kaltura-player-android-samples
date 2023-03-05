@@ -4,6 +4,8 @@
  *
  * By default both are `false` hence remote will be used
  * If both set to `true` then local is preferred
+ * Make sure that local and remote are commented if you want to run snapshot
+ * Make sure that snapshot and remote are commented if you want to run local
  */
 
 project.ext {
@@ -19,7 +21,7 @@ project.ext {
     isLocal = false
     isSnapshot = false
     def playerVersion = '4.26.0'
-    def snapshot = 'develop-SNAPSHOT'
+    def developsnapshot = 'develop-SNAPSHOT'
 
     remote = [
             tvPlayer: "com.kaltura.player:tvplayer:$playerVersion",
@@ -30,12 +32,12 @@ project.ext {
     ]
 
     snapshot = [
-            tvPlayer: "com.kaltura:kaltura-player-android:$snapshot",
-            ima: "com.kaltura:playkit-android-ima:$snapshot",
-            youbora: "com.kaltura:playkit-android-youbora:$snapshot",
-            googlecast: "com.kaltura:playkit-android-googlecast:$snapshot",
-            vr: "com.kaltura:playkit-android-vr:$snapshot",
-            fbAds: "com.kaltura:playkit-android-fb-ads:$snapshot",
+            tvPlayer: "com.kaltura:kaltura-player-android:$developsnapshot",
+            ima: "com.kaltura:playkit-android-ima:$developsnapshot",
+            youbora: "com.kaltura:playkit-android-youbora:$developsnapshot",
+            googlecast: "com.kaltura:playkit-android-googlecast:$developsnapshot",
+            vr: "com.kaltura:playkit-android-vr:$developsnapshot",
+            //fbAds: "com.kaltura:playkit-android-fb-ads:$developsnapshot",
     ]
 
     /**
