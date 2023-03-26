@@ -377,7 +377,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             val textTrackInfo = textTracks[i]
 
             //Name TrackItem based on the text track label.
-            val name = textTrackInfo.label
+            val name = if (!TextUtils.isEmpty(textTrackInfo.label)) {
+                textTrackInfo.label
+            } else {
+                textTrackInfo.language
+            }
             trackItems[i] = TrackItem(name, textTrackInfo.uniqueId)
         }
         return trackItems
@@ -466,7 +470,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         val container = player_root
         container.addView(player?.playerView)
-
+        player?.addListener(this, PlayerEvent.tracksAvailable) { event ->
+            Log.d(TAG, "tracksAvailable")
+        }
         val ottMediaOptions = buildOttMediaOptions()
         player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {
@@ -487,25 +493,30 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun buildOttMediaOptions(): OTTMediaOptions {
+
         val ottMediaAsset = OTTMediaAsset()
-        ottMediaAsset.assetId = ASSET_ID
+        ottMediaAsset.assetId = "1755800"
         ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
         ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
         ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaAsset.formats = listOf("Mobile_Main")
-        ottMediaAsset.ks = null
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Https
+        ottMediaAsset.urlType = APIDefines.KalturaUrlType.Direct
+        ottMediaAsset.setStreamerType(APIDefines.KalturaStreamerType.Mpegdash)
+        ottMediaAsset.formats = listOf("DASH_WV")
+       // ottMediaAsset.ks = "djJ8MzIwMXz3rq7yT-joijCJ7Fx4edrSWhNn_Fwk0ohpMu6i2Sg0NQslp5-XnIUvqy_6FA4dWXzJiIdWiRuajoWyr5iwVQ17yZ7fzEvDKgdG6e5KGNHDeUp3doYxroAPDq62LV_cLd2YKBiFujbcPmnHz1BgIXvQUAiC3L7GzvIt9vTuqPU3MeiJ6IAlpx1cgU8LONfmts5QLHBRIuzM6ZFyW_juPkU2oKKxmofqxiFebG3IfVlgKtfPP9pP8VHFess81ngjZtXra9T3P7cTQNQGmJ8PPz5dMNKseZRzsJs5UMlae3jtyvtRMZsMxuBlfSKXTPTGusMfSHGiWCvLHW6Gvet9KhiE6-YD5Ej-CoMGdae98vaqbQ=="
+        ottMediaAsset.ks = "djJ8MzIwMXz3rq7yT-joijCJ7Fx4edrSWhNn_Fwk0ohpMu6i2Sg0NQslp5-XnIUvqy_6FA4dWXzJiIdWiRuajoWyr5iwVQ17yZ7fzEvDKgdG6e5KGNHDeUp3doYxroAPDq62LV_cLd2YKBiFujbcPmnHz1BgIXvQUAiC3L7GzvIt9vTuqPU3MeiJ6IAlpx1cgU8LONfmts5QLHBRIuzM6ZFyW_juPkU2oKKxmofqxiFebG3IfVlgKtfPP9pP8VHFess81ngjZtXra9T3P7cTQNQGmJ8PPz5dMNKseZRzsJs5UMlae3jtyvtRMZsMxuBlfSKXTPTGusMfSHGiWCvLHW6Gvet9KhiE6-YD5Ej-CoMGdae98vaqbQ=="
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
-        ottMediaOptions.startPosition = START_POSITION
-        ottMediaOptions.externalSubtitles = externalSubtitles
+        ottMediaOptions.startPosition = 500
+       // ottMediaOptions.externalSubtitles = externalSubtitles
         //ottMediaOptions.externalVttThumbnailUrl = "https://stdlwcdn.lwcdn.com/i/8fdb4e20-8ebb-4590-8844-dae39680d837/160p.vtt"
 
         return ottMediaOptions
     }
 
     companion object {
-        val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
-        val PARTNER_ID = 3009
+
+        val SERVER_URL = "https://api.frp1.ott.kaltura.com/api_v3/"
+        val PARTNER_ID = 3201
     }
 }
