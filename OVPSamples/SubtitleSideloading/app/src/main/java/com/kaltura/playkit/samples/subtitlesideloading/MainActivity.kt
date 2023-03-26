@@ -364,7 +364,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             val textTrackInfo = textTracks[i]
 
             //Name TrackItem based on the text track label.
-            val name = textTrackInfo.label
+            val name = if (!TextUtils.isEmpty(textTrackInfo.label)) {
+                textTrackInfo.label
+            } else {
+                textTrackInfo.language
+            }
             trackItems[i] = TrackItem(name, textTrackInfo.uniqueId)
         }
         return trackItems
