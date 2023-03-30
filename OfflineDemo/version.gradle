@@ -20,7 +20,7 @@ project.ext {
     // Only for remote, local, dev-snapshot config
     isLocal = false
     isSnapshot = false
-    def playerVersion = '4.27.0'
+    def playerVersion = '4.28.0'
     def developsnapshot = 'develop-SNAPSHOT'
 
     remote = [
