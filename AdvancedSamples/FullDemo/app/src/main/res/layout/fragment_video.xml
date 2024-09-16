@@ -72,6 +72,7 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/full_screen_switcher"
+                android:contentDescription="full_screen_switcher"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -86,6 +87,7 @@
     <TextView
         android:id="@+id/video_title"
         style="@style/Title"
+        android:contentDescription="video_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"

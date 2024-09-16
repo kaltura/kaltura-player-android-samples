@@ -5,6 +5,7 @@
 
     <string name="speed_prompt">Choose Playback Rate</string>
     <string name="speed_rate">Speed Rate:</string>
+    <string name="speedspinner">speedSpinner</string>
 
     <string-array name="speed_arrays">
         <item>0.5X</item>

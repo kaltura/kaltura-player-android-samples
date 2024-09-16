@@ -5,4 +5,5 @@
     <string name="vr_mode_on">Cardboard Mode</string>
     <string name="vr_mode_off">360 degree Mode</string>
     <string name="cc_style">CC Styles</string>
+    <string name="cc_style_spinner">ccStyleSpinner</string>
 </resources>

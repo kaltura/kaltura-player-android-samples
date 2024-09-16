@@ -6,4 +6,8 @@
     <string name="cc_style">CC Styles</string>
     <string name="play_text">Play</string>
     <string name="pause_text">Pause</string>
+    <string name="cc_style_spinner">ccStyleSpinner</string>
+    <string name="text_spinner">textSpinner</string>
+    <string name="audio_spinner">audioSpinner</string>
+    <string name="video_spinner">videoSpinner</string>
 </resources>
