@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply from: '../../version.gradle'
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
+    namespace 'com.kaltura.kalturaplayertestapp'
+    compileSdk project.ext.compileSdkVersion
 
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion

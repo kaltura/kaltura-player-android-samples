@@ -7,17 +7,19 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.kaltura.android.exoplayer2.C
-import com.kaltura.android.exoplayer2.Player
-import com.kaltura.android.exoplayer2.Timeline
-import com.kaltura.android.exoplayer2.ui.DefaultTimeBar
-import com.kaltura.android.exoplayer2.ui.TimeBar
+import com.kaltura.androidx.media3.common.C
+import com.kaltura.androidx.media3.common.Player
+import com.kaltura.androidx.media3.common.Timeline
+import com.kaltura.androidx.media3.common.util.UnstableApi
+import com.kaltura.androidx.media3.ui.DefaultTimeBar
+import com.kaltura.androidx.media3.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController
 import com.kaltura.tvplayer.KalturaPlayer
 import java.util.*
 
+@UnstableApi
 open class PlaybackControlsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnClickListener {
 
     private val log = PKLog.get("PlaybackControlsView")
@@ -58,19 +60,19 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
 
     private fun initPlaybackControls() {
 
-        btnPlay = this.findViewById(R.id.kexo_play)
-        btnPause = this.findViewById(R.id.kexo_pause)
-        btnFastForward = this.findViewById(R.id.kexo_ffwd)
+        btnPlay = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_play)
+        btnPause = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_pause)
+        btnFastForward = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_ffwd)
         btnFastForward.visibility = View.GONE
-        btnRewind = this.findViewById(R.id.kexo_rew)
+        btnRewind = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_rew)
         btnRewind.visibility = View.GONE
-        btnNext = this.findViewById(R.id.kexo_next)
-        btnPrevious = this.findViewById(R.id.kexo_prev)
-        btnRepeatToggle = this.findViewById(R.id.kexo_repeat_toggle)
+        btnNext = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_next)
+        btnPrevious = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_prev)
+        btnRepeatToggle = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_repeat_toggle)
         btnRepeatToggle.visibility = View.GONE
-        btnShuffle = this.findViewById(R.id.kexo_shuffle)
+        btnShuffle = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_shuffle)
         btnShuffle.visibility = View.GONE
-        btnVr = this.findViewById(R.id.kexo_vr)
+        btnVr = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_vr)
         btnVr.visibility = View.GONE
 
         btnPlay.setOnClickListener(this)
@@ -80,15 +82,15 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
         btnNext.setOnClickListener(this)
         btnPrevious.setOnClickListener(this)
 
-        seekBar = this.findViewById(R.id.kexo_progress)
+        seekBar = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_progress)
         seekBar.setPlayedColor(resources.getColor(R.color.playedMediaColor))
         seekBar.setBufferedColor(resources.getColor(R.color.grey))
         seekBar.setUnplayedColor(resources.getColor(R.color.black))
         seekBar.setScrubberColor(resources.getColor(R.color.colorAccent))
         seekBar.addListener(componentListener)
 
-        tvCurTime = this.findViewById(R.id.kexo_position)
-        tvTime = this.findViewById(R.id.kexo_duration)
+        tvCurTime = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_position)
+        tvTime = this.findViewById(com.kaltura.androidx.media3.R.id.kexo_duration)
     }
 
     private fun updateProgress() {
@@ -241,18 +243,18 @@ open class PlaybackControlsView @JvmOverloads constructor(context: Context, attr
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.kexo_play -> player?.play()
-            R.id.kexo_pause -> player?.pause()
-            R.id.kexo_ffwd -> {
+            com.kaltura.androidx.media3.R.id.kexo_play -> player?.play()
+            com.kaltura.androidx.media3.R.id.kexo_pause -> player?.pause()
+            com.kaltura.androidx.media3.R.id.kexo_ffwd -> {
                 //Do nothing for now
             }
-            R.id.kexo_rew -> {
+            com.kaltura.androidx.media3.R.id.kexo_rew -> {
                 //Do nothing for now
             }
-            R.id.kexo_next -> {
+            com.kaltura.androidx.media3.R.id.kexo_next -> {
                 //Do nothing for now
             }
-            R.id.kexo_prev -> {
+            com.kaltura.androidx.media3.R.id.kexo_prev -> {
                 //Do nothing for now
             }
         }

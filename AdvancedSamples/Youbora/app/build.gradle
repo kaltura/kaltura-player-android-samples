@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply from: '../../version.gradle'
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
+    namespace 'com.kaltura.playkit.samples.youbora'
+    compileSdk project.ext.compileSdkVersion
     compileOptions {
         sourceCompatibility project.ext.Java_1_8
         targetCompatibility project.ext.Java_1_8

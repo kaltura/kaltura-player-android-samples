@@ -10,17 +10,17 @@
 
 project.ext {
 
-    compileSdkVersion = 33
-    minSdkVersion = 19
-    targetSdkVersion = 33
-    kotlin_version = '1.7.10'
+    compileSdkVersion = 34
+    minSdkVersion = 21
+    targetSdkVersion = 34
+    kotlin_version = '1.8.0'
     ktx_version ='1.9.0'
-    Java_1_8 = JavaVersion.VERSION_1_8
+    Java_1_8 = JavaVersion.VERSION_17
 
     // Only for remote, local, dev-snapshot config
-    isLocal = false
+    isLocal = true
     isSnapshot = false
-    def playerVersion = '4.29.0'
+    def playerVersion = '4.30.9'
     def developsnapshot = 'develop-SNAPSHOT'
 
     remote = [
@@ -32,15 +32,15 @@ project.ext {
             smartSwitch: "com.kaltura.playkit:smartswitchplugin:$playerVersion"
     ]
 
-    snapshot = [
-            tvPlayer: "com.kaltura:kaltura-player-android:$developsnapshot",
-            ima: "com.kaltura:playkit-android-ima:$developsnapshot",
-            youbora: "com.kaltura:playkit-android-youbora:$developsnapshot",
-            googlecast: "com.kaltura:playkit-android-googlecast:$developsnapshot",
-            vr: "com.kaltura:playkit-android-vr:$developsnapshot",
-            //fbAds: "com.kaltura:playkit-android-fb-ads:developsnapshot",
-            smartSwitch: "com.kaltura:playkit-android-smartSwitch:$developsnapshot"
-    ]
+//    snapshot = [
+//            tvPlayer: "com.kaltura:kaltura-player-android:$developsnapshot",
+//            ima: "com.kaltura:playkit-android-ima:$developsnapshot",
+//            youbora: "com.kaltura:playkit-android-youbora:$developsnapshot",
+//            googlecast: "com.kaltura:playkit-android-googlecast:$developsnapshot",
+//            vr: "com.kaltura:playkit-android-vr:$developsnapshot",
+//            //fbAds: "com.kaltura:playkit-android-fb-ads:developsnapshot",
+//            smartSwitch: "com.kaltura:playkit-android-smartSwitch:$developsnapshot"
+//    ]
 
     /**
      * Steps to run project locally
@@ -48,7 +48,7 @@ project.ext {
      * 2. Uncomment the path of local repos from settings.gradle
      * 3. Set `isLocal` above in the file to `true`
      */
-    /* local = [
+    local = [
              tvPlayer: project(':tvplayer'),
              ima: project(":ima"),
              youbora: project(":youbora"),
@@ -57,7 +57,7 @@ project.ext {
              //md360: project(":MD360"),
              //fbAds: project(':fbads'),
              smartSwitch: project(':smartswitch')
-     ] */
+     ]
 
     // Special dependencies for Broadpeak. By default this project is not included.
     // Uncomment from `settings.gradle` to include it.
@@ -67,11 +67,11 @@ project.ext {
             broadPeak: "com.kaltura.playkit:broadpeakplugin:$playerVersion"
     ]
 
-    broadPeakSnapshot = [
-            tvPlayer: "com.kaltura:kaltura-player-android:$developsnapshot",
-            youbora: "com.kaltura:playkit-android-youbora:$developsnapshot",
-            broadPeak:  "com.github.kaltura:playkit-android-broadpeak-smartlib:$developsnapshot"
-    ]
+//    broadPeakSnapshot = [
+//            tvPlayer: "com.kaltura:kaltura-player-android:$developsnapshot",
+//            youbora: "com.kaltura:playkit-android-youbora:$developsnapshot",
+//            broadPeak:  "com.github.kaltura:playkit-android-broadpeak-smartlib:$developsnapshot"
+//    ]
     /**
      * Steps to run project locally
      * 1. Uncomment the following 'local' block
@@ -91,7 +91,7 @@ project.ext {
             junit: 'junit:junit:4.13.2',
             multidex: 'com.android.support:multidex:2.0.1',
             ktx: "androidx.core:core-ktx:$ktx_version",
-            kotlin: "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+            kotlin: "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     ]
 
     testAppSpecialDeps = [

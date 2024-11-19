@@ -1,6 +1,7 @@
 package com.kaltura.playkit.samples.imasample
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -15,11 +16,11 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.playkit.samples.imasample.databinding.ActivityMainBinding
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 
@@ -42,11 +43,13 @@ class MainActivity : AppCompatActivity() {
     // Player
     private var player: KalturaPlayer? = null
     private var playerState: PlayerState? = null
+    private lateinit var binding: ActivityMainBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
 
         loadPlaykitPlayer()
     }
@@ -61,14 +64,14 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         log.d("onPause")
         super.onPause()
-        playerControls?.release()
+        binding.playerControls?.release()
         player?.onApplicationPaused()
     }
 
     override fun onResume() {
         log.d("onResume")
         super.onResume()
-        playerControls?.resume()
+        binding.playerControls?.resume()
         player?.let { player ->
             playerState?.let {
                 player.onApplicationResumed()
@@ -97,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         val container = findViewById<ViewGroup>(R.id.player_root)
         container.addView(player?.playerView)
 
-        playerControls?.setPlayer(player)
+        binding.playerControls?.setPlayer(player)
 
         val ottMediaOptions = buildOttMediaOptions()
         player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
@@ -155,9 +158,9 @@ class MainActivity : AppCompatActivity() {
 
         player?.addListener(this, AdEvent.contentResumeRequested) {
             log.d("ADS_PLAYBACK_ENDED")
-            playerControls?.visibility = View.VISIBLE
-            playerControls?.setSeekBarStateForAd(false)
-            playerControls?.setPlayerState(PlayerState.READY)
+            binding.playerControls?.visibility = View.VISIBLE
+            binding.playerControls?.setSeekBarStateForAd(false)
+            binding.playerControls?.setPlayerState(PlayerState.READY)
 
             player?.let { player ->
                 adCuePoints?.let {
@@ -173,14 +176,14 @@ class MainActivity : AppCompatActivity() {
 
             adCuePoints?.let { adCuePoints ->
                 adsPosition?.let {
-                    playerControls.setAdMarkers(it.toLongArray(), playedAdsPosition.toBooleanArray(),  adCuePoints.adCuePoints.size)
+                    binding.playerControls.setAdMarkers(it.toLongArray(), playedAdsPosition.toBooleanArray(),  adCuePoints.adCuePoints.size)
                 }
             }
         }
 
         player?.addListener(this, AdEvent.contentPauseRequested) {
             log.d("AD_CONTENT_PAUSE_REQUESTED")
-            playerControls?.visibility = View.INVISIBLE
+            binding.playerControls?.visibility = View.INVISIBLE
         }
 
         player?.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
@@ -223,7 +226,7 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, AdEvent.allAdsCompleted) {
                 event -> log.d("AD_ALL_ADS_COMPLETED")
             if (adCuePoints != null && adCuePoints?.hasPostRoll()!!) {
-                playerControls?.setPlayerState(PlayerState.IDLE)
+                binding.playerControls?.setPlayerState(PlayerState.IDLE)
             }
         }
 
@@ -257,7 +260,7 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, AdEvent.error) { event ->
             log.d("AD_ERROR : " + event.error.errorType.name)
             if (event?.error != null) {
-                playerControls?.setSeekBarStateForAd(false)
+                binding.playerControls?.setSeekBarStateForAd(false)
                 log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
             }
         }
