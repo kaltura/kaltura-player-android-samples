@@ -163,6 +163,7 @@ class MainActivity : AppCompatActivity() {
         ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
         ottMediaAsset.adapterData = adapterData
         ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Https
+        ottMediaAsset.formats = ConfigurationProvider.getFileFormats()
 //        ottMediaAsset.formats = listOf("DASH_HEVC")
 //        ottMediaAsset.formats = listOf("DASH_WV")
 //        ottMediaAsset.formats = listOf("BP_VOD_HLS", "BP_VOD_Dash")

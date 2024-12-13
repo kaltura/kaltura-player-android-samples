@@ -10,6 +10,9 @@ object ConfigurationProvider {
     private val PARTNER_ID_PREF_KEY = "PARTNER_ID_PREF_KEY"
     private val PARTNER_ID_PREF_DEFAULT_VALUE = 3201
 
+    private val FILE_FORMATS_PREF_KEY = "FILE_FORMATS_PREF_KEY"
+    private val FILE_FORMATS_PREF_DEFAULT_VALUE = ""
+
     private val ASSET_ID_PREF_KEY = "ASSET_ID_PREF_KEY"
     private val ASSET_ID_PREF_DEFAULT_VALUE = "1012948"
 
@@ -39,6 +42,24 @@ object ConfigurationProvider {
     fun setPartnerId(partnerId: Int) {
         with (PreferenceManager.getDefaultSharedPreferences(DemoApplication.getApplicationContext()).edit()) {
             putInt(PARTNER_ID_PREF_KEY, partnerId)
+            apply()
+        }
+    }
+
+    fun getFileFormats(): List<String> {
+        val fileFormatsString = PreferenceManager.getDefaultSharedPreferences(DemoApplication.getApplicationContext()).getString(FILE_FORMATS_PREF_KEY, FILE_FORMATS_PREF_DEFAULT_VALUE)
+            ?: FILE_FORMATS_PREF_DEFAULT_VALUE
+        return fileFormatsString.split(",")
+    }
+
+    fun getFileFormatsString(): String {
+        return PreferenceManager.getDefaultSharedPreferences(DemoApplication.getApplicationContext()).getString(FILE_FORMATS_PREF_KEY, FILE_FORMATS_PREF_DEFAULT_VALUE)
+            ?: FILE_FORMATS_PREF_DEFAULT_VALUE
+    }
+
+    fun setFileFormats(fileFormats: String) {
+        with (PreferenceManager.getDefaultSharedPreferences(DemoApplication.getApplicationContext()).edit()) {
+            putString(FILE_FORMATS_PREF_KEY, fileFormats)
             apply()
         }
     }

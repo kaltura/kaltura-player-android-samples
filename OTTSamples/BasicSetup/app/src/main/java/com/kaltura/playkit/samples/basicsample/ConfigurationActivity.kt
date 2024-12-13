@@ -20,12 +20,14 @@ class ConfigurationActivity : AppCompatActivity() {
             etAssetId.setText(ConfigurationProvider.getAssetId())
             etKsToken.setText(ConfigurationProvider.getKsToken())
             cbIsDrm.isChecked = ConfigurationProvider.getIsDrm()
+            etFileFormats.setText(ConfigurationProvider.getFileFormatsString())
             btApply.setOnClickListener {
                 ConfigurationProvider.setBaseUrl(etBaseUrl.text.toString())
                 ConfigurationProvider.setPartnerId(etPartnerId.text.toString().toInt())
                 ConfigurationProvider.setAssetId(etAssetId.text.toString())
                 ConfigurationProvider.setKsToken(etKsToken.text.toString())
                 ConfigurationProvider.setIsDrm(cbIsDrm.isChecked)
+                ConfigurationProvider.setFileFormats(etFileFormats.text.toString())
 
                 startActivity(Intent(this@ConfigurationActivity, MainActivity::class.java))
             }
