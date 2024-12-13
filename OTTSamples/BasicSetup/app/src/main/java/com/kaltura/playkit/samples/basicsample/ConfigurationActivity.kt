@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
+import com.kaltura.playkit.player.PKHttpClientManager
 import com.kaltura.playkit.samples.basicsample.databinding.ActivityConfigurationBinding
+import com.kaltura.tvplayer.KalturaOttPlayer
 
 class ConfigurationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityConfigurationBinding
@@ -29,8 +31,24 @@ class ConfigurationActivity : AppCompatActivity() {
                 ConfigurationProvider.setIsDrm(cbIsDrm.isChecked)
                 ConfigurationProvider.setFileFormats(etFileFormats.text.toString())
 
+                KalturaOttPlayer.initialize(this@ConfigurationActivity,
+                    ConfigurationProvider.getPartnerId(),
+                    ConfigurationProvider.getBaseUrl()
+                )
+                doConnectionsWarmup()
+
                 startActivity(Intent(this@ConfigurationActivity, MainActivity::class.java))
             }
         }
+    }
+
+    private fun doConnectionsWarmup() {
+        PKHttpClientManager.setHttpProvider("okhttp")
+        PKHttpClientManager.warmUp(
+            "https://rest-as.ott.kaltura.com/crossdomain.xml",
+            "https://api-preprod.ott.kaltura.com/crossdomain.xml",
+            "https://cdnapisec.kaltura.com/favicon.ico",
+            "https://cfvod.kaltura.com/favicon.ico"
+        )
     }
 }

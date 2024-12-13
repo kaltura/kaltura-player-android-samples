@@ -19,21 +19,7 @@ class DemoApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-        KalturaOttPlayer.initialize(this,
-            ConfigurationProvider.getPartnerId(),
-            ConfigurationProvider.getBaseUrl()
-        )
-        doConnectionsWarmup()
-    }
 
-    private fun doConnectionsWarmup() {
-        PKHttpClientManager.setHttpProvider("okhttp")
-        PKHttpClientManager.warmUp(
-                "https://rest-as.ott.kaltura.com/crossdomain.xml",
-                "https://api-preprod.ott.kaltura.com/crossdomain.xml",
-                "https://cdnapisec.kaltura.com/favicon.ico",
-                "https://cfvod.kaltura.com/favicon.ico"
-        )
     }
 
     // Called by the system when the device configuration changes while your component is running.
