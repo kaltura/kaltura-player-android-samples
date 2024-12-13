@@ -2,6 +2,7 @@ package com.kaltura.playkit.samples.basicsample
 
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
@@ -14,24 +15,25 @@ import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.playkit.samples.basicsample.databinding.ActivityMainBinding
 import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
     private val log = PKLog.get("MainActivity")
-    private val ASSET_ID = "548576"
     private val START_POSITION = 0L // position for start playback in msec.
     private var player: KalturaPlayer? = null
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
 
         loadPlaykitPlayer()
 
@@ -39,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         showSystemUI()
 
-        activity_main.setOnClickListener { v ->
+        binding.activityMain.setOnClickListener { v ->
             if (isFullScreen) {
                 showSystemUI()
             } else {
@@ -82,15 +84,15 @@ class MainActivity : AppCompatActivity() {
      */
     private fun addPlayPauseButton() {
         //Add clickListener.
-        play_pause_button.setOnClickListener { v ->
+        binding.playPauseButton.setOnClickListener { v ->
             player?.let {
                 if (it.isPlaying) {
                     //If player is playing, change text of the button and pause.
-                    play_pause_button.setText(R.string.play_text)
+                    binding.playPauseButton.setText(R.string.play_text)
                     it.pause()
                 } else {
                     //If player is not playing, change text of the button and play.
-                    play_pause_button.setText(R.string.pause_text)
+                    binding.playPauseButton.setText(R.string.pause_text)
                     it.play()
                 }
             }
@@ -107,7 +109,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         player?.let {
-            play_pause_button.setText(R.string.pause_text)
+            binding.playPauseButton.setText(R.string.pause_text)
             if (it.mediaEntry != null) {
                 it.onApplicationResumed()
                 it.play()
@@ -126,12 +128,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loadPlaykitPlayer() {
-        val playerInitOptions = PlayerInitOptions(PARTNER_ID)
+        PKLog.setGlobalLevel(PKLog.Level.verbose)
+        val playerInitOptions = PlayerInitOptions(ConfigurationProvider.getPartnerId())
         playerInitOptions.setAutoPlay(true)
         playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
-        val container = player_root
+        val container = binding.playerRoot
         container.addView(player?.playerView)
 
         val ottMediaOptions = buildOttMediaOptions()
@@ -147,21 +150,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildOttMediaOptions(): OTTMediaOptions {
+        val adapterData: MutableMap<String, String> = HashMap()
+        adapterData["codec"] = "HEVC"//"AVC"
+        adapterData["quality"] = "UHD"
+        adapterData["drm"] = if (ConfigurationProvider.getIsDrm()) "true" else "false"
         val ottMediaAsset = OTTMediaAsset()
-        ottMediaAsset.assetId = ASSET_ID
+        ottMediaAsset.assetId = ConfigurationProvider.getAssetId()
         ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
         ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
+        ottMediaAsset.urlType = APIDefines.KalturaUrlType.Direct
+        ottMediaAsset.streamerType = APIDefines.KalturaStreamerType.Mpegdash
         ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaAsset.formats = listOf("Mobile_Main")
-        ottMediaAsset.ks = null
+        ottMediaAsset.adapterData = adapterData
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Https
+//        ottMediaAsset.formats = listOf("DASH_HEVC")
+//        ottMediaAsset.formats = listOf("DASH_WV")
+//        ottMediaAsset.formats = listOf("BP_VOD_HLS", "BP_VOD_Dash")
+        ottMediaAsset.ks = ConfigurationProvider.getKsToken()
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
 
         return ottMediaOptions
     }
     companion object {
-        val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
-        val PARTNER_ID = 3009
     }
 }

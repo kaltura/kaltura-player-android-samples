@@ -27,6 +27,9 @@ android {
     lintOptions {
         warning 'InvalidPackage'
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 configurations.all {
