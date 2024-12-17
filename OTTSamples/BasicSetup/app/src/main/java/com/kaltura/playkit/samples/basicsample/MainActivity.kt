@@ -20,6 +20,7 @@ import com.kaltura.tvplayer.KalturaOttPlayer
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.OTTMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
+import com.kaltura.tvplayer.config.TVPlayerParams
 
 class MainActivity : AppCompatActivity() {
 
@@ -130,6 +131,9 @@ class MainActivity : AppCompatActivity() {
     fun loadPlaykitPlayer() {
         PKLog.setGlobalLevel(PKLog.Level.verbose)
         val playerInitOptions = PlayerInitOptions(ConfigurationProvider.getPartnerId())
+        val tvPlayerParams = TVPlayerParams()
+        tvPlayerParams.serviceUrl = ConfigurationProvider.getBaseUrl()
+        playerInitOptions.tvPlayerParams = tvPlayerParams
         playerInitOptions.setAutoPlay(true)
         playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
         player = KalturaOttPlayer.create(this@MainActivity, playerInitOptions)
