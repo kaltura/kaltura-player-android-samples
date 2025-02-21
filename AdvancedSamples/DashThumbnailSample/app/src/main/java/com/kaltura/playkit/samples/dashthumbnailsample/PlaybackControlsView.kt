@@ -10,11 +10,11 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.kaltura.android.exoplayer2.C
-import com.kaltura.android.exoplayer2.Player
-import com.kaltura.android.exoplayer2.Timeline
-import com.kaltura.android.exoplayer2.ui.DefaultTimeBar
-import com.kaltura.android.exoplayer2.ui.TimeBar
+import com.kaltura.androidx.media3.common.C
+import com.kaltura.androidx.media3.common.Player
+import com.kaltura.androidx.media3.common.Timeline
+import com.kaltura.androidx.media3.ui.DefaultTimeBar
+import com.kaltura.androidx.media3.ui.TimeBar
 import com.kaltura.playkit.PKLog
 import com.kaltura.playkit.PlayerState
 import com.kaltura.playkit.ads.AdController

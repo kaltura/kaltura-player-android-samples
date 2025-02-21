@@ -9,9 +9,6 @@ android {
         sourceCompatibility project.ext.Java_1_8
         targetCompatibility project.ext.Java_1_8
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
     defaultConfig {
         applicationId "com.kaltura.playkit.samples.dashthumbnailsample"
         minSdkVersion project.ext.minSdkVersion
@@ -20,9 +17,6 @@ android {
         versionName "1.0"
         multiDexEnabled  true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        dexOptions {
-            jumboMode true
-        }
     }
     buildTypes {
         release {
@@ -32,6 +26,9 @@ android {
     }
     lintOptions {
         warning 'InvalidPackage'
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 

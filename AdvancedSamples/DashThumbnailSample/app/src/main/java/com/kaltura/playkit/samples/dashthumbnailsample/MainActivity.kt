@@ -4,10 +4,12 @@ import android.graphics.Bitmap
 import android.graphics.RectF
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
@@ -24,10 +26,10 @@ import com.kaltura.playkit.plugins.ima.IMAPlugin
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.playkit.samples.dashthumbnailsample.databinding.ActivityMainBinding
 import com.kaltura.playkit.samples.dashthumbnailsample.preview.GetPreviewFromSprite
 import com.kaltura.tvplayer.*
 import com.kaltura.tvplayer.config.PhoenixTVPlayerParams
-import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -105,9 +107,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
     private var playerState: PlayerState? = null
     private var adCuePoints: AdCuePoints? = null
     private var imageTracks = mutableListOf<ImageTrack>()
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
 
         if (buildUsingBasicPlayer) {
             val mediaEntry = createFirstMediaEntry()
@@ -116,7 +120,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
             loadPlaykitPlayer()
         }
 
-        activity_main.setOnClickListener { v ->
+        binding.root.setOnClickListener { v ->
             if (isFullScreen) {
                 showSystemUI()
             } else {
@@ -124,7 +128,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
             }
         }
 
-        btnChangeMedia.setOnClickListener { v ->
+        binding.btnChangeMedia.setOnClickListener { v ->
 
             clearResources()
 
@@ -223,8 +227,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
                 }
 
                 val imageTrackAdapter: ArrayAdapter<String> = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, imageTrackStrings)
-                imageTrackSpinner.adapter = imageTrackAdapter
-                imageTrackSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                binding.imageTrackSpinner.adapter = imageTrackAdapter
+                binding.imageTrackSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
                         if (!userIsInteracting) {
                             return
@@ -252,8 +256,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         log.d("onPause")
         super.onPause()
 
-        if (playerControls != null) {
-            playerControls?.release()
+        if (binding.playerControls != null) {
+            binding.playerControls?.release()
         }
 
         player?.onApplicationPaused()
@@ -263,8 +267,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         log.d("onResume")
         super.onResume()
 
-        if (playerControls != null) {
-            playerControls?.resume()
+        if (binding.playerControls != null) {
+            binding.playerControls?.resume()
         }
 
         if (player != null && playerState != null) {
@@ -275,7 +279,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
 
     public override fun onDestroy() {
         if (isImageTrackAvailable) {
-            playerControls?.terminateThreadPool()
+            binding.playerControls?.terminateThreadPool()
             clearResources()
             Glide.get(this).clearMemory()
             clearGlideDiskCache()
@@ -320,9 +324,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         subscribeToAdEvents()
 
-        player_root.addView(player?.playerView)
+        binding.playerRoot.addView(player?.playerView)
 
-        playerControls?.setPlayer(player)
+        binding.playerControls?.setPlayer(player)
 
         buildFirstOttMediaOptions()
 
@@ -418,14 +422,14 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
 
         player?.addListener(this, AdEvent.contentResumeRequested) { event ->
             log.d("ADS_PLAYBACK_ENDED")
-            playerControls?.setSeekBarStateForAd(false)
-            playerControls?.setPlayerState(PlayerState.READY)
+            binding.playerControls?.setSeekBarStateForAd(false)
+            binding.playerControls?.setPlayerState(PlayerState.READY)
         }
 
         player?.addListener(this, AdEvent.contentPauseRequested) { event ->
             log.d("AD_CONTENT_PAUSE_REQUESTED")
-            playerControls?.setSeekBarStateForAd(true)
-            playerControls?.setPlayerState(PlayerState.READY)
+            binding.playerControls?.setSeekBarStateForAd(true)
+            binding.playerControls?.setPlayerState(PlayerState.READY)
         }
 
         player?.addListener(this, AdEvent.adPlaybackInfoUpdated) { event ->
@@ -470,7 +474,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         player?.addListener(this, AdEvent.allAdsCompleted) { event ->
             log.d("AD_ALL_ADS_COMPLETED")
             if (adCuePoints != null && adCuePoints?.hasPostRoll()!!) {
-                playerControls?.setPlayerState(PlayerState.IDLE)
+                binding.playerControls?.setPlayerState(PlayerState.IDLE)
             }
         }
 
@@ -505,7 +509,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         player?.addListener(this, AdEvent.error) { event ->
             log.d("AD_ERROR : " + event.error.errorType.name)
             if (event?.error != null) {
-                playerControls?.setSeekBarStateForAd(false)
+                binding.playerControls?.setSeekBarStateForAd(false)
                 log.e("ERROR: " + event.error.errorType + ", " + event.error.message)
             }
         }
@@ -520,9 +524,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
         player = KalturaBasicPlayer.create(this@MainActivity, playerInitOptions)
         player?.setPlayerView(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
 
-        val container = player_root
+        val container = binding.playerRoot
         container.addView(player?.playerView)
-        playerControls?.setPlayer(player)
+        binding.playerControls?.setPlayer(player)
         player?.setMedia(pkMediaEntry, START_POSITION)
 
         showSystemUI()
