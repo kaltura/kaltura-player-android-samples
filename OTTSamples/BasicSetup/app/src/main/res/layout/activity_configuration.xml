@@ -48,6 +48,16 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="VFAST asset ID"/>
+
+        <EditText
+            android:id="@+id/et_vfast_asset_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="File formats (comma separated!)"/>
 
         <EditText

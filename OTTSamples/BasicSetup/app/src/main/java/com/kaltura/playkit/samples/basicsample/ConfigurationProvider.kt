@@ -16,6 +16,9 @@ object ConfigurationProvider {
     private val ASSET_ID_PREF_KEY = "ASSET_ID_PREF_KEY"
     private val ASSET_ID_PREF_DEFAULT_VALUE = "1012948"
 
+    private val VFAST_ASSET_ID_PREF_KEY = "VFAST_ASSET_ID_PREF_KEY"
+    private val VFAST_ASSET_ID_PREF_DEFAULT_VALUE = ""
+
     private val IS_DRM_PREF_KEY = "IS_DRM_PREF_KEY"
     private val IS_DRM_PREF_DEFAULT_VALUE = false
 
@@ -60,6 +63,18 @@ object ConfigurationProvider {
     fun setFileFormats(fileFormats: String) {
         with (PreferenceManager.getDefaultSharedPreferences(DemoApplication.getApplicationContext()).edit()) {
             putString(FILE_FORMATS_PREF_KEY, fileFormats)
+            apply()
+        }
+    }
+
+    fun getVfastAssetId(): String {
+        return PreferenceManager.getDefaultSharedPreferences(DemoApplication.getApplicationContext()).getString(VFAST_ASSET_ID_PREF_KEY, VFAST_ASSET_ID_PREF_DEFAULT_VALUE)
+            ?: VFAST_ASSET_ID_PREF_DEFAULT_VALUE
+    }
+
+    fun setVfastAssetId(vfastAssetId: String) {
+        with (PreferenceManager.getDefaultSharedPreferences(DemoApplication.getApplicationContext()).edit()) {
+            putString(VFAST_ASSET_ID_PREF_KEY, vfastAssetId)
             apply()
         }
     }

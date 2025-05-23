@@ -160,6 +160,7 @@ class MainActivity : AppCompatActivity() {
         adapterData["drm"] = if (ConfigurationProvider.getIsDrm()) "true" else "false"
         val ottMediaAsset = OTTMediaAsset()
         ottMediaAsset.assetId = ConfigurationProvider.getAssetId()
+        ottMediaAsset.vfastLiveAssetId = ConfigurationProvider.getVfastAssetId()
         ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
         ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
         ottMediaAsset.urlType = APIDefines.KalturaUrlType.Direct
