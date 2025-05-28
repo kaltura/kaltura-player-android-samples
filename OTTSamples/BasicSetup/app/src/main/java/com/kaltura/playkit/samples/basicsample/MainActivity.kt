@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun buildOttMediaOptions(): OTTMediaOptions {
         val adapterData: MutableMap<String, String> = HashMap()
-        adapterData["codec"] = "HEVC"//"AVC"
+        adapterData["codec"] = "AVC"
         adapterData["quality"] = "UHD"
         adapterData["drm"] = if (ConfigurationProvider.getIsDrm()) "true" else "false"
         val ottMediaAsset = OTTMediaAsset()

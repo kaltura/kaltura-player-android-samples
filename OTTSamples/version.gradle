@@ -11,16 +11,16 @@
 project.ext {
 
     compileSdkVersion = 33
-    minSdkVersion = 19
-    targetSdkVersion = 33
-    kotlin_version = '1.7.10'
+    minSdkVersion = 21
+    targetSdkVersion = 34
+    kotlin_version = '1.8.0'
     ktx_version ='1.9.0'
-    Java_1_8 = JavaVersion.VERSION_1_8
+    Java_1_8 = JavaVersion.VERSION_17
 
     // Only for remote, local, dev-snapshot config
     isLocal = false
     isSnapshot = false
-    def playerVersion = '4.29.0'
+    def playerVersion = '5.0.2'
     def developsnapshot = 'develop-SNAPSHOT'
 
     remote = [
@@ -63,6 +63,6 @@ project.ext {
             junit: 'junit:junit:4.13.2',
             multidex: 'com.android.support:multidex:2.0.1',
             ktx: "androidx.core:core-ktx:$ktx_version",
-            kotlin: "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+            kotlin: "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     ]
 }
