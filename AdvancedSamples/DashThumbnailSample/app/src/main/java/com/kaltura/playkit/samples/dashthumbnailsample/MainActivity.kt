@@ -37,8 +37,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
 
     companion object {
         //Media entry configuration constants.
-        val SERVER_URL = "https://rest-us.ott.kaltura.com/v4_5/api_v3/"
-        val PARTNER_ID = 3009
+        val SERVER_URL = "https://3200.frs1.ott.kaltura.com/api_v3/"
+        val PARTNER_ID = 3200
         val log = PKLog.get("MainActivity")
         var previewImageHashMap: HashMap<String, Bitmap> = HashMap()
         var previewImageWidth: Int? = null
@@ -84,15 +84,15 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
 
     // If you want to use OTT player which will get media source from our BE
     // then keep this flag false
-    private var buildUsingBasicPlayer = true
+    private var buildUsingBasicPlayer = false
 
     /**** OTT Player Config Start ******/
     private val MEDIA_FORMAT = PKMediaFormat.dash
     private val LICENSE_URL = null
 
     private val START_POSITION = 0L // position for start playback in msec.
-    private val FIRST_ASSET_ID = "548576"
-    private val SECOND_ASSET_ID = "548577"
+    private val FIRST_ASSET_ID = "2359305"//"1968673"// "548576" 2359425 2359305
+    private val SECOND_ASSET_ID = "2359305"//"1968673"
     /**** OTT Player Config End ****/
 
     //Ad configuration constants. Ads are only enabled with OTT Player
@@ -333,12 +333,24 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
 
     private fun buildFirstOttMediaOptions() {
         val ottMediaAsset = OTTMediaAsset()
+        val adapterData: MutableMap<String, String> = HashMap()
+
+        adapterData["codec"] = "AVC"
+        adapterData["quality"] = "UHD"
+        adapterData["drm"] = "true"
+
+
         ottMediaAsset.assetId = FIRST_ASSET_ID
         ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
         ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
         ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaAsset.ks = null
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.All
+        ottMediaAsset.streamerType = APIDefines.KalturaStreamerType.Mpegdash
+        ottMediaAsset.urlType = APIDefines.KalturaUrlType.Direct
+//        ottMediaAsset.formats = listOf("DASH")
+        ottMediaAsset.ks = "djJ8MzIwMHyr1Wg0EV1EjmYJdBr1NmPWh19VMPcx6w4_CltY6d_iEdBgZ78N9VuZuUO_RQVrqJmPC36mz5g1LsouTSf0lKC7txi0HDhzgGpMAamchAwpyUVxH71bfD6Hg52jAkX_bM4yocJar-2wyPYj6S4Lkgo9yR52zVu7n4RoIQd0QZt-_PL7YtNlxgl3b30shXA1i1u9LsyJ0eICggKPDu-FBH8gASBauQCaKKC-2QI6duWRJ6bVevM4wSW0xTcrGB6hevPHyXKxdtrfyg_b8ouJ8ubg4W-GJfUaNRxTTxTWkSmJoySMu52Ju_Fyphxt-7zti_bsoQRbM1tCvBbnQSrn0GvlxPpyjLC0ZX82-zZJtESVu1vprD6MBxPxi7UsDHE9eA1Q1dFy11B1kS2hSZMiKbEB"
+        ottMediaAsset.adapterData = adapterData
+
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION
@@ -354,12 +366,18 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
 
     private fun buildSecondOttMediaOptions() {
         val ottMediaAsset = OTTMediaAsset()
+        val adapterData: MutableMap<String, String> = HashMap()
+
+        adapterData["codec"] = "AVC"
+        adapterData["quality"] = "UHD"
+        adapterData["drm"] = "true"
         ottMediaAsset.assetId = SECOND_ASSET_ID
         ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
         ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
         ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Http
-        ottMediaAsset.ks = null
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.All
+        ottMediaAsset.ks = "djJ8MzIwMHyr1Wg0EV1EjmYJdBr1NmPWh19VMPcx6w4_CltY6d_iEdBgZ78N9VuZuUO_RQVrqJmPC36mz5g1LsouTSf0lKC7txi0HDhzgGpMAamchAwpyUVxH71bfD6Hg52jAkX_bM4yocJar-2wyPYj6S4Lkgo9yR52zVu7n4RoIQd0QZt-_PL7YtNlxgl3b30shXA1i1u9LsyJ0eICggKPDu-FBH8gASBauQCaKKC-2QI6duWRJ6bVevM4wSW0xTcrGB6hevPHyXKxdtrfyg_b8ouJ8ubg4W-GJfUaNRxTTxTWkSmJoySMu52Ju_Fyphxt-7zti_bsoQRbM1tCvBbnQSrn0GvlxPpyjLC0ZX82-zZJtESVu1vprD6MBxPxi7UsDHE9eA1Q1dFy11B1kS2hSZMiKbEB"
+        ottMediaAsset.adapterData = adapterData
 
         val ottMediaOptions = OTTMediaOptions(ottMediaAsset)
         ottMediaOptions.startPosition = START_POSITION

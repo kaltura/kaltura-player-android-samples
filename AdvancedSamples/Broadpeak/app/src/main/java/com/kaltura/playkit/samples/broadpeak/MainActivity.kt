@@ -3,6 +3,7 @@ package com.kaltura.playkit.samples.broadpeak
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -17,9 +18,9 @@ import com.kaltura.playkit.plugins.youbora.pluginconfig.YouboraConfig
 import com.kaltura.playkit.providers.api.phoenix.APIDefines
 import com.kaltura.playkit.providers.ott.OTTMediaAsset
 import com.kaltura.playkit.providers.ott.PhoenixMediaProvider
+import com.kaltura.playkit.samples.broadpeak.databinding.ActivityMainBinding
 import com.kaltura.tvplayer.*
 import com.npaw.youbora.lib6.plugin.Options
-import kotlinx.android.synthetic.main.activity_main.*
 import tv.broadpeak.smartlib.session.streaming.StreamingSessionOptions
 
 class MainActivity : AppCompatActivity() {
@@ -71,26 +72,28 @@ class MainActivity : AppCompatActivity() {
      */
     val DEVICE_CODE = "your_device_code"
 
-    companion object {
-        const val SERVER_URL = "phoenixUrl"
-        const val FIRST_ASSET_ID = "assetId-1"
-        const val SECOND_ASSET_ID = "assetId-2"
-        const val PARTNER_ID = 11111111
-        const val KS = "KS"
-        const val MEDIA_FORMAT = "FORMAT"
-    }
+//    companion object {
+//        const val SERVER_URL = "phoenixUrl"
+//        const val FIRST_ASSET_ID = "assetId-1"
+//        const val SECOND_ASSET_ID = "assetId-2"
+//        const val PARTNER_ID = 11111111
+//        const val KS = ""
+//        const val MEDIA_FORMAT = "FORMAT"
+//    }
 
     private var player: KalturaPlayer? = null
     private var isFullScreen: Boolean = false
     private var playerState: PlayerState? = null
     private var currentlyPlayingAsset: String? = null
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
         loadPlaykitPlayer()
 
-        activity_main.setOnClickListener {
+        binding.root.setOnClickListener {
             if (isFullScreen) {
                 showSystemUI()
             } else {
@@ -98,10 +101,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        change_media_button.setOnClickListener {
+        binding.changeMediaButton.setOnClickListener {
             currentlyPlayingAsset?.let {
                 player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraBundle(it, null))
-                if (it == FIRST_ASSET_ID) {
+                if (it == ConfigurationProvider.getAssetId()) {
                     loadSecondOttMedia()
                 } else {
                     loadFirstOttMedia()
@@ -131,14 +134,14 @@ class MainActivity : AppCompatActivity() {
      * Just add a simple button which will start/pause playback.
      */
     private fun addPlayPauseButton() {
-        play_pause_button.setOnClickListener {
+        binding.playPauseButton.setOnClickListener {
             if (player!!.isPlaying) {
                 //If player is playing, change text of the button and pause.
-                play_pause_button.setText(R.string.play_text)
+                binding.playPauseButton.setText(R.string.play_text)
                 player?.pause()
             } else {
                 //If player is not playing, change text of the button and play.
-                play_pause_button.setText(R.string.pause_text)
+                binding.playPauseButton.setText(R.string.pause_text)
                 player?.play()
             }
         }
@@ -155,7 +158,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onPause")
         super.onPause()
         player?.let {
-            play_pause_button.setText(R.string.pause_text)
+            binding.playPauseButton.setText(R.string.pause_text)
             it.onApplicationPaused()
         }
     }
@@ -178,7 +181,7 @@ class MainActivity : AppCompatActivity() {
 
     fun loadPlaykitPlayer() {
 
-        val playerInitOptions = PlayerInitOptions(PARTNER_ID)
+        val playerInitOptions = PlayerInitOptions(ConfigurationProvider.getPartnerId())
         playerInitOptions.setAutoPlay(true)
         playerInitOptions.setPKRequestConfig(PKRequestConfig(true))
 
@@ -205,7 +208,9 @@ class MainActivity : AppCompatActivity() {
 
         pkPluginConfigs.setPluginConfig(BroadpeakPlugin.factory.name, broadpeakConfig)
 
-        pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, getYouboraBundle(FIRST_ASSET_ID, null))
+        pkPluginConfigs.setPluginConfig(YouboraPlugin.factory.name, getYouboraBundle(ConfigurationProvider.getAssetId(), null))
+
+        pkPluginConfigs.playerActivity = this
 
         playerInitOptions.setPluginConfigs(pkPluginConfigs)
 
@@ -226,6 +231,12 @@ class MainActivity : AppCompatActivity() {
         player?.addListener(this, InterceptorEvent.sourceUrlSwitched) { event ->
             Log.d(TAG, "BROADPEAK SOURCE URL SWITCHED: " + event.originalUrl + " to " + event.updatedUrl)
             player?.updatePluginConfig(YouboraPlugin.factory.name, getYouboraBundle(currentMediaId, event.originalUrl ?: "unknown"))
+        }
+        player?.addListener(this, PlayerEvent.simidAdBegin) { event ->
+            Log.i(TAG, "SimidAdBegin")
+        }
+        player?.addListener(this, PlayerEvent.simidAdEnd) { event ->
+            Log.i(TAG, "SimidAdEnd")
         }
 
         val container = findViewById<ViewGroup>(R.id.player_root)
@@ -310,23 +321,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildOttMediaOptions(assetId: String): OTTMediaOptions {
+        val adapterData: MutableMap<String, String> = HashMap()
+
+        adapterData["codec"] = "AVC"
+        adapterData["quality"] = "UHD"
+        adapterData["drm"] = "true"
+
         currentlyPlayingAsset = assetId
         val ottMediaAsset = OTTMediaAsset()
         ottMediaAsset.assetId = assetId
         ottMediaAsset.assetType = APIDefines.KalturaAssetType.Media
         ottMediaAsset.contextType = APIDefines.PlaybackContextType.Playback
         ottMediaAsset.assetReferenceType = APIDefines.AssetReferenceType.Media
-        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.Https
+        ottMediaAsset.protocol = PhoenixMediaProvider.HttpProtocol.All
         ottMediaAsset.urlType = APIDefines.KalturaUrlType.Direct
         ottMediaAsset.streamerType = APIDefines.KalturaStreamerType.Mpegdash
-        ottMediaAsset.ks = KS
-        ottMediaAsset.formats = listOf(MEDIA_FORMAT)
+        ottMediaAsset.ks = ConfigurationProvider.getKsToken()
+        ConfigurationProvider.getFileFormatsString()?.let { fileFormats ->
+            ottMediaAsset.formats = listOf(fileFormats)
+        }
+        ottMediaAsset.adapterData = adapterData
         return OTTMediaOptions(ottMediaAsset)
     }
 
     private fun loadFirstOttMedia() {
-        currentMediaId = FIRST_ASSET_ID
-        val ottMediaOptions = buildOttMediaOptions(FIRST_ASSET_ID)
+        currentMediaId = ConfigurationProvider.getAssetId()
+        val ottMediaOptions = buildOttMediaOptions(currentMediaId)
         ottMediaOptions.startPosition = START_POSITION
         player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {
@@ -338,8 +358,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadSecondOttMedia() {
-        currentMediaId = SECOND_ASSET_ID
-        val ottMediaOptions = buildOttMediaOptions(SECOND_ASSET_ID)
+        currentMediaId = ConfigurationProvider.getAssetId()
+        val ottMediaOptions = buildOttMediaOptions(currentMediaId)
         ottMediaOptions.startPosition = START_POSITION
         player?.loadMedia(ottMediaOptions) { mediaOptions, entry, loadError ->
             if (loadError != null) {

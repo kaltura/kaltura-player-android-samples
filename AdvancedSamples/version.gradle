@@ -10,17 +10,17 @@
 
 project.ext {
 
-    compileSdkVersion = 33
-    minSdkVersion = 19
-    targetSdkVersion = 33
-    kotlin_version = '1.7.10'
+    compileSdkVersion = 34
+    minSdkVersion = 21
+    targetSdkVersion = 34
+    kotlin_version = '2.1.0'
     ktx_version ='1.9.0'
-    Java_1_8 = JavaVersion.VERSION_1_8
+    Java_1_8 = JavaVersion.VERSION_17
 
     // Only for remote, local, dev-snapshot config
-    isLocal = false
+    isLocal = true
     isSnapshot = false
-    def playerVersion = '4.29.0'
+    def playerVersion = '5.0.2'
     def developsnapshot = 'develop-SNAPSHOT'
 
     remote = [
@@ -48,7 +48,7 @@ project.ext {
      * 2. Uncomment the path of local repos from settings.gradle
      * 3. Set `isLocal` above in the file to `true`
      */
-    /* local = [
+    local = [
              tvPlayer: project(':tvplayer'),
              ima: project(":ima"),
              youbora: project(":youbora"),
@@ -57,7 +57,7 @@ project.ext {
              //md360: project(":MD360"),
              //fbAds: project(':fbads'),
              smartSwitch: project(':smartswitch')
-     ] */
+     ]
 
     // Special dependencies for Broadpeak. By default this project is not included.
     // Uncomment from `settings.gradle` to include it.
@@ -78,11 +78,11 @@ project.ext {
      * 2. Uncomment the path of local repos from settings.gradle
      * 3. Set `isLocal` above in the file to `true`
      */
-    /*broadPeakLocal = [
+    broadPeakLocal = [
             tvPlayer: project(':tvplayer'),
             youbora: project(":youbora"),
             broadPeak: project(':broadpeak')
-    ]*/
+    ]
 
     commonDeps = [
             appCompat: 'androidx.appcompat:appcompat:1.4.0',
@@ -106,8 +106,8 @@ project.ext {
     ]
 
     coroutine = [
-            core: 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3',
-            android: 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3'
+            core: 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4',
+            android: 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     ]
 
     glide = [
